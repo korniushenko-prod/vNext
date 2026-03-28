@@ -1,0 +1,74 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "timed-relay-pack",
+  "source": {
+    "project_id": "timed-relay-demo",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-28T00:00:00.000Z"
+  },
+  "instances": {
+    "relay_1": {
+      "id": "relay_1",
+      "type_ref": "project:timed_relay",
+      "title": "Relay #1",
+      "enabled": true,
+      "ports": {
+        "enable_cmd": {
+          "id": "enable_cmd",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "bool"
+        },
+        "relay_out": {
+          "id": "relay_out",
+          "direction": "out",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "hold_time": {
+          "value": "5s",
+          "value_type": "duration",
+          "source": "default"
+        }
+      },
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "timed_relay"
+      }
+    }
+  },
+  "connections": {
+    "sig_relay_feedback__1": {
+      "id": "sig_relay_feedback__1",
+      "source": {
+        "instance_id": "relay_1",
+        "port_id": "relay_out"
+      },
+      "target": {
+        "instance_id": "relay_1",
+        "port_id": "enable_cmd"
+      },
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "origin": {
+        "scope_kind": "system",
+        "owner_id": "timed-relay-demo",
+        "signal_id": "sig_relay_feedback"
+      }
+    }
+  },
+  "resources": {
+    "relay_out_pin": {
+      "id": "relay_out_pin",
+      "binding_kind": "digital_out",
+      "instance_id": "relay_1",
+      "port_id": "relay_out",
+      "config": {
+        "pin": 5
+      }
+    }
+  }
+}

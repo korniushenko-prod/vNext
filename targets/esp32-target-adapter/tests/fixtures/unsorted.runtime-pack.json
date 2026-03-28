@@ -1,0 +1,59 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "unsorted-pack",
+  "source": {
+    "project_id": "unsorted-demo",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-28T00:00:00.000Z"
+  },
+  "instances": {
+    "relay_2": {
+      "id": "relay_2",
+      "type_ref": "project:timed_relay",
+      "enabled": true,
+      "ports": {},
+      "params": {},
+      "alarms": {}
+    },
+    "relay_1": {
+      "id": "relay_1",
+      "type_ref": "project:timed_relay",
+      "enabled": true,
+      "ports": {},
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {
+    "conn_b": {
+      "id": "conn_b",
+      "source": { "instance_id": "relay_2", "port_id": "relay_out" },
+      "target": { "instance_id": "relay_1", "port_id": "enable_cmd" },
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "origin": { "scope_kind": "system", "owner_id": "unsorted-demo", "signal_id": "sig_b" }
+    },
+    "conn_a": {
+      "id": "conn_a",
+      "source": { "instance_id": "relay_1", "port_id": "relay_out" },
+      "target": { "instance_id": "relay_2", "port_id": "enable_cmd" },
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "origin": { "scope_kind": "system", "owner_id": "unsorted-demo", "signal_id": "sig_a" }
+    }
+  },
+  "resources": {
+    "resource_b": {
+      "id": "resource_b",
+      "binding_kind": "digital_out",
+      "instance_id": "relay_2",
+      "config": {}
+    },
+    "resource_a": {
+      "id": "resource_a",
+      "binding_kind": "digital_out",
+      "instance_id": "relay_1",
+      "config": {}
+    }
+  }
+}
