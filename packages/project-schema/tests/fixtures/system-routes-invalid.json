@@ -1,0 +1,33 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "invalid_project",
+    "title": "Invalid Project"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "routes": {
+      "r1": {
+        "id": "r1"
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}
