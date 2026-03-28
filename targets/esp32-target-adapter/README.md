@@ -16,6 +16,12 @@ Offline target adapter baseline for the ShipController / ESP32 family.
 - deterministic apply-plan builder
 - stable diagnostic codes for target compatibility failures
 
+## Implemented in PR-12C
+- deterministic offline ShipController-shaped config artifact emitter
+- stable artifact meta block
+- deterministic ordering for instances, connections, and resources
+- explicit unresolved native execution placeholder block
+
 ## Non-goals in this phase
 - no UI logic
 - no legacy editor integration
@@ -31,6 +37,7 @@ Offline target adapter baseline for the ShipController / ESP32 family.
 - `checkEsp32Compatibility()`
 - `buildEsp32ApplyPlan()`
 - `createEsp32TargetAdapter()`
+- `emitShipControllerConfigArtifact()`
 
 ## Notes
 - `apply()` is intentionally a controlled stub in this phase

@@ -1,4 +1,12 @@
-import type { RuntimeBindingKind, RuntimePack } from "@universal-plc/runtime-pack-schema";
+import type {
+  RuntimeAlarm,
+  RuntimeBindingKind,
+  RuntimeConnection,
+  RuntimePack,
+  RuntimePort,
+  RuntimeResolvedParam,
+  RuntimeResourceBinding
+} from "@universal-plc/runtime-pack-schema";
 import type {
   TargetAdapterContract,
   TargetAdapterDiagnostic,
@@ -47,6 +55,50 @@ export interface Esp32ApplyPlan {
   pack_id: string;
   steps: Esp32ApplyPlanStep[];
   diagnostics: TargetAdapterDiagnostic[];
+}
+
+export interface ShipControllerConfigMeta {
+  artifact_version: "0.1.0";
+  target_id: "esp32-shipcontroller";
+  pack_id: string;
+  generated_at: string;
+  source_project_id: string;
+}
+
+export interface ShipControllerArtifactPort extends RuntimePort {}
+
+export interface ShipControllerArtifactParam extends RuntimeResolvedParam {
+  id: string;
+}
+
+export interface ShipControllerArtifactAlarm extends RuntimeAlarm {}
+
+export interface ShipControllerArtifactInstance {
+  id: string;
+  type_ref: string;
+  title?: string;
+  enabled: boolean;
+  ports: ShipControllerArtifactPort[];
+  params: ShipControllerArtifactParam[];
+  alarms: ShipControllerArtifactAlarm[];
+}
+
+export interface ShipControllerArtifactConnection extends RuntimeConnection {}
+
+export interface ShipControllerArtifactResource extends RuntimeResourceBinding {}
+
+export interface ShipControllerNativeExecutionPlaceholder {
+  instance_id: string;
+  status: "unresolved";
+  reason: "native_seam_not_available";
+}
+
+export interface ShipControllerConfigArtifact {
+  meta: ShipControllerConfigMeta;
+  instances: ShipControllerArtifactInstance[];
+  connections: ShipControllerArtifactConnection[];
+  resources: ShipControllerArtifactResource[];
+  native_execution_placeholders: ShipControllerNativeExecutionPlaceholder[];
 }
 
 export interface Esp32TargetAdapter extends TargetAdapterContract {
