@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boiler Flow View Example v2</title>
+  <style>
+    :root{
+      --bg:#f4f1e8;
+      --paper:#fffdf9;
+      --ink:#1f262b;
+      --muted:#5f6b72;
+      --line:#d8d1c4;
+      --accent:#c45d2c;
+      --accent-soft:#f7e6da;
+      --ok:#e7f4e8;
+      --ok-ink:#245a31;
+      --warn:#fff2db;
+      --warn-ink:#8f5a00;
+      --danger:#fde7e4;
+      --danger-ink:#912d26;
+      --idle:#edf0f2;
+      --idle-ink:#5a6670;
+      --shadow:0 16px 40px rgba(31,38,43,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top left,#f9efe5 0,transparent 35%),
+        linear-gradient(180deg,#f7f4ec 0%,var(--bg) 100%);
+      color:var(--ink);
+      font:16px/1.45 "Trebuchet MS","Segoe UI",sans-serif;
+    }
+    .page{width:min(1520px,calc(100% - 28px));margin:22px auto 56px;display:grid;gap:18px}
+    .hero,.panel{background:var(--paper);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+    .hero{padding:24px 28px;display:grid;gap:14px;background:radial-gradient(circle at right top,rgba(196,93,44,.12),transparent 28%),var(--paper)}
+    .hero h1,.panel h2,.lane-title,.group-title{margin:0}
+    .muted,.hero p{margin:0;color:var(--muted)}
+    .top-status,.legend{display:flex;flex-wrap:wrap;gap:10px}
+    .legend{padding:18px 22px}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;
+      border:1px solid var(--line);background:#fff;font-weight:700;font-size:13px
+    }
+    .chip.ok{background:var(--ok);color:var(--ok-ink);border-color:#b6d7bc}
+    .chip.warn{background:var(--warn);color:var(--warn-ink);border-color:#ebcc8a}
+    .chip.danger{background:var(--danger);color:var(--danger-ink);border-color:#e6b4ac}
+    .chip.idle{background:var(--idle);color:var(--idle-ink);border-color:#cfd7dc}
+    .panel-grid{padding:22px;display:grid;gap:18px}
+    .overview{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+      gap:12px;
+    }
+    .overview-card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:14px;
+      display:grid;
+      gap:8px;
+    }
+    .overview-card b{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .overview-card strong{font-size:20px}
+    .lane{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+    .lane-head{
+      display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap
+    }
+    .lane-title{font-size:22px;letter-spacing:.01em}
+    .lane-sub{color:var(--muted);max-width:1080px}
+    .group{
+      border:1px dashed #cfc7b9;
+      border-radius:18px;
+      padding:14px;
+      background:#fffcf7;
+      display:grid;
+      gap:12px;
+    }
+    .group-title{
+      font-size:14px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--muted);
+    }
+    .flow-row{
+      display:flex;
+      align-items:stretch;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .node{
+      min-width:180px;
+      max-width:260px;
+      flex:1 1 180px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff;
+      padding:14px;
+      display:grid;
+      gap:10px;
+    }
+    .node.active{border-color:#bbd4bf;background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%)}
+    .node.idle{border-color:#dbe1e6;background:linear-gradient(180deg,#fafbfc 0,var(--idle) 100%);opacity:.82}
+    .node.warn{border-color:#e6c58b;background:linear-gradient(180deg,#fffdf6 0,var(--warn) 100%)}
+    .node.danger{border-color:#e0a49d;background:linear-gradient(180deg,#fff9f8 0,var(--danger) 100%)}
+    .node.policy{border-style:dashed;border-width:2px}
+    .node.insert{border-style:dashed;border-width:2px;border-color:#caa48f;background:var(--accent-soft);justify-content:center;text-align:center}
+    .node-header{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+    .node h3{margin:0;font-size:17px;line-height:1.25}
+    .state{
+      font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+      border-radius:999px;padding:5px 9px;border:1px solid currentColor;white-space:nowrap
+    }
+    .state.active{color:var(--ok-ink);background:rgba(255,255,255,.72)}
+    .state.idle{color:var(--idle-ink);background:rgba(255,255,255,.72)}
+    .state.warn{color:var(--warn-ink);background:rgba(255,255,255,.72)}
+    .state.danger{color:var(--danger-ink);background:rgba(255,255,255,.72)}
+    .meta,.rules,.ports{display:grid;gap:6px;color:var(--muted);font-size:13px}
+    .rule{display:flex;gap:8px;align-items:flex-start}
+    .rule b{color:var(--ink)}
+    .ports span{display:block;padding:4px 0;border-top:1px dashed rgba(95,107,114,.25)}
+    .ports span:first-child{border-top:none;padding-top:0}
+    .arrow{
+      align-self:center;justify-self:center;min-width:44px;
+      display:grid;place-items:center;color:var(--muted);font-size:22px;font-weight:800
+    }
+    .callout{
+      padding:16px 18px;border-radius:20px;border:1px solid var(--line);background:#fff;display:grid;gap:10px
+    }
+    .callout h3{margin:0;font-size:18px}
+    .callout ul{margin:0;padding-left:18px}
+    .callout li{margin:6px 0}
+    .mini-flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .mini-box{
+      padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:#fff;min-width:150px;font-weight:700
+    }
+    .footer-note{color:var(--muted);font-size:13px}
+    @media (max-width: 900px){
+      .page{width:min(100%,calc(100% - 18px));margin:12px auto 28px}
+      .hero,.panel,.lane{border-radius:18px}
+      .panel-grid{padding:14px}
+      .lane{padding:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1>Boiler Flow View v2</h1>
+      <p>Теперь это не просто sequence горения, а <b>котёл целиком</b>. Показаны параллельные активные слои: demand по пару, процесс горения, топливная подготовка, выбор соленоидов, уровень воды, water chemistry и общая trip/stop политика. Идея интерфейса: у котла есть несколько lane, и sequence горения — только одна из них.</p>
+      <div class="top-status">
+        <span class="chip ok">Burner sequence: RUN</span>
+        <span class="chip ok">Steam pressure demand: BURN REQUIRED</span>
+        <span class="chip ok">Fuel mode: LOW</span>
+        <span class="chip warn">Fuel low temp: warning only</span>
+        <span class="chip idle">Feed pump: armed, waiting low level</span>
+        <span class="chip danger">Critical trips: 0</span>
+      </div>
+    </section>
+
+    <section class="panel legend">
+      <span class="chip ok">ACTIVE: модуль сейчас реально влияет на процесс</span>
+      <span class="chip idle">ARMED / IDLE: модуль существует, но сейчас ждёт своего условия</span>
+      <span class="chip warn">WARNING PATH: модуль следит, но не останавливает процесс</span>
+      <span class="chip danger">STOP / TRIP PATH: модуль может остановить котёл</span>
+      <span class="chip">Пунктир: policy-узел или slot вставки</span>
+    </section>
+
+    <section class="panel panel-grid">
+      <div class="overview">
+        <div class="overview-card"><b>Общий режим</b><strong>AUTO / LOW FIRE</strong><span class="muted">Котёл горит в LOW, давление ещё не на уставке.</span></div>
+        <div class="overview-card"><b>Горение</b><strong>ACTIVE</strong><span class="muted">Flame required, fuel path active, fan active.</span></div>
+        <div class="overview-card"><b>Уровень воды</b><strong>ARMED</strong><span class="muted">Контур уровня живой всегда, но насос сейчас не нужен.</span></div>
+        <div class="overview-card"><b>Топливный heater</b><strong>WARNING ONLY</strong><span class="muted">Влияет на service/alarm, но не формирует stop request.</span></div>
+        <div class="overview-card"><b>Water chemistry</b><strong>WATCHING</strong><span class="muted">Наблюдение и blowdown policy, не часть горения.</span></div>
+        <div class="overview-card"><b>Stop policy</b><strong>IDLE</strong><span class="muted">Pressure stop и critical trips готовы, но пока не активны.</span></div>
+      </div>
+
+      <div class="lane">
+        <div class="lane-head">
+          <div>
+            <h2 class="lane-title">1. Demand по пару</h2>
+            <p class="lane-sub">Это не burner-sequence, а верхний demand-слой: нужен ли сейчас вообще огонь. Он определяет, должен ли координатор держать горение, или процесс должен уйти в stop/post-purge.</p>
+          </div>
+          <span class="chip ok">Master demand lane</span>
+        </div>
+        <div class="flow-row">
+          <div class="node active">
+            <div class="node-header"><h3>Steam Pressure</h3><span class="state active">active</span></div>
+            <div class="meta"><span>pv = 6.8 bar</span><span>sp = 7.2 bar</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node insert">
+            <div class="node-header"><h3>+ Вставить модуль</h3><span class="state warn">slot</span></div>
+            <div class="rules"><div class="rule"><b>Сюда:</b><span>filter, deadband, hysteresis, delay-on-stop, manual inhibit</span></div></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node active">
+            <div class="node-header"><h3>Pressure &lt; Setpoint</h3><span class="state active">true</span></div>
+            <div class="meta"><span>burn_required = true</span><span>если false → stop_request</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node active policy">
+            <div class="node-header"><h3>Boiler Demand Gate</h3><span class="state active">open</span></div>
+            <div class="rules">
+              <div class="rule"><b>Inputs:</b><span>pressure demand, auto mode, no critical trip</span></div>
+              <div class="rule"><b>Output:</b><span>burn_process_allowed</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane">
+        <div class="lane-head">
+          <div>
+            <h2 class="lane-title">2. Процесс горения</h2>
+            <p class="lane-sub">Это уже сам sequence горения. Он не решает, нужен ли огонь вообще, а только исполняет сценарий, если сверху пришёл demand и нет критических trip.</p>
+          </div>
+          <span class="chip ok">Sequence lane</span>
+        </div>
+        <div class="flow-row">
+          <div class="node active">
+            <div class="node-header"><h3>Operator Panel</h3><span class="state active">auto</span></div>
+            <div class="ports"><span>start_cmd = off</span><span>stop_cmd = off</span><span>reset = ready</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node active policy">
+            <div class="node-header"><h3>Combustion Coordinator</h3><span class="state active">run</span></div>
+            <div class="meta"><span>current_state = RUN</span><span>waiting_reason = none</span><span>pending_transition = none</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node active">
+            <div class="node-header"><h3>Fan Actuator</h3><span class="state active">running</span></div>
+            <div class="meta"><span>cmd = on</span><span>feedback = on</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node active">
+            <div class="node-header"><h3>Burner Actuator</h3><span class="state active">running</span></div>
+            <div class="meta"><span>cmd = on</span><span>feedback = on</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane">
+        <div class="lane-head">
+          <div>
+            <h2 class="lane-title">3. Топливная подготовка и соленоиды</h2>
+            <p class="lane-sub">Здесь становится видно, почему sequence горения — только часть картины. Heater, low/high solenoid logic и выбор режима топлива живут в отдельной lane, а не прячутся внутри burner state machine.</p>
+          </div>
+          <span class="chip ok">Fuel lane</span>
+        </div>
+        <div class="group">
+          <h3 class="group-title">Топливная температура и heater policy</h3>
+          <div class="flow-row">
+            <div class="node warn">
+              <div class="node-header"><h3>Fuel Temperature</h3><span class="state warn">warning</span></div>
+              <div class="meta"><span>temp = 89 C</span><span>low temp alarm = true</span></div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node policy warn">
+              <div class="node-header"><h3>Fuel Temp Policy</h3><span class="state warn">notify only</span></div>
+              <div class="rules">
+                <div class="rule"><b>Сейчас:</b><span>service warning, без stop_request</span></div>
+                <div class="rule"><b>Если захотим:</b><span>можно вставить stricter interlock между этим и coordinator</span></div>
+              </div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node active">
+              <div class="node-header"><h3>Fuel Heater PID</h3><span class="state active">controlling</span></div>
+              <div class="meta"><span>PV / SP / MV</span><span>backend = internal or external</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="group">
+          <h3 class="group-title">Выбор low/high топлива и соленоиды</h3>
+          <div class="flow-row">
+            <div class="node active">
+              <div class="node-header"><h3>Fuel Mode Selector</h3><span class="state active">LOW</span></div>
+              <div class="meta"><span>selected_mode = low</span><span>burn_process = true</span></div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node policy active">
+              <div class="node-header"><h3>Fuel Path Gate</h3><span class="state active">open</span></div>
+              <div class="rules">
+                <div class="rule"><b>Если burn=false:</b><span>все соленоиды закрыть</span></div>
+                <div class="rule"><b>Если LOW:</b><span>открыть только low</span></div>
+                <div class="rule"><b>Если HIGH:</b><span>открыть low + high</span></div>
+              </div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node active">
+              <div class="node-header"><h3>Low Fuel Solenoid</h3><span class="state active">open</span></div>
+              <div class="meta"><span>rule matched</span><span>cmd = on</span></div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node idle">
+              <div class="node-header"><h3>High Fuel Solenoid</h3><span class="state idle">closed</span></div>
+              <div class="meta"><span>not required in LOW</span><span>cmd = off</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane">
+        <div class="lane-head">
+          <div>
+            <h2 class="lane-title">4. Уровень воды — отдельный постоянный контур</h2>
+            <p class="lane-sub">Уровень воды не должен восприниматься как часть sequence горения. Это отдельный on/off контур с hysteresis, anti-slosh и min on/off, который живёт почти всегда, даже когда burner sequence idle.</p>
+          </div>
+          <span class="chip idle">Always armed lane</span>
+        </div>
+        <div class="flow-row">
+          <div class="node active">
+            <div class="node-header"><h3>Boiler Level</h3><span class="state active">watch</span></div>
+            <div class="meta"><span>pv = 54%</span><span>quality = good</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node insert">
+            <div class="node-header"><h3>+ Вставить модуль</h3><span class="state warn">slot</span></div>
+            <div class="rules"><div class="rule"><b>Сюда:</b><span>filter, anti-slosh window, voting между float и analog, delay</span></div></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node active policy">
+            <div class="node-header"><h3>Level On/Off Controller</h3><span class="state active">armed</span></div>
+            <div class="rules">
+              <div class="rule"><b>start threshold:</b><span>35%</span></div>
+              <div class="rule"><b>stop threshold:</b><span>60%</span></div>
+              <div class="rule"><b>min on/off:</b><span>10s / 10s</span></div>
+            </div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node idle">
+            <div class="node-header"><h3>Feed Pump</h3><span class="state idle">off</span></div>
+            <div class="meta"><span>request = false</span><span>но lane активна и готова включить насос</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane">
+        <div class="lane-head">
+          <div>
+            <h2 class="lane-title">5. Flame detector как фазовая policy, а не просто датчик</h2>
+            <p class="lane-sub">Один и тот же модуль flame detector должен менять смысл в зависимости от состояния sequence. Именно это важнее визуально, чем просто показывать его как дискретный input.</p>
+          </div>
+          <span class="chip warn">State-aware supervision</span>
+        </div>
+        <div class="flow-row">
+          <div class="node active">
+            <div class="node-header"><h3>Flame Detector</h3><span class="state active">watch</span></div>
+            <div class="ports"><span>flame_fb = true</span><span>quality = good</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node policy active">
+            <div class="node-header"><h3>Flame Policy Selector</h3><span class="state active">RUN</span></div>
+            <div class="rules">
+              <div class="rule"><b>RUN / IGNITION:</b><span>пламя обязательно</span></div>
+              <div class="rule"><b>POST-STOP 5s:</b><span>пламени быть не должно</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="flow-row">
+          <div class="node active danger">
+            <div class="node-header"><h3>Ветка A: flame must exist</h3><span class="state active">active</span></div>
+            <div class="meta"><span>если flame_fb пропадёт → burner trip</span></div>
+          </div>
+          <div class="arrow">⇄</div>
+          <div class="node idle warn">
+            <div class="node-header"><h3>Ветка B: flame must not exist</h3><span class="state idle">sleeping</span></div>
+            <div class="meta"><span>активируется после stop на 5 секунд</span><span>если flame_fb=true → warning/alarm</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane">
+        <div class="lane-head">
+          <div>
+            <h2 class="lane-title">6. Stop / Trip policy поверх нескольких lane</h2>
+            <p class="lane-sub">Здесь в одном месте собирается всё, что реально должно остановить горение. Это отдельный слой над lane, а не разрозненные stop-сигналы по схеме.</p>
+          </div>
+          <span class="chip danger">Master stop lane</span>
+        </div>
+        <div class="flow-row">
+          <div class="node active">
+            <div class="node-header"><h3>Pressure Reached</h3><span class="state active">false</span></div>
+            <div class="meta"><span>steam demand ещё есть</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node danger">
+            <div class="node-header"><h3>Critical Trips</h3><span class="state danger">armed</span></div>
+            <div class="meta"><span>low-low water</span><span>flame failure</span><span>air pressure low</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node policy active">
+            <div class="node-header"><h3>Stop Request OR Critical Trip</h3><span class="state active">false</span></div>
+            <div class="rules">
+              <div class="rule"><b>Даёт:</b><span>stop / post-purge / lockout</span></div>
+              <div class="rule"><b>Не включает:</b><span>warning-only alarms вроде low fuel temp</span></div>
+            </div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="node active">
+            <div class="node-header"><h3>Burner Sequence</h3><span class="state active">RUN</span></div>
+            <div class="meta"><span>если stop=true → controlled shutdown</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane">
+        <div class="lane-head">
+          <div>
+            <h2 class="lane-title">7. Как это редактировать</h2>
+            <p class="lane-sub">Нужен не хаотичный canvas, а управляемый lane-flow. Связи остаются линейными, а между узлами всегда есть slot вставки. Тогда можно легко добавить модуль между существующими блоками и не терять читаемость.</p>
+          </div>
+          <span class="chip ok">Editing model</span>
+        </div>
+        <div class="callout">
+          <h3>Пример вставки модуля в середину логики</h3>
+          <div class="mini-flow">
+            <div class="mini-box">Boiler Level</div>
+            <div class="arrow">→</div>
+            <div class="mini-box" style="background:var(--accent-soft);border-style:dashed;border-width:2px">+ Anti-Slosh / Delay</div>
+            <div class="arrow">→</div>
+            <div class="mini-box">Level On/Off Controller</div>
+            <div class="arrow">→</div>
+            <div class="mini-box">Feed Pump</div>
+          </div>
+          <ul>
+            <li>Пользователь видит не только модуль, но и <b>почему</b> он сейчас active или idle.</li>
+            <li>Один и тот же physical sensor может участвовать в нескольких policy без дублирования смысла.</li>
+            <li>Отдельные lane дают понять, что котёл — это не один sequence, а набор параллельных контуров.</li>
+          </ul>
+        </div>
+        <p class="footer-note">Главная идея v2: визуальный интерфейс должен показывать котёл как набор параллельных управляемых контуров. Горение — только один из них. Тогда и sequence, и уровень воды, и heater, и stop policy читаются естественно.</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

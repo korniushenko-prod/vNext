@@ -1,0 +1,322 @@
+{
+  "config_version": 2,
+  "wifi": {
+    "mode": "sta",
+    "ssid": "CE",
+    "password": "11223344",
+    "ap_ssid": "ShipController",
+    "ap_password": "12345678",
+    "startup_policy": "sta_fallback_ap"
+  },
+
+  "oled": {
+    "enabled": true,
+    "show_ip_on_fallback": true,
+    "sda": 21,
+    "scl": 22,
+    "address": 60,
+    "width": 128,
+    "height": 64
+  },
+
+  "lora": {
+    "enabled": true,
+    "sck": 5,
+    "miso": 19,
+    "mosi": 27,
+    "cs": 18,
+    "rst": 23,
+    "dio0": 26,
+    "dio1": 33,
+    "dio2": 32
+  },
+
+  "sd": {
+    "enabled": false,
+    "cs": 13,
+    "mosi": 15,
+    "miso": 2,
+    "sck": 14
+  },
+
+  "led": {
+    "enabled": true,
+    "pin": 25
+  },
+
+  "battery": {
+    "enabled": true,
+    "adc_pin": 35
+  },
+
+  "display": {
+    "enabled": true,
+    "driver": "ssd1306_128x64",
+    "width": 128,
+    "height": 64,
+    "rotation": 0,
+    "startup_screen": "main",
+    "default_language": "ru",
+    "screens": {
+      "main": {
+        "label": "Main",
+        "group": "operator",
+        "refresh_ms": 500,
+        "widgets": {
+          "ip_line": {
+            "type": "pair",
+            "label": "IP",
+            "signal": "system.ip"
+          },
+          "title": {
+            "type": "label",
+            "label": "ShipController"
+          },
+          "relay_status": {
+            "type": "pair",
+            "label": "Relay",
+            "signal": "relay1",
+            "format": {
+              "true_text": "ON",
+              "false_text": "OFF"
+            }
+          },
+          "trigger_status": {
+            "type": "pair",
+            "label": "Trigger",
+            "signal": "input1",
+            "format": {
+              "true_text": "ON",
+              "false_text": "OFF"
+            }
+          },
+          "timer_remaining": {
+            "type": "pair",
+            "label": "Timer",
+            "signal": "timer.remaining",
+            "format": {
+              "duration_style": "mm:ss"
+            }
+          },
+          "flow_total": {
+            "type": "pair",
+            "label": "Total",
+            "signal": "flow.total",
+            "format": {
+              "precision": 1,
+              "suffix": " L"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "screens": [
+    {
+      "items": [
+        { "label": "FLOW", "source": "flow.instant" },
+        { "label": "TOTAL", "source": "flow.total" },
+        { "label": "TIMER", "source": "timer.remaining" }
+      ]
+    }
+  ],
+
+  "timer": {
+    "relay1": { "pin": 25, "mode": "output" },
+    "input1": { "pin": 34, "mode": "input" },
+    "duration": 5000
+  },
+  "system": {
+    "active_board": "my_board",
+    "active_board_template": "lilygo_t3_v1_6_1",
+    "active_chip_template": "esp32_pico_d4"
+  },
+  "chip_templates": {
+    "esp32_wroom32": {
+      "label": "ESP32-WROOM-32",
+      "pins": {
+        "0":  { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "1":  { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "UART TX" },
+        "2":  { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "3":  { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "UART RX" },
+        "4":  { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "5":  { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "12": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "13": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "14": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "15": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "16": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "17": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "18": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "19": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "21": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "22": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "23": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "25": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "26": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "27": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "32": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "33": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "34": { "capabilities": ["di", "ai", "counter"],              "internal_pullup": false, "input_only": true,  "strapping": false, "forbidden": false, "note": "Input only" },
+        "35": { "capabilities": ["di", "ai", "counter"],              "internal_pullup": false, "input_only": true,  "strapping": false, "forbidden": false, "note": "Input only" },
+        "36": { "capabilities": ["di", "ai", "counter"],              "internal_pullup": false, "input_only": true,  "strapping": false, "forbidden": false, "note": "Input only" },
+        "39": { "capabilities": ["di", "ai", "counter"],              "internal_pullup": false, "input_only": true,  "strapping": false, "forbidden": false, "note": "Input only" },
+        "6":  { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" },
+        "7":  { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" },
+        "8":  { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" },
+        "9":  { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash / not broken out" },
+        "10": { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash / not broken out" },
+        "11": { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" }
+      }
+    },
+    "esp8266ex": {
+      "label": "ESP8266EX",
+      "pins": {
+        "0":  { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Boot strap" },
+        "1":  { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "UART TX" },
+        "2":  { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Boot strap" },
+        "3":  { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "UART RX" },
+        "4":  { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "5":  { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "12": { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "13": { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "14": { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "15": { "capabilities": ["di", "do", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Boot strap" },
+        "16": { "capabilities": ["di", "do", "counter"],        "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "17": { "capabilities": ["ai"],                          "internal_pullup": false, "input_only": true,  "strapping": false, "forbidden": false, "note": "ADC0 / board-dependent A0 mapping" },
+        "6":  { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" },
+        "7":  { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" },
+        "8":  { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" },
+        "9":  { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" },
+        "10": { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" },
+        "11": { "capabilities": [], "internal_pullup": false, "input_only": false, "strapping": false, "forbidden": true, "note": "SPI flash" }
+      }
+    },
+    "esp32_pico_d4": {
+      "label": "ESP32-PICO-D4",
+      "pins": {
+        "0":  { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "1":  { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "UART TX" },
+        "2":  { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "3":  { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "UART RX" },
+        "4":  { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "5":  { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "9":  { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "10": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "12": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "13": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "14": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "15": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": true,  "forbidden": false, "note": "Strapping pin" },
+        "18": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "19": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "21": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "22": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "23": { "capabilities": ["di", "do", "counter", "pwm"],       "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "25": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "26": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "27": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "32": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "33": { "capabilities": ["di", "do", "ai", "counter", "pwm"], "internal_pullup": true,  "input_only": false, "strapping": false, "forbidden": false, "note": "" },
+        "34": { "capabilities": ["di", "ai", "counter"],              "internal_pullup": false, "input_only": true,  "strapping": false, "forbidden": false, "note": "Input only" },
+        "35": { "capabilities": ["di", "ai", "counter"],              "internal_pullup": false, "input_only": true,  "strapping": false, "forbidden": false, "note": "Input only" },
+        "36": { "capabilities": ["di", "ai", "counter"],              "internal_pullup": false, "input_only": true,  "strapping": false, "forbidden": false, "note": "Input only" },
+        "39": { "capabilities": ["di", "ai", "counter"],              "internal_pullup": false, "input_only": true,  "strapping": false, "forbidden": false, "note": "Input only" }
+      }
+    }
+  },
+  "board_templates": {
+    "esp32_devkit_v1": {
+      "label": "ESP32 DevKit V1",
+      "chip_template": "esp32_wroom32",
+      "rules": [
+        { "id": "usb_uart", "feature": "usb_uart", "class": "warning", "owner": "usb_uart", "reason": "Shared with USB serial programming and monitor", "always_on": true, "pins": [1,3] },
+        { "id": "boot_straps", "feature": "boot", "class": "warning", "owner": "boot", "reason": "Strapping pins, use with caution", "always_on": true, "pins": [0,2,5,12,15] },
+        { "id": "flash_bus", "feature": "flash", "class": "forbidden", "owner": "flash", "reason": "Connected to flash / not for user IO", "always_on": true, "pins": [6,7,8,9,10,11] },
+        { "id": "status_led", "feature": "led", "class": "shared", "owner": "led", "reason": "Typical on-board LED / board dependent", "always_on": false, "pins": [2] }
+      ]
+    },
+    "nodemcu_32s": {
+      "label": "NodeMCU-32S",
+      "chip_template": "esp32_wroom32",
+      "rules": [
+        { "id": "usb_uart", "feature": "usb_uart", "class": "warning", "owner": "usb_uart", "reason": "Shared with USB serial programming and monitor", "always_on": true, "pins": [1,3] },
+        { "id": "boot_straps", "feature": "boot", "class": "warning", "owner": "boot", "reason": "Strapping pins, use with caution", "always_on": true, "pins": [0,2,5,12,15] },
+        { "id": "flash_bus", "feature": "flash", "class": "forbidden", "owner": "flash", "reason": "Connected to flash / not for user IO", "always_on": true, "pins": [6,7,8,9,10,11] },
+        { "id": "status_led", "feature": "led", "class": "shared", "owner": "led", "reason": "Typical on-board LED / board dependent", "always_on": false, "pins": [2] }
+      ]
+    },
+    "wemos_d1_mini32": {
+      "label": "WEMOS D1 MINI ESP32",
+      "chip_template": "esp32_wroom32",
+      "rules": [
+        { "id": "usb_uart", "feature": "usb_uart", "class": "warning", "owner": "usb_uart", "reason": "Shared with USB serial programming and monitor", "always_on": true, "pins": [1,3] },
+        { "id": "boot_straps", "feature": "boot", "class": "warning", "owner": "boot", "reason": "Strapping pins, use with caution", "always_on": true, "pins": [0,2,5,12,15] },
+        { "id": "flash_bus", "feature": "flash", "class": "forbidden", "owner": "flash", "reason": "Connected to flash / not for user IO", "always_on": true, "pins": [6,7,8,9,10,11] },
+        { "id": "status_led", "feature": "led", "class": "shared", "owner": "led", "reason": "Typical on-board LED / board dependent", "always_on": false, "pins": [2] }
+      ]
+    },
+    "nodemcu_v2_esp8266": {
+      "label": "NodeMCU ESP8266",
+      "chip_template": "esp8266ex",
+      "rules": [
+        { "id": "usb_uart", "feature": "usb_uart", "class": "warning", "owner": "usb_uart", "reason": "Shared with USB serial programming and monitor", "always_on": true, "pins": [1,3] },
+        { "id": "boot_straps", "feature": "boot", "class": "warning", "owner": "boot", "reason": "ESP8266 boot strap pins", "always_on": true, "pins": [0,2,15] },
+        { "id": "flash_bus", "feature": "flash", "class": "forbidden", "owner": "flash", "reason": "Connected to SPI flash", "always_on": true, "pins": [6,7,8,9,10,11] },
+        { "id": "status_led", "feature": "led", "class": "shared", "owner": "led", "reason": "Typical on-board LED / board dependent", "always_on": false, "pins": [2] }
+      ]
+    },
+    "wemos_d1_mini_esp8266": {
+      "label": "WeMos D1 Mini ESP8266",
+      "chip_template": "esp8266ex",
+      "rules": [
+        { "id": "usb_uart", "feature": "usb_uart", "class": "warning", "owner": "usb_uart", "reason": "Shared with USB serial programming and monitor", "always_on": true, "pins": [1,3] },
+        { "id": "boot_straps", "feature": "boot", "class": "warning", "owner": "boot", "reason": "ESP8266 boot strap pins", "always_on": true, "pins": [0,2,15] },
+        { "id": "flash_bus", "feature": "flash", "class": "forbidden", "owner": "flash", "reason": "Connected to SPI flash", "always_on": true, "pins": [6,7,8,9,10,11] },
+        { "id": "status_led", "feature": "led", "class": "shared", "owner": "led", "reason": "Built-in LED on D4 / GPIO2 on common boards", "always_on": false, "pins": [2] }
+      ]
+    },
+    "lilygo_t3_v1_6_1": {
+      "label": "LilyGO T3 v1.6.1",
+      "chip_template": "esp32_pico_d4",
+      "rules": [
+        { "id": "usb_uart", "feature": "usb_uart", "class": "warning", "owner": "usb_uart", "reason": "Shared with USB serial programming and monitor", "always_on": true, "pins": [1,3] },
+        { "id": "boot_straps", "feature": "boot", "class": "warning", "owner": "boot", "reason": "Strapping pins, use with caution", "always_on": true, "pins": [0,2,5,12,15] },
+        { "id": "oled_bus", "feature": "oled", "class": "exclusive", "owner": "oled", "reason": "Reserved by OLED bus", "always_on": false, "pins": [21,22] },
+        { "id": "lora_bus", "feature": "lora", "class": "exclusive", "owner": "lora", "reason": "Reserved by LoRa radio", "always_on": false, "pins": [5,18,19,23,26,27,32,33] },
+        { "id": "sd_bus", "feature": "sd", "class": "exclusive", "owner": "sd", "reason": "Reserved by SD card interface", "always_on": false, "pins": [2,13,14,15] },
+        { "id": "status_led", "feature": "led", "class": "shared", "owner": "led", "reason": "On-board LED attached", "always_on": false, "pins": [25] },
+        { "id": "battery_adc", "feature": "battery", "class": "warning", "owner": "battery", "reason": "Connected to battery sense divider", "always_on": false, "pins": [35] },
+        { "id": "package_flash", "feature": "boot", "class": "forbidden", "owner": "flash", "reason": "Connected to package flash or internal package routing", "always_on": true, "pins": [6,7,8,11,16,17] }
+      ]
+    }
+  },
+  "boards": {
+    "my_board": {
+      "chip": "esp32",
+      "template": "lilygo_t3_v1_6_1",
+      "resources": {
+        "r1": { "gpio": 25, "capabilities": ["di", "do", "pwm"] },
+        "r2": { "gpio": 34, "capabilities": ["di", "ai", "counter"] }
+      },
+      "reserved": {
+        "i2c_sda": 21,
+        "i2c_scl": 22
+      }
+    }
+  },
+  "channels": {
+    "relay1": { "resource": "r1", "type": "do" },
+    "input1": { "resource": "r2", "type": "di" }
+  },
+  "blocks": {
+    "timer1": {
+      "type": "timer",
+      "trigger": "input1",
+      "output": "relay1",
+      "duration_ms": 5000
+    }
+  }
+
+
+}

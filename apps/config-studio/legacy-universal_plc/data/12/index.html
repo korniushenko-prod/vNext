@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>universal_plc Config Studio</title>
+  <link rel="stylesheet" href="./app.css?v=20260326-0505">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">UC</div>
+      <div>
+        <div class="brand-title">universal_plc Config Studio</div>
+        <div class="brand-sub">Dark workspace inspired by the visual editor prototypes</div>
+      </div>
+    </div>
+
+    <div class="breadcrumbs" id="breadcrumbs">Project / demo_boiler / Project</div>
+
+    <div class="actions">
+      <div class="file-status" id="file-status"></div>
+      <button class="btn" id="open-json" type="button">Open</button>
+      <button class="btn" id="save-project" type="button">Save</button>
+      <button class="btn primary" id="save-as-json" type="button">Save As</button>
+      <button class="btn" id="clear-cache" type="button">Clear Recovery</button>
+      <button class="btn" id="reset-default" type="button">Reset Project</button>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="panel-header">
+        <div class="panel-title">Workspace Sections</div>
+        <input class="search" placeholder="UI-first project workspace" readonly>
+      </div>
+
+      <div class="section">
+        <h4>Library Focus</h4>
+        <div class="library-list">
+          <button class="library-item" type="button" data-tab="system" data-registry="objects">
+            <div class="icon input">OB</div>
+            <div>
+              <div class="item-title">Objects</div>
+              <div class="item-sub">Native controllers, groups, package objects</div>
+            </div>
+          </button>
+          <button class="library-item" type="button" data-tab="system" data-registry="signals">
+            <div class="icon logic">SG</div>
+            <div>
+              <div class="item-title">Signals & Routing</div>
+              <div class="item-sub">Named system routes from producers to consumers</div>
+            </div>
+          </button>
+          <button class="library-item" type="button" data-tab="system" data-registry="links">
+            <div class="icon timer">LK</div>
+            <div>
+              <div class="item-title">Link Mirror</div>
+              <div class="item-sub">Derived route pairs generated from system signals</div>
+            </div>
+          </button>
+          <button class="library-item" type="button" data-tab="system" data-registry="alarms">
+            <div class="icon output">AL</div>
+            <div>
+              <div class="item-title">Alarms</div>
+              <div class="item-sub">Alarm objects, actions and impacts</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h4>Project Tree</h4>
+        <div class="tree" id="project-tree"></div>
+      </div>
+    </aside>
+
+    <section class="center">
+      <div class="modebar">
+        <div class="mode-group" id="tab-bar"></div>
+        <div class="status-group">
+          <span class="chip" id="chip-project">Project</span>
+          <span class="chip" id="chip-objects">Objects 0</span>
+          <span class="chip" id="chip-signals">Signals 0</span>
+          <span class="chip" id="chip-links">Links 0</span>
+          <span class="chip" id="chip-alarms">Alarms 0</span>
+        </div>
+      </div>
+
+      <div class="workspace-area">
+        <section id="workspace-main" class="panel-stack"></section>
+      </div>
+
+      <div class="messagebar">
+        <div class="message" id="message-box">Ready.</div>
+      </div>
+    </section>
+
+    <aside class="inspector">
+      <div class="panel-header">
+        <div class="panel-title">Inspector</div>
+        <input class="search" id="inspector-title" value="Nothing selected" readonly>
+      </div>
+
+      <div class="section">
+        <h4>Selection</h4>
+        <div class="kv-list" id="inspector-selection"></div>
+      </div>
+
+      <div class="section">
+        <h4>Notes</h4>
+        <div class="small-note" id="inspector-notes">
+          UI-first mode. The goal is to make the configuration language feel natural before hardening interpreter and runtime.
+        </div>
+      </div>
+
+      <div class="section">
+        <h4>Live JSON</h4>
+        <textarea id="json-preview" class="json-preview" readonly spellcheck="false"></textarea>
+      </div>
+    </aside>
+  </div>
+
+  <script src="./app.js?v=20260326-0505"></script>
+</body>
+</html>

@@ -1,3 +1,6 @@
 ﻿# shipcontroller-esp32
 
-Target runtime/hardware integration root to be populated from ShipController.
+Imported working runtime/hardware base from the legacy ShipController project.
+
+This directory is the active runtime/target base inside vNext.
+Legacy source project remains untouched outside this repository.

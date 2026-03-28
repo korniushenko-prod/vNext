@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "meta": {
+      "id": "demo_boiler",
+      "name": "Demo Boiler",
+      "description": "Reference validation package for universal_plc",
+      "author": "OpenAI",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z",
+      "tags": ["boiler", "reference", "demo"]
+    },
+    "settings": {
+      "tick_ms": 100,
+      "timezone": "UTC",
+      "default_view": "boiler_overview",
+      "autosave": true,
+      "simulation_enabled": true,
+      "debug_enabled": true
+    },
+    "hardware": {
+      "modules": [
+        {
+          "id": "cpu_1",
+          "type": "ESP32_CPU",
+          "name": "CPU Module"
+        }
+      ]
+    },
+    "system": {
+      "id": "boiler_system",
+      "name": "Demo Boiler System",
+      "objects": [
+        {
+          "id": "burner_start_permit",
+          "type": "PermissiveGroup",
+          "category": "group",
+          "name": "Burner Start Permissive",
+          "template_id": "permissive_group_v1",
+          "interface": {
+            "inputs": [],
+            "outputs": []
+          },
+          "config": {
+            "controller_type": "PermissiveGroup",
+            "version": "1.0",
+            "parameters": {
+              "logic_type": "all_true",
+              "n_required": 0,
+              "custom_expr": ""
+            },
+            "behavior": {
+              "fail_on_bad_quality": true,
+              "empty_group_result": false,
+              "short_circuit_eval": true
+            },
+            "ui": {
+              "show_member_states": true,
+              "show_false_only": true,
+              "compact_style": "list"
+            },
+            "debug": {
+              "trace_member_changes": true,
+              "trace_result_changes": true,
+              "keep_history": 100
+            }
+          },
+          "internal_model": {
+            "model_type": "flow",
+            "flow": {},
+            "state_machine": null
+          },
+          "bindings": [],
+          "runtime_defaults": {},
+          "tags": ["native", "reference"]
+        }
+      ],
+      "signals": [],
+      "signal_groups": [],
+      "alarms": [],
+      "alarm_matrix": [],
+      "links": []
+    },
+    "runtime_defaults": {
+      "signals": {},
+      "objects": {}
+    },
+    "views": [
+      {
+        "id": "boiler_overview",
+        "type": "system_view",
+        "name": "Boiler Overview",
+        "scope": "system",
+        "layout": {},
+        "filters": {
+          "show_link_types": ["trip", "permissive", "status"]
+        }
+      }
+    ]
+  }
+}

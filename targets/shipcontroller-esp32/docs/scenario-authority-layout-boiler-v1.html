@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scenario Authority Layout Boiler v1</title>
+  <style>
+    :root{
+      --bg:#f4f0e7;
+      --paper:#fffdf9;
+      --ink:#1f262b;
+      --muted:#61707a;
+      --line:#d8d0c3;
+      --line-strong:#ccbfa8;
+      --accent:#c76231;
+      --accent-soft:#f7e5d9;
+      --ok:#e7f4e8;
+      --ok-ink:#255933;
+      --idle:#edf1f3;
+      --idle-ink:#5c6870;
+      --warn:#fff3de;
+      --warn-ink:#8a5a00;
+      --danger:#fde7e4;
+      --danger-ink:#932f27;
+      --shadow:0 18px 48px rgba(31,38,43,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left,#f8ecde 0,transparent 30%),
+        linear-gradient(180deg,#f8f4ec 0%,var(--bg) 100%);
+      font:15px/1.45 "Trebuchet MS","Segoe UI",sans-serif;
+    }
+    .page{
+      width:min(1640px,calc(100% - 24px));
+      margin:18px auto 34px;
+      display:grid;
+      gap:16px;
+    }
+    .hero,.panel{
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+    }
+    .hero{
+      padding:24px 28px;
+      display:grid;
+      gap:14px;
+      background:
+        radial-gradient(circle at right top,rgba(199,98,49,.14),transparent 28%),
+        var(--paper);
+    }
+    .hero h1,.panel h2,.panel h3{margin:0}
+    .muted{color:var(--muted)}
+    .chips,.context-row,.mini-actions,.flow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    .chip,.badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .chip.ok,.badge.ok{background:var(--ok);color:var(--ok-ink);border-color:#b9d4bf}
+    .chip.idle,.badge.idle{background:var(--idle);color:var(--idle-ink);border-color:#cfd7dc}
+    .chip.warn,.badge.warn{background:var(--warn);color:var(--warn-ink);border-color:#ebcc8a}
+    .chip.danger,.badge.danger{background:var(--danger);color:var(--danger-ink);border-color:#e2b2ab}
+    .panel-grid{padding:18px;display:grid;gap:16px}
+    .context-band{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff;
+      padding:16px;
+      display:grid;
+      gap:12px;
+    }
+    .context-card{
+      min-width:180px;
+      flex:1 1 180px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:12px;
+      display:grid;
+      gap:6px;
+    }
+    .context-card.main{
+      background:linear-gradient(180deg,#fffaf4 0,var(--accent-soft) 100%);
+      border-color:#d8ae97;
+    }
+    .layout{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+      align-items:start;
+    }
+    .lane{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff;
+      padding:14px;
+      display:grid;
+      gap:12px;
+      min-height:640px;
+    }
+    .lane-head{
+      display:grid;
+      gap:6px;
+      padding-bottom:10px;
+      border-bottom:1px dashed var(--line-strong);
+    }
+    .stack{display:grid;gap:10px}
+    .node{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:12px;
+      display:grid;
+      gap:8px;
+    }
+    .node.source{
+      background:linear-gradient(180deg,#fbfcfd 0,#f5f7f8 100%);
+    }
+    .node.policy{
+      background:linear-gradient(180deg,#fffef9 0,#fdf4e9 100%);
+    }
+    .node.logic{
+      background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%);
+    }
+    .node.actuator{
+      background:linear-gradient(180deg,#fff9f8 0,#fff1ef 100%);
+    }
+    .node.slot{
+      border-style:dashed;
+      border-width:2px;
+      background:#fff8f2;
+    }
+    .node-top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .node strong{font-size:16px}
+    .meta{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+    .mini-actions .ghost{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:7px 10px;
+      font-size:13px;
+      font-weight:700;
+    }
+    .connector{
+      margin:2px auto;
+      width:2px;
+      height:18px;
+      background:linear-gradient(180deg,var(--line-strong) 0,transparent 100%);
+    }
+    .callout{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff;
+      padding:16px 18px;
+      display:grid;
+      gap:10px;
+    }
+    .callout ul{margin:0;padding-left:18px}
+    .callout li{margin:5px 0}
+    .footer-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    @media (max-width:1280px){
+      .layout{grid-template-columns:1fr 1fr}
+      .footer-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:860px){
+      .layout,.footer-grid{grid-template-columns:1fr}
+      .page{width:min(100%,calc(100% - 14px));margin:10px auto 24px}
+      .hero,.panel,.lane,.context-band{border-radius:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1>Boiler Layout: Context + Sources + Policy + Logic + Actuators</h1>
+      <div class="muted">Это пример того, как раскладывать сценарий котла так, чтобы `ON/OFF`, `AUTO/MANUAL`, `LOCAL/REMOTE` и прочие режимы не смешивались с датчиками и выходами в одну кашу. Здесь есть отдельный верхний слой управления и 4 понятные зоны ниже.</div>
+      <div class="chips">
+        <span class="chip ok">Сверху: Control Context</span>
+        <span class="chip idле">Слева: Sources</span>
+        <span class="chip warn">Центр-лево: Authority / Policy</span>
+        <span class="chip ok">Центр-право: Logic / Sequences</span>
+        <span class="chip danger">Справа: Actuators</span>
+      </div>
+    </section>
+
+    <section class="panel panel-grid">
+      <div class="context-band">
+        <div>
+          <h2>Control Context</h2>
+          <div class="muted">Этот слой отвечает не на вопрос “что происходит в процессе?”, а на вопрос “кто вообще имеет право сейчас управлять и разрешён ли запуск”.</div>
+        </div>
+        <div class="context-row">
+          <div class="context-card main">
+            <strong>Boiler ON/OFF</strong>
+            <div class="muted">state: ON</div>
+            <span class="badge ok">master enable</span>
+          </div>
+          <div class="context-card">
+            <strong>AUTO / MANUAL</strong>
+            <div class="muted">value: AUTO</div>
+            <span class="badge ok">authority</span>
+          </div>
+          <div class="context-card">
+            <strong>LOCAL / REMOTE</strong>
+            <div class="muted">value: LOCAL</div>
+            <span class="badge idле">context</span>
+          </div>
+          <div class="context-card">
+            <strong>RESET</strong>
+            <div class="muted">ready for faults/latches</div>
+            <span class="badge idле">service</span>
+          </div>
+          <div class="context-card">
+            <strong>Master Trip</strong>
+            <div class="muted">state: CLEAR</div>
+            <span class="badge ok">allow run</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-grid">
+      <div class="layout">
+        <div class="lane">
+          <div class="lane-head">
+            <h2>1. Sources</h2>
+            <div class="muted">Физические входы, процессные значения и статусы других sequence. Это то, что приходит в логику.</div>
+          </div>
+          <div class="stack">
+            <div class="node source">
+              <div class="node-top"><strong>Start Button</strong><span class="badge ok">input</span></div>
+              <div class="meta">
+                <span>Operator source</span>
+                <span>short_press = true</span>
+              </div>
+            </div>
+            <div class="node source">
+              <div class="node-top"><strong>Stop Button</strong><span class="badge idле">input</span></div>
+              <div class="meta">
+                <span>Operator source</span>
+                <span>short_press = false</span>
+              </div>
+            </div>
+            <div class="node source">
+              <div class="node-top"><strong>Steam Pressure</strong><span class="badge warn">process</span></div>
+              <div class="meta">
+                <span>pv = 6.8 bar</span>
+                <span>setpoint = 7.2 bar</span>
+              </div>
+            </div>
+            <div class="node source">
+              <div class="node-top"><strong>Water Level</strong><span class="badge warn">process</span></div>
+              <div class="meta">
+                <span>level = normal</span>
+                <span>low-low = false</span>
+              </div>
+            </div>
+            <div class="node source">
+              <div class="node-top"><strong>Flame Detector</strong><span class="badge ok">feedback</span></div>
+              <div class="meta">
+                <span>flame_present = true</span>
+                <span>quality = good</span>
+              </div>
+            </div>
+            <div class="node source">
+              <div class="node-top"><strong>Purge.done</strong><span class="badge ok">sequence</span></div>
+              <div class="meta">
+                <span>child sequence output</span>
+                <span>done = true</span>
+              </div>
+            </div>
+            <div class="node slot">
+              <strong>+ Add Source</strong>
+              <div class="muted">button, selector, sensor, sequence output</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lane">
+          <div class="lane-head">
+            <h2>2. Authority / Policy</h2>
+            <div class="muted">Здесь решается не процесс, а право на управление: включён ли котёл, разрешён ли auto, нет ли trip, кто сейчас владеет командой.</div>
+          </div>
+          <div class="stack">
+            <div class="node policy">
+              <div class="node-top"><strong>Boiler Enabled Gate</strong><span class="badge ok">active</span></div>
+              <div class="meta">
+                <span>depends on Boiler ON/OFF</span>
+                <span>output = boiler_enabled</span>
+              </div>
+            </div>
+            <div class="connector"></div>
+            <div class="node policy">
+              <div class="node-top"><strong>Mode / Authority</strong><span class="badge ok">auto</span></div>
+              <div class="meta">
+                <span>AUTO wins over manual path</span>
+                <span>output = control_path</span>
+              </div>
+            </div>
+            <div class="connector"></div>
+            <div class="node policy">
+              <div class="node-top"><strong>Manual Override</strong><span class="badge idле">idle</span></div>
+              <div class="meta">
+                <span>inactive now</span>
+                <span>can bypass normal command path</span>
+              </div>
+            </div>
+            <div class="connector"></div>
+            <div class="node policy">
+              <div class="node-top"><strong>Trip Policy</strong><span class="badge ok">clear</span></div>
+              <div class="meta">
+                <span>critical trips = 0</span>
+                <span>warning-only alarms do not stop burning</span>
+              </div>
+            </div>
+            <div class="node slot">
+              <strong>+ Add Policy</strong>
+              <div class="muted">enable gate, authority, permissive, trip, inhibit</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lane">
+          <div class="lane-head">
+            <h2>3. Logic / Sequences</h2>
+            <div class="muted">Только здесь начинается процессная логика: Main и child sequences, таймеры, thresholds, cyclic functions.</div>
+          </div>
+          <div class="stack">
+            <div class="node logic">
+              <div class="node-top"><strong>Main</strong><span class="badge ok">root</span></div>
+              <div class="meta">
+                <span>always present</span>
+                <span>routes modules + child sequences</span>
+              </div>
+            </div>
+            <div class="connector"></div>
+            <div class="node logic">
+              <div class="node-top"><strong>Purge</strong><span class="badge ok">active</span></div>
+              <div class="meta">
+                <span>enabled = true</span>
+                <span>current_state = RUN</span>
+              </div>
+            </div>
+            <div class="connector"></div>
+            <div class="node logic">
+              <div class="node-top"><strong>Burning</strong><span class="badge idლე">waiting</span></div>
+              <div class="meta">
+                <span>enabled = true</span>
+                <span>waiting_reason = purge_done</span>
+              </div>
+            </div>
+            <div class="connector"></div>
+            <div class="node logic">
+              <div class="node-top"><strong>Pressure Stop</strong><span class="badge warn">armed</span></div>
+              <div class="meta">
+                <span>burn stops when pressure >= setpoint</span>
+                <span>not a trip, just stop condition</span>
+              </div>
+            </div>
+            <div class="node slot">
+              <strong>+ Add Logic</strong>
+              <div class="muted">timer, comparator, child sequence, cyclic output</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lane">
+          <div class="lane-head">
+            <h2>4. Actuators</h2>
+            <div class="muted">Исполнительные механизмы, которые получают уже принятую команду. Здесь не должны решаться режимы и разрешения.</div>
+          </div>
+          <div class="stack">
+            <div class="node actuator">
+              <div class="node-top"><strong>Fan Relay</strong><span class="badge ok">ON</span></div>
+              <div class="meta">
+                <span>commanded = true</span>
+                <span>feedback = running</span>
+              </div>
+            </div>
+            <div class="connector"></div>
+            <div class="node actuator">
+              <div class="node-top"><strong>Burner Relay</strong><span class="badge idле">OFF</span></div>
+              <div class="meta">
+                <span>commanded = false</span>
+                <span>waiting for burning.active</span>
+              </div>
+            </div>
+            <div class="connector"></div>
+            <div class="node actuator">
+              <div class="node-top"><strong>Fuel Solenoid LOW</strong><span class="badge ok">ON</span></div>
+              <div class="meta">
+                <span>mode = low fire</span>
+                <span>opens only when burning.active</span>
+              </div>
+            </div>
+            <div class="connector"></div>
+            <div class="node actuator">
+              <div class="node-top"><strong>Feed Pump</strong><span class="badge idლე">idle</span></div>
+              <div class="meta">
+                <span>controlled by separate level loop</span>
+                <span>not part of burning sequence</span>
+              </div>
+            </div>
+            <div class="node slot">
+              <strong>+ Add Actuator</strong>
+              <div class="muted">relay, valve, pump, burner, positioner</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-grid">
+      <div class="footer-grid">
+        <div class="callout">
+          <h3>Почему это понятнее</h3>
+          <ul>
+            <li>`AUTO/MANUAL` и `ON/OFF` не смешиваются с датчиками.</li>
+            <li>Сразу видно, кто источник, кто policy, кто sequence и кто исполнитель.</li>
+            <li>Можно вставить новый узел “между” слоями без хаотичного canvas.</li>
+            <li>Одинаково подходит и для boiler, и для другой автоматики.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3>Что это значит для продукта</h3>
+          <ul>
+            <li>Верхний уровень UI должен быть scenario-first.</li>
+            <li>Внутри workspace лучше держать не просто `Inputs -> Logic -> Outputs`, а `Sources -> Authority/Policy -> Logic/Sequences -> Actuators`.</li>
+            <li>`Main` остаётся root-сценарием, а child sequences живут в колонке Logic.</li>
+            <li>Blocks остаются внутренним/advanced уровнем и не заменяют этот layout.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

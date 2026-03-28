@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scenario-First UI Design v1</title>
+  <style>
+    :root{
+      --bg:#f3efe6;
+      --paper:#fffdfa;
+      --ink:#1d252b;
+      --muted:#62707a;
+      --line:#d7d0c3;
+      --line-strong:#c9bea8;
+      --accent:#c76231;
+      --accent-soft:#f7e4d8;
+      --ok:#e7f4e8;
+      --ok-ink:#255933;
+      --idle:#eef1f3;
+      --idle-ink:#58656e;
+      --warn:#fff4de;
+      --warn-ink:#875900;
+      --danger:#fde8e5;
+      --danger-ink:#962f27;
+      --shadow:0 18px 48px rgba(29,37,43,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left,#f7ecdf 0,transparent 30%),
+        linear-gradient(180deg,#f8f4ec 0%,var(--bg) 100%);
+      font:15px/1.45 "Trebuchet MS","Segoe UI",sans-serif;
+    }
+    .page{
+      width:min(1600px,calc(100% - 24px));
+      margin:18px auto 34px;
+      display:grid;
+      gap:16px;
+    }
+    .shell,.panel{
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+    }
+    .shell{overflow:hidden}
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:center;
+      padding:18px 22px;
+      border-bottom:1px solid var(--line);
+      background:
+        radial-gradient(circle at right top,rgba(199,98,49,.12),transparent 32%),
+        var(--paper);
+    }
+    .brand{display:grid;gap:4px}
+    .brand h1,.panel h2,.panel h3{margin:0}
+    .muted{color:var(--muted)}
+    .main-tabs,.sub-tabs,.chips,.toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      padding:8px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-weight:700;
+      font-size:14px;
+    }
+    .pill.active{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+    }
+    .pill.secondary.active{
+      background:var(--accent-soft);
+      color:#7b3f1f;
+      border-color:#d8a48a;
+    }
+    .content{
+      display:grid;
+      grid-template-columns:300px minmax(540px,1fr) 360px;
+      gap:16px;
+      padding:16px;
+    }
+    .sidebar,.workspace,.inspector{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      padding:16px;
+      display:grid;
+      gap:14px;
+      align-content:start;
+    }
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .section-head .meta{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .tree{
+      display:grid;
+      gap:10px;
+    }
+    .tree-node{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:12px;
+      display:grid;
+      gap:8px;
+    }
+    .tree-node.main{
+      background:linear-gradient(180deg,#fff9f3 0,var(--accent-soft) 100%);
+      border-color:#d8af98;
+    }
+    .tree-node.sequence{
+      background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%);
+      border-color:#bed4c1;
+    }
+    .tree-node .top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid currentColor;
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      white-space:nowrap;
+    }
+    .badge.main{color:#8f4d22;background:rgba(255,255,255,.74)}
+    .badge.ok{color:var(--ok-ink);background:rgba(255,255,255,.72)}
+    .badge.idle{color:var(--idle-ink);background:rgba(255,255,255,.72)}
+    .badge.warn{color:var(--warn-ink);background:rgba(255,255,255,.72)}
+    .tree-actions,.mini-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .ghost{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
+      border-radius:12px;
+      padding:7px 10px;
+      font-weight:700;
+      font-size:13px;
+    }
+    .ghost.soft{
+      background:#faf8f3;
+    }
+    .catalog-groups,.module-list,.inspector-stack,.runtime-list,.summary-grid{
+      display:grid;
+      gap:10px;
+    }
+    .group-card,.module-card,.info-card,.runtime-card,.summary{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:12px;
+      display:grid;
+      gap:8px;
+    }
+    .group-card strong,.module-card strong,.summary strong{
+      font-size:16px;
+    }
+    .module-card.primitive{
+      background:linear-gradient(180deg,#fbfcfd 0,#f4f7f8 100%);
+    }
+    .module-card.functional{
+      background:linear-gradient(180deg,#fffef9 0,#fdf4e7 100%);
+    }
+    .module-card.sequence{
+      background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%);
+    }
+    .workspace{
+      grid-template-rows:auto auto 1fr auto;
+    }
+    .workspace-header{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .summary-grid{
+      grid-template-columns:repeat(4,minmax(0,1fr));
+    }
+    .summary{
+      background:#fffdfa;
+    }
+    .summary b{
+      font-size:11px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .canvas{
+      border:1px dashed var(--line-strong);
+      border-radius:20px;
+      background:linear-gradient(180deg,#fffdfa 0,#fff9f3 100%);
+      padding:14px;
+      display:grid;
+      gap:14px;
+    }
+    .lane{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:12px;
+      display:grid;
+      gap:10px;
+    }
+    .lane-header{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .flow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    .node{
+      min-width:150px;
+      max-width:220px;
+      flex:1 1 150px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:12px;
+      display:grid;
+      gap:6px;
+    }
+    .node.main{
+      background:linear-gradient(180deg,#fff9f3 0,var(--accent-soft) 100%);
+      border-color:#d8af98;
+    }
+    .node.seq{
+      background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%);
+      border-color:#bed4c1;
+    }
+    .node.idle{
+      background:linear-gradient(180deg,#fafbfc 0,var(--idle) 100%);
+      border-color:#dbe1e6;
+    }
+    .node.slot{
+      border-style:dashed;
+      border-width:2px;
+      background:#fff8f2;
+    }
+    .arrow{
+      min-width:26px;
+      display:grid;
+      place-items:center;
+      color:var(--muted);
+      font-size:22px;
+      font-weight:800;
+    }
+    .callout{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:14px;
+      display:grid;
+      gap:8px;
+    }
+    .callout ul{margin:0;padding-left:18px}
+    .callout li{margin:4px 0}
+    .runtime-card{
+      background:#fffcf7;
+      border-style:dashed;
+    }
+    @media (max-width:1360px){
+      .content{grid-template-columns:280px 1fr}
+      .inspector{grid-column:1 / -1}
+    }
+    @media (max-width:960px){
+      .content,.summary-grid{grid-template-columns:1fr}
+      .page{width:min(100%,calc(100% - 14px));margin:10px auto 24px}
+      .shell,.panel,.sidebar,.workspace,.inspector{border-radius:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="shell">
+      <div class="topbar">
+        <div class="brand">
+          <h1>ShipController</h1>
+          <div class="muted">Scenario-first authoring: одна прошивка, проекты любой сложности</div>
+        </div>
+        <div class="chips">
+          <span class="pill active">Автоматика</span>
+          <span class="pill">Аппаратная часть</span>
+          <span class="pill">Сервис</span>
+        </div>
+      </div>
+      <div style="padding:12px 16px 0">
+        <div class="sub-tabs">
+          <span class="pill secondary active">Проект</span>
+          <span class="pill secondary">Main</span>
+          <span class="pill secondary">Modules</span>
+          <span class="pill secondary">Sequences</span>
+          <span class="pill secondary">Generated Internals</span>
+          <span class="pill secondary">Display / Service</span>
+        </div>
+      </div>
+      <div class="content">
+        <aside class="sidebar">
+          <div class="section-head">
+            <div>
+              <h2>Project Explorer</h2>
+              <div class="meta">Пользователь всегда начинает отсюда</div>
+            </div>
+            <button class="ghost">+ Сценарий</button>
+          </div>
+
+          <div class="tree">
+            <div class="tree-node main">
+              <div class="top">
+                <div>
+                  <strong>Main</strong>
+                  <div class="small">Корневой сценарий проекта</div>
+                </div>
+                <span class="badge main">root</span>
+              </div>
+              <div class="tree-actions">
+                <button class="ghost soft">+ Модуль</button>
+                <button class="ghost soft">+ Sequence</button>
+              </div>
+            </div>
+
+            <div class="tree-node sequence">
+              <div class="top">
+                <div>
+                  <strong>Purge</strong>
+                  <div class="small">Child sequence для продувки</div>
+                </div>
+                <span class="badge ok">active</span>
+              </div>
+              <div class="small">enabled / active / waiting / done / fault</div>
+            </div>
+
+            <div class="tree-node sequence">
+              <div class="top">
+                <div>
+                  <strong>Burning</strong>
+                  <div class="small">Child sequence для горения</div>
+                </div>
+                <span class="badge idle">idle</span>
+              </div>
+              <div class="small">Сюда позже выносятся фазы из Main</div>
+            </div>
+
+            <div class="tree-node">
+              <div class="top">
+                <div>
+                  <strong>Custom Modules</strong>
+                  <div class="small">Пользовательские сборки для reuse</div>
+                </div>
+                <span class="badge idle">library</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Главное правило</strong>
+            <div class="small">Если пользователь начал с простого `Main`, а потом доделал проект до сложного механизма, он не должен пересобирать всё заново. Он просто выносит часть логики в child sequences.</div>
+          </div>
+        </aside>
+
+        <main class="workspace">
+          <div class="workspace-header">
+            <div>
+              <h2>Main</h2>
+              <div class="muted">Главная рабочая область проекта. Здесь пользователь сначала собирает логику из кирпичиков, а потом выделяет фазовые куски в отдельные sequences.</div>
+            </div>
+            <div class="toolbar">
+              <button class="pill active">Логика</button>
+              <button class="pill">Операция</button>
+              <button class="pill">Сервис</button>
+            </div>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary">
+              <b>Состояние Main</b>
+              <strong>RUNNING</strong>
+              <div class="small">Корневой orchestration container всегда жив</div>
+            </div>
+            <div class="summary">
+              <b>Модулей</b>
+              <strong>6</strong>
+              <div class="small">Primitive и functional modules</div>
+            </div>
+            <div class="summary">
+              <b>Child Sequences</b>
+              <strong>2</strong>
+              <div class="small">Purge и Burning</div>
+            </div>
+            <div class="summary">
+              <b>Generated Internals</b>
+              <strong>14</strong>
+              <div class="small">signals / blocks / alarms / sequence helpers</div>
+            </div>
+          </div>
+
+          <div class="canvas">
+            <div class="lane">
+              <div class="lane-header">
+                <div>
+                  <h3>Main flow</h3>
+                  <div class="small">Простой проект может остаться прямо здесь без отдельного sequence.</div>
+                </div>
+                <div class="mini-actions">
+                  <button class="ghost soft">+ Primitive module</button>
+                  <button class="ghost soft">+ Functional module</button>
+                  <button class="ghost soft">+ Child sequence</button>
+                </div>
+              </div>
+              <div class="flow">
+                <div class="node main">
+                  <strong>Main</strong>
+                  <div class="small">root scenario</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="node">
+                  <strong>Input / Button</strong>
+                  <div class="small">start_cmd / stop_cmd</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="node">
+                  <strong>Cyclic Output</strong>
+                  <div class="small">timer + gate + manual override</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="node slot">
+                  <strong>+ Add Child Sequence</strong>
+                  <div class="small">когда появляется фазовая логика</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="lane">
+              <div class="lane-header">
+                <div>
+                  <h3>Выделенный child sequence</h3>
+                  <div class="small">Когда кусок Main дорос до фаз и переходов, он становится отдельным sequence.</div>
+                </div>
+                <span class="badge ok">sequence runtime</span>
+              </div>
+              <div class="flow">
+                <div class="node seq">
+                  <strong>Purge</strong>
+                  <div class="small">enabled = true</div>
+                  <div class="small">active = true</div>
+                  <div class="small">current_state = RUN</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="node idle">
+                  <strong>Burning</strong>
+                  <div class="small">enabled = true</div>
+                  <div class="small">active = false</div>
+                  <div class="small">waiting = purge_done</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="node idle">
+                  <strong>Cooldown</strong>
+                  <div class="small">enabled = false</div>
+                  <div class="small">active = false</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Почему это лучше</strong>
+            <ul>
+              <li>Простой пользователь начинает с `Main` и не видит raw blocks.</li>
+              <li>Продвинутый пользователь может выносить логику в child sequences без переделки проекта.</li>
+              <li>Сценарий становится основной единицей мышления, а модули — основным языком сборки.</li>
+              <li>Blocks остаются честным advanced-слоем, а не первым экраном продукта.</li>
+            </ul>
+          </div>
+        </main>
+
+        <aside class="inspector">
+          <div class="section-head">
+            <div>
+              <h2>Inspector</h2>
+              <div class="meta">Selected: `Cyclic Output`</div>
+            </div>
+            <button class="ghost">Publish as Custom</button>
+          </div>
+
+          <div class="info-card">
+            <h3>Модуль</h3>
+            <div class="small">Functional module</div>
+            <strong>Циклический выход</strong>
+            <div class="small">Подходит для продувки, дренажа, импульсного клапана, periodic output.</div>
+          </div>
+
+          <div class="info-card">
+            <h3>Что видит пользователь</h3>
+            <ul>
+              <li>enable signal</li>
+              <li>manual override</li>
+              <li>on time</li>
+              <li>off time</li>
+              <li>stop policy</li>
+              <li>output target</li>
+            </ul>
+          </div>
+
+          <div class="runtime-list">
+            <div class="runtime-card">
+              <h3>Generated Internals Preview</h3>
+              <div class="small">Создаются автоматически после materialize</div>
+              <ul>
+                <li>signal: `purge_enable`</li>
+                <li>signal: `purge_manual`</li>
+                <li>block: `timer.purge_cycle`</li>
+                <li>block: `logic_gate.purge_or`</li>
+                <li>published output: `purge_cmd`</li>
+              </ul>
+            </div>
+
+            <div class="runtime-card">
+              <h3>Runtime contract</h3>
+              <ul>
+                <li>signals update once</li>
+                <li>blocks update once</li>
+                <li>sequences update once</li>
+                <li>modules do not run recursively</li>
+              </ul>
+            </div>
+
+            <div class="runtime-card">
+              <h3>Service / Display outputs</h3>
+              <ul>
+                <li>`module.ready`</li>
+                <li>`module.active`</li>
+                <li>`module.status_text`</li>
+                <li>`timer.phase_state`</li>
+                <li>`timer.phase_remaining`</li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

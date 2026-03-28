@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scenario Simple Workspace v1</title>
+  <style>
+    :root{
+      --bg:#f4f0e7;
+      --paper:#fffdf9;
+      --panel:#fffaf4;
+      --ink:#1f262b;
+      --muted:#64717b;
+      --line:#d9d0c2;
+      --accent:#c76331;
+      --accent-soft:#f8e7db;
+      --ok:#e7f4e8;
+      --warn:#fff4de;
+      --idle:#eef1f3;
+      --shadow:0 18px 48px rgba(31,38,43,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left,#f7ecdf 0,transparent 28%),
+        linear-gradient(180deg,#f8f4ec 0%,var(--bg) 100%);
+      font:15px/1.45 "Trebuchet MS","Segoe UI",sans-serif;
+    }
+    .page{
+      width:min(1520px,calc(100% - 24px));
+      margin:18px auto 34px;
+      display:grid;
+      gap:16px;
+    }
+    .hero,.shell,.note{
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+    }
+    .hero{
+      padding:24px 28px;
+      display:grid;
+      gap:12px;
+      background:
+        radial-gradient(circle at right top,rgba(199,99,49,.14),transparent 28%),
+        var(--paper);
+    }
+    .hero h1,.hero h2,.lane h3,.pane h2,.note h2{margin:0}
+    .muted{color:var(--muted)}
+    .chips,.toolbar,.node-actions,.mini-flow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    .chip,.pill,.badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-weight:800;
+    }
+    .chip,.badge{
+      padding:6px 10px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .pill{
+      min-height:40px;
+      padding:8px 14px;
+      font-size:14px;
+    }
+    .pill.active{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+    }
+    .chip.soft{background:var(--accent-soft);color:#7c3f1e;border-color:#ddb29a}
+    .badge.ok{background:var(--ok);border-color:#bfd3c2;color:#255933}
+    .badge.warn{background:var(--warn);border-color:#e7c989;color:#885800}
+    .badge.idle{background:var(--idle);border-color:#d1d8dd;color:#58656e}
+    .shell{
+      overflow:hidden;
+      display:grid;
+      grid-template-rows:auto auto 1fr;
+    }
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:center;
+      padding:16px 20px;
+      border-bottom:1px solid var(--line);
+    }
+    .project-bar{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:center;
+      flex-wrap:wrap;
+      padding:14px 20px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,#fffdf9 0,#fff8ef 100%);
+    }
+    .layout{
+      display:grid;
+      grid-template-columns:280px minmax(520px,1fr) 360px;
+      gap:16px;
+      padding:16px;
+    }
+    .pane{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      padding:16px;
+      display:grid;
+      gap:14px;
+      align-content:start;
+    }
+    .pane-head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .tree,.catalog,.inspector-stack,.legend{
+      display:grid;
+      gap:10px;
+    }
+    .tree-node,.catalog-card,.info-card,.slot{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:12px;
+      display:grid;
+      gap:8px;
+    }
+    .tree-node.main{
+      background:linear-gradient(180deg,#fff9f3 0,var(--accent-soft) 100%);
+      border-color:#ddb29a;
+    }
+    .tree-node.sequence{
+      background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%);
+      border-color:#bfd3c2;
+    }
+    .catalog-card.primitive{background:linear-gradient(180deg,#fbfcfd 0,#f5f7f8 100%)}
+    .catalog-card.function{background:linear-gradient(180deg,#fffef9 0,#fdf4e7 100%)}
+    .catalog-card.sequence{background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%)}
+    .canvas{
+      border:1px dashed #cabda7;
+      border-radius:20px;
+      background:linear-gradient(180deg,#fffdfa 0,#fff8f1 100%);
+      padding:14px;
+      display:grid;
+      gap:14px;
+    }
+    .workspace-top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .context-line{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+    .lane{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:12px;
+      display:grid;
+      gap:10px;
+      align-content:start;
+      min-height:430px;
+    }
+    .lane.sources{background:linear-gradient(180deg,#fbfcfd 0,#f6f8f9 100%)}
+    .lane.logic{background:linear-gradient(180deg,#fffef9 0,#fdf7ed 100%)}
+    .lane.outputs{background:linear-gradient(180deg,#fff9f8 0,#fff1ef 100%)}
+    .node{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:12px;
+      display:grid;
+      gap:6px;
+    }
+    .node strong{font-size:16px}
+    .node .meta{font-size:13px;color:var(--muted);display:grid;gap:3px}
+    .connector{
+      width:26px;
+      min-width:26px;
+      height:2px;
+      background:linear-gradient(90deg,#cdbfa8 0,#e7ddd0 100%);
+      justify-self:center;
+      align-self:center;
+    }
+    .ghost{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:7px 10px;
+      font-weight:700;
+      font-size:13px;
+    }
+    .slot{
+      border-style:dashed;
+      border-width:2px;
+      background:#fff9f3;
+    }
+    .note{
+      padding:18px 20px;
+      display:grid;
+      gap:12px;
+    }
+    .note ul{margin:0;padding-left:18px}
+    .note li{margin:5px 0}
+    @media (max-width:1250px){
+      .layout{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+    }
+    @media (max-width:760px){
+      .page{width:min(100%,calc(100% - 12px));margin:10px auto 24px}
+      .hero,.shell,.note,.pane,.lane{border-radius:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1>Scenario-First Simple Workspace v1</h1>
+      <div class="muted">Это упрощённая целевая картинка первого экрана. Пользователь не должен сразу видеть внутренности движка. Он должен видеть проект, выбранный сценарий, понятные кирпичики и связи между ними.</div>
+      <div class="chips">
+        <span class="chip soft">Слева: проект</span>
+        <span class="chip soft">Центр: сценарий</span>
+        <span class="chip soft">Справа: инспектор</span>
+        <span class="chip soft">Advanced отдельно</span>
+      </div>
+    </section>
+
+    <section class="shell">
+      <div class="topbar">
+        <div>
+          <h2>Автоматика</h2>
+          <div class="muted">Не engine diagram, а рабочее место пользователя.</div>
+        </div>
+        <div class="toolbar">
+          <span class="pill active">Сценарии</span>
+          <span class="pill">Модули</span>
+          <span class="pill">Сервис</span>
+          <span class="pill">Advanced</span>
+        </div>
+      </div>
+
+      <div class="project-bar">
+        <div>
+          <strong>Проект: Compressor Automation</strong>
+          <div class="muted">Root scenario всегда существует по умолчанию.</div>
+        </div>
+        <div class="context-line">
+          <span class="badge ok">ON</span>
+          <span class="badge idle">AUTO</span>
+          <span class="badge idle">LOCAL</span>
+          <span class="badge warn">NO TRIP</span>
+        </div>
+      </div>
+
+      <div class="layout">
+        <aside class="pane">
+          <div class="pane-head">
+            <div>
+              <h2>Проект</h2>
+              <div class="muted">Точка входа: `Main`, потом child sequences по мере роста логики.</div>
+            </div>
+            <button class="ghost">+ Сценарий</button>
+          </div>
+
+          <div class="tree">
+            <div class="tree-node main">
+              <div class="pane-head">
+                <strong>Main</strong>
+                <span class="badge ok">root</span>
+              </div>
+              <div class="muted">Общая логика, простые кирпичики, верхний orchestration.</div>
+              <div class="node-actions">
+                <button class="ghost">Открыть</button>
+                <button class="ghost">+ Модуль</button>
+              </div>
+            </div>
+
+            <div class="tree-node sequence">
+              <div class="pane-head">
+                <strong>Purge</strong>
+                <span class="badge idle">child sequence</span>
+              </div>
+              <div class="muted">Фазовая логика продувки, когда она действительно нужна.</div>
+            </div>
+
+            <div class="tree-node sequence">
+              <div class="pane-head">
+                <strong>Running</strong>
+                <span class="badge idle">child sequence</span>
+              </div>
+              <div class="muted">Отдельный сценарий работы механизма или агрегата.</div>
+            </div>
+          </div>
+
+          <div class="catalog">
+            <div class="catalog-card primitive">
+              <strong>Кирпичики</strong>
+              <div class="muted">Кнопка, таймер, дискретный выход, порог, логика.</div>
+            </div>
+            <div class="catalog-card function">
+              <strong>Функции</strong>
+              <div class="muted">Cyclic Output, Signal Extractor, Start/Stop, RPM/Flow.</div>
+            </div>
+            <div class="catalog-card sequence">
+              <strong>Child sequence</strong>
+              <div class="muted">Добавляется только когда нужны состояния, ожидания и переходы.</div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="pane">
+          <div class="workspace-top">
+            <div>
+              <h2>Main</h2>
+              <div class="muted">Первый экран должен показывать один понятный сценарий, а не весь runtime сразу.</div>
+            </div>
+            <div class="toolbar">
+              <button class="ghost">+ Кирпичик</button>
+              <button class="ghost">+ Функция</button>
+              <button class="ghost">+ Child sequence</button>
+            </div>
+          </div>
+
+          <div class="canvas">
+            <div class="context-line">
+              <span class="badge ok">Compressor Auto: Enabled</span>
+              <span class="badge idle">Manual Override: Off</span>
+              <span class="badge idle">Selected scenario: Main</span>
+            </div>
+
+            <div class="grid">
+              <section class="lane sources">
+                <h3>Источники</h3>
+                <div class="node">
+                  <strong>Run Feedback</strong>
+                  <div class="meta">
+                    <span>Тип: дискретный вход</span>
+                    <span>Источник: channel:di_run_fb</span>
+                    <span>Текущее значение: ON</span>
+                  </div>
+                </div>
+                <div class="node">
+                  <strong>Manual Purge Button</strong>
+                  <div class="meta">
+                    <span>Профиль: удерживаемый вход</span>
+                    <span>Источник: signal:manual_purge</span>
+                    <span>Текущее значение: OFF</span>
+                  </div>
+                </div>
+                <div class="slot">
+                  <strong>+ Добавить источник</strong>
+                  <div class="muted">Кнопка, селектор, датчик, внешний сигнал.</div>
+                </div>
+              </section>
+
+              <section class="lane logic">
+                <h3>Логика</h3>
+                <div class="node">
+                  <strong>Timer</strong>
+                  <div class="meta">
+                    <span>Профиль: interval_while_enabled</span>
+                    <span>ON: 5 s / OFF: 5 min</span>
+                    <span>Показывает: active, phase_state, phase_remaining</span>
+                  </div>
+                </div>
+                <div class="mini-flow">
+                  <div class="connector"></div>
+                </div>
+                <div class="node">
+                  <strong>OR Logic</strong>
+                  <div class="meta">
+                    <span>Auto purge OR manual purge</span>
+                    <span>Формирует итоговую команду на выход</span>
+                  </div>
+                </div>
+                <div class="slot">
+                  <strong>+ Вставить модуль</strong>
+                  <div class="muted">Например delay, latch, threshold, child sequence.</div>
+                </div>
+              </section>
+
+              <section class="lane outputs">
+                <h3>Выходы</h3>
+                <div class="node">
+                  <strong>Purge Valve Relay</strong>
+                  <div class="meta">
+                    <span>Тип: discrete output</span>
+                    <span>Канал: channel:do_purge_valve</span>
+                    <span>Статус: ON</span>
+                  </div>
+                </div>
+                <div class="node">
+                  <strong>Display Row Preview</strong>
+                  <div class="meta">
+                    <span>Клапан открыт</span>
+                    <span>Закроется через 4.9 s</span>
+                    <span>Источник: timer.phase_state + timer.phase_remaining</span>
+                  </div>
+                </div>
+                <div class="slot">
+                  <strong>+ Добавить выход</strong>
+                  <div class="muted">Реле, соленоид, setpoint, lamp, service field.</div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </main>
+
+        <aside class="pane">
+          <div class="pane-head">
+            <div>
+              <h2>Инспектор</h2>
+              <div class="muted">Настройки только выбранного узла. Без перегруза internals на первом экране.</div>
+            </div>
+            <span class="badge ok">Timer selected</span>
+          </div>
+
+          <div class="inspector-stack">
+            <div class="info-card">
+              <strong>Что делает</strong>
+              <div class="muted">Запускает цикл только когда enable=true. Публикует активность, фазу и оставшееся время.</div>
+            </div>
+
+            <div class="info-card">
+              <strong>Основные поля</strong>
+              <div class="muted">Режим, ON time, OFF time, stop policy, enable source.</div>
+            </div>
+
+            <div class="info-card">
+              <strong>Автосоздастся</strong>
+              <div class="muted">owned timer block, published timer outputs, module status bindings.</div>
+            </div>
+
+            <div class="info-card">
+              <strong>Advanced</strong>
+              <div class="muted">Generated internals, runtime signals и raw blocks открываются только по запросу.</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="note">
+      <h2>Что меняется этой упрощённой моделью</h2>
+      <ul>
+        <li>На первом экране больше нет отдельной большой колонки `Authority / Policy`.</li>
+        <li>Режимы `ON/OFF`, `AUTO/MANUAL`, `LOCAL/REMOTE` остаются в компактном верхнем контексте.</li>
+        <li>Пользователь редактирует один выбранный сценарий, а не всю внутреннюю архитектуру сразу.</li>
+        <li>Generated internals и runtime graph уходят в `Advanced`, а не занимают главный экран.</li>
+        <li>Сценарий остаётся центром проекта, но простая логика не обязана сразу превращаться в отдельный sequence.</li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>

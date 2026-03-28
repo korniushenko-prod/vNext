@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scenario-First Authoring Vision v1</title>
+  <style>
+    :root{
+      --bg:#f4f1e8;
+      --paper:#fffdf9;
+      --ink:#1f262b;
+      --muted:#607079;
+      --line:#d8d1c4;
+      --accent:#c45d2c;
+      --accent-soft:#f7e6da;
+      --ok:#e6f4e7;
+      --ok-ink:#245a31;
+      --idle:#edf0f2;
+      --idle-ink:#5a6670;
+      --warn:#fff2db;
+      --warn-ink:#8f5a00;
+      --shadow:0 18px 44px rgba(31,38,43,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top left,#f8ede0 0,transparent 34%),
+        linear-gradient(180deg,#f7f3ea 0%,var(--bg) 100%);
+      color:var(--ink);
+      font:16px/1.45 "Trebuchet MS","Segoe UI",sans-serif;
+    }
+    .page{width:min(1560px,calc(100% - 26px));margin:22px auto 56px;display:grid;gap:18px}
+    .hero,.panel{background:var(--paper);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+    .hero{padding:24px 28px;display:grid;gap:14px;background:radial-gradient(circle at right top,rgba(196,93,44,.14),transparent 28%),var(--paper)}
+    .hero h1,.panel h2,.panel h3{margin:0}
+    .muted,.hero p{margin:0;color:var(--muted)}
+    .chips{display:flex;flex-wrap:wrap;gap:10px}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;border:1px solid var(--line);
+      background:#fff;font-weight:700;font-size:13px
+    }
+    .chip.ok{background:var(--ok);color:var(--ok-ink);border-color:#bad4bf}
+    .chip.idle{background:var(--idle);color:var(--idle-ink);border-color:#cfd7dc}
+    .chip.warn{background:var(--warn);color:var(--warn-ink);border-color:#ebcc8a}
+    .panel-grid{padding:22px;display:grid;gap:18px}
+    .grid-2{display:grid;grid-template-columns:360px 1fr;gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .card,.tree,.canvas,.inspector,.runtime,.lane{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff;
+      padding:16px;
+      display:grid;
+      gap:12px;
+    }
+    .card h3,.tree h3,.canvas h3,.inspector h3,.runtime h3,.lane h3{font-size:18px}
+    .small{font-size:13px;color:var(--muted)}
+    .tree-list{display:grid;gap:8px}
+    .tree-node{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:10px 12px;
+      display:grid;
+      gap:6px;
+    }
+    .tree-node.main{background:linear-gradient(180deg,#fffaf5 0,var(--accent-soft) 100%);border-color:#d9b29e}
+    .tree-node.active{background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%);border-color:#bdd5c1}
+    .tree-node .row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .badge{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;
+      text-transform:uppercase;letter-spacing:.08em;border:1px solid currentColor
+    }
+    .badge.main{color:#8b4b21;background:rgba(255,255,255,.72)}
+    .badge.active{color:var(--ok-ink);background:rgba(255,255,255,.72)}
+    .badge.idle{color:var(--idle-ink);background:rgba(255,255,255,.72)}
+    .workspace{
+      display:grid;
+      grid-template-columns:minmax(280px,360px) 1fr minmax(280px,340px);
+      gap:16px;
+      align-items:start;
+    }
+    .module-list,.inspector-list,.runtime-list{display:grid;gap:10px}
+    .module{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:12px;
+      background:#fff;
+      display:grid;
+      gap:8px;
+    }
+    .module.primitive{background:linear-gradient(180deg,#fbfcfd 0,#f5f7f8 100%)}
+    .module.functional{background:linear-gradient(180deg,#fffef8 0,#fdf5e8 100%)}
+    .module.sequence{background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%)}
+    .ports{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+    .lane-flow{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+    .node{
+      min-width:165px;max-width:230px;flex:1 1 165px;
+      border:1px solid var(--line);border-radius:18px;background:#fff;padding:12px;display:grid;gap:8px
+    }
+    .node.main{background:linear-gradient(180deg,#fffaf5 0,var(--accent-soft) 100%);border-color:#d9b29e}
+    .node.sequence{background:linear-gradient(180deg,#fbfffb 0,var(--ok) 100%);border-color:#bdd5c1}
+    .node.idle{background:linear-gradient(180deg,#fafbfc 0,var(--idle) 100%);border-color:#dbe1e6}
+    .node.slot{border-style:dashed;border-width:2px;background:#fff8f3}
+    .arrow{min-width:36px;display:grid;place-items:center;color:var(--muted);font-size:22px;font-weight:800}
+    .runtime-box{
+      border:1px dashed #cfc7b9;
+      border-radius:18px;
+      padding:12px;
+      background:#fffcf7;
+      display:grid;
+      gap:8px;
+    }
+    .runtime-box ul,.card ul,.inspector ul{margin:0;padding-left:18px}
+    .runtime-box li,.card li,.inspector li{margin:4px 0}
+    .callout{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff;
+      padding:16px 18px;
+      display:grid;
+      gap:10px;
+    }
+    .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .summary{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:14px;
+      display:grid;
+      gap:6px;
+    }
+    .summary b{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .summary strong{font-size:19px}
+    @media (max-width:1200px){
+      .workspace,.grid-2,.summary-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:900px){
+      .page{width:min(100%,calc(100% - 16px));margin:12px auto 28px}
+      .hero,.panel,.card,.tree,.canvas,.inspector,.runtime,.lane{border-radius:18px}
+      .panel-grid{padding:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1>Scenario-First Authoring Vision v1</h1>
+      <p>Это целевая модель продукта: пользователь не начинает с raw blocks. Он начинает с проекта и root-сценария <b>Main</b>, кидает в него понятные модули, а потом при росте сложности выделяет child sequences. Под капотом система materialize-ит всё в реальные `signals + blocks + sequences`, но прошивка остаётся одной и той же.</p>
+      <div class="chips">
+        <span class="chip ok">Одна прошивка</span>
+        <span class="chip ok">Простой проект без перепрошивки</span>
+        <span class="chip ok">Сложный проект без смены движка</span>
+        <span class="chip idle">Main по умолчанию всегда существует</span>
+        <span class="chip warn">Blocks остаются advanced-слоем</span>
+      </div>
+    </section>
+
+    <section class="panel panel-grid">
+      <div class="summary-grid">
+        <div class="summary"><b>Точка входа</b><strong>Project → Main</strong><span class="small">Пользователь всегда начинает не с блока, а с корневого сценария.</span></div>
+        <div class="summary"><b>Основной язык</b><strong>Modules</strong><span class="small">Кирпичики понятны по задаче, а не по внутренним полям runtime.</span></div>
+        <div class="summary"><b>Рост сложности</b><strong>Child Sequences</strong><span class="small">Когда нужна фазовая логика, часть Main выделяется в отдельный sequence.</span></div>
+        <div class="summary"><b>Исполнение</b><strong>Flat Runtime</strong><span class="small">Исполняются только signals, blocks, sequences и alarms.</span></div>
+      </div>
+    </section>
+
+    <section class="panel panel-grid">
+      <div class="grid-2">
+        <div class="tree">
+          <h2>Проект</h2>
+          <p class="small">Вот как должен выглядеть project tree. Пользователь не теряет стартовую точку и не обязан переделывать проект, если логика позже усложнилась.</p>
+          <div class="tree-list">
+            <div class="tree-node main">
+              <div class="row"><strong>Main</strong><span class="badge main">root</span></div>
+              <span class="small">Корневой orchestration container проекта</span>
+            </div>
+            <div class="tree-node active">
+              <div class="row"><strong>Burning</strong><span class="badge active">sequence</span></div>
+              <span class="small">Фазовая логика горения, выделенная из Main позже</span>
+            </div>
+            <div class="tree-node active">
+              <div class="row"><strong>Purge</strong><span class="badge active">sequence</span></div>
+              <span class="small">Подготовка и продувка как отдельный child sequence</span>
+            </div>
+            <div class="tree-node">
+              <div class="row"><strong>Flow / RPM</strong><span class="badge idle">module pack</span></div>
+              <span class="small">Может остаться прямо в Main без отдельного sequence</span>
+            </div>
+            <div class="tree-node">
+              <div class="row"><strong>Custom Module Library</strong><span class="badge idle">reuse</span></div>
+              <span class="small">Повторно используемые сборки пользователя</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Главная мысль</h2>
+          <ul>
+            <li>`Main` должен существовать всегда и быть безопасной стартовой точкой.</li>
+            <li>Простой проект может целиком жить в `Main` без sequence.</li>
+            <li>Когда логика стала фазовой, часть Main выделяется в child sequence, а не ломает уже сделанную работу.</li>
+            <li>Sequence обязан публиковать `enabled / active / waiting / done / fault / current_state`.</li>
+            <li>Модули должны быть меньше текущих “больших шаблонов” и ближе к composable bricks.</li>
+            <li>Blocks остаются честным advanced-слоем, но не главным путём входа.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-grid">
+      <div class="workspace">
+        <div class="canvas">
+          <h2>Каталог модулей</h2>
+          <p class="small">Модули должны быть не giant mechanisms, а сборочными единицами двух размеров: primitive и functional.</p>
+          <div class="module-list">
+            <div class="module primitive">
+              <strong>Input / Button</strong>
+              <div class="ports"><span>pressed / held / toggle / set-reset</span><span>bind to existing signal before create</span></div>
+            </div>
+            <div class="module primitive">
+              <strong>Timer</strong>
+              <div class="ports"><span>pulse / delay_on / delay_off / interval</span><span>publishes active / running / phase_remaining</span></div>
+            </div>
+            <div class="module primitive">
+              <strong>Discrete Output</strong>
+              <div class="ports"><span>relay / solenoid / contactor</span><span>output + optional feedback</span></div>
+            </div>
+            <div class="module functional">
+              <strong>Cyclic Output</strong>
+              <div class="ports"><span>timer + gate + optional manual override</span><span>good for purge, drain, pulse valves</span></div>
+            </div>
+            <div class="module functional">
+              <strong>Signal Extractor</strong>
+              <div class="ports"><span>digital / threshold / diff pair</span><span>good for pulses, flow pickup, Fan RPM</span></div>
+            </div>
+            <div class="module sequence">
+              <strong>Child Sequence</strong>
+              <div class="ports"><span>for phase logic only</span><span>purge / burning / cooldown / auto start</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lane">
+          <h2>Main Workspace</h2>
+          <p class="small">Так должен выглядеть основной user path: Main как сценарий, в который сначала кладутся модули, а потом при необходимости добавляются child sequences.</p>
+          <div class="lane-flow">
+            <div class="node main">
+              <strong>Main</strong>
+              <span class="small">always present</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <strong>Input / Button</strong>
+              <span class="small">manual start / stop / enable</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <strong>Cyclic Output</strong>
+              <span class="small">simple task stays in Main</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node slot">
+              <strong>+ Add Child Sequence</strong>
+              <span class="small">when phase logic appears</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node sequence">
+              <strong>Burning</strong>
+              <span class="small">active / waiting / done / fault</span>
+            </div>
+          </div>
+          <div class="callout">
+            <h3>Правило роста</h3>
+            <p class="small">Логика не должна заставлять пользователя “начать заново правильно”. Правильная система позволяет начать просто, а потом разрезать Main на более структурные child sequences без потери уже настроенных ресурсов и модулей.</p>
+          </div>
+        </div>
+
+        <div class="inspector">
+          <h2>Inspector / Wizard</h2>
+          <div class="inspector-list">
+            <div class="runtime-box">
+              <strong>Step 1. Bind</strong>
+              <ul>
+                <li>найти существующие channels/signals</li>
+                <li>если их нет, предложить создать</li>
+              </ul>
+            </div>
+            <div class="runtime-box">
+              <strong>Step 2. Configure</strong>
+              <ul>
+                <li>режим модуля</li>
+                <li>timers / thresholds / policy</li>
+              </ul>
+            </div>
+            <div class="runtime-box">
+              <strong>Step 3. Preview</strong>
+              <ul>
+                <li>какие signals будут созданы</li>
+                <li>какие blocks будут созданы</li>
+                <li>нужен ли owned sequence</li>
+              </ul>
+            </div>
+            <div class="runtime-box">
+              <strong>Step 4. Publish</strong>
+              <ul>
+                <li>какие outputs пойдут наружу</li>
+                <li>что увидят Service / Display</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-grid">
+      <div class="runtime">
+        <h2>Что реально исполняется</h2>
+        <p class="small">Сценарии и модули нужны человеку. Контроллер не должен исполнять их рекурсивно. После materialize у нас остаётся плоский runtime graph.</p>
+        <div class="grid-3">
+          <div class="runtime-box">
+            <strong>Source / Bound Signals</strong>
+            <ul>
+              <li>`compressor_running`</li>
+              <li>`manual_override`</li>
+              <li>`pressure_pv`</li>
+            </ul>
+          </div>
+          <div class="runtime-box">
+            <strong>Generated Blocks</strong>
+            <ul>
+              <li>`timer.cycle_1`</li>
+              <li>`logic_gate.main_or_1`</li>
+              <li>`threshold.main_cmp_1`</li>
+            </ul>
+          </div>
+          <div class="runtime-box">
+            <strong>Owned Sequences</strong>
+            <ul>
+              <li>`sequence.purge`</li>
+              <li>`sequence.burning`</li>
+              <li>plus alarms / outputs</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout">
+          <h3>Ключевое правило</h3>
+          <p class="small"><b>Authoring graph</b> может быть многоуровневым, но <b>runtime graph</b> должен оставаться плоским. Это и позволяет одной прошивке тянуть и простой проект, и сложный механизм.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-grid">
+      <div class="card">
+        <h2>К чему идём</h2>
+        <ul>
+          <li>Пользователь начинает с `Project -> Main`, а не с таблицы блоков.</li>
+          <li>Основной авторинг идёт через небольшие модули-кирпичики.</li>
+          <li>Когда нужна фазовая логика, пользователь добавляет child sequences.</li>
+          <li>Каждый module/sequence materialize-ит реальные internals.</li>
+          <li>Service и Display видят published outputs и выбранные generated values.</li>
+          <li>Одна и та же прошивка остаётся годной и для простого, и для сложного проекта.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

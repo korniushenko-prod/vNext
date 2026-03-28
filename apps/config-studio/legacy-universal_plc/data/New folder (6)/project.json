@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "meta": {
+      "id": "project",
+      "name": "Котел",
+      "description": "создаем систему управления котлом",
+      "author": "OpenAI",
+      "created_at": "2026-03-25T00:00:52.554Z",
+      "updated_at": "2026-03-25T00:03:30.427Z",
+      "tags": []
+    },
+    "settings": {
+      "tick_ms": 100,
+      "timezone": "UTC",
+      "default_view": "",
+      "autosave": true,
+      "simulation_enabled": true,
+      "debug_enabled": true
+    },
+    "hardware": {
+      "modules": []
+    },
+    "system": {
+      "id": "project_system",
+      "name": "Котел System",
+      "objects": [],
+      "signals": [],
+      "signal_groups": [],
+      "alarms": [],
+      "alarm_matrix": [],
+      "links": []
+    },
+    "runtime_defaults": {
+      "signals": {},
+      "objects": {}
+    },
+    "views": []
+  }
+}
