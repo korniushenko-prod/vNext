@@ -2,60 +2,64 @@
 
 Date: 2026-03-28
 Status: accepted
+Canonical repo: `vNext`
 
-## Imported into vNext
+## Decision
 
-### Runtime/target base
-Source: `C:\Users\Administrator\Documents\PlatformIO\Projects\ShipController`
-Destination: `targets/shipcontroller-esp32`
+`vNext` is the only active working repository.
+The previous projects are preserved here as imported historical working bases.
 
-Imported:
-- `data/`
-- `docs/`
-- `flowmeter_web2/`
-- `flowmetr_v3/`
-- `include/`
-- `src/`
-- `test/`
-- `platformio.ini`
-- `.gitattributes`
-- `.gitignore`
-- `README.md` (replaced with vNext-local target note)
+## Imported Bases
 
-Excluded as non-canonical or temporary:
-- `.git/`
-- `.pio/`
-- `.vscode/`
-- `integration_workspace_20260328/`
-- `*.zip`
-- `tmp_*`
-- `.tmp_*`
+### 1. ShipController runtime base
 
-### Authoring/editor reference base
-Source: `C:\Users\Administrator\Documents\PlatformIO\Projects\universal_plc`
-Destination: `apps/config-studio/legacy-universal_plc`
+Source:
+- `C:\Users\Administrator\Documents\PlatformIO\Projects\ShipController`
 
-Imported:
-- `data/`
-- `docs/`
-- `include/`
-- `lib/`
-- `projects/`
-- `src/`
-- `test/`
-- `platformio.ini`
-- `.gitattributes`
-- `.gitignore`
-- `README.md` (replaced with vNext-local legacy note)
+Imported into:
+- `targets/shipcontroller-esp32`
 
-Excluded as non-canonical or temporary:
-- `.git/`
-- `.pio/`
-- `.vscode/`
-- `ui_plc/` (empty git stub)
-- `universal_pl/` (empty git stub)
-- `docs.zip`
+Purpose:
+- runtime
+- hardware integration
+- target execution
+- embedded services
 
-## Canonical rule
-From this point forward, active work continues in `vNext` only.
-Legacy projects remain external references and historical source bases.
+### 2. universal_plc authoring base
+
+Source:
+- `C:\Users\Administrator\Documents\PlatformIO\Projects\universal_plc`
+
+Imported into:
+- `apps/config-studio/legacy-universal_plc`
+
+Purpose:
+- editor
+- authoring model
+- UI shell
+- previous config studio implementation
+
+## Exclusions
+
+The import intentionally excludes:
+- `.git`
+- `.pio`
+- `.vscode`
+- temporary caches
+- generated build folders
+- ad-hoc integration workspaces
+- zip archives
+
+## Working Rule
+
+From this point forward:
+- new work happens only in `vNext`
+- `ShipController` and `universal_plc` are treated as historical bases
+- code is reused by controlled migration into canonical packages/apps/targets inside `vNext`
+
+## Immediate Layout
+
+- `apps/config-studio` — current vNext config studio app
+- `apps/config-studio/legacy-universal_plc` — imported legacy authoring base
+- `targets/shipcontroller-esp32` — imported runtime base
+- `packages/*` — canonical shared contracts and future shared logic
