@@ -1,0 +1,9 @@
+﻿{
+  "name": "@universal-plc/config-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static authoring shell migrated from universal_plc into vNext",
+  "scripts": {
+    "check": "echo config-studio shell has no build pipeline yet"
+  }
+}
