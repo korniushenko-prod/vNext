@@ -53,6 +53,22 @@ importers:
         specifier: ^5.8.2
         version: 5.9.3
 
+  targets/esp32-target-adapter:
+    dependencies:
+      '@universal-plc/runtime-pack-schema':
+        specifier: workspace:*
+        version: link:../../packages/runtime-pack-schema
+      '@universal-plc/target-adapter-contracts':
+        specifier: workspace:*
+        version: link:../../packages/target-adapter-contracts
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.0
+        version: 22.19.15
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
 packages:
 
   '@types/node@22.19.15':
