@@ -1,0 +1,10 @@
+{
+  "id": "shipcontroller-esp32",
+  "kind": "target_adapter",
+  "contract_version": "0.1.0",
+  "display_name": "ShipController ESP32 Adapter",
+  "target_family": "esp32",
+  "runtime_pack_schema_version": "0.1.0",
+  "capabilities": ["validate", "emit", "apply", "readback", "diagnostics"],
+  "artifact_kinds": ["bundle", "firmware", "report"]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "broken-adapter",
+  "kind": "target_adapter",
+  "contract_version": "0.0.9",
+  "display_name": "Broken Adapter",
+  "target_family": "esp32",
+  "runtime_pack_schema_version": "0.1.0",
+  "capabilities": ["emit", "unknown"],
+  "artifact_kinds": ["bundle"]
+}

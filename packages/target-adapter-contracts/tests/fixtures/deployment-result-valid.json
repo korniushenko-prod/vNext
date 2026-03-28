@@ -1,0 +1,22 @@
+{
+  "request_id": "req_001",
+  "success": true,
+  "diagnostics": [
+    {
+      "code": "emit.ok",
+      "severity": "info",
+      "message": "Bundle emitted."
+    }
+  ],
+  "artifacts": {
+    "bundle_1": {
+      "id": "bundle_1",
+      "kind": "bundle",
+      "uri": "file:///tmp/runtime-pack.zip",
+      "media_type": "application/zip",
+      "meta": {
+        "size": 2048
+      }
+    }
+  }
+}

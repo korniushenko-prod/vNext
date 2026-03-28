@@ -1,0 +1,1 @@
+export const TARGET_ADAPTER_CONTRACT_VERSION = "0.1.0";
