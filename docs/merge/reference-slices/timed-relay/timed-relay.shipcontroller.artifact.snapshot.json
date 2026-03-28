@@ -1,0 +1,46 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "timed-relay-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [
+      {
+        "id": "di_start_button_1",
+        "instance_id": "start_button_1",
+        "pin": 12,
+        "pullup": true,
+        "debounce_ms": 20
+      }
+    ],
+    "digital_outputs": [
+      {
+        "id": "do_pump_contact_1",
+        "instance_id": "pump_contact_1",
+        "pin": 17,
+        "active_high": true
+      }
+    ],
+    "timed_relays": [
+      {
+        "id": "relay_1",
+        "native_kind": "std.timed_relay.v1",
+        "pulse_time_ms": 5000,
+        "retriggerable": true,
+        "require_enable": false,
+        "output_inverted": false,
+        "trigger_source": {
+          "instance_id": "start_button_1",
+          "port_id": "value",
+          "connection_id": "conn_sig_start_to_trigger_t1"
+        },
+        "output_target": {
+          "instance_id": "pump_contact_1",
+          "port_id": "cmd",
+          "connection_id": "conn_sig_relay_to_output_t1"
+        }
+      }
+    ]
+  },
+  "diagnostics": []
+}

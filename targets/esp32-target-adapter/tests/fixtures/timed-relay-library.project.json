@@ -1,0 +1,340 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "demo_timed_relay_project",
+    "title": "Timed Relay Demo"
+  },
+  "imports": {
+    "libraries": [
+      "std"
+    ],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "digital_input": {
+        "id": "digital_input",
+        "kind": "object_type",
+        "meta": {
+          "title": "Digital Input",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std"
+        },
+        "interface": {
+          "ports": {
+            "value": {
+              "id": "value",
+              "direction": "out",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "debounce_ms": {
+              "id": "debounce_ms",
+              "value_type": "u32",
+              "default": 20
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.digital_input.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.digital_input.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      },
+      "digital_output": {
+        "id": "digital_output",
+        "kind": "object_type",
+        "meta": {
+          "title": "Digital Output",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std"
+        },
+        "interface": {
+          "ports": {
+            "cmd": {
+              "id": "cmd",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "active_high": {
+              "id": "active_high",
+              "value_type": "bool",
+              "default": true
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.digital_output.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.digital_output.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      },
+      "timed_relay": {
+        "id": "timed_relay",
+        "kind": "object_type",
+        "meta": {
+          "title": "Timed Relay",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std"
+        },
+        "interface": {
+          "ports": {
+            "trigger_cmd": {
+              "id": "trigger_cmd",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "enable_in": {
+              "id": "enable_in",
+              "direction": "in",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            },
+            "reset_cmd": {
+              "id": "reset_cmd",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "relay_out": {
+              "id": "relay_out",
+              "direction": "out",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "active_fb": {
+              "id": "active_fb",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "remaining_ms": {
+              "id": "remaining_ms",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "u32"
+            }
+          },
+          "params": {
+            "pulse_time_ms": {
+              "id": "pulse_time_ms",
+              "value_type": "u32",
+              "default": 5000
+            },
+            "retriggerable": {
+              "id": "retriggerable",
+              "value_type": "bool",
+              "default": true
+            },
+            "require_enable": {
+              "id": "require_enable",
+              "value_type": "bool",
+              "default": false
+            },
+            "output_inverted": {
+              "id": "output_inverted",
+              "value_type": "bool",
+              "default": false
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.timed_relay.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.timed_relay.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "operations": {
+            "operations": {
+              "test_pulse": {
+                "id": "test_pulse",
+                "title": "Test Pulse"
+              },
+              "reset": {
+                "id": "reset",
+                "title": "Reset"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "basic": {
+                "signals": [
+                  "active_fb",
+                  "relay_out",
+                  "remaining_ms"
+                ],
+                "sample_hint_ms": 100,
+                "chart_hint": "timeline"
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "start_button_1": {
+        "id": "start_button_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/digital_input",
+        "title": "Start Button",
+        "enabled": true,
+        "param_values": {
+          "debounce_ms": {
+            "kind": "literal",
+            "value": 20
+          }
+        }
+      },
+      "relay_1": {
+        "id": "relay_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/timed_relay",
+        "title": "Timed Relay #1",
+        "enabled": true,
+        "param_values": {
+          "pulse_time_ms": {
+            "kind": "literal",
+            "value": 5000
+          },
+          "retriggerable": {
+            "kind": "literal",
+            "value": true
+          },
+          "require_enable": {
+            "kind": "literal",
+            "value": false
+          },
+          "output_inverted": {
+            "kind": "literal",
+            "value": false
+          }
+        }
+      },
+      "pump_contact_1": {
+        "id": "pump_contact_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/digital_output",
+        "title": "Pump Contact",
+        "enabled": true,
+        "param_values": {
+          "active_high": {
+            "kind": "literal",
+            "value": true
+          }
+        }
+      }
+    },
+    "signals": {
+      "sig_start_to_trigger": {
+        "id": "sig_start_to_trigger",
+        "title": "Start Button -> Timed Relay Trigger",
+        "source": {
+          "instance_id": "start_button_1",
+          "port_id": "value"
+        },
+        "targets": {
+          "t1": {
+            "instance_id": "relay_1",
+            "port_id": "trigger_cmd"
+          }
+        }
+      },
+      "sig_relay_to_output": {
+        "id": "sig_relay_to_output",
+        "title": "Timed Relay Output -> Pump Contact",
+        "source": {
+          "instance_id": "relay_1",
+          "port_id": "relay_out"
+        },
+        "targets": {
+          "t1": {
+            "instance_id": "pump_contact_1",
+            "port_id": "cmd"
+          }
+        }
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {
+      "res_start_button_1": {
+        "id": "res_start_button_1",
+        "instance_id": "start_button_1",
+        "port_id": "value",
+        "binding_kind": "digital_in",
+        "config": {
+          "pin": 12,
+          "pullup": true
+        }
+      },
+      "res_pump_contact_1": {
+        "id": "res_pump_contact_1",
+        "instance_id": "pump_contact_1",
+        "port_id": "cmd",
+        "binding_kind": "digital_out",
+        "config": {
+          "pin": 17,
+          "active_high": true
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

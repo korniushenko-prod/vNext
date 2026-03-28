@@ -1,0 +1,275 @@
+{
+  "id": "timed_relay",
+  "kind": "object_type",
+  "meta": {
+    "title": "Timed Relay",
+    "version": "1.0.0",
+    "origin": "library",
+    "library_id": "std",
+    "description": "Turns an output on when triggered and turns it off after a configurable pulse time."
+  },
+  "interface": {
+    "ports": {
+      "trigger_cmd": {
+        "id": "trigger_cmd",
+        "title": "Trigger",
+        "direction": "in",
+        "channel_kind": "command",
+        "value_type": "bool"
+      },
+      "enable_in": {
+        "id": "enable_in",
+        "title": "Enable",
+        "direction": "in",
+        "channel_kind": "signal",
+        "value_type": "bool"
+      },
+      "reset_cmd": {
+        "id": "reset_cmd",
+        "title": "Reset",
+        "direction": "in",
+        "channel_kind": "command",
+        "value_type": "bool"
+      },
+      "relay_out": {
+        "id": "relay_out",
+        "title": "Relay Output",
+        "direction": "out",
+        "channel_kind": "command",
+        "value_type": "bool"
+      },
+      "active_fb": {
+        "id": "active_fb",
+        "title": "Active",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "remaining_ms": {
+        "id": "remaining_ms",
+        "title": "Remaining Time",
+        "direction": "out",
+        "channel_kind": "telemetry",
+        "value_type": "u32"
+      }
+    },
+    "params": {
+      "pulse_time_ms": {
+        "id": "pulse_time_ms",
+        "title": "Pulse Time",
+        "description": "How long the relay stays on after a trigger.",
+        "value_type": "u32",
+        "unit": "ms",
+        "default": 5000,
+        "min": 1,
+        "max": 600000,
+        "step": 100,
+        "group": "timing",
+        "ui_hint": "duration_ms",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "none",
+        "danger_level": "low"
+      },
+      "retriggerable": {
+        "id": "retriggerable",
+        "title": "Retriggerable",
+        "description": "If true, a new trigger restarts the pulse.",
+        "value_type": "bool",
+        "default": true,
+        "group": "timing",
+        "ui_hint": "toggle",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "none",
+        "danger_level": "low"
+      },
+      "require_enable": {
+        "id": "require_enable",
+        "title": "Require Enable",
+        "description": "If true, trigger is accepted only when enable_in is true.",
+        "value_type": "bool",
+        "default": false,
+        "group": "logic",
+        "ui_hint": "toggle",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "none",
+        "danger_level": "low"
+      },
+      "output_inverted": {
+        "id": "output_inverted",
+        "title": "Invert Output",
+        "description": "If true, invert the electrical output level.",
+        "value_type": "bool",
+        "default": false,
+        "group": "output",
+        "ui_hint": "toggle",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "project",
+        "recipe_scope": "none",
+        "danger_level": "medium"
+      }
+    },
+    "alarms": {}
+  },
+  "locals": {
+    "signals": {},
+    "vars": {}
+  },
+  "implementation": {
+    "native": {
+      "native_kind": "std.timed_relay.v1",
+      "target_kinds": [
+        "esp32.shipcontroller.v1"
+      ],
+      "config_template": "shipcontroller.timed_relay.v1"
+    },
+    "composition": null,
+    "state": null,
+    "flow": null
+  },
+  "facets": {
+    "setup": {
+      "groups": [
+        {
+          "id": "timing",
+          "title": "Timing",
+          "params": [
+            "pulse_time_ms",
+            "retriggerable"
+          ]
+        },
+        {
+          "id": "logic",
+          "title": "Logic",
+          "params": [
+            "require_enable"
+          ]
+        },
+        {
+          "id": "output",
+          "title": "Output",
+          "params": [
+            "output_inverted"
+          ]
+        }
+      ]
+    },
+    "tuning": {
+      "groups": []
+    },
+    "operations": {
+      "operations": {
+        "test_pulse": {
+          "id": "test_pulse",
+          "kind": "operation",
+          "title": "Test Pulse",
+          "ui_hint": "button",
+          "access_role": "service",
+          "safe_when": [
+            "mode=commissioning"
+          ],
+          "confirmation": "required"
+        },
+        "reset": {
+          "id": "reset",
+          "kind": "operation",
+          "title": "Reset",
+          "ui_hint": "button",
+          "access_role": "service",
+          "safe_when": [],
+          "confirmation": "none"
+        }
+      }
+    },
+    "debug": {
+      "trace_groups": {
+        "basic": {
+          "signals": [
+            "trigger_cmd",
+            "active_fb",
+            "relay_out",
+            "remaining_ms"
+          ],
+          "sample_hint_ms": 100,
+          "chart_hint": "timeline"
+        }
+      }
+    },
+    "simulation": {
+      "enabled": true,
+      "injectable_inputs": [
+        "trigger_cmd",
+        "enable_in",
+        "reset_cmd"
+      ],
+      "time_scale_supported": true
+    },
+    "views": {
+      "overview": {
+        "widgets": [
+          {
+            "kind": "state_chip",
+            "signal": "active_fb",
+            "title": "Active"
+          },
+          {
+            "kind": "numeric_value",
+            "signal": "remaining_ms",
+            "title": "Remaining"
+          },
+          {
+            "kind": "action_button",
+            "operation": "test_pulse",
+            "title": "Test Pulse"
+          }
+        ]
+      },
+      "menu": {
+        "groups": [
+          {
+            "title": "Timing",
+            "params": [
+              "pulse_time_ms",
+              "retriggerable"
+            ]
+          },
+          {
+            "title": "Logic",
+            "params": [
+              "require_enable"
+            ]
+          },
+          {
+            "title": "Output",
+            "params": [
+              "output_inverted"
+            ]
+          }
+        ]
+      }
+    },
+    "recipes": {
+      "enabled": false
+    },
+    "security": {
+      "default_view_role": "operator",
+      "default_edit_role": "engineer"
+    },
+    "comms": {
+      "exposed_ports": [
+        "trigger_cmd",
+        "relay_out",
+        "active_fb"
+      ]
+    }
+  },
+  "diagnostics": {
+    "messages": {}
+  }
+}

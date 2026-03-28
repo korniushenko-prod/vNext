@@ -24,12 +24,7 @@
         "debounce_ms": {
           "value": 20,
           "value_type": "u32",
-          "source": "instance_override",
-          "provenance": {
-            "owner_id": "start_button_1",
-            "param_id": "debounce_ms",
-            "source_layer": "system"
-          }
+          "source": "instance_override"
         }
       },
       "alarms": {},
@@ -160,12 +155,7 @@
         "active_high": {
           "value": true,
           "value_type": "bool",
-          "source": "instance_override",
-          "provenance": {
-            "owner_id": "pump_contact_1",
-            "param_id": "active_high",
-            "source_layer": "system"
-          }
+          "source": "instance_override"
         }
       },
       "alarms": {},

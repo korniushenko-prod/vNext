@@ -65,6 +65,12 @@ importers:
       '@types/node':
         specifier: ^22.13.0
         version: 22.19.15
+      '@universal-plc/materializer-core':
+        specifier: workspace:*
+        version: link:../../packages/materializer-core
+      '@universal-plc/project-schema':
+        specifier: workspace:*
+        version: link:../../packages/project-schema
       typescript:
         specifier: ^5.8.2
         version: 5.9.3

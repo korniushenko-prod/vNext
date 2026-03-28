@@ -26,6 +26,8 @@
     "@universal-plc/target-adapter-contracts": "workspace:*"
   },
   "devDependencies": {
+    "@universal-plc/materializer-core": "workspace:*",
+    "@universal-plc/project-schema": "workspace:*",
     "@types/node": "^22.13.0",
     "typescript": "^5.8.2"
   }
