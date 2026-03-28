@@ -9,6 +9,7 @@ import type {
   SystemSignal,
   SystemSignalEndpoint
 } from "./types.js";
+import { PROJECT_SCHEMA_VERSION } from "./constants.js";
 
 export type ValidationSeverity = "error" | "warning";
 
@@ -36,7 +37,7 @@ export function validateProjectModel(model: unknown): ValidationResult {
     });
   }
 
-  requireString(model, "schema_version", "$.schema_version", diagnostics);
+  requireExactString(model, "schema_version", PROJECT_SCHEMA_VERSION, "$.schema_version", diagnostics);
   requireRecord(model, "meta", "$.meta", diagnostics);
   requireRecord(model, "imports", "$.imports", diagnostics);
   requireRecord(model, "definitions", "$.definitions", diagnostics);

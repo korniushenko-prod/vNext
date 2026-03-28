@@ -8,6 +8,7 @@ import type {
   RuntimeResolvedParam,
   RuntimeResourceBinding
 } from "./types.js";
+import { RUNTIME_PACK_SCHEMA_VERSION } from "./constants.js";
 
 export type ValidationSeverity = "error" | "warning";
 
@@ -30,7 +31,7 @@ export function validateRuntimePack(value: unknown): ValidationResult {
     return fail(diagnostics, error("runtime_pack.invalid", "$", "Runtime pack must be an object."));
   }
 
-  requireString(value, "schema_version", "$.schema_version", diagnostics);
+  requireExactString(value, "schema_version", RUNTIME_PACK_SCHEMA_VERSION, "$.schema_version", diagnostics);
   requireString(value, "pack_id", "$.pack_id", diagnostics);
 
   if ("signals" in value) {

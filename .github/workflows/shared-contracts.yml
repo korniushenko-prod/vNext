@@ -1,0 +1,41 @@
+name: shared-contracts
+
+on:
+  push:
+    branches:
+      - main
+      - vnext
+  pull_request:
+
+jobs:
+  schema-packages:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - packages/project-schema
+          - packages/runtime-pack-schema
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ${{ matrix.package }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.package }}
+        run: npm install
+
+      - name: Type check
+        working-directory: ${{ matrix.package }}
+        run: npm run check
+
+      - name: Test
+        working-directory: ${{ matrix.package }}
+        run: npm test
