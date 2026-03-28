@@ -1,4 +1,4 @@
-﻿name: shared-contracts
+name: shared-contracts
 
 on:
   push:
@@ -8,37 +8,44 @@ on:
   pull_request:
 
 jobs:
-  schema-packages:
+  shared-contracts:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         package:
-          - packages/project-schema
-          - packages/runtime-pack-schema
-          - packages/target-adapter-contracts`r`n          - packages/materializer-core
+          - "@universal-plc/project-schema"
+          - "@universal-plc/runtime-pack-schema"
+          - "@universal-plc/target-adapter-contracts"
+          - "@universal-plc/materializer-core"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.11.0
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: ${{ matrix.package }}/package-lock.json
+          cache: pnpm
 
       - name: Install dependencies
-        working-directory: ${{ matrix.package }}
-        run: npm install
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Build shared contracts
+        run: |
+          pnpm --filter @universal-plc/project-schema run build
+          pnpm --filter @universal-plc/runtime-pack-schema run build
+          pnpm --filter @universal-plc/target-adapter-contracts run build
+          pnpm --filter @universal-plc/materializer-core run build
 
       - name: Type check
-        working-directory: ${{ matrix.package }}
-        run: npm run check
+        run: pnpm --filter "${{ matrix.package }}" run check
 
       - name: Test
-        working-directory: ${{ matrix.package }}
-        run: npm test
-
-
+        run: pnpm --filter "${{ matrix.package }}" run test

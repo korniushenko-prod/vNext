@@ -1,4 +1,4 @@
-﻿{
+{
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",
@@ -11,7 +11,12 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@universal-plc/project-schema": ["./node_modules/@universal-plc/project-schema/dist/index.d.ts"],
+      "@universal-plc/runtime-pack-schema": ["./node_modules/@universal-plc/runtime-pack-schema/dist/index.d.ts"]
+    }
   },
   "include": [
     "src/**/*.ts",

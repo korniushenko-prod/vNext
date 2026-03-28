@@ -1,0 +1,211 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_house_a",
+    "title": "Boiler House A"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "burner_sequence": {
+        "id": "burner_sequence",
+        "kind": "object_type",
+        "meta": {
+          "title": "Burner Sequence",
+          "version": "1.0.0",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "cmd_start": {
+              "id": "cmd_start",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "run_fb": {
+              "id": "run_fb",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "purge_time": {
+              "id": "purge_time",
+              "value_type": "duration",
+              "default": "30s"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "kind": "burner_sequence_v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "setup": {},
+          "tuning": {},
+          "operations": {},
+          "debug": {},
+          "simulation": {},
+          "views": {},
+          "recipes": {},
+          "security": {},
+          "comms": {}
+        },
+        "diagnostics": {}
+      },
+      "boiler_supervisor": {
+        "id": "boiler_supervisor",
+        "kind": "object_type",
+        "meta": {
+          "title": "Boiler Supervisor",
+          "version": "1.0.0",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "cmd_start": {
+              "id": "cmd_start",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "run_fb": {
+              "id": "run_fb",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "purge_time": {
+              "id": "purge_time",
+              "value_type": "duration",
+              "default": "45s"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": null,
+          "composition": {
+            "instances": {
+              "burner_seq": {
+                "id": "burner_seq",
+                "kind": "object_instance",
+                "type_ref": "project:burner_sequence",
+                "title": "Burner Sequence",
+                "param_values": {
+                  "purge_time": {
+                    "kind": "parent_param",
+                    "param_id": "purge_time"
+                  }
+                }
+              }
+            },
+            "routes": {
+              "route_1": {
+                "id": "route_1",
+                "from": {
+                  "kind": "parent_port",
+                  "port_id": "cmd_start"
+                },
+                "to": {
+                  "kind": "instance_port",
+                  "instance_id": "burner_seq",
+                  "port_id": "cmd_start"
+                }
+              },
+              "route_2": {
+                "id": "route_2",
+                "from": {
+                  "kind": "instance_port",
+                  "instance_id": "burner_seq",
+                  "port_id": "run_fb"
+                },
+                "to": {
+                  "kind": "parent_port",
+                  "port_id": "run_fb"
+                }
+              }
+            }
+          },
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "setup": {},
+          "tuning": {},
+          "operations": {},
+          "debug": {},
+          "simulation": {},
+          "views": {},
+          "recipes": {},
+          "security": {},
+          "comms": {}
+        },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "boiler_supervisor_1": {
+        "id": "boiler_supervisor_1",
+        "kind": "object_instance",
+        "type_ref": "project:boiler_supervisor",
+        "title": "Boiler Supervisor #1",
+        "enabled": true,
+        "param_values": {
+          "purge_time": {
+            "kind": "literal",
+            "value": "45s"
+          }
+        }
+      }
+    },
+    "signals": {
+      "sig_boiler_run": {
+        "id": "sig_boiler_run",
+        "title": "Boiler Run",
+        "source": {
+          "instance_id": "boiler_supervisor_1",
+          "port_id": "run_fb"
+        },
+        "targets": {
+          "t1": {
+            "instance_id": "boiler_supervisor_1",
+            "port_id": "cmd_start"
+          }
+        }
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

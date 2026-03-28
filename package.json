@@ -1,9 +1,9 @@
-﻿{
+{
   "name": "vnext",
   "private": true,
   "version": "0.1.0",
   "description": "Next-generation universal PLC integration repository",
-  "packageManager": "pnpm@10",
+  "packageManager": "pnpm@10.11.0",
   "scripts": {
     "check": "echo workspace skeleton ready",
     "test": "echo tests not configured yet"

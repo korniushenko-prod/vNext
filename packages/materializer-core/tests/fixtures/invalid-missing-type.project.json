@@ -1,0 +1,34 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "broken_project",
+    "title": "Broken Project"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {
+      "missing_1": {
+        "id": "missing_1",
+        "kind": "object_instance",
+        "type_ref": "project:missing_type"
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}
