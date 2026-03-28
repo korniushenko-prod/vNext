@@ -1,0 +1,118 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "boiler-pack",
+  "source": {
+    "project_id": "boiler_house_a",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-28T12:00:00Z"
+  },
+  "instances": {
+    "boiler_supervisor_1.burner_seq": {
+      "id": "boiler_supervisor_1.burner_seq",
+      "type_ref": "project:burner_sequence",
+      "title": "Burner Sequence",
+      "enabled": true,
+      "ports": {
+        "cmd_start": {
+          "id": "cmd_start",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "bool"
+        },
+        "run_fb": {
+          "id": "run_fb",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "purge_time": {
+          "value": "45s",
+          "value_type": "duration",
+          "source": "parent_param"
+        }
+      },
+      "alarms": {},
+      "source_scope": {
+        "kind": "composition",
+        "owner_id": "boiler_supervisor"
+      }
+    },
+    "boiler_supervisor_1": {
+      "id": "boiler_supervisor_1",
+      "type_ref": "project:boiler_supervisor",
+      "title": "Boiler Supervisor #1",
+      "enabled": true,
+      "ports": {
+        "cmd_start": {
+          "id": "cmd_start",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "bool"
+        },
+        "run_fb": {
+          "id": "run_fb",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_house_a"
+      }
+    }
+  },
+  "connections": {
+    "conn_parent_to_child": {
+      "id": "conn_parent_to_child",
+      "source": {
+        "instance_id": "boiler_supervisor_1",
+        "port_id": "cmd_start"
+      },
+      "target": {
+        "instance_id": "boiler_supervisor_1.burner_seq",
+        "port_id": "cmd_start"
+      },
+      "channel_kind": "command",
+      "value_type": "bool",
+      "origin": {
+        "scope_kind": "composition",
+        "owner_id": "boiler_supervisor",
+        "route_id": "route_1"
+      }
+    },
+    "conn_child_to_parent": {
+      "id": "conn_child_to_parent",
+      "source": {
+        "instance_id": "boiler_supervisor_1.burner_seq",
+        "port_id": "run_fb"
+      },
+      "target": {
+        "instance_id": "boiler_supervisor_1",
+        "port_id": "run_fb"
+      },
+      "channel_kind": "state",
+      "value_type": "bool",
+      "origin": {
+        "scope_kind": "composition",
+        "owner_id": "boiler_supervisor",
+        "route_id": "route_2"
+      }
+    }
+  },
+  "resources": {
+    "resource_1": {
+      "id": "resource_1",
+      "binding_kind": "digital_out",
+      "instance_id": "boiler_supervisor_1.burner_seq",
+      "port_id": "run_fb",
+      "config": {
+        "pin": 17
+      }
+    }
+  }
+}

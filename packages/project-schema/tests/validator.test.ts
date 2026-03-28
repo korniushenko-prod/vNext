@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import minimalProject from "./fixtures/minimal-project.json";
-import invalidProject from "./fixtures/system-routes-invalid.json";
+import minimalProject from "./fixtures/minimal-project.json" with { type: "json" };
+import invalidProject from "./fixtures/system-routes-invalid.json" with { type: "json" };
 import { validateProjectModel } from "../src/index.js";
 
 test("validateProjectModel accepts canonical minimal project", () => {

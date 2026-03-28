@@ -1,0 +1,57 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "demo-pack",
+  "source": {
+    "project_id": "demo_project",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {
+    "relay_1": {
+      "id": "relay_1",
+      "type_ref": "project:relay_controller",
+      "title": "Relay #1",
+      "enabled": true,
+      "ports": {
+        "cmd_on": {
+          "id": "cmd_on",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "bool"
+        },
+        "is_on": {
+          "id": "is_on",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_project"
+      }
+    }
+  },
+  "connections": {
+    "conn_1": {
+      "id": "conn_1",
+      "source": {
+        "instance_id": "relay_1",
+        "port_id": "is_on"
+      },
+      "target": {
+        "instance_id": "relay_1",
+        "port_id": "cmd_on"
+      },
+      "channel_kind": "state",
+      "value_type": "bool",
+      "origin": {
+        "scope_kind": "system",
+        "owner_id": "demo_project",
+        "signal_id": "sig_relay_state"
+      }
+    }
+  },
+  "resources": {}
+}

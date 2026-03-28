@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import compositionValid from "./fixtures/composition-valid.json";
+import compositionValid from "./fixtures/composition-valid.json" with { type: "json" };
 import { validateProjectModel } from "../src/index.js";
 
 test("composition fixture passes structural validation", () => {
