@@ -9,36 +9,36 @@ import timedRelayPack from "./fixtures/timed-relay.runtime-pack.json" with { typ
 import { emitShipControllerConfigArtifact } from "../src/index.js";
 
 test("emitter creates a ShipController-shaped artifact for a valid runtime pack", () => {
-  const artifact = emitShipControllerConfigArtifact(timedRelayPack as RuntimePack);
+  const artifact = emitShipControllerConfigArtifact(timedRelayPack as unknown as RuntimePack);
 
-  assert.equal(artifact.meta.target_id, "esp32-shipcontroller");
-  assert.equal(artifact.meta.pack_id, "timed-relay-pack");
-  assert.equal(artifact.instances.length, 1);
-  assert.equal(artifact.connections.length, 1);
-  assert.equal(artifact.resources.length, 1);
-  assert.equal(artifact.native_execution_placeholders.length, 1);
+  assert.equal(artifact.target_kind, "esp32.shipcontroller.v1");
+  assert.equal(artifact.source_pack_id, "timed-relay-demo-pack");
+  assert.equal(artifact.artifacts.digital_inputs.length, 1);
+  assert.equal(artifact.artifacts.digital_outputs.length, 1);
+  assert.equal(artifact.artifacts.timed_relays.length, 1);
 });
 
 test("emitter is byte-stable for the same input after canonical stringify", () => {
-  const first = emitShipControllerConfigArtifact(timedRelayPack as RuntimePack);
-  const second = emitShipControllerConfigArtifact(timedRelayPack as RuntimePack);
+  const first = emitShipControllerConfigArtifact(timedRelayPack as unknown as RuntimePack);
+  const second = emitShipControllerConfigArtifact(timedRelayPack as unknown as RuntimePack);
 
   assert.equal(canonicalStringify(first), canonicalStringify(second));
   assert.equal(canonicalStringify(first), canonicalStringify(timedRelayArtifact));
 });
 
 test("artifact does not contain UI or editor fields", () => {
-  const artifact = emitShipControllerConfigArtifact(timedRelayPack as RuntimePack) as unknown as Record<string, unknown>;
+  const artifact = emitShipControllerConfigArtifact(timedRelayPack as unknown as RuntimePack) as unknown as Record<string, unknown>;
 
   assert.equal("layouts" in artifact, false);
   assert.equal("views" in artifact, false);
   assert.equal("hardware" in artifact, false);
   assert.equal(JSON.stringify(artifact).includes("source_scope"), false);
+  assert.equal(JSON.stringify(artifact).includes("native_execution_placeholders"), false);
 });
 
 test("emitter does not mutate the input runtime pack", () => {
   const before = canonicalStringify(timedRelayPack);
-  emitShipControllerConfigArtifact(timedRelayPack as RuntimePack);
+  emitShipControllerConfigArtifact(timedRelayPack as unknown as RuntimePack);
   const after = canonicalStringify(timedRelayPack);
 
   assert.equal(after, before);

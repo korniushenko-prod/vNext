@@ -35,7 +35,7 @@ export function buildEsp32ApplyPlan(pack: RuntimePack): Esp32ApplyPlan {
   ];
 
   return {
-    target_id: "esp32-shipcontroller",
+    target_id: "esp32.shipcontroller.v1",
     pack_id: pack.pack_id,
     steps,
     diagnostics: compatibility.diagnostics

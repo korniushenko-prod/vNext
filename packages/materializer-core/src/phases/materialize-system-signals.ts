@@ -45,20 +45,19 @@ export function materializeSystemSignals(
     }
 
     const targets = normalizeSignalTargets(signal.targets);
-    for (let index = 0; index < targets.length; index += 1) {
-      const target = targets[index];
+    for (const [targetId, target] of targets) {
       const targetPort = resolvePort(runtimePack.instances, target.instance_id, target.port_id);
       if (!targetPort) {
         diagnostics.push(error(
           "materialize_system_signals",
           "system_signal.target.unresolved",
-          `$.system.signals.${signalId}.targets.${index}`,
+          `$.system.signals.${signalId}.targets.${targetId}`,
           `Cannot resolve target endpoint ${target.instance_id}.${target.port_id}.`
         ));
         continue;
       }
 
-      const connectionId = systemConnectionId(signalId, index);
+      const connectionId = systemConnectionId(signalId, targetId);
       const connection: RuntimeConnection = {
         id: connectionId,
         source: endpoint(source.instance_id, source.port_id),
@@ -66,7 +65,7 @@ export function materializeSystemSignals(
         channel_kind: sourcePort.channel_kind,
         value_type: sourcePort.value_type,
         origin: {
-          scope_kind: "system",
+          origin_layer: "system",
           owner_id: project.meta.project_id,
           signal_id: signalId
         }
@@ -89,13 +88,16 @@ function resolvePort(
   return instances[instanceId]?.ports?.[portId] as PortLike | undefined;
 }
 
-function normalizeSignalTargets(value: unknown): Array<{ instance_id: string; port_id: string }> {
+function normalizeSignalTargets(value: unknown): Array<[string, { instance_id: string; port_id: string }]> {
   if (Array.isArray(value)) {
-    return value as Array<{ instance_id: string; port_id: string }>;
+    return (value as Array<{ instance_id: string; port_id: string }>).map((entry, index) => [
+      `t${index + 1}`,
+      entry
+    ]);
   }
 
   if (value && typeof value === "object") {
-    return Object.values(value as Record<string, { instance_id: string; port_id: string }>);
+    return Object.entries(value as Record<string, { instance_id: string; port_id: string }>);
   }
 
   return [];

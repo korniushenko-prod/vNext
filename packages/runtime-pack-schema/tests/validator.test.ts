@@ -27,3 +27,8 @@ test("validateRuntimePack enforces canonical runtime schema version", () => {
   assert.ok(result.diagnostics.some((entry) => entry.path === "$.schema_version"));
   assert.equal(RUNTIME_PACK_SCHEMA_VERSION, "0.1.0");
 });
+
+test("validateRuntimePack accepts native execution metadata and empty ops/trace groups", () => {
+  const result = validateRuntimePack(minimalRuntimePack);
+  assert.equal(result.ok, true);
+});

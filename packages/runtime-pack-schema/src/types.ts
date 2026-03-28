@@ -1,5 +1,5 @@
 export type RuntimeBindingKind = "digital_in" | "digital_out" | "analog_in" | "analog_out" | "bus" | "service";
-export type RuntimeParamSource = "default" | "override" | "parent_param" | "materialized";
+export type RuntimeParamSource = "default" | "override" | "instance_override" | "parent_param" | "materialized";
 export type RuntimeConnectionScope = "system" | "composition";
 export type RuntimePortDirection = "in" | "out";
 
@@ -10,6 +10,8 @@ export interface RuntimePack {
   instances: Record<string, RuntimeInstance>;
   connections: Record<string, RuntimeConnection>;
   resources: Record<string, RuntimeResourceBinding>;
+  operations: Record<string, RuntimeOperation>;
+  trace_groups: Record<string, RuntimeTraceGroup>;
 }
 
 export interface RuntimePackSource {
@@ -26,6 +28,7 @@ export interface RuntimeInstance {
   ports: Record<string, RuntimePort>;
   params: Record<string, RuntimeResolvedParam>;
   alarms: Record<string, RuntimeAlarm>;
+  native_execution?: RuntimeNativeExecution;
   source_scope?: RuntimeSourceScope;
 }
 
@@ -40,6 +43,7 @@ export interface RuntimeResolvedParam {
   value: unknown;
   value_type?: string;
   source: RuntimeParamSource;
+  provenance?: RuntimeParamProvenance;
 }
 
 export interface RuntimeAlarm {
@@ -62,7 +66,7 @@ export interface RuntimeEndpoint {
 }
 
 export interface RuntimeConnectionOrigin {
-  scope_kind: RuntimeConnectionScope;
+  origin_layer: RuntimeConnectionScope;
   owner_id: string;
   signal_id?: string;
   route_id?: string;
@@ -79,4 +83,36 @@ export interface RuntimeResourceBinding {
 export interface RuntimeSourceScope {
   kind: RuntimeConnectionScope;
   owner_id: string;
+}
+
+export interface RuntimeNativeExecution {
+  native_kind: string;
+  target_kinds?: string[];
+  config_template?: unknown;
+}
+
+export interface RuntimeParamProvenance {
+  owner_id: string;
+  param_id: string;
+  source_layer: RuntimeConnectionScope;
+}
+
+export interface RuntimeOperation {
+  id: string;
+  owner_instance_id: string;
+  kind: string;
+  title?: string;
+}
+
+export interface RuntimeTraceSignalRef {
+  instance_id: string;
+  port_id: string;
+}
+
+export interface RuntimeTraceGroup {
+  id: string;
+  owner_instance_id: string;
+  signals: RuntimeTraceSignalRef[];
+  sample_hint_ms?: number;
+  chart_hint?: string;
 }

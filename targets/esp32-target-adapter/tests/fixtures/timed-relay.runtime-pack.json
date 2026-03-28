@@ -1,20 +1,65 @@
 {
   "schema_version": "0.1.0",
-  "pack_id": "timed-relay-pack",
+  "pack_id": "timed-relay-demo-pack",
   "source": {
-    "project_id": "timed-relay-demo",
+    "project_id": "demo_timed_relay_project",
     "authoring_schema_version": "0.4.0",
-    "generated_at": "2026-03-28T00:00:00.000Z"
+    "generated_at": "2026-03-28T12:00:00Z"
   },
   "instances": {
-    "relay_1": {
-      "id": "relay_1",
-      "type_ref": "project:timed_relay",
-      "title": "Relay #1",
+    "start_button_1": {
+      "id": "start_button_1",
+      "type_ref": "library:std/digital_input",
+      "title": "Start Button",
       "enabled": true,
       "ports": {
-        "enable_cmd": {
-          "id": "enable_cmd",
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "debounce_ms": {
+          "value": 20,
+          "value_type": "u32",
+          "source": "instance_override"
+        }
+      },
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_timed_relay_project"
+      },
+      "native_execution": {
+        "native_kind": "std.digital_input.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.digital_input.v1"
+      }
+    },
+    "relay_1": {
+      "id": "relay_1",
+      "type_ref": "library:std/timed_relay",
+      "title": "Timed Relay #1",
+      "enabled": true,
+      "ports": {
+        "trigger_cmd": {
+          "id": "trigger_cmd",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "bool"
+        },
+        "enable_in": {
+          "id": "enable_in",
+          "direction": "in",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        },
+        "reset_cmd": {
+          "id": "reset_cmd",
           "direction": "in",
           "channel_kind": "command",
           "value_type": "bool"
@@ -22,53 +67,205 @@
         "relay_out": {
           "id": "relay_out",
           "direction": "out",
-          "channel_kind": "signal",
+          "channel_kind": "command",
           "value_type": "bool"
+        },
+        "active_fb": {
+          "id": "active_fb",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "remaining_ms": {
+          "id": "remaining_ms",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "u32"
         }
       },
       "params": {
-        "hold_time": {
-          "value": "5s",
-          "value_type": "duration",
-          "source": "default"
+        "pulse_time_ms": {
+          "value": 5000,
+          "value_type": "u32",
+          "source": "instance_override",
+          "provenance": {
+            "owner_id": "relay_1",
+            "param_id": "pulse_time_ms",
+            "source_layer": "system"
+          }
+        },
+        "retriggerable": {
+          "value": true,
+          "value_type": "bool",
+          "source": "instance_override",
+          "provenance": {
+            "owner_id": "relay_1",
+            "param_id": "retriggerable",
+            "source_layer": "system"
+          }
+        },
+        "require_enable": {
+          "value": false,
+          "value_type": "bool",
+          "source": "instance_override",
+          "provenance": {
+            "owner_id": "relay_1",
+            "param_id": "require_enable",
+            "source_layer": "system"
+          }
+        },
+        "output_inverted": {
+          "value": false,
+          "value_type": "bool",
+          "source": "instance_override",
+          "provenance": {
+            "owner_id": "relay_1",
+            "param_id": "output_inverted",
+            "source_layer": "system"
+          }
         }
       },
       "alarms": {},
       "source_scope": {
         "kind": "system",
-        "owner_id": "timed_relay"
+        "owner_id": "demo_timed_relay_project"
+      },
+      "native_execution": {
+        "native_kind": "std.timed_relay.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.timed_relay.v1"
+      }
+    },
+    "pump_contact_1": {
+      "id": "pump_contact_1",
+      "type_ref": "library:std/digital_output",
+      "title": "Pump Contact",
+      "enabled": true,
+      "ports": {
+        "cmd": {
+          "id": "cmd",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "active_high": {
+          "value": true,
+          "value_type": "bool",
+          "source": "instance_override"
+        }
+      },
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_timed_relay_project"
+      },
+      "native_execution": {
+        "native_kind": "std.digital_output.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.digital_output.v1"
       }
     }
   },
   "connections": {
-    "sig_relay_feedback__1": {
-      "id": "sig_relay_feedback__1",
+    "conn_sig_start_to_trigger_t1": {
+      "id": "conn_sig_start_to_trigger_t1",
+      "source": {
+        "instance_id": "start_button_1",
+        "port_id": "value"
+      },
+      "target": {
+        "instance_id": "relay_1",
+        "port_id": "trigger_cmd"
+      },
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "demo_timed_relay_project",
+        "signal_id": "sig_start_to_trigger"
+      }
+    },
+    "conn_sig_relay_to_output_t1": {
+      "id": "conn_sig_relay_to_output_t1",
       "source": {
         "instance_id": "relay_1",
         "port_id": "relay_out"
       },
       "target": {
-        "instance_id": "relay_1",
-        "port_id": "enable_cmd"
+        "instance_id": "pump_contact_1",
+        "port_id": "cmd"
       },
-      "channel_kind": "signal",
+      "channel_kind": "command",
       "value_type": "bool",
       "origin": {
-        "scope_kind": "system",
-        "owner_id": "timed-relay-demo",
-        "signal_id": "sig_relay_feedback"
+        "origin_layer": "system",
+        "owner_id": "demo_timed_relay_project",
+        "signal_id": "sig_relay_to_output"
       }
     }
   },
   "resources": {
-    "relay_out_pin": {
-      "id": "relay_out_pin",
-      "binding_kind": "digital_out",
-      "instance_id": "relay_1",
-      "port_id": "relay_out",
+    "res_start_button_1": {
+      "id": "res_start_button_1",
+      "binding_kind": "digital_in",
+      "instance_id": "start_button_1",
+      "port_id": "value",
       "config": {
-        "pin": 5
+        "pin": 12,
+        "pullup": true
       }
+    },
+    "res_pump_contact_1": {
+      "id": "res_pump_contact_1",
+      "binding_kind": "digital_out",
+      "instance_id": "pump_contact_1",
+      "port_id": "cmd",
+      "config": {
+        "pin": 17,
+        "active_high": true
+      }
+    }
+  },
+  "operations": {
+    "op_relay_1_test_pulse": {
+      "id": "op_relay_1_test_pulse",
+      "owner_instance_id": "relay_1",
+      "kind": "test_pulse",
+      "title": "Test Pulse"
+    },
+    "op_relay_1_reset": {
+      "id": "op_relay_1_reset",
+      "owner_instance_id": "relay_1",
+      "kind": "reset",
+      "title": "Reset"
+    }
+  },
+  "trace_groups": {
+    "tg_relay_1_basic": {
+      "id": "tg_relay_1_basic",
+      "owner_instance_id": "relay_1",
+      "signals": [
+        {
+          "instance_id": "relay_1",
+          "port_id": "active_fb"
+        },
+        {
+          "instance_id": "relay_1",
+          "port_id": "relay_out"
+        },
+        {
+          "instance_id": "relay_1",
+          "port_id": "remaining_ms"
+        }
+      ],
+      "sample_hint_ms": 100,
+      "chart_hint": "timeline"
     }
   }
 }

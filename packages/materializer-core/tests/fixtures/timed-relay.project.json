@@ -29,15 +29,42 @@
             "relay_out": {
               "id": "relay_out",
               "direction": "out",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "active_fb": {
+              "id": "active_fb",
+              "direction": "out",
               "channel_kind": "state",
               "value_type": "bool"
+            },
+            "remaining_ms": {
+              "id": "remaining_ms",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "u32"
             }
           },
           "params": {
-            "pulse_time": {
-              "id": "pulse_time",
-              "value_type": "duration",
-              "default": "5s"
+            "pulse_time_ms": {
+              "id": "pulse_time_ms",
+              "value_type": "u32",
+              "default": 5000
+            },
+            "retriggerable": {
+              "id": "retriggerable",
+              "value_type": "bool",
+              "default": true
+            },
+            "require_enable": {
+              "id": "require_enable",
+              "value_type": "bool",
+              "default": false
+            },
+            "output_inverted": {
+              "id": "output_inverted",
+              "value_type": "bool",
+              "default": false
             }
           },
           "alarms": {}
@@ -48,22 +75,42 @@
         },
         "implementation": {
           "native": {
-            "kind": "timed_relay_v1"
+            "native_kind": "std.timed_relay.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.timed_relay.v1"
           },
           "composition": null,
           "state": null,
           "flow": null
         },
         "facets": {
-          "setup": {},
-          "tuning": {},
-          "operations": {},
-          "debug": {},
-          "simulation": {},
-          "views": {},
-          "recipes": {},
-          "security": {},
-          "comms": {}
+          "operations": {
+            "operations": {
+              "test_pulse": {
+                "id": "test_pulse",
+                "title": "Test Pulse"
+              },
+              "reset": {
+                "id": "reset",
+                "title": "Reset"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "basic": {
+                "signals": [
+                  "active_fb",
+                  "relay_out",
+                  "remaining_ms"
+                ],
+                "sample_hint_ms": 100,
+                "chart_hint": "timeline"
+              }
+            }
+          }
         },
         "diagnostics": {}
       }
@@ -78,9 +125,21 @@
         "title": "Relay #1",
         "enabled": true,
         "param_values": {
-          "pulse_time": {
+          "pulse_time_ms": {
             "kind": "literal",
-            "value": "5s"
+            "value": 5000
+          },
+          "retriggerable": {
+            "kind": "literal",
+            "value": true
+          },
+          "require_enable": {
+            "kind": "literal",
+            "value": false
+          },
+          "output_inverted": {
+            "kind": "literal",
+            "value": false
           }
         }
       }
@@ -103,7 +162,17 @@
     }
   },
   "hardware": {
-    "bindings": {}
+    "bindings": {
+      "relay_out_pin": {
+        "id": "relay_out_pin",
+        "instance_id": "relay_1",
+        "port_id": "relay_out",
+        "binding_kind": "digital_out",
+        "config": {
+          "pin": 5
+        }
+      }
+    }
   },
   "views": {
     "screens": {}

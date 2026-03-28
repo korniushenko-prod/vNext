@@ -2,10 +2,13 @@ import type {
   RuntimeConnection,
   RuntimeEndpoint,
   RuntimeInstance,
+  RuntimeNativeExecution,
+  RuntimeOperation,
   RuntimePack,
   RuntimePackSource,
   RuntimePort,
   RuntimeResolvedParam,
+  RuntimeTraceGroup,
   RuntimeResourceBinding
 } from "./types.js";
 import { RUNTIME_PACK_SCHEMA_VERSION } from "./constants.js";
@@ -64,6 +67,20 @@ export function validateRuntimePack(value: unknown): ValidationResult {
     }
   }
 
+  const operations = requireRecord(value, "operations", "$.operations", diagnostics);
+  if (operations) {
+    for (const [operationId, operationValue] of Object.entries(operations)) {
+      validateRuntimeOperation(operationId, operationValue, `$.operations.${operationId}`, diagnostics);
+    }
+  }
+
+  const traceGroups = requireRecord(value, "trace_groups", "$.trace_groups", diagnostics);
+  if (traceGroups) {
+    for (const [traceGroupId, traceGroupValue] of Object.entries(traceGroups)) {
+      validateRuntimeTraceGroup(traceGroupId, traceGroupValue, `$.trace_groups.${traceGroupId}`, diagnostics);
+    }
+  }
+
   return {
     ok: diagnostics.every((entry) => entry.severity !== "error"),
     diagnostics
@@ -118,6 +135,10 @@ function validateRuntimeInstance(
     }
   }
 
+  if ("native_execution" in value && value.native_execution !== undefined) {
+    validateRuntimeNativeExecution(value.native_execution, `${path}.native_execution`, diagnostics);
+  }
+
   if ("source_scope" in value && value.source_scope !== undefined) {
     const sourceScope = requireRecord(value, "source_scope", `${path}.source_scope`, diagnostics);
     if (sourceScope) {
@@ -153,7 +174,16 @@ function validateResolvedParam(value: unknown, path: string, diagnostics: Valida
   }
 
   requireOptionalString(value, "value_type", `${path}.value_type`, diagnostics);
-  requireOneOf(value, "source", ["default", "override", "parent_param", "materialized"], `${path}.source`, diagnostics);
+  requireOneOf(value, "source", ["default", "override", "instance_override", "parent_param", "materialized"], `${path}.source`, diagnostics);
+
+  if ("provenance" in value && value.provenance !== undefined) {
+    const provenance = requireRecord(value, "provenance", `${path}.provenance`, diagnostics);
+    if (provenance) {
+      requireString(provenance, "owner_id", `${path}.provenance.owner_id`, diagnostics);
+      requireString(provenance, "param_id", `${path}.provenance.param_id`, diagnostics);
+      requireOneOf(provenance, "source_layer", ["system", "composition"], `${path}.provenance.source_layer`, diagnostics);
+    }
+  }
   return true;
 }
 
@@ -176,7 +206,7 @@ function validateRuntimeConnection(
 
   const origin = requireRecord(value, "origin", `${path}.origin`, diagnostics);
   if (origin) {
-    requireOneOf(origin, "scope_kind", ["system", "composition"], `${path}.origin.scope_kind`, diagnostics);
+    requireOneOf(origin, "origin_layer", ["system", "composition"], `${path}.origin.origin_layer`, diagnostics);
     requireString(origin, "owner_id", `${path}.origin.owner_id`, diagnostics);
     requireOptionalString(origin, "signal_id", `${path}.origin.signal_id`, diagnostics);
     requireOptionalString(origin, "route_id", `${path}.origin.route_id`, diagnostics);
@@ -215,6 +245,77 @@ function validateRuntimeResourceBinding(
   return true;
 }
 
+function validateRuntimeNativeExecution(
+  value: unknown,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): value is RuntimeNativeExecution {
+  if (!isRecord(value)) {
+    diagnostics.push(error("runtime_native_execution.invalid", path, "Runtime native execution must be an object."));
+    return false;
+  }
+
+  requireString(value, "native_kind", `${path}.native_kind`, diagnostics);
+  requireOptionalStringArray(value, "target_kinds", `${path}.target_kinds`, diagnostics);
+  if ("config_template" in value && typeof value.config_template === "undefined") {
+    diagnostics.push(error("field.present", `${path}.config_template`, "Field `config_template` must not be undefined when present."));
+  }
+  return true;
+}
+
+function validateRuntimeOperation(
+  operationId: string,
+  value: unknown,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): value is RuntimeOperation {
+  if (!isRecord(value)) {
+    diagnostics.push(error("runtime_operation.invalid", path, "Runtime operation must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", operationId, `${path}.id`, diagnostics);
+  requireString(value, "owner_instance_id", `${path}.owner_instance_id`, diagnostics);
+  requireString(value, "kind", `${path}.kind`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  return true;
+}
+
+function validateRuntimeTraceGroup(
+  traceGroupId: string,
+  value: unknown,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): value is RuntimeTraceGroup {
+  if (!isRecord(value)) {
+    diagnostics.push(error("runtime_trace_group.invalid", path, "Runtime trace group must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", traceGroupId, `${path}.id`, diagnostics);
+  requireString(value, "owner_instance_id", `${path}.owner_instance_id`, diagnostics);
+
+  const signals = value.signals;
+  if (!Array.isArray(signals)) {
+    diagnostics.push(error("field.array", `${path}.signals`, "Field `signals` must be an array."));
+  } else {
+    signals.forEach((entry, index) => {
+      if (!isRecord(entry)) {
+        diagnostics.push(error("runtime_trace_signal.invalid", `${path}.signals.${index}`, "Trace signal ref must be an object."));
+        return;
+      }
+      requireString(entry, "instance_id", `${path}.signals.${index}.instance_id`, diagnostics);
+      requireString(entry, "port_id", `${path}.signals.${index}.port_id`, diagnostics);
+    });
+  }
+
+  if ("sample_hint_ms" in value && typeof value.sample_hint_ms !== "number") {
+    diagnostics.push(error("field.number", `${path}.sample_hint_ms`, "Field `sample_hint_ms` must be a number when present."));
+  }
+  requireOptionalString(value, "chart_hint", `${path}.chart_hint`, diagnostics);
+  return true;
+}
+
 function requireString(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
   if (typeof value[field] !== "string") {
     diagnostics.push(error("field.string", path, `Field \`${field}\` must be a string.`));
@@ -224,6 +325,17 @@ function requireString(value: Record<string, unknown>, field: string, path: stri
 function requireOptionalString(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
   if (field in value && typeof value[field] !== "string") {
     diagnostics.push(error("field.string", path, `Field \`${field}\` must be a string when present.`));
+  }
+}
+
+function requireOptionalStringArray(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
+  if (!(field in value)) {
+    return;
+  }
+
+  const current = value[field];
+  if (!Array.isArray(current) || current.some((entry) => typeof entry !== "string")) {
+    diagnostics.push(error("field.string_array", path, `Field \`${field}\` must be an array of strings when present.`));
   }
 }
 

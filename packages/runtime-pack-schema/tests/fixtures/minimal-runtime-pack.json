@@ -27,6 +27,13 @@
       },
       "params": {},
       "alarms": {},
+      "native_execution": {
+        "native_kind": "std.timed_relay.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.timed_relay.v1"
+      },
       "source_scope": {
         "kind": "system",
         "owner_id": "demo_project"
@@ -47,11 +54,13 @@
       "channel_kind": "state",
       "value_type": "bool",
       "origin": {
-        "scope_kind": "system",
+        "origin_layer": "system",
         "owner_id": "demo_project",
         "signal_id": "sig_relay_state"
       }
     }
   },
-  "resources": {}
+  "resources": {},
+  "operations": {},
+  "trace_groups": {}
 }

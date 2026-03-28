@@ -1,78 +1,46 @@
 {
-  "meta": {
-    "artifact_version": "0.1.0",
-    "target_id": "esp32-shipcontroller",
-    "pack_id": "timed-relay-pack",
-    "generated_at": "2026-03-28T00:00:00.000Z",
-    "source_project_id": "timed-relay-demo"
-  },
-  "instances": [
-    {
-      "id": "relay_1",
-      "type_ref": "project:timed_relay",
-      "title": "Relay #1",
-      "enabled": true,
-      "ports": [
-        {
-          "id": "enable_cmd",
-          "direction": "in",
-          "channel_kind": "command",
-          "value_type": "bool"
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "timed-relay-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [
+      {
+        "id": "di_start_button_1",
+        "instance_id": "start_button_1",
+        "pin": 12,
+        "pullup": true,
+        "debounce_ms": 20
+      }
+    ],
+    "digital_outputs": [
+      {
+        "id": "do_pump_contact_1",
+        "instance_id": "pump_contact_1",
+        "pin": 17,
+        "active_high": true
+      }
+    ],
+    "timed_relays": [
+      {
+        "id": "relay_1",
+        "native_kind": "std.timed_relay.v1",
+        "pulse_time_ms": 5000,
+        "retriggerable": true,
+        "require_enable": false,
+        "output_inverted": false,
+        "trigger_source": {
+          "instance_id": "start_button_1",
+          "port_id": "value",
+          "connection_id": "conn_sig_start_to_trigger_t1"
         },
-        {
-          "id": "relay_out",
-          "direction": "out",
-          "channel_kind": "signal",
-          "value_type": "bool"
+        "output_target": {
+          "instance_id": "pump_contact_1",
+          "port_id": "cmd",
+          "connection_id": "conn_sig_relay_to_output_t1"
         }
-      ],
-      "params": [
-        {
-          "id": "hold_time",
-          "value": "5s",
-          "value_type": "duration",
-          "source": "default"
-        }
-      ],
-      "alarms": []
-    }
-  ],
-  "connections": [
-    {
-      "id": "sig_relay_feedback__1",
-      "source": {
-        "instance_id": "relay_1",
-        "port_id": "relay_out"
-      },
-      "target": {
-        "instance_id": "relay_1",
-        "port_id": "enable_cmd"
-      },
-      "channel_kind": "signal",
-      "value_type": "bool",
-      "origin": {
-        "scope_kind": "system",
-        "owner_id": "timed-relay-demo",
-        "signal_id": "sig_relay_feedback"
       }
-    }
-  ],
-  "resources": [
-    {
-      "id": "relay_out_pin",
-      "binding_kind": "digital_out",
-      "instance_id": "relay_1",
-      "port_id": "relay_out",
-      "config": {
-        "pin": 5
-      }
-    }
-  ],
-  "native_execution_placeholders": [
-    {
-      "instance_id": "relay_1",
-      "status": "unresolved",
-      "reason": "native_seam_not_available"
-    }
-  ]
+    ]
+  },
+  "diagnostics": []
 }

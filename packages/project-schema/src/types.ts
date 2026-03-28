@@ -1,7 +1,7 @@
 export type TypeRef = string;
 
 export type PortDirection = "in" | "out";
-export type ChannelKind = "signal" | "command" | "state" | "event" | "alarm";
+export type ChannelKind = "signal" | "command" | "state" | "event" | "alarm" | "telemetry";
 
 export interface ProjectModel {
   schema_version: string;
@@ -49,13 +49,20 @@ export interface ObjectType {
     signals: Record<string, unknown>;
     vars: Record<string, unknown>;
   };
+  facets?: ObjectTypeFacets;
   implementation: {
-    native: unknown | null;
+    native: NativeImplementation | null;
     composition: CompositionModel | null;
     state: unknown | null;
     flow: unknown | null;
   };
   diagnostics: Record<string, unknown>;
+}
+
+export interface NativeImplementation {
+  native_kind: string;
+  target_kinds?: string[];
+  config_template?: unknown;
 }
 
 export interface ObjectInstance {
@@ -133,3 +140,25 @@ export type ParamValue =
       kind: "parent_param";
       param_id: string;
     };
+
+export interface ObjectTypeFacets {
+  operations?: {
+    operations?: Record<string, ObjectOperationDef>;
+  };
+  debug?: {
+    trace_groups?: Record<string, ObjectTraceGroupDef>;
+  };
+  [key: string]: unknown;
+}
+
+export interface ObjectOperationDef {
+  id: string;
+  kind?: string;
+  title?: string;
+}
+
+export interface ObjectTraceGroupDef {
+  signals: string[];
+  sample_hint_ms?: number;
+  chart_hint?: string;
+}

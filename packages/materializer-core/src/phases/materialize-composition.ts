@@ -11,6 +11,8 @@ import type {
 import type { MaterializerDiagnostic } from "../types.js";
 import { error } from "../diagnostics.js";
 import { compositionConnectionId, qualifyInstanceId } from "../helpers/ids.js";
+import { materializeNativeExecution } from "../helpers/native-execution.js";
+import { collectRuntimeOperations, collectRuntimeTraceGroups } from "../helpers/runtime-facets.js";
 import { resolveLocalTypeRef } from "./build-type-registry.js";
 
 export function expandCompositionRecursively(
@@ -49,6 +51,8 @@ export function expandCompositionRecursively(
     );
 
     runtimePack.instances[runtimeInstanceId] = childRuntimeInstance;
+    Object.assign(runtimePack.operations, collectRuntimeOperations(runtimeInstanceId, childType));
+    Object.assign(runtimePack.trace_groups, collectRuntimeTraceGroups(runtimeInstanceId, childType));
 
     expandCompositionRecursively(
       runtimePack,
@@ -103,7 +107,7 @@ export function expandCompositionRecursively(
       channel_kind: sourcePort.channel_kind,
       value_type: sourcePort.value_type,
       origin: {
-        scope_kind: "composition",
+        origin_layer: "composition",
         owner_id: parentType.id,
         route_id: routeId
       }
@@ -149,6 +153,7 @@ function materializeRuntimeInstanceFromType(
     ports,
     params,
     alarms,
+    native_execution: materializeNativeExecution(objectType.implementation?.native),
     source_scope: {
       kind: "composition",
       owner_id: ownerTypeId
@@ -179,7 +184,12 @@ function resolveParams(
       result[paramId] = {
         value: override.value,
         value_type: paramDef.value_type,
-        source: "override"
+        source: "instance_override",
+        provenance: {
+          owner_id: instance.id,
+          param_id: paramId,
+          source_layer: "composition"
+        }
       };
       continue;
     }
@@ -204,7 +214,12 @@ function resolveParams(
       result[paramId] = {
         value: inherited.value,
         value_type: paramDef.value_type,
-        source: "materialized"
+        source: "materialized",
+        provenance: {
+          owner_id: parentRuntimeInstance.id,
+          param_id: override.param_id,
+          source_layer: "composition"
+        }
       };
     }
   }

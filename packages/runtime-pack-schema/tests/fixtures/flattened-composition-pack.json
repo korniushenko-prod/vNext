@@ -30,7 +30,12 @@
         "purge_time": {
           "value": "45s",
           "value_type": "duration",
-          "source": "parent_param"
+          "source": "parent_param",
+          "provenance": {
+            "owner_id": "boiler_supervisor_1",
+            "param_id": "purge_time",
+            "source_layer": "composition"
+          }
         }
       },
       "alarms": {},
@@ -80,7 +85,7 @@
       "channel_kind": "command",
       "value_type": "bool",
       "origin": {
-        "scope_kind": "composition",
+        "origin_layer": "composition",
         "owner_id": "boiler_supervisor",
         "route_id": "route_1"
       }
@@ -98,7 +103,7 @@
       "channel_kind": "state",
       "value_type": "bool",
       "origin": {
-        "scope_kind": "composition",
+        "origin_layer": "composition",
         "owner_id": "boiler_supervisor",
         "route_id": "route_2"
       }
@@ -114,5 +119,7 @@
         "pin": 17
       }
     }
-  }
+  },
+  "operations": {},
+  "trace_groups": {}
 }

@@ -1,11 +1,6 @@
 import type {
-  RuntimeAlarm,
   RuntimeBindingKind,
-  RuntimeConnection,
   RuntimePack,
-  RuntimePort,
-  RuntimeResolvedParam,
-  RuntimeResourceBinding
 } from "@universal-plc/runtime-pack-schema";
 import type {
   TargetAdapterContract,
@@ -17,11 +12,12 @@ import type {
 } from "@universal-plc/target-adapter-contracts";
 
 export interface Esp32CapabilityProfile {
-  target_id: "esp32-shipcontroller";
+  target_id: "esp32.shipcontroller.v1";
   display_name: string;
   supported_binding_kinds: RuntimeBindingKind[];
   supported_channel_kinds: string[];
   supported_value_types: string[];
+  supported_native_kinds: string[];
   supported_operation_kinds: string[];
   supports_trace: boolean;
   supports_simulation: boolean;
@@ -51,54 +47,55 @@ export interface Esp32ApplyPlanStep {
 }
 
 export interface Esp32ApplyPlan {
-  target_id: "esp32-shipcontroller";
+  target_id: "esp32.shipcontroller.v1";
   pack_id: string;
   steps: Esp32ApplyPlanStep[];
   diagnostics: TargetAdapterDiagnostic[];
 }
 
-export interface ShipControllerConfigMeta {
-  artifact_version: "0.1.0";
-  target_id: "esp32-shipcontroller";
-  pack_id: string;
-  generated_at: string;
-  source_project_id: string;
-}
-
-export interface ShipControllerArtifactPort extends RuntimePort {}
-
-export interface ShipControllerArtifactParam extends RuntimeResolvedParam {
+export interface ShipControllerDigitalInputArtifact {
   id: string;
-}
-
-export interface ShipControllerArtifactAlarm extends RuntimeAlarm {}
-
-export interface ShipControllerArtifactInstance {
-  id: string;
-  type_ref: string;
-  title?: string;
-  enabled: boolean;
-  ports: ShipControllerArtifactPort[];
-  params: ShipControllerArtifactParam[];
-  alarms: ShipControllerArtifactAlarm[];
-}
-
-export interface ShipControllerArtifactConnection extends RuntimeConnection {}
-
-export interface ShipControllerArtifactResource extends RuntimeResourceBinding {}
-
-export interface ShipControllerNativeExecutionPlaceholder {
   instance_id: string;
-  status: "unresolved";
-  reason: "native_seam_not_available";
+  pin: number;
+  pullup?: boolean;
+  debounce_ms?: number;
+}
+
+export interface ShipControllerDigitalOutputArtifact {
+  id: string;
+  instance_id: string;
+  pin: number;
+  active_high: boolean;
+}
+
+export interface ShipControllerTimedRelayEndpointRef {
+  instance_id: string;
+  port_id: string;
+  connection_id: string;
+}
+
+export interface ShipControllerTimedRelayArtifact {
+  id: string;
+  native_kind: string;
+  pulse_time_ms: number;
+  retriggerable: boolean;
+  require_enable: boolean;
+  output_inverted: boolean;
+  trigger_source: ShipControllerTimedRelayEndpointRef;
+  output_target: ShipControllerTimedRelayEndpointRef;
 }
 
 export interface ShipControllerConfigArtifact {
-  meta: ShipControllerConfigMeta;
-  instances: ShipControllerArtifactInstance[];
-  connections: ShipControllerArtifactConnection[];
-  resources: ShipControllerArtifactResource[];
-  native_execution_placeholders: ShipControllerNativeExecutionPlaceholder[];
+  schema_version: "0.1.0";
+  target_kind: "esp32.shipcontroller.v1";
+  source_pack_id: string;
+  capability_profile: string;
+  artifacts: {
+    digital_inputs: ShipControllerDigitalInputArtifact[];
+    digital_outputs: ShipControllerDigitalOutputArtifact[];
+    timed_relays: ShipControllerTimedRelayArtifact[];
+  };
+  diagnostics: TargetAdapterDiagnostic[];
 }
 
 export interface Esp32TargetAdapter extends TargetAdapterContract {

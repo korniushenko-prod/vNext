@@ -15,6 +15,8 @@ export function createEmptyRuntimePack(project: ProjectModel, options: Required<
     },
     instances: {},
     connections: {},
-    resources: {}
+    resources: {},
+    operations: {},
+    trace_groups: {}
   };
 }

@@ -2,8 +2,8 @@ export function qualifyInstanceId(parentRuntimeInstanceId: string, localInstance
   return `${parentRuntimeInstanceId}.${localInstanceId}`;
 }
 
-export function systemConnectionId(signalId: string, targetIndex: number): string {
-  return `${signalId}__${targetIndex + 1}`;
+export function systemConnectionId(signalId: string, targetId: string): string {
+  return `conn_${signalId}_${targetId}`;
 }
 
 export function compositionConnectionId(ownerRuntimeInstanceId: string, routeId: string): string {

@@ -66,6 +66,32 @@ export function checkEsp32Compatibility(pack: RuntimePack): Esp32CompatibilityRe
     }
   }
 
+  for (const instanceId of sortedKeys(pack.instances)) {
+    const instance = pack.instances[instanceId];
+    const execution = instance.native_execution;
+    if (!execution) {
+      continue;
+    }
+
+    if (!esp32CapabilityProfile.supported_native_kinds.includes(execution.native_kind)) {
+      diagnostics.push({
+        code: "target.native_kind.unsupported",
+        severity: "error",
+        message: `Native kind \`${execution.native_kind}\` is not supported by the ESP32 target.`,
+        path: `$.instances.${instanceId}.native_execution.native_kind`
+      });
+    }
+
+    if (execution.target_kinds && !execution.target_kinds.includes(esp32CapabilityProfile.target_id)) {
+      diagnostics.push({
+        code: "target.target_kind.mismatch",
+        severity: "error",
+        message: `Instance \`${instanceId}\` is not compatible with target \`${esp32CapabilityProfile.target_id}\`.`,
+        path: `$.instances.${instanceId}.native_execution.target_kinds`
+      });
+    }
+  }
+
   const sorted = sortDiagnostics(diagnostics);
   return {
     ok: sorted.every((entry) => entry.severity !== "error"),

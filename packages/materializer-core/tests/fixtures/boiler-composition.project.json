@@ -48,7 +48,7 @@
         },
         "implementation": {
           "native": {
-            "kind": "burner_sequence_v1"
+            "native_kind": "burner_sequence_v1"
           },
           "composition": null,
           "state": null,

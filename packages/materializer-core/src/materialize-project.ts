@@ -8,7 +8,8 @@ import type {
   RuntimeInstance,
   RuntimePack,
   RuntimePort,
-  RuntimeResolvedParam
+  RuntimeResolvedParam,
+  RuntimeResourceBinding
 } from "@universal-plc/runtime-pack-schema";
 import { error, hasErrors } from "./diagnostics.js";
 import type {
@@ -21,6 +22,8 @@ import { createEmptyRuntimePack } from "./phases/finalize-pack.js";
 import { expandCompositionRecursively } from "./phases/materialize-composition.js";
 import { materializeSystemSignals } from "./phases/materialize-system-signals.js";
 import { normalizeProject } from "./phases/normalize-project.js";
+import { materializeNativeExecution } from "./helpers/native-execution.js";
+import { collectRuntimeOperations, collectRuntimeTraceGroups } from "./helpers/runtime-facets.js";
 
 const DEFAULT_OPTIONS: Required<MaterializeOptions> = {
   pack_id: "",
@@ -72,6 +75,7 @@ export function materializeProject(
 
   materializeSystemInstances(context, runtimePack);
   materializeSystemSignals(normalizedProject, runtimePack, diagnostics);
+  materializeHardwareBindings(normalizedProject, runtimePack);
 
   return {
     ok: !hasErrors(diagnostics),
@@ -96,8 +100,15 @@ function materializeSystemInstances(
       continue;
     }
 
-    const runtimeInstance = materializeSystemRuntimeInstance(instanceId, instance, objectType);
+    const runtimeInstance = materializeSystemRuntimeInstance(
+      context.project.meta.project_id,
+      instanceId,
+      instance,
+      objectType
+    );
     runtimePack.instances[instanceId] = runtimeInstance;
+    Object.assign(runtimePack.operations, collectRuntimeOperations(instanceId, objectType));
+    Object.assign(runtimePack.trace_groups, collectRuntimeTraceGroups(instanceId, objectType));
 
     expandCompositionRecursively(
       runtimePack,
@@ -111,6 +122,7 @@ function materializeSystemInstances(
 }
 
 function materializeSystemRuntimeInstance(
+  projectOwnerId: string,
   runtimeInstanceId: string,
   instance: ProjectModel["system"]["instances"][string],
   objectType: ObjectType
@@ -134,9 +146,10 @@ function materializeSystemRuntimeInstance(
     ports,
     params,
     alarms,
+    native_execution: materializeNativeExecution(objectType.implementation?.native),
     source_scope: {
       kind: "system",
-      owner_id: objectType.id
+      owner_id: projectOwnerId
     }
   };
 }
@@ -169,7 +182,12 @@ function materializeTopLevelParams(
       params[paramId] = {
         value: override.value,
         value_type: paramDef.value_type,
-        source: "override"
+        source: "instance_override",
+        provenance: {
+          owner_id: instance.id,
+          param_id: paramId,
+          source_layer: "system"
+        }
       };
       continue;
     }
@@ -186,4 +204,39 @@ function materializeTopLevelParams(
 
 function objectFromEntries<T>(entries: Array<[string, T]>): Record<string, T> {
   return Object.fromEntries(entries) as Record<string, T>;
+}
+
+function materializeHardwareBindings(project: ProjectModel, runtimePack: RuntimePack): void {
+  for (const [bindingId, bindingValue] of Object.entries(project.hardware?.bindings ?? {})) {
+    if (!isHardwareBindingLike(bindingValue)) {
+      continue;
+    }
+
+    runtimePack.resources[bindingId] = {
+      id: bindingValue.id,
+      binding_kind: bindingValue.binding_kind,
+      instance_id: bindingValue.instance_id,
+      port_id: bindingValue.port_id,
+      config: isRecord(bindingValue.config) ? { ...bindingValue.config } : {}
+    } satisfies RuntimeResourceBinding;
+  }
+}
+
+function isHardwareBindingLike(value: unknown): value is {
+  id: string;
+  binding_kind: RuntimeResourceBinding["binding_kind"];
+  instance_id: string;
+  port_id?: string;
+  config?: Record<string, unknown>;
+} {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.binding_kind === "string" &&
+    typeof value.instance_id === "string"
+  );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

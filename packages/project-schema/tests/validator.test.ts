@@ -27,3 +27,15 @@ test("validateProjectModel enforces canonical schema version", () => {
   assert.ok(result.diagnostics.some((entry) => entry.path === "$.schema_version"));
   assert.equal(PROJECT_SCHEMA_VERSION, "0.4.0");
 });
+
+test("validateProjectModel accepts canonical native implementation seam", () => {
+  const mutated = structuredClone(minimalProject) as any;
+  mutated.definitions.object_types.relay_controller.implementation.native = {
+    native_kind: "std.timed_relay.v1",
+    target_kinds: ["esp32.shipcontroller.v1"],
+    config_template: "shipcontroller.timed_relay.v1"
+  };
+
+  const result = validateProjectModel(mutated);
+  assert.equal(result.ok, true);
+});

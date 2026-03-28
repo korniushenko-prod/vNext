@@ -117,7 +117,7 @@ function validateObjectType(typeId: string, value: unknown, path: string, diagno
   if (meta) {
     requireString(meta, "title", `${path}.meta.title`, diagnostics);
     requireOptionalString(meta, "version", `${path}.meta.version`, diagnostics);
-    requireOneOf(meta, "origin", ["project", "generated", "imported"], `${path}.meta.origin`, diagnostics);
+    requireOneOf(meta, "origin", ["project", "generated", "imported", "library"], `${path}.meta.origin`, diagnostics);
   }
 
   const iface = requireRecord(value, "interface", `${path}.interface`, diagnostics);
@@ -153,6 +153,9 @@ function validateObjectType(typeId: string, value: unknown, path: string, diagno
   const impl = requireRecord(value, "implementation", `${path}.implementation`, diagnostics);
   if (impl) {
     requirePresent(impl, "native", `${path}.implementation.native`, diagnostics);
+    if ("native" in impl && impl.native !== null) {
+      validateNativeImplementation(impl.native, `${path}.implementation.native`, diagnostics);
+    }
     if ("composition" in impl && impl.composition !== null) {
       validateCompositionModel(impl.composition, `${path}.implementation.composition`, diagnostics);
     }
@@ -161,6 +164,26 @@ function validateObjectType(typeId: string, value: unknown, path: string, diagno
   }
 
   requireRecord(value, "diagnostics", `${path}.diagnostics`, diagnostics);
+  return true;
+}
+
+function validateNativeImplementation(
+  value: unknown,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("native_implementation.invalid", path, "Native implementation must be an object or null."));
+    return false;
+  }
+
+  requireString(value, "native_kind", `${path}.native_kind`, diagnostics);
+  requireOptionalStringArray(value, "target_kinds", `${path}.target_kinds`, diagnostics);
+
+  if ("config_template" in value && typeof value.config_template === "undefined") {
+    diagnostics.push(error("field.present", `${path}.config_template`, "Field `config_template` must not be undefined when present."));
+  }
+
   return true;
 }
 
@@ -306,7 +329,7 @@ function validatePortDef(portId: string, value: unknown, path: string, diagnosti
   requireExactString(value, "id", portId, `${path}.id`, diagnostics);
   requireOptionalString(value, "title", `${path}.title`, diagnostics);
   requireOneOf(value, "direction", ["in", "out"], `${path}.direction`, diagnostics);
-  requireOneOf(value, "channel_kind", ["signal", "command", "state", "event", "alarm"], `${path}.channel_kind`, diagnostics);
+  requireOneOf(value, "channel_kind", ["signal", "command", "state", "event", "alarm", "telemetry"], `${path}.channel_kind`, diagnostics);
   requireString(value, "value_type", `${path}.value_type`, diagnostics);
   requireOptionalBoolean(value, "required", `${path}.required`, diagnostics);
   return true;
@@ -351,6 +374,17 @@ function requireString(value: Record<string, unknown>, field: string, path: stri
 function requireOptionalString(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
   if (field in value && typeof value[field] !== "string") {
     diagnostics.push(error("field.string", path, `Field \`${field}\` must be a string when present.`));
+  }
+}
+
+function requireOptionalStringArray(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
+  if (!(field in value)) {
+    return;
+  }
+
+  const current = value[field];
+  if (!Array.isArray(current) || current.some((entry) => typeof entry !== "string")) {
+    diagnostics.push(error("field.string_array", path, `Field \`${field}\` must be an array of strings when present.`));
   }
 }
 
