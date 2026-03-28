@@ -1,0 +1,63 @@
+﻿{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "demo_project",
+    "title": "Demo Project"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "source_block": {
+        "id": "source_block",
+        "kind": "object_type",
+        "meta": { "title": "Source", "origin": "project" },
+        "interface": {
+          "ports": {
+            "out_sig": { "id": "out_sig", "direction": "out", "channel_kind": "signal", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": { "instances": {}, "routes": {} }, "state": null, "flow": null },
+        "diagnostics": {}
+      },
+      "sink_block": {
+        "id": "sink_block",
+        "kind": "object_type",
+        "meta": { "title": "Sink", "origin": "project" },
+        "interface": {
+          "ports": {
+            "in_sig": { "id": "in_sig", "direction": "in", "channel_kind": "signal", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": { "instances": {}, "routes": {} }, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "source_1": { "id": "source_1", "kind": "object_instance", "type_ref": "project:source_block", "enabled": true },
+      "sink_1": { "id": "sink_1", "kind": "object_instance", "type_ref": "project:sink_block", "enabled": true }
+    },
+    "signals": {
+      "sig_1": {
+        "id": "sig_1",
+        "source": { "instance_id": "source_1", "port_id": "out_sig" },
+        "targets": {
+          "t1": { "instance_id": "sink_1", "port_id": "in_sig" }
+        }
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}
