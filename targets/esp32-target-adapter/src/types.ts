@@ -1,4 +1,4 @@
-import type { RuntimePack } from "@universal-plc/runtime-pack-schema";
+import type { RuntimeBindingKind, RuntimePack } from "@universal-plc/runtime-pack-schema";
 import type {
   TargetAdapterContract,
   TargetAdapterDiagnostic,
@@ -11,9 +11,10 @@ import type {
 export interface Esp32CapabilityProfile {
   target_id: "esp32-shipcontroller";
   display_name: string;
-  supported_binding_kinds: string[];
+  supported_binding_kinds: RuntimeBindingKind[];
   supported_channel_kinds: string[];
   supported_value_types: string[];
+  supported_operation_kinds: string[];
   supports_trace: boolean;
   supports_simulation: boolean;
   limits: {

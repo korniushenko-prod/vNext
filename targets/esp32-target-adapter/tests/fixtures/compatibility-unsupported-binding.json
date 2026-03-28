@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "compatibility-unsupported-binding-pack",
+  "source": {
+    "project_id": "compat-unsupported-binding",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-28T00:00:00.000Z"
+  },
+  "instances": {},
+  "connections": {},
+  "resources": {
+    "modbus_1": {
+      "id": "modbus_1",
+      "binding_kind": "bus",
+      "instance_id": "device_1",
+      "config": {}
+    }
+  }
+}

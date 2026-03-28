@@ -1,13 +1,19 @@
-import { RUNTIME_PACK_SCHEMA_VERSION } from "@universal-plc/runtime-pack-schema";
+import { RUNTIME_PACK_SCHEMA_VERSION, type RuntimeBindingKind } from "@universal-plc/runtime-pack-schema";
 import type { TargetAdapterManifest } from "@universal-plc/target-adapter-contracts";
 import type { Esp32CapabilityProfile } from "./types.js";
+
+const SUPPORTED_BINDING_KINDS: RuntimeBindingKind[] = ["digital_in", "digital_out", "analog_in", "analog_out", "service"];
+const SUPPORTED_CHANNEL_KINDS = ["signal", "command", "state", "event", "alarm"];
+const SUPPORTED_VALUE_TYPES = ["bool", "int", "float", "duration", "string"];
+const SUPPORTED_OPERATION_KINDS = ["offline_validate", "offline_plan"];
 
 export const esp32CapabilityProfile: Esp32CapabilityProfile = {
   target_id: "esp32-shipcontroller",
   display_name: "ESP32 ShipController Offline Adapter",
-  supported_binding_kinds: ["digital_in", "digital_out", "analog_in", "analog_out", "service"],
-  supported_channel_kinds: ["signal", "command", "state", "event", "alarm"],
-  supported_value_types: ["bool", "int", "float", "duration", "string"],
+  supported_binding_kinds: SUPPORTED_BINDING_KINDS,
+  supported_channel_kinds: SUPPORTED_CHANNEL_KINDS,
+  supported_value_types: SUPPORTED_VALUE_TYPES,
+  supported_operation_kinds: SUPPORTED_OPERATION_KINDS,
   supports_trace: false,
   supports_simulation: false,
   limits: {

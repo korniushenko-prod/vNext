@@ -1,0 +1,36 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "compatibility-mixed-errors-pack",
+  "source": {
+    "project_id": "compat-mixed-errors",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-28T00:00:00.000Z"
+  },
+  "instances": {},
+  "connections": {
+    "conn_b": {
+      "id": "conn_b",
+      "source": { "instance_id": "device_1", "port_id": "out" },
+      "target": { "instance_id": "device_2", "port_id": "in" },
+      "channel_kind": "stream",
+      "value_type": "blob",
+      "origin": { "scope_kind": "system", "owner_id": "compat-mixed-errors", "signal_id": "sig_b" }
+    },
+    "conn_a": {
+      "id": "conn_a",
+      "source": { "instance_id": "device_1", "port_id": "out" },
+      "target": { "instance_id": "device_3", "port_id": "in" },
+      "channel_kind": "signal",
+      "value_type": "blob",
+      "origin": { "scope_kind": "system", "owner_id": "compat-mixed-errors", "signal_id": "sig_a" }
+    }
+  },
+  "resources": {
+    "resource_b": {
+      "id": "resource_b",
+      "binding_kind": "bus",
+      "instance_id": "device_2",
+      "config": {}
+    }
+  }
+}

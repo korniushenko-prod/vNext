@@ -1,0 +1,51 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "compatibility-ok-pack",
+  "source": {
+    "project_id": "compat-ok",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-28T00:00:00.000Z"
+  },
+  "instances": {
+    "relay_1": {
+      "id": "relay_1",
+      "type_ref": "project:timed_relay",
+      "enabled": true,
+      "ports": {
+        "relay_out": {
+          "id": "relay_out",
+          "direction": "out",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        },
+        "enable_cmd": {
+          "id": "enable_cmd",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {
+    "conn_1": {
+      "id": "conn_1",
+      "source": { "instance_id": "relay_1", "port_id": "relay_out" },
+      "target": { "instance_id": "relay_1", "port_id": "enable_cmd" },
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "origin": { "scope_kind": "system", "owner_id": "compat-ok", "signal_id": "sig_1" }
+    }
+  },
+  "resources": {
+    "relay_out_pin": {
+      "id": "relay_out_pin",
+      "binding_kind": "digital_out",
+      "instance_id": "relay_1",
+      "port_id": "relay_out",
+      "config": { "pin": 5 }
+    }
+  }
+}

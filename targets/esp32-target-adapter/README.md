@@ -9,7 +9,14 @@ Offline target adapter baseline for the ShipController / ESP32 family.
 - builds deterministic apply plans
 - provides a factory for the adapter contract wrapper
 
-## Non-goals in PR-12A
+## Implemented in PR-12A / PR-12B
+- offline adapter contract wrapper
+- stable ESP32 capability profile
+- deterministic compatibility checker
+- deterministic apply-plan builder
+- stable diagnostic codes for target compatibility failures
+
+## Non-goals in this phase
 - no UI logic
 - no legacy editor integration
 - no ShipController runtime code import
@@ -29,3 +36,4 @@ Offline target adapter baseline for the ShipController / ESP32 family.
 - `apply()` is intentionally a controlled stub in this phase
 - `readback()` is intentionally an unsupported stub in this phase
 - deterministic ShipController artifact emission lands in PR-12C
+- adapter accepts only `RuntimePack`
