@@ -149,6 +149,10 @@ export function checkEsp32Compatibility(pack: RuntimePack): Esp32CompatibilityRe
     if (execution.native_kind === "std.pulse_flowmeter.v1") {
       validatePulseFlowmeterExecution(pack, instanceId, diagnostics);
     }
+
+    if (execution.native_kind === "std.pid_controller.v1") {
+      validatePidControllerExecution(pack, instanceId, diagnostics);
+    }
   }
 
   const sorted = sortDiagnostics(diagnostics);
@@ -156,6 +160,112 @@ export function checkEsp32Compatibility(pack: RuntimePack): Esp32CompatibilityRe
     ok: sorted.every((entry) => entry.severity !== "error"),
     diagnostics: sorted
   };
+}
+
+function validatePidControllerExecution(
+  pack: RuntimePack,
+  instanceId: string,
+  diagnostics: TargetAdapterDiagnostic[]
+): void {
+  const execution = pack.instances[instanceId]?.native_execution;
+  if (!execution) {
+    return;
+  }
+
+  const activeFrontendIds = [...(execution.frontend_requirement_ids ?? [])].sort((left, right) => left.localeCompare(right));
+  const requiredFrontendIds = [`fe_${instanceId}_mv_output`, `fe_${instanceId}_pv_source`];
+
+  if (activeFrontendIds.length === 0) {
+    diagnostics.push({
+      code: "target.pid.frontend.missing",
+      severity: "error",
+      message: `PID controller instance \`${instanceId}\` has no active frontend requirement ids.`,
+      path: `$.instances.${instanceId}.native_execution.frontend_requirement_ids`
+    });
+    return;
+  }
+
+  for (const requiredId of requiredFrontendIds) {
+    if (!activeFrontendIds.includes(requiredId)) {
+      diagnostics.push({
+        code: "target.pid.frontend.missing_required",
+        severity: "error",
+        message: `PID controller instance \`${instanceId}\` is missing required frontend requirement \`${requiredId}\`.`,
+        path: `$.instances.${instanceId}.native_execution.frontend_requirement_ids`
+      });
+    }
+  }
+
+  if (activeFrontendIds.length !== requiredFrontendIds.length) {
+    diagnostics.push({
+      code: "target.pid.frontend.unexpected_count",
+      severity: "error",
+      message: `PID controller instance \`${instanceId}\` must expose exactly two active frontend requirements.`,
+      path: `$.instances.${instanceId}.native_execution.frontend_requirement_ids`
+    });
+  }
+
+  for (const frontendId of activeFrontendIds) {
+    const requirement = pack.frontend_requirements[frontendId];
+    if (!requirement) {
+      diagnostics.push({
+        code: "target.pid.frontend.unresolved",
+        severity: "error",
+        message: `PID controller instance \`${instanceId}\` references unknown frontend requirement \`${frontendId}\`.`,
+        path: `$.instances.${instanceId}.native_execution.frontend_requirement_ids`
+      });
+      continue;
+    }
+
+    if (requirement.owner_instance_id !== instanceId) {
+      diagnostics.push({
+        code: "target.pid.frontend.owner_mismatch",
+        severity: "error",
+        message: `Frontend requirement \`${frontendId}\` does not belong to PID instance \`${instanceId}\`.`,
+        path: `$.frontend_requirements.${frontendId}.owner_instance_id`
+      });
+    }
+  }
+
+  const pvRequirement = pack.frontend_requirements[`fe_${instanceId}_pv_source`];
+  if (pvRequirement) {
+    if (pvRequirement.binding_kind !== "analog_in") {
+      diagnostics.push({
+        code: "target.pid.binding_kind.mismatch",
+        severity: "error",
+        message: "PID pv_source requires `analog_in` binding.",
+        path: `$.frontend_requirements.fe_${instanceId}_pv_source.binding_kind`
+      });
+    }
+    if (pvRequirement.value_type !== "float") {
+      diagnostics.push({
+        code: "target.pid.value_type.mismatch",
+        severity: "error",
+        message: "PID pv_source requires `float` value type.",
+        path: `$.frontend_requirements.fe_${instanceId}_pv_source.value_type`
+      });
+    }
+  }
+
+  const mvRequirement = pack.frontend_requirements[`fe_${instanceId}_mv_output`];
+  if (mvRequirement) {
+    if (mvRequirement.binding_kind !== "analog_out") {
+      diagnostics.push({
+        code: "target.pid.binding_kind.mismatch",
+        severity: "error",
+        message: "PID mv_output requires `analog_out` binding.",
+        path: `$.frontend_requirements.fe_${instanceId}_mv_output.binding_kind`
+      });
+    }
+    if (mvRequirement.value_type !== "float") {
+      diagnostics.push({
+        code: "target.pid.value_type.mismatch",
+        severity: "error",
+        message: "PID mv_output requires `float` value type.",
+        path: `$.frontend_requirements.fe_${instanceId}_mv_output.value_type`
+      });
+    }
+  }
 }
 
 function validateFrontendRequirement(

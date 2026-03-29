@@ -9,6 +9,7 @@ import compatibilityUnsupportedBinding from "./fixtures/compatibility-unsupporte
 import compatibilityMixedErrors from "./fixtures/compatibility-mixed-errors.json" with { type: "json" };
 import capabilityHardeningRuntimePack from "./fixtures/capability-hardening-demo.runtime-pack.json" with { type: "json" };
 import capabilityHardeningCompatibilitySnapshot from "./fixtures/capability-hardening-demo.compatibility.snapshot.json" with { type: "json" };
+import pidControllerRuntimePack from "./fixtures/pid-controller.runtime-pack.json" with { type: "json" };
 import pulseFlowmeterRuntimePack from "./fixtures/pulse-flowmeter.runtime-pack.json" with { type: "json" };
 
 import {
@@ -173,6 +174,32 @@ test("pulse flowmeter missing active frontend resource produces the canonical re
   const result = checkEsp32Compatibility(mutated);
   assert.equal(result.ok, false);
   assert.ok(result.diagnostics.some((entry) => entry.code === "target.frontend.resource.missing"));
+});
+
+test("pid controller runtime pack passes compatibility", () => {
+  const result = checkEsp32Compatibility(pidControllerRuntimePack as unknown as RuntimePack);
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.diagnostics, []);
+});
+
+test("pid controller missing required frontend id produces the canonical pid diagnostic", () => {
+  const mutated = structuredClone(pidControllerRuntimePack) as unknown as RuntimePack;
+
+  mutated.instances.pid_1.native_execution!.frontend_requirement_ids = ["fe_pid_1_pv_source"];
+
+  const result = checkEsp32Compatibility(mutated);
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some((entry) => entry.code === "target.pid.frontend.missing_required"));
+});
+
+test("pid controller wrong mv_output binding kind produces the canonical pid binding diagnostic", () => {
+  const mutated = structuredClone(pidControllerRuntimePack) as unknown as RuntimePack;
+
+  mutated.frontend_requirements.fe_pid_1_mv_output.binding_kind = "digital_out";
+
+  const result = checkEsp32Compatibility(mutated);
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some((entry) => entry.code === "target.pid.binding_kind.mismatch"));
 });
 
 test("buildApplyPlan remains deterministic while compatibility becomes stricter", () => {

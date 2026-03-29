@@ -10,9 +10,19 @@ const SUPPORTED_NATIVE_KINDS = [
   "std.analog_input.v1",
   "std.digital_output.v1",
   "std.timed_relay.v1",
-  "std.pulse_flowmeter.v1"
+  "std.pulse_flowmeter.v1",
+  "std.pid_controller.v1"
 ];
-const SUPPORTED_OPERATION_KINDS = ["offline_validate", "offline_plan", "reset_totalizer", "reset", "test_pulse"];
+const SUPPORTED_OPERATION_KINDS = [
+  "offline_validate",
+  "offline_plan",
+  "reset_totalizer",
+  "reset",
+  "test_pulse",
+  "reset_integral",
+  "hold",
+  "release"
+];
 
 export const esp32CapabilityProfile: Esp32CapabilityProfile = {
   target_id: "esp32.shipcontroller.v1",

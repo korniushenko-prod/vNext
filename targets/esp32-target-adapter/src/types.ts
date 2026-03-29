@@ -106,6 +106,31 @@ export interface ShipControllerPulseFlowmeterArtifact {
   source: ShipControllerPulseFlowmeterSourceRef;
 }
 
+export interface ShipControllerPidEndpointRef {
+  instance_id: string;
+  port_id: string;
+  connection_id?: string;
+  resource_id?: string;
+}
+
+export interface ShipControllerPidControllerArtifact {
+  id: string;
+  native_kind: string;
+  kp: number;
+  ti: number;
+  td: number;
+  sample_time_ms: number;
+  output_min: number;
+  output_max: number;
+  direction: string;
+  pv_filter_tau_ms: number;
+  deadband: number;
+  persistence_slot_ids: string[];
+  frontend_requirement_ids: string[];
+  pv_source: ShipControllerPidEndpointRef;
+  mv_output: ShipControllerPidEndpointRef;
+}
+
 export interface ShipControllerConfigArtifact {
   schema_version: "0.1.0";
   target_kind: "esp32.shipcontroller.v1";
@@ -117,6 +142,7 @@ export interface ShipControllerConfigArtifact {
     digital_outputs: ShipControllerDigitalOutputArtifact[];
     timed_relays: ShipControllerTimedRelayArtifact[];
     pulse_flowmeters: ShipControllerPulseFlowmeterArtifact[];
+    pid_controllers: ShipControllerPidControllerArtifact[];
   };
   diagnostics: TargetAdapterDiagnostic[];
 }

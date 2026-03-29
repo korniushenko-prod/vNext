@@ -5,6 +5,8 @@ import type { RuntimePack } from "@universal-plc/runtime-pack-schema";
 
 import pulseFlowmeterArtifact from "./fixtures/pulse-flowmeter.shipcontroller-artifact.json" with { type: "json" };
 import pulseFlowmeterPack from "./fixtures/pulse-flowmeter.runtime-pack.json" with { type: "json" };
+import pidControllerArtifact from "./fixtures/pid-controller.shipcontroller-artifact.json" with { type: "json" };
+import pidControllerPack from "./fixtures/pid-controller.runtime-pack.json" with { type: "json" };
 import timedRelayArtifact from "./fixtures/timed-relay.shipcontroller-artifact.json" with { type: "json" };
 import timedRelayPack from "./fixtures/timed-relay.runtime-pack.json" with { type: "json" };
 
@@ -62,6 +64,28 @@ test("pulse flowmeter emitter creates a deterministic ShipController artifact", 
 
 test("pulse flowmeter artifact does not contain editor/runtime-noise fields", () => {
   const artifact = emitShipControllerConfigArtifact(pulseFlowmeterPack as unknown as RuntimePack) as unknown as Record<string, unknown>;
+
+  assert.equal("layouts" in artifact, false);
+  assert.equal("views" in artifact, false);
+  assert.equal("hardware" in artifact, false);
+  assert.equal(JSON.stringify(artifact).includes("source_scope"), false);
+});
+
+test("pid controller emitter creates a deterministic ShipController artifact", () => {
+  const artifact = emitShipControllerConfigArtifact(pidControllerPack as unknown as RuntimePack);
+
+  assert.equal(artifact.target_kind, "esp32.shipcontroller.v1");
+  assert.equal(artifact.source_pack_id, "pid-controller-demo-pack");
+  assert.equal(artifact.artifacts.analog_inputs.length, 1);
+  assert.equal(artifact.artifacts.pid_controllers.length, 1);
+  assert.equal(
+    canonicalStringify(artifact),
+    canonicalStringify(pidControllerArtifact)
+  );
+});
+
+test("pid controller artifact does not contain editor/runtime-noise fields", () => {
+  const artifact = emitShipControllerConfigArtifact(pidControllerPack as unknown as RuntimePack) as unknown as Record<string, unknown>;
 
   assert.equal("layouts" in artifact, false);
   assert.equal("views" in artifact, false);

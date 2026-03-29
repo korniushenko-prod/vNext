@@ -10,8 +10,10 @@ import type {
   ShipControllerConfigArtifact,
   ShipControllerDigitalInputArtifact,
   ShipControllerDigitalOutputArtifact,
+  ShipControllerPidControllerArtifact,
   ShipControllerPulseFlowmeterArtifact,
   ShipControllerPulseFlowmeterSourceRef,
+  ShipControllerPidEndpointRef,
   ShipControllerTimedRelayArtifact
 } from "./types.js";
 
@@ -26,7 +28,8 @@ export function emitShipControllerConfigArtifact(pack: RuntimePack): ShipControl
       analog_inputs: emitAnalogInputs(pack),
       digital_outputs: emitDigitalOutputs(pack),
       timed_relays: emitTimedRelays(pack),
-      pulse_flowmeters: emitPulseFlowmeters(pack)
+      pulse_flowmeters: emitPulseFlowmeters(pack),
+      pid_controllers: emitPidControllers(pack)
     },
     diagnostics: []
   };
@@ -142,6 +145,44 @@ function emitPulseFlowmeters(pack: RuntimePack): ShipControllerPulseFlowmeterArt
     });
 }
 
+function emitPidControllers(pack: RuntimePack): ShipControllerPidControllerArtifact[] {
+  return sortedKeys(pack.instances)
+    .map((instanceId) => pack.instances[instanceId])
+    .filter((instance) => instance.native_execution?.native_kind === "std.pid_controller.v1")
+    .map((instance) => {
+      const execution = instance.native_execution;
+      const pvRequirementId = execution?.frontend_requirement_ids?.find((entry) => entry.endsWith("_pv_source"));
+      const mvRequirementId = execution?.frontend_requirement_ids?.find((entry) => entry.endsWith("_mv_output"));
+      if (!pvRequirementId || !mvRequirementId) {
+        throw new Error(`PID controller instance ${instance.id} is missing required frontend requirement ids.`);
+      }
+
+      const pvRequirement = pack.frontend_requirements[pvRequirementId];
+      const mvRequirement = pack.frontend_requirements[mvRequirementId];
+      if (!pvRequirement || !mvRequirement) {
+        throw new Error(`PID controller instance ${instance.id} references unknown frontend requirements.`);
+      }
+
+      return {
+        id: instance.id,
+        native_kind: execution?.native_kind ?? "std.pid_controller.v1",
+        kp: numericParam(instance.params.kp?.value) ?? 0,
+        ti: numericParam(instance.params.ti?.value) ?? 0,
+        td: numericParam(instance.params.td?.value) ?? 0,
+        sample_time_ms: numericParam(instance.params.sample_time_ms?.value) ?? 0,
+        output_min: numericParam(instance.params.output_min?.value) ?? 0,
+        output_max: numericParam(instance.params.output_max?.value) ?? 0,
+        direction: stringParam(instance.params.direction?.value) ?? "reverse",
+        pv_filter_tau_ms: numericParam(instance.params.pv_filter_tau_ms?.value) ?? 0,
+        deadband: numericParam(instance.params.deadband?.value) ?? 0,
+        persistence_slot_ids: findPersistenceSlotIds(pack, instance.id),
+        frontend_requirement_ids: [...(execution?.frontend_requirement_ids ?? [])],
+        pv_source: resolvePidEndpoint(pack, pvRequirementId, pvRequirement, "input"),
+        mv_output: resolvePidEndpoint(pack, mvRequirementId, mvRequirement, "output")
+      };
+    });
+}
+
 function resolvePulseFlowmeterSource(
   pack: RuntimePack,
   frontendRequirementId: string,
@@ -190,6 +231,11 @@ function findPersistenceSlotId(pack: RuntimePack, instanceId: string): string | 
     .find((slotId) => pack.persistence_slots[slotId].owner_instance_id === instanceId);
 }
 
+function findPersistenceSlotIds(pack: RuntimePack, instanceId: string): string[] {
+  return sortedKeys(pack.persistence_slots)
+    .filter((slotId) => pack.persistence_slots[slotId].owner_instance_id === instanceId);
+}
+
 function findIncomingConnection(
   pack: RuntimePack,
   instanceId: string,
@@ -225,6 +271,59 @@ function findResource(
     ));
 }
 
+function resolvePidEndpoint(
+  pack: RuntimePack,
+  frontendRequirementId: string,
+  frontendRequirement: RuntimeFrontendRequirement,
+  direction: "input" | "output"
+): ShipControllerPidEndpointRef {
+  const connection = frontendRequirement.source_ports?.length
+    ? sortedKeys(pack.connections)
+        .map((connectionId) => pack.connections[connectionId])
+        .find((entry) => (
+          direction === "input"
+            ? entry.target.instance_id === frontendRequirement.owner_instance_id &&
+              frontendRequirement.source_ports?.some((port) => (
+                port.instance_id === entry.target.instance_id &&
+                port.port_id === entry.target.port_id
+              ))
+            : entry.source.instance_id === frontendRequirement.owner_instance_id &&
+              frontendRequirement.source_ports?.some((port) => (
+                port.instance_id === entry.source.instance_id &&
+                port.port_id === entry.source.port_id
+              ))
+        ))
+    : undefined;
+
+  const resource = direction === "input"
+    ? connection
+      ? findResource(pack, connection.source.instance_id, connection.source.port_id, frontendRequirement.binding_kind)
+      : undefined
+    : frontendRequirement.source_ports?.find((port) => findResource(pack, port.instance_id, port.port_id, frontendRequirement.binding_kind) !== undefined)
+      ? findResource(
+          pack,
+          frontendRequirement.source_ports.find((port) => findResource(pack, port.instance_id, port.port_id, frontendRequirement.binding_kind) !== undefined)!.instance_id,
+          frontendRequirement.source_ports.find((port) => findResource(pack, port.instance_id, port.port_id, frontendRequirement.binding_kind) !== undefined)!.port_id,
+          frontendRequirement.binding_kind
+        )
+      : undefined;
+
+  if (!connection && !resource) {
+    throw new Error(`PID frontend requirement ${frontendRequirementId} is missing connection/resource backing.`);
+  }
+
+  return {
+    instance_id: direction === "input"
+      ? (connection?.source.instance_id ?? resource?.instance_id ?? frontendRequirement.owner_instance_id)
+      : (connection?.target.instance_id ?? resource?.instance_id ?? frontendRequirement.owner_instance_id),
+    port_id: direction === "input"
+      ? (connection?.source.port_id ?? resource?.port_id ?? frontendRequirement.source_ports?.[0]?.port_id ?? "unknown")
+      : (connection?.target.port_id ?? resource?.port_id ?? frontendRequirement.source_ports?.[0]?.port_id ?? "unknown"),
+    connection_id: connection?.id,
+    resource_id: resource?.id
+  };
+}
+
 function numberConfig(resource: RuntimeResourceBinding, key: string): number {
   return Number(resource.config[key] ?? 0);
 }
@@ -245,4 +344,8 @@ function numericParam(value: unknown): number | undefined {
 
 function booleanParam(value: unknown): boolean | undefined {
   return typeof value === "boolean" ? value : undefined;
+}
+
+function stringParam(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
 }
