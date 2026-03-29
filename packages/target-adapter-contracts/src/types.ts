@@ -19,6 +19,34 @@ export interface TargetAdapterManifest {
   artifact_kinds: TargetArtifactKind[];
 }
 
+export interface TargetPulseSourceConstraint {
+  mode: string;
+  required_binding_kind: string;
+  required_value_types?: string[];
+  notes?: string;
+}
+
+export interface TargetAdapterCapabilityProfile {
+  target_id: string;
+  display_name: string;
+  supported_binding_kinds: string[];
+  supported_channel_kinds: string[];
+  supported_value_types: string[];
+  supported_native_kinds: string[];
+  supported_operation_kinds: string[];
+  supports_trace: boolean;
+  supports_operations: boolean;
+  supports_persistence: boolean;
+  supports_simulation: boolean;
+  supported_pulse_source_modes?: string[];
+  pulse_source_constraints?: TargetPulseSourceConstraint[];
+  limits: {
+    max_instances: number;
+    max_connections: number;
+    max_resources: number;
+  };
+}
+
 export interface TargetAdapterDiagnostic {
   code: string;
   severity: TargetDiagnosticSeverity;

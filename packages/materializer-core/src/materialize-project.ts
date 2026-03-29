@@ -22,8 +22,15 @@ import { createEmptyRuntimePack } from "./phases/finalize-pack.js";
 import { expandCompositionRecursively } from "./phases/materialize-composition.js";
 import { materializeSystemSignals } from "./phases/materialize-system-signals.js";
 import { normalizeProject } from "./phases/normalize-project.js";
+import { materializeFrontendRequirements, validateActiveFrontendBindings } from "./helpers/frontend-requirements.js";
 import { materializeNativeExecution } from "./helpers/native-execution.js";
-import { collectRuntimeOperations, collectRuntimeTraceGroups } from "./helpers/runtime-facets.js";
+import {
+  collectRuntimeMonitors,
+  collectRuntimeOperations,
+  collectRuntimePersistenceSlots,
+  collectRuntimeTraceGroups,
+  toRuntimeParamMetadata
+} from "./helpers/runtime-facets.js";
 
 const DEFAULT_OPTIONS: Required<MaterializeOptions> = {
   pack_id: "",
@@ -76,6 +83,7 @@ export function materializeProject(
   materializeSystemInstances(context, runtimePack);
   materializeSystemSignals(normalizedProject, runtimePack, diagnostics);
   materializeHardwareBindings(normalizedProject, runtimePack);
+  validateActiveFrontendBindings(runtimePack, diagnostics);
 
   return {
     ok: !hasErrors(diagnostics),
@@ -106,9 +114,25 @@ function materializeSystemInstances(
       instance,
       objectType
     );
+    const frontendRequirements = materializeFrontendRequirements(
+      instanceId,
+      objectType,
+      runtimeInstance.params,
+      "materialize_system_instances",
+      `$.system.instances.${instanceId}`
+    );
+    runtimeInstance.native_execution = materializeNativeExecution(
+      objectType.implementation?.native,
+      frontendRequirements.mode,
+      frontendRequirements.active_requirement_ids
+    );
     runtimePack.instances[instanceId] = runtimeInstance;
     Object.assign(runtimePack.operations, collectRuntimeOperations(instanceId, objectType));
     Object.assign(runtimePack.trace_groups, collectRuntimeTraceGroups(instanceId, objectType));
+    Object.assign(runtimePack.monitors, collectRuntimeMonitors(instanceId, objectType));
+    Object.assign(runtimePack.frontend_requirements, frontendRequirements.requirements);
+    Object.assign(runtimePack.persistence_slots, collectRuntimePersistenceSlots(instanceId, objectType));
+    context.diagnostics.push(...frontendRequirements.diagnostics);
 
     expandCompositionRecursively(
       runtimePack,
@@ -183,6 +207,7 @@ function materializeTopLevelParams(
         value: override.value,
         value_type: paramDef.value_type,
         source: "instance_override",
+        metadata: toRuntimeParamMetadata(paramDef),
         provenance: {
           owner_id: instance.id,
           param_id: paramId,
@@ -195,7 +220,8 @@ function materializeTopLevelParams(
     params[paramId] = {
       value: paramDef.default ?? null,
       value_type: paramDef.value_type,
-      source: "default"
+      source: "default",
+      metadata: toRuntimeParamMetadata(paramDef)
     };
   }
 

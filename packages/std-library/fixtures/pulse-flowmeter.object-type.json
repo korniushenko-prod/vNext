@@ -1,0 +1,432 @@
+{
+  "id": "pulse_flowmeter",
+  "kind": "object_type",
+  "meta": {
+    "title": "Pulse Flowmeter",
+    "version": "1.0.0",
+    "origin": "library",
+    "library_id": "std",
+    "description": "Universal pulse-driven flowmeter with hall, analog-threshold, and remote pulse modes."
+  },
+  "interface": {
+    "ports": {
+      "pulse_in": {
+        "id": "pulse_in",
+        "title": "Pulse Input",
+        "direction": "in",
+        "channel_kind": "signal",
+        "value_type": "bool"
+      },
+      "analog_source": {
+        "id": "analog_source",
+        "title": "Analog Source",
+        "direction": "in",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "remote_pulse": {
+        "id": "remote_pulse",
+        "title": "Remote Pulse",
+        "direction": "in",
+        "channel_kind": "signal",
+        "value_type": "bool"
+      },
+      "flow_rate": {
+        "id": "flow_rate",
+        "title": "Flow Rate",
+        "direction": "out",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "total_volume": {
+        "id": "total_volume",
+        "title": "Total Volume",
+        "direction": "out",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "source_ok": {
+        "id": "source_ok",
+        "title": "Source OK",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "pulse_seen": {
+        "id": "pulse_seen",
+        "title": "Pulse Seen",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      }
+    },
+    "params": {
+      "sensor_mode": {
+        "id": "sensor_mode",
+        "title": "Sensor Mode",
+        "description": "Selects the active frontend: hall_pulse, analog_threshold_pulse, or remote_pulse.",
+        "value_type": "string",
+        "default": "hall_pulse",
+        "group": "source",
+        "ui_hint": "enum",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "k_factor": {
+        "id": "k_factor",
+        "title": "K Factor",
+        "description": "Pulses per engineering unit.",
+        "value_type": "float",
+        "default": 1.0,
+        "unit": "pulses_per_unit",
+        "min": 0.0001,
+        "max": 1000000,
+        "step": 0.0001,
+        "group": "calibration",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "filter_window_ms": {
+        "id": "filter_window_ms",
+        "title": "Filter Window",
+        "description": "Moving average / smoothing window for computed flow rate.",
+        "value_type": "u32",
+        "default": 1000,
+        "unit": "ms",
+        "min": 0,
+        "max": 60000,
+        "step": 100,
+        "group": "calculation",
+        "ui_hint": "duration_ms",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "threshold_on": {
+        "id": "threshold_on",
+        "title": "Threshold On",
+        "description": "Upper threshold for analog pulse detection.",
+        "value_type": "float",
+        "default": 2.0,
+        "unit": "source_units",
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "analog_threshold",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "threshold_off": {
+        "id": "threshold_off",
+        "title": "Threshold Off",
+        "description": "Lower threshold / hysteresis release for analog pulse detection.",
+        "value_type": "float",
+        "default": 1.0,
+        "unit": "source_units",
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "analog_threshold",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "stale_timeout_ms": {
+        "id": "stale_timeout_ms",
+        "title": "Source Timeout",
+        "description": "Timeout before the source is considered stale or absent.",
+        "value_type": "u32",
+        "default": 5000,
+        "unit": "ms",
+        "min": 0,
+        "max": 3600000,
+        "step": 100,
+        "group": "monitoring",
+        "ui_hint": "duration_ms",
+        "access_role": "operator",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "engineering_unit": {
+        "id": "engineering_unit",
+        "title": "Engineering Unit",
+        "description": "Display unit for rate and total outputs.",
+        "value_type": "string",
+        "default": "l_min",
+        "group": "calibration",
+        "ui_hint": "text",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "persist_totalizer": {
+        "id": "persist_totalizer",
+        "title": "Persist Totalizer",
+        "description": "Store total volume to non-volatile storage.",
+        "value_type": "bool",
+        "default": true,
+        "group": "persistence",
+        "ui_hint": "toggle",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "low_flow_limit": {
+        "id": "low_flow_limit",
+        "title": "Low Flow Limit",
+        "description": "Low flow warning threshold.",
+        "value_type": "float",
+        "default": 0.0,
+        "unit": "flow_units",
+        "min": 0,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "monitoring",
+        "ui_hint": "numeric",
+        "access_role": "operator",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "high_flow_limit": {
+        "id": "high_flow_limit",
+        "title": "High Flow Limit",
+        "description": "High flow warning threshold.",
+        "value_type": "float",
+        "default": 1000.0,
+        "unit": "flow_units",
+        "min": 0,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "monitoring",
+        "ui_hint": "numeric",
+        "access_role": "operator",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      }
+    },
+    "alarms": {}
+  },
+  "locals": {
+    "signals": {},
+    "vars": {}
+  },
+  "implementation": {
+    "native": {
+      "native_kind": "std.pulse_flowmeter.v1",
+      "target_kinds": [
+        "esp32.shipcontroller.v1"
+      ],
+      "config_template": "shipcontroller.pulse_flowmeter.v1"
+    },
+    "composition": null,
+    "state": null,
+    "flow": null
+  },
+  "facets": {
+    "frontends": {
+      "requirements": {
+        "hall_pulse_source": {
+          "id": "hall_pulse_source",
+          "kind": "pulse_input",
+          "mode": "hall_pulse",
+          "title": "Hall Pulse Source",
+          "source_ports": ["pulse_in"],
+          "binding_kind": "digital_in",
+          "channel_kind": "signal",
+          "value_type": "bool",
+          "required": false,
+          "config": {
+            "activation_param": "sensor_mode",
+            "activation_value": "hall_pulse",
+            "debounce_ms_param": "filter_window_ms"
+          }
+        },
+        "analog_threshold_source": {
+          "id": "analog_threshold_source",
+          "kind": "analog_threshold_input",
+          "mode": "analog_threshold_pulse",
+          "title": "Analog Threshold Source",
+          "source_ports": ["analog_source"],
+          "binding_kind": "analog_in",
+          "channel_kind": "telemetry",
+          "value_type": "float",
+          "required": false,
+          "config": {
+            "activation_param": "sensor_mode",
+            "activation_value": "analog_threshold_pulse",
+            "threshold_on_param": "threshold_on",
+            "threshold_off_param": "threshold_off"
+          }
+        },
+        "remote_pulse_source": {
+          "id": "remote_pulse_source",
+          "kind": "remote_point",
+          "mode": "remote_pulse",
+          "title": "Remote Pulse Source",
+          "source_ports": ["remote_pulse"],
+          "binding_kind": "service",
+          "channel_kind": "signal",
+          "value_type": "bool",
+          "required": false,
+          "config": {
+            "activation_param": "sensor_mode",
+            "activation_value": "remote_pulse"
+          }
+        }
+      }
+    },
+    "operations": {
+      "operations": {
+        "reset_totalizer": {
+          "id": "reset_totalizer",
+          "kind": "reset_totalizer",
+          "title": "Reset Totalizer",
+          "ui_hint": "danger",
+          "safe_when": ["stopped", "maintenance_mode"],
+          "confirmation_policy": "required",
+          "progress_signals": ["source_ok"],
+          "result_fields": ["completed", "total_volume"]
+        }
+      }
+    },
+    "monitoring": {
+      "monitors": {
+        "no_pulse_timeout": {
+          "id": "no_pulse_timeout",
+          "kind": "timeout",
+          "title": "No Pulse Timeout",
+          "source_ports": ["pulse_in", "analog_source", "remote_pulse"],
+          "severity": "warning",
+          "status_port_id": "source_ok",
+          "config": {
+            "timeout_param": "stale_timeout_ms"
+          }
+        },
+        "stale_source": {
+          "id": "stale_source",
+          "kind": "stale",
+          "title": "Stale Source",
+          "source_ports": ["analog_source", "remote_pulse"],
+          "severity": "warning",
+          "status_port_id": "source_ok",
+          "config": {
+            "timeout_param": "stale_timeout_ms"
+          }
+        },
+        "low_flow": {
+          "id": "low_flow",
+          "kind": "threshold",
+          "title": "Low Flow",
+          "source_ports": ["flow_rate"],
+          "severity": "info",
+          "status_port_id": "source_ok",
+          "config": {
+            "threshold_param": "low_flow_limit",
+            "comparison": "lt"
+          }
+        },
+        "high_flow": {
+          "id": "high_flow",
+          "kind": "threshold",
+          "title": "High Flow",
+          "source_ports": ["flow_rate"],
+          "severity": "warning",
+          "status_port_id": "source_ok",
+          "config": {
+            "threshold_param": "high_flow_limit",
+            "comparison": "gt"
+          }
+        }
+      }
+    },
+    "debug": {
+      "trace_groups": {
+        "process": {
+          "title": "Process",
+          "signals": ["flow_rate", "total_volume", "pulse_seen", "source_ok"],
+          "sample_hint_ms": 500,
+          "chart_hint": "line"
+        },
+        "source": {
+          "title": "Source",
+          "signals": ["pulse_in", "analog_source", "remote_pulse", "pulse_seen"],
+          "sample_hint_ms": 100,
+          "chart_hint": "timeline"
+        }
+      }
+    },
+    "persistence": {
+      "slots": {
+        "totalizer": {
+          "id": "totalizer",
+          "slot_kind": "counter",
+          "title": "Totalizer Persistence",
+          "nv_slot_hint": "nv.totalizer",
+          "flush_policy": "periodic"
+        }
+      }
+    },
+    "templates": {
+      "presets": {
+        "hall_sensor_preset": {
+          "id": "hall_sensor_preset",
+          "title": "Hall Sensor Preset",
+          "description": "Uses direct pulse input from a hall sensor.",
+          "defaults": {
+            "sensor_mode": "hall_pulse",
+            "filter_window_ms": 200,
+            "persist_totalizer": true
+          }
+        },
+        "analog_threshold_preset": {
+          "id": "analog_threshold_preset",
+          "title": "Analog Threshold Preset",
+          "description": "Derives pulses from an analog waveform using threshold hysteresis.",
+          "defaults": {
+            "sensor_mode": "analog_threshold_pulse",
+            "threshold_on": 2.0,
+            "threshold_off": 1.0,
+            "filter_window_ms": 500
+          }
+        },
+        "remote_pulse_preset": {
+          "id": "remote_pulse_preset",
+          "title": "Remote Pulse Preset",
+          "description": "Receives pulses from a remote point or communication source.",
+          "defaults": {
+            "sensor_mode": "remote_pulse",
+            "stale_timeout_ms": 10000,
+            "persist_totalizer": true
+          }
+        }
+      }
+    }
+  },
+  "diagnostics": {}
+}

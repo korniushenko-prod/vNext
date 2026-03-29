@@ -38,7 +38,9 @@ export interface ObjectType {
   meta: {
     title: string;
     version?: string;
-    origin: "project" | "generated" | "imported";
+    origin: "project" | "generated" | "imported" | "library";
+    library_id?: string;
+    description?: string;
   };
   interface: {
     ports: Record<string, PortDef>;
@@ -89,6 +91,18 @@ export interface ParamDef {
   title?: string;
   value_type: string;
   default?: unknown;
+  unit?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  group?: string;
+  ui_hint?: string;
+  description?: string;
+  access_role?: string;
+  live_edit_policy?: string;
+  persist_policy?: string;
+  recipe_scope?: string;
+  danger_level?: string;
 }
 
 export interface AlarmDef {
@@ -142,11 +156,26 @@ export type ParamValue =
     };
 
 export interface ObjectTypeFacets {
+  frontends?: {
+    requirements?: Record<string, ObjectFrontendRequirementDef>;
+  };
   operations?: {
     operations?: Record<string, ObjectOperationDef>;
   };
+  monitors?: {
+    monitors?: Record<string, ObjectMonitorDef>;
+  };
+  monitoring?: {
+    monitors?: Record<string, ObjectMonitorDef>;
+  };
   debug?: {
     trace_groups?: Record<string, ObjectTraceGroupDef>;
+  };
+  persistence?: {
+    slots?: Record<string, ObjectPersistenceSlotDef>;
+  };
+  templates?: {
+    presets?: Record<string, ObjectTemplatePresetDef>;
   };
   [key: string]: unknown;
 }
@@ -155,10 +184,55 @@ export interface ObjectOperationDef {
   id: string;
   kind?: string;
   title?: string;
+  ui_hint?: string;
+  safe_when?: string[];
+  confirmation_policy?: string;
+  progress_signals?: string[];
+  result_fields?: string[];
 }
 
 export interface ObjectTraceGroupDef {
+  title?: string;
   signals: string[];
   sample_hint_ms?: number;
   chart_hint?: string;
+}
+
+export interface ObjectFrontendRequirementDef {
+  id: string;
+  kind: string;
+  mode?: string;
+  title?: string;
+  source_ports?: string[];
+  binding_kind?: string;
+  channel_kind?: ChannelKind;
+  value_type?: string;
+  required?: boolean;
+  config?: Record<string, unknown>;
+}
+
+export interface ObjectMonitorDef {
+  id: string;
+  kind: string;
+  title?: string;
+  source_ports?: string[];
+  severity?: string;
+  status_port_id?: string;
+  config?: Record<string, unknown>;
+}
+
+export interface ObjectPersistenceSlotDef {
+  id: string;
+  slot_kind: string;
+  title?: string;
+  owner_param_id?: string;
+  nv_slot_hint?: string;
+  flush_policy?: string;
+}
+
+export interface ObjectTemplatePresetDef {
+  id: string;
+  title?: string;
+  description?: string;
+  defaults?: Record<string, unknown>;
 }

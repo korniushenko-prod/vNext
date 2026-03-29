@@ -121,5 +121,8 @@
     }
   },
   "operations": {},
-  "trace_groups": {}
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
 }

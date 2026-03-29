@@ -4,6 +4,7 @@ import type {
 } from "@universal-plc/runtime-pack-schema";
 import type {
   TargetAdapterContract,
+  TargetAdapterCapabilityProfile,
   TargetAdapterDiagnostic,
   TargetDeploymentRequest,
   TargetDeploymentResult,
@@ -11,21 +12,9 @@ import type {
   TargetReadbackSnapshot
 } from "@universal-plc/target-adapter-contracts";
 
-export interface Esp32CapabilityProfile {
+export interface Esp32CapabilityProfile extends TargetAdapterCapabilityProfile {
   target_id: "esp32.shipcontroller.v1";
-  display_name: string;
   supported_binding_kinds: RuntimeBindingKind[];
-  supported_channel_kinds: string[];
-  supported_value_types: string[];
-  supported_native_kinds: string[];
-  supported_operation_kinds: string[];
-  supports_trace: boolean;
-  supports_simulation: boolean;
-  limits: {
-    max_instances: number;
-    max_connections: number;
-    max_resources: number;
-  };
 }
 
 export interface Esp32CompatibilityResult {
@@ -61,6 +50,14 @@ export interface ShipControllerDigitalInputArtifact {
   debounce_ms?: number;
 }
 
+export interface ShipControllerAnalogInputArtifact {
+  id: string;
+  instance_id: string;
+  pin: number;
+  attenuation_db?: number;
+  sample_window_ms?: number;
+}
+
 export interface ShipControllerDigitalOutputArtifact {
   id: string;
   instance_id: string;
@@ -85,6 +82,30 @@ export interface ShipControllerTimedRelayArtifact {
   output_target: ShipControllerTimedRelayEndpointRef;
 }
 
+export interface ShipControllerPulseFlowmeterSourceRef {
+  requirement_id: string;
+  mode: string;
+  binding_kind: string;
+  instance_id: string;
+  port_id: string;
+  connection_id?: string;
+  resource_id?: string;
+}
+
+export interface ShipControllerPulseFlowmeterArtifact {
+  id: string;
+  native_kind: string;
+  sensor_mode: string;
+  k_factor: number;
+  filter_window_ms: number;
+  threshold_on?: number;
+  threshold_off?: number;
+  stale_timeout_ms: number;
+  persistence_slot_id?: string;
+  frontend_requirement_ids: string[];
+  source: ShipControllerPulseFlowmeterSourceRef;
+}
+
 export interface ShipControllerConfigArtifact {
   schema_version: "0.1.0";
   target_kind: "esp32.shipcontroller.v1";
@@ -92,8 +113,10 @@ export interface ShipControllerConfigArtifact {
   capability_profile: string;
   artifacts: {
     digital_inputs: ShipControllerDigitalInputArtifact[];
+    analog_inputs: ShipControllerAnalogInputArtifact[];
     digital_outputs: ShipControllerDigitalOutputArtifact[];
     timed_relays: ShipControllerTimedRelayArtifact[];
+    pulse_flowmeters: ShipControllerPulseFlowmeterArtifact[];
   };
   diagnostics: TargetAdapterDiagnostic[];
 }

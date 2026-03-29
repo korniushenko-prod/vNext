@@ -10,9 +10,16 @@ import type {
 } from "@universal-plc/runtime-pack-schema";
 import type { MaterializerDiagnostic } from "../types.js";
 import { error } from "../diagnostics.js";
+import { materializeFrontendRequirements } from "../helpers/frontend-requirements.js";
 import { compositionConnectionId, qualifyInstanceId } from "../helpers/ids.js";
 import { materializeNativeExecution } from "../helpers/native-execution.js";
-import { collectRuntimeOperations, collectRuntimeTraceGroups } from "../helpers/runtime-facets.js";
+import {
+  collectRuntimeMonitors,
+  collectRuntimeOperations,
+  collectRuntimePersistenceSlots,
+  collectRuntimeTraceGroups,
+  toRuntimeParamMetadata
+} from "../helpers/runtime-facets.js";
 import { resolveLocalTypeRef } from "./build-type-registry.js";
 
 export function expandCompositionRecursively(
@@ -49,10 +56,26 @@ export function expandCompositionRecursively(
       parentType.id,
       diagnostics
     );
+    const frontendRequirements = materializeFrontendRequirements(
+      runtimeInstanceId,
+      childType,
+      childRuntimeInstance.params,
+      "expand_composition",
+      `$.definitions.object_types.${parentType.id}.implementation.composition.instances.${childId}`
+    );
+    childRuntimeInstance.native_execution = materializeNativeExecution(
+      childType.implementation?.native,
+      frontendRequirements.mode,
+      frontendRequirements.active_requirement_ids
+    );
 
     runtimePack.instances[runtimeInstanceId] = childRuntimeInstance;
     Object.assign(runtimePack.operations, collectRuntimeOperations(runtimeInstanceId, childType));
     Object.assign(runtimePack.trace_groups, collectRuntimeTraceGroups(runtimeInstanceId, childType));
+    Object.assign(runtimePack.monitors, collectRuntimeMonitors(runtimeInstanceId, childType));
+    Object.assign(runtimePack.frontend_requirements, frontendRequirements.requirements);
+    Object.assign(runtimePack.persistence_slots, collectRuntimePersistenceSlots(runtimeInstanceId, childType));
+    diagnostics.push(...frontendRequirements.diagnostics);
 
     expandCompositionRecursively(
       runtimePack,
@@ -175,7 +198,8 @@ function resolveParams(
       result[paramId] = {
         value: paramDef.default ?? null,
         value_type: paramDef.value_type,
-        source: "default"
+        source: "default",
+        metadata: toRuntimeParamMetadata(paramDef)
       };
       continue;
     }
@@ -185,6 +209,7 @@ function resolveParams(
         value: override.value,
         value_type: paramDef.value_type,
         source: "instance_override",
+        metadata: toRuntimeParamMetadata(paramDef),
         provenance: {
           owner_id: instance.id,
           param_id: paramId,
@@ -206,7 +231,8 @@ function resolveParams(
         result[paramId] = {
           value: paramDef.default ?? null,
           value_type: paramDef.value_type,
-          source: "default"
+          source: "default",
+          metadata: toRuntimeParamMetadata(paramDef)
         };
         continue;
       }
@@ -215,6 +241,7 @@ function resolveParams(
         value: inherited.value,
         value_type: paramDef.value_type,
         source: "materialized",
+        metadata: inherited.metadata ?? toRuntimeParamMetadata(paramDef),
         provenance: {
           owner_id: parentRuntimeInstance.id,
           param_id: override.param_id,

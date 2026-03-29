@@ -1,0 +1,550 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "pulse-flowmeter-demo-pack",
+  "source": {
+    "project_id": "demo_pulse_flowmeter_project",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-28T20:00:00Z"
+  },
+  "instances": {
+    "pulse_source_1": {
+      "id": "pulse_source_1",
+      "type_ref": "library:std/digital_input",
+      "title": "Hall Pulse Source",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "debounce_ms": {
+          "value": 20,
+          "value_type": "u32",
+          "source": "instance_override",
+          "provenance": {
+            "owner_id": "pulse_source_1",
+            "param_id": "debounce_ms",
+            "source_layer": "system"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.digital_input.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.digital_input.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_pulse_flowmeter_project"
+      }
+    },
+    "flowmeter_1": {
+      "id": "flowmeter_1",
+      "type_ref": "library:std/pulse_flowmeter",
+      "title": "Pulse Flowmeter #1",
+      "enabled": true,
+      "ports": {
+        "pulse_in": {
+          "id": "pulse_in",
+          "direction": "in",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        },
+        "analog_source": {
+          "id": "analog_source",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "remote_pulse": {
+          "id": "remote_pulse",
+          "direction": "in",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        },
+        "flow_rate": {
+          "id": "flow_rate",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "total_volume": {
+          "id": "total_volume",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "pulse_seen": {
+          "id": "pulse_seen",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "sensor_mode": {
+          "value": "hall_pulse",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "source",
+            "ui_hint": "enum",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "flowmeter_1",
+            "param_id": "sensor_mode",
+            "source_layer": "system"
+          }
+        },
+        "k_factor": {
+          "value": 450,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "pulses_per_unit",
+            "min": 0.0001,
+            "max": 1000000,
+            "step": 0.0001,
+            "group": "calibration",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "flowmeter_1",
+            "param_id": "k_factor",
+            "source_layer": "system"
+          }
+        },
+        "filter_window_ms": {
+          "value": 250,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "ms",
+            "group": "calculation"
+          },
+          "provenance": {
+            "owner_id": "flowmeter_1",
+            "param_id": "filter_window_ms",
+            "source_layer": "system"
+          }
+        },
+        "threshold_on": {
+          "value": 2,
+          "value_type": "float",
+          "source": "default",
+          "metadata": {
+            "unit": "source_units"
+          }
+        },
+        "threshold_off": {
+          "value": 1,
+          "value_type": "float",
+          "source": "default",
+          "metadata": {
+            "unit": "source_units"
+          }
+        },
+        "stale_timeout_ms": {
+          "value": 5000,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "ms",
+            "group": "monitoring"
+          },
+          "provenance": {
+            "owner_id": "flowmeter_1",
+            "param_id": "stale_timeout_ms",
+            "source_layer": "system"
+          }
+        },
+        "engineering_unit": {
+          "value": "l_min",
+          "value_type": "string",
+          "source": "default"
+        },
+        "persist_totalizer": {
+          "value": true,
+          "value_type": "bool",
+          "source": "instance_override",
+          "metadata": {
+            "group": "persistence"
+          },
+          "provenance": {
+            "owner_id": "flowmeter_1",
+            "param_id": "persist_totalizer",
+            "source_layer": "system"
+          }
+        },
+        "low_flow_limit": {
+          "value": 0,
+          "value_type": "float",
+          "source": "default"
+        },
+        "high_flow_limit": {
+          "value": 1000,
+          "value_type": "float",
+          "source": "default"
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.pulse_flowmeter.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.pulse_flowmeter.v1",
+        "mode": "hall_pulse",
+        "frontend_requirement_ids": [
+          "fe_flowmeter_1_hall_pulse_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_pulse_flowmeter_project"
+      }
+    }
+  },
+  "connections": {
+    "conn_sig_pulse_source_to_flowmeter_t1": {
+      "id": "conn_sig_pulse_source_to_flowmeter_t1",
+      "source": {
+        "instance_id": "pulse_source_1",
+        "port_id": "value"
+      },
+      "target": {
+        "instance_id": "flowmeter_1",
+        "port_id": "pulse_in"
+      },
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "demo_pulse_flowmeter_project",
+        "signal_id": "sig_pulse_source_to_flowmeter"
+      }
+    }
+  },
+  "resources": {
+    "hw_pulse_source_1": {
+      "id": "hw_pulse_source_1",
+      "binding_kind": "digital_in",
+      "instance_id": "pulse_source_1",
+      "port_id": "value",
+      "config": {
+        "pin": 14,
+        "pullup": true
+      }
+    }
+  },
+  "operations": {
+    "op_flowmeter_1_reset_totalizer": {
+      "id": "op_flowmeter_1_reset_totalizer",
+      "owner_instance_id": "flowmeter_1",
+      "kind": "reset_totalizer",
+      "title": "Reset Totalizer",
+      "ui_hint": "danger",
+      "safe_when": [
+        "stopped"
+      ],
+      "confirmation_policy": "required",
+      "progress_signals": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "source_ok"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "total_volume"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals",
+        "destructive": true
+      },
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_totalizer",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    }
+  },
+  "trace_groups": {
+    "tg_flowmeter_1_process": {
+      "id": "tg_flowmeter_1_process",
+      "owner_instance_id": "flowmeter_1",
+      "title": "Process",
+      "signals": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "flow_rate"
+        },
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "total_volume"
+        },
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "pulse_seen"
+        },
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "source_ok"
+        }
+      ],
+      "sample_hint_ms": 500,
+      "chart_hint": "line",
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "trace_group",
+        "facet_id": "process",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    },
+    "tg_flowmeter_1_source": {
+      "id": "tg_flowmeter_1_source",
+      "owner_instance_id": "flowmeter_1",
+      "title": "Source",
+      "signals": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "pulse_in"
+        },
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "analog_source"
+        },
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "remote_pulse"
+        },
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "pulse_seen"
+        }
+      ],
+      "sample_hint_ms": 100,
+      "chart_hint": "timeline",
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "trace_group",
+        "facet_id": "source",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    }
+  },
+  "monitors": {
+    "mon_flowmeter_1_no_pulse_timeout": {
+      "id": "mon_flowmeter_1_no_pulse_timeout",
+      "owner_instance_id": "flowmeter_1",
+      "kind": "timeout",
+      "source_ports": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "pulse_in"
+        },
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "analog_source"
+        },
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "remote_pulse"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "config": {
+        "timeout_param": "stale_timeout_ms"
+      },
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "monitor",
+        "facet_id": "no_pulse_timeout",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    },
+    "mon_flowmeter_1_stale_source": {
+      "id": "mon_flowmeter_1_stale_source",
+      "owner_instance_id": "flowmeter_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "analog_source"
+        },
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "remote_pulse"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    },
+    "mon_flowmeter_1_low_flow": {
+      "id": "mon_flowmeter_1_low_flow",
+      "owner_instance_id": "flowmeter_1",
+      "kind": "threshold",
+      "source_ports": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "flow_rate"
+        }
+      ],
+      "severity": "info",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "monitor",
+        "facet_id": "low_flow",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    },
+    "mon_flowmeter_1_high_flow": {
+      "id": "mon_flowmeter_1_high_flow",
+      "owner_instance_id": "flowmeter_1",
+      "kind": "threshold",
+      "source_ports": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "flow_rate"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "monitor",
+        "facet_id": "high_flow",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    }
+  },
+  "frontend_requirements": {
+    "fe_flowmeter_1_hall_pulse_source": {
+      "id": "fe_flowmeter_1_hall_pulse_source",
+      "owner_instance_id": "flowmeter_1",
+      "kind": "pulse_input",
+      "mode": "hall_pulse",
+      "source_ports": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "pulse_in"
+        }
+      ],
+      "binding_kind": "digital_in",
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "required": true,
+      "config": {
+        "activation_param": "sensor_mode",
+        "activation_value": "hall_pulse"
+      },
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "hall_pulse_source",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    },
+    "fe_flowmeter_1_analog_threshold_source": {
+      "id": "fe_flowmeter_1_analog_threshold_source",
+      "owner_instance_id": "flowmeter_1",
+      "kind": "analog_threshold_input",
+      "mode": "analog_threshold_pulse",
+      "source_ports": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "analog_source"
+        }
+      ],
+      "binding_kind": "analog_in",
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "required": false,
+      "config": {
+        "activation_param": "sensor_mode",
+        "activation_value": "analog_threshold_pulse"
+      },
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "analog_threshold_source",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    },
+    "fe_flowmeter_1_remote_pulse_source": {
+      "id": "fe_flowmeter_1_remote_pulse_source",
+      "owner_instance_id": "flowmeter_1",
+      "kind": "remote_point",
+      "mode": "remote_pulse",
+      "source_ports": [
+        {
+          "instance_id": "flowmeter_1",
+          "port_id": "remote_pulse"
+        }
+      ],
+      "binding_kind": "service",
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "required": false,
+      "config": {
+        "activation_param": "sensor_mode",
+        "activation_value": "remote_pulse"
+      },
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "remote_pulse_source",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    }
+  },
+  "persistence_slots": {
+    "ps_flowmeter_1_totalizer": {
+      "id": "ps_flowmeter_1_totalizer",
+      "owner_instance_id": "flowmeter_1",
+      "slot_kind": "counter",
+      "title": "Totalizer",
+      "nv_slot_hint": "nv.totalizer",
+      "flush_policy": "periodic",
+      "provenance": {
+        "owner_instance_id": "flowmeter_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "totalizer",
+        "source_type_ref": "library:pulse_flowmeter"
+      }
+    }
+  }
+}

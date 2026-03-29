@@ -12,5 +12,10 @@
       "id": "sig_1"
     }
   },
-  "resources": {}
+  "resources": {},
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
 }

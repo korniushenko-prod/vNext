@@ -1,0 +1,225 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "capability_hardening_demo",
+    "title": "Capability Hardening Demo"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "capability_meter": {
+        "id": "capability_meter",
+        "kind": "object_type",
+        "meta": {
+          "title": "Capability Meter",
+          "version": "1.0.0",
+          "origin": "project",
+          "description": "Capability hardening reference object."
+        },
+        "interface": {
+          "ports": {
+            "pulse_source": {
+              "id": "pulse_source",
+              "direction": "in",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            },
+            "flow_rate": {
+              "id": "flow_rate",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "total_volume": {
+              "id": "total_volume",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "source_ok": {
+              "id": "source_ok",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "k_factor": {
+              "id": "k_factor",
+              "title": "K Factor",
+              "value_type": "float",
+              "default": 1.25,
+              "unit": "pulses_per_liter",
+              "min": 0.1,
+              "max": 100,
+              "step": 0.01,
+              "group": "calibration",
+              "ui_hint": "numeric",
+              "description": "Pulses per liter conversion factor.",
+              "access_role": "engineer",
+              "live_edit_policy": "stopped_only",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "timeout_ms": {
+              "id": "timeout_ms",
+              "title": "Timeout",
+              "value_type": "u32",
+              "default": 5000,
+              "unit": "ms",
+              "min": 100,
+              "max": 60000,
+              "step": 100,
+              "group": "monitoring",
+              "ui_hint": "duration_ms",
+              "description": "No-pulse timeout window.",
+              "access_role": "operator",
+              "live_edit_policy": "live_safe",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {
+              "pulse_source": {
+                "id": "pulse_source",
+                "kind": "pulse_input",
+                "mode": "hall_pulse",
+                "title": "Pulse Source",
+                "source_ports": ["pulse_source"],
+                "binding_kind": "digital_in",
+                "channel_kind": "signal",
+                "value_type": "bool",
+                "required": true,
+                "config": {
+                  "debounce_ms": 20
+                }
+              }
+            }
+          },
+          "operations": {
+            "operations": {
+              "reset_totalizer": {
+                "id": "reset_totalizer",
+                "kind": "reset_totalizer",
+                "title": "Reset Totalizer",
+                "ui_hint": "danger",
+                "safe_when": ["stopped"],
+                "confirmation_policy": "required",
+                "progress_signals": ["source_ok"],
+                "result_fields": ["done"]
+              }
+            }
+          },
+          "monitoring": {
+            "monitors": {
+              "pulse_timeout": {
+                "id": "pulse_timeout",
+                "kind": "timeout",
+                "title": "Pulse Timeout",
+                "source_ports": ["pulse_source"],
+                "severity": "warning",
+                "status_port_id": "source_ok",
+                "config": {
+                  "timeout_ms": 5000
+                }
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "flow_metrics": {
+                "title": "Flow Metrics",
+                "signals": ["flow_rate", "total_volume", "source_ok"],
+                "sample_hint_ms": 500,
+                "chart_hint": "line"
+              }
+            }
+          },
+          "persistence": {
+            "slots": {
+              "total_volume": {
+                "id": "total_volume",
+                "slot_kind": "counter",
+                "title": "Total Volume",
+                "owner_param_id": "k_factor",
+                "nv_slot_hint": "nv.total_volume",
+                "flush_policy": "periodic"
+              }
+            }
+          },
+          "templates": {
+            "presets": {
+              "hall_sensor_default": {
+                "id": "hall_sensor_default",
+                "title": "Hall Sensor Default",
+                "description": "Default hall sensor preset.",
+                "defaults": {
+                  "timeout_ms": 5000
+                }
+              }
+            }
+          }
+        },
+        "implementation": {
+          "native": null,
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "meter_1": {
+        "id": "meter_1",
+        "kind": "object_instance",
+        "type_ref": "project:capability_meter",
+        "title": "Capability Meter #1",
+        "enabled": true,
+        "param_values": {
+          "k_factor": {
+            "kind": "literal",
+            "value": 2.5
+          }
+        }
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {
+      "res_meter_1_pulse_source": {
+        "id": "res_meter_1_pulse_source",
+        "instance_id": "meter_1",
+        "port_id": "pulse_source",
+        "binding_kind": "digital_in",
+        "config": {
+          "pin": 14,
+          "pullup": true
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

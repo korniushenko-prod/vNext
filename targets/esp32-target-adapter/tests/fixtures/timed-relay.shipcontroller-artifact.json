@@ -13,6 +13,7 @@
         "debounce_ms": 20
       }
     ],
+    "analog_inputs": [],
     "digital_outputs": [
       {
         "id": "do_pump_contact_1",
@@ -40,7 +41,8 @@
           "connection_id": "conn_sig_relay_to_output_t1"
         }
       }
-    ]
+    ],
+    "pulse_flowmeters": []
   },
   "diagnostics": []
 }

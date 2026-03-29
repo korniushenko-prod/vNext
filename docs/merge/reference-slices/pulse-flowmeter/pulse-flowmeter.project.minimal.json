@@ -1,0 +1,99 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "demo_pulse_flowmeter_project",
+    "title": "Pulse Flowmeter Demo"
+  },
+  "imports": {
+    "libraries": [
+      "std"
+    ],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {
+      "pulse_source_1": {
+        "id": "pulse_source_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/digital_input",
+        "title": "Hall Pulse Source",
+        "enabled": true,
+        "param_values": {
+          "debounce_ms": {
+            "kind": "literal",
+            "value": 20
+          }
+        }
+      },
+      "flowmeter_1": {
+        "id": "flowmeter_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/pulse_flowmeter",
+        "title": "Pulse Flowmeter #1",
+        "enabled": true,
+        "param_values": {
+          "sensor_mode": {
+            "kind": "literal",
+            "value": "hall_pulse"
+          },
+          "k_factor": {
+            "kind": "literal",
+            "value": 450.0
+          },
+          "filter_window_ms": {
+            "kind": "literal",
+            "value": 250
+          },
+          "stale_timeout_ms": {
+            "kind": "literal",
+            "value": 5000
+          },
+          "persist_totalizer": {
+            "kind": "literal",
+            "value": true
+          }
+        }
+      }
+    },
+    "signals": {
+      "sig_pulse_source_to_flowmeter": {
+        "id": "sig_pulse_source_to_flowmeter",
+        "title": "Pulse Source -> Flowmeter",
+        "source": {
+          "instance_id": "pulse_source_1",
+          "port_id": "value"
+        },
+        "targets": {
+          "t1": {
+            "instance_id": "flowmeter_1",
+            "port_id": "pulse_in"
+          }
+        }
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {
+      "hw_pulse_source_1": {
+        "id": "hw_pulse_source_1",
+        "instance_id": "pulse_source_1",
+        "port_id": "value",
+        "binding_kind": "digital_in",
+        "config": {
+          "pin": 14,
+          "pullup": true
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

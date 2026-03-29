@@ -12,6 +12,9 @@ export interface RuntimePack {
   resources: Record<string, RuntimeResourceBinding>;
   operations: Record<string, RuntimeOperation>;
   trace_groups: Record<string, RuntimeTraceGroup>;
+  monitors: Record<string, RuntimeMonitor>;
+  frontend_requirements: Record<string, RuntimeFrontendRequirement>;
+  persistence_slots: Record<string, RuntimePersistenceSlot>;
 }
 
 export interface RuntimePackSource {
@@ -43,6 +46,7 @@ export interface RuntimeResolvedParam {
   value: unknown;
   value_type?: string;
   source: RuntimeParamSource;
+  metadata?: RuntimeParamMetadata;
   provenance?: RuntimeParamProvenance;
 }
 
@@ -89,6 +93,8 @@ export interface RuntimeNativeExecution {
   native_kind: string;
   target_kinds?: string[];
   config_template?: unknown;
+  mode?: string;
+  frontend_requirement_ids?: string[];
 }
 
 export interface RuntimeParamProvenance {
@@ -102,6 +108,13 @@ export interface RuntimeOperation {
   owner_instance_id: string;
   kind: string;
   title?: string;
+  ui_hint?: string;
+  safe_when?: string[];
+  confirmation_policy?: string;
+  progress_signals?: RuntimeTraceSignalRef[];
+  result_fields?: string[];
+  state_hint?: RuntimeOperationStateHint;
+  provenance?: RuntimeMetadataProvenance;
 }
 
 export interface RuntimeTraceSignalRef {
@@ -112,7 +125,76 @@ export interface RuntimeTraceSignalRef {
 export interface RuntimeTraceGroup {
   id: string;
   owner_instance_id: string;
+  title?: string;
   signals: RuntimeTraceSignalRef[];
   sample_hint_ms?: number;
   chart_hint?: string;
+  provenance?: RuntimeMetadataProvenance;
+}
+
+export interface RuntimeMonitor {
+  id: string;
+  owner_instance_id: string;
+  kind: string;
+  title?: string;
+  source_ports?: RuntimeTraceSignalRef[];
+  severity?: string;
+  status_port_id?: string;
+  config?: Record<string, unknown>;
+  provenance?: RuntimeMetadataProvenance;
+}
+
+export interface RuntimeFrontendRequirement {
+  id: string;
+  owner_instance_id: string;
+  kind: string;
+  mode?: string;
+  title?: string;
+  source_ports?: RuntimeTraceSignalRef[];
+  binding_kind?: string;
+  channel_kind?: string;
+  value_type?: string;
+  required?: boolean;
+  config?: Record<string, unknown>;
+  provenance?: RuntimeMetadataProvenance;
+}
+
+export interface RuntimePersistenceSlot {
+  id: string;
+  owner_instance_id: string;
+  slot_kind: string;
+  title?: string;
+  owner_param_id?: string;
+  nv_slot_hint?: string;
+  flush_policy?: string;
+  provenance?: RuntimeMetadataProvenance;
+}
+
+export interface RuntimeOperationStateHint {
+  availability?: string;
+  progress_style?: string;
+  destructive?: boolean;
+}
+
+export interface RuntimeMetadataProvenance {
+  owner_instance_id: string;
+  facet_kind: "operation" | "trace_group" | "monitor" | "frontend_requirement" | "persistence_slot";
+  facet_id: string;
+  source_type_ref?: string;
+}
+
+export interface RuntimeParamMetadata {
+  title?: string;
+  unit?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  group?: string;
+  ui_hint?: string;
+  description?: string;
+  access_role?: string;
+  live_edit_policy?: string;
+  persist_policy?: string;
+  recipe_scope?: string;
+  danger_level?: string;
 }

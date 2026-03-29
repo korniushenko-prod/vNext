@@ -25,7 +25,28 @@
           "value_type": "bool"
         }
       },
-      "params": {},
+      "params": {
+        "pulse_time_ms": {
+          "value": 250,
+          "value_type": "duration",
+          "source": "default",
+          "metadata": {
+            "title": "Pulse Time",
+            "unit": "ms",
+            "min": 10,
+            "max": 5000,
+            "step": 10,
+            "group": "timing",
+            "ui_hint": "duration_ms",
+            "description": "Duration of relay pulse.",
+            "access_role": "engineer",
+            "live_edit_policy": "stopped_only",
+            "persist_policy": "recipe",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          }
+        }
+      },
       "alarms": {},
       "native_execution": {
         "native_kind": "std.timed_relay.v1",
@@ -62,5 +83,8 @@
   },
   "resources": {},
   "operations": {},
-  "trace_groups": {}
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
 }

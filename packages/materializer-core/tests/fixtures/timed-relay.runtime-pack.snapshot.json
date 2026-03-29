@@ -220,6 +220,7 @@
       }
     }
   },
+  "frontend_requirements": {},
   "resources": {
     "res_start_button_1": {
       "id": "res_start_button_1",
@@ -247,13 +248,25 @@
       "id": "op_relay_1_test_pulse",
       "owner_instance_id": "relay_1",
       "kind": "test_pulse",
-      "title": "Test Pulse"
+      "title": "Test Pulse",
+      "provenance": {
+        "owner_instance_id": "relay_1",
+        "facet_kind": "operation",
+        "facet_id": "test_pulse",
+        "source_type_ref": "library:timed_relay"
+      }
     },
     "op_relay_1_reset": {
       "id": "op_relay_1_reset",
       "owner_instance_id": "relay_1",
       "kind": "reset",
-      "title": "Reset"
+      "title": "Reset",
+      "provenance": {
+        "owner_instance_id": "relay_1",
+        "facet_kind": "operation",
+        "facet_id": "reset",
+        "source_type_ref": "library:timed_relay"
+      }
     }
   },
   "trace_groups": {
@@ -275,7 +288,15 @@
         }
       ],
       "sample_hint_ms": 100,
-      "chart_hint": "timeline"
+      "chart_hint": "timeline",
+      "provenance": {
+        "owner_instance_id": "relay_1",
+        "facet_kind": "trace_group",
+        "facet_id": "basic",
+        "source_type_ref": "library:timed_relay"
+      }
     }
-  }
+  },
+  "monitors": {},
+  "persistence_slots": {}
 }

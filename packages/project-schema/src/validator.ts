@@ -150,6 +150,10 @@ function validateObjectType(typeId: string, value: unknown, path: string, diagno
     requireRecord(locals, "vars", `${path}.locals.vars`, diagnostics);
   }
 
+  if ("facets" in value && value.facets !== undefined) {
+    validateObjectTypeFacets(value.facets, `${path}.facets`, diagnostics);
+  }
+
   const impl = requireRecord(value, "implementation", `${path}.implementation`, diagnostics);
   if (impl) {
     requirePresent(impl, "native", `${path}.implementation.native`, diagnostics);
@@ -344,6 +348,18 @@ function validateParamDef(paramId: string, value: unknown, path: string, diagnos
   requireExactString(value, "id", paramId, `${path}.id`, diagnostics);
   requireOptionalString(value, "title", `${path}.title`, diagnostics);
   requireString(value, "value_type", `${path}.value_type`, diagnostics);
+  requireOptionalString(value, "unit", `${path}.unit`, diagnostics);
+  requireOptionalNumber(value, "min", `${path}.min`, diagnostics);
+  requireOptionalNumber(value, "max", `${path}.max`, diagnostics);
+  requireOptionalNumber(value, "step", `${path}.step`, diagnostics);
+  requireOptionalString(value, "group", `${path}.group`, diagnostics);
+  requireOptionalString(value, "ui_hint", `${path}.ui_hint`, diagnostics);
+  requireOptionalString(value, "description", `${path}.description`, diagnostics);
+  requireOptionalString(value, "access_role", `${path}.access_role`, diagnostics);
+  requireOptionalString(value, "live_edit_policy", `${path}.live_edit_policy`, diagnostics);
+  requireOptionalString(value, "persist_policy", `${path}.persist_policy`, diagnostics);
+  requireOptionalString(value, "recipe_scope", `${path}.recipe_scope`, diagnostics);
+  requireOptionalString(value, "danger_level", `${path}.danger_level`, diagnostics);
   return true;
 }
 
@@ -356,6 +372,182 @@ function validateAlarmDef(alarmId: string, value: unknown, path: string, diagnos
   requireExactString(value, "id", alarmId, `${path}.id`, diagnostics);
   requireOptionalString(value, "title", `${path}.title`, diagnostics);
   requireOptionalString(value, "severity", `${path}.severity`, diagnostics);
+  return true;
+}
+
+function validateObjectTypeFacets(value: unknown, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("facets.invalid", path, "Object facets must be an object."));
+    return false;
+  }
+
+  const frontendFacet = getOptionalRecord(value, "frontends", `${path}.frontends`, diagnostics);
+  if (frontendFacet) {
+    const requirements = getOptionalRecord(frontendFacet, "requirements", `${path}.frontends.requirements`, diagnostics);
+    if (requirements) {
+      for (const [requirementId, requirement] of Object.entries(requirements)) {
+        validateFrontendRequirementDef(requirementId, requirement, `${path}.frontends.requirements.${requirementId}`, diagnostics);
+      }
+    }
+  }
+
+  const operationsFacet = getOptionalRecord(value, "operations", `${path}.operations`, diagnostics);
+  if (operationsFacet) {
+    const operations = getOptionalRecord(operationsFacet, "operations", `${path}.operations.operations`, diagnostics);
+    if (operations) {
+      for (const [operationId, operation] of Object.entries(operations)) {
+        validateOperationDef(operationId, operation, `${path}.operations.operations.${operationId}`, diagnostics);
+      }
+    }
+  }
+
+  validateMonitorFacet(value, "monitors", `${path}.monitors`, diagnostics);
+  validateMonitorFacet(value, "monitoring", `${path}.monitoring`, diagnostics);
+
+  const debugFacet = getOptionalRecord(value, "debug", `${path}.debug`, diagnostics);
+  if (debugFacet) {
+    const traceGroups = getOptionalRecord(debugFacet, "trace_groups", `${path}.debug.trace_groups`, diagnostics);
+    if (traceGroups) {
+      for (const [traceGroupId, traceGroup] of Object.entries(traceGroups)) {
+        validateTraceGroupDef(traceGroupId, traceGroup, `${path}.debug.trace_groups.${traceGroupId}`, diagnostics);
+      }
+    }
+  }
+
+  const persistenceFacet = getOptionalRecord(value, "persistence", `${path}.persistence`, diagnostics);
+  if (persistenceFacet) {
+    const slots = getOptionalRecord(persistenceFacet, "slots", `${path}.persistence.slots`, diagnostics);
+    if (slots) {
+      for (const [slotId, slot] of Object.entries(slots)) {
+        validatePersistenceSlotDef(slotId, slot, `${path}.persistence.slots.${slotId}`, diagnostics);
+      }
+    }
+  }
+
+  const templatesFacet = getOptionalRecord(value, "templates", `${path}.templates`, diagnostics);
+  if (templatesFacet) {
+    const presets = getOptionalRecord(templatesFacet, "presets", `${path}.templates.presets`, diagnostics);
+    if (presets) {
+      for (const [presetId, preset] of Object.entries(presets)) {
+        validateTemplatePresetDef(presetId, preset, `${path}.templates.presets.${presetId}`, diagnostics);
+      }
+    }
+  }
+
+  return true;
+}
+
+function validateFrontendRequirementDef(requirementId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("frontend_requirement.invalid", path, "Frontend requirement must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", requirementId, `${path}.id`, diagnostics);
+  requireString(value, "kind", `${path}.kind`, diagnostics);
+  requireOptionalString(value, "mode", `${path}.mode`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  requireOptionalStringArray(value, "source_ports", `${path}.source_ports`, diagnostics);
+  requireOptionalString(value, "binding_kind", `${path}.binding_kind`, diagnostics);
+  requireOptionalString(value, "channel_kind", `${path}.channel_kind`, diagnostics);
+  requireOptionalString(value, "value_type", `${path}.value_type`, diagnostics);
+  requireOptionalBoolean(value, "required", `${path}.required`, diagnostics);
+  getOptionalRecord(value, "config", `${path}.config`, diagnostics);
+  return true;
+}
+
+function validateOperationDef(operationId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("operation.invalid", path, "Operation definition must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", operationId, `${path}.id`, diagnostics);
+  requireOptionalString(value, "kind", `${path}.kind`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  requireOptionalString(value, "ui_hint", `${path}.ui_hint`, diagnostics);
+  requireOptionalStringArray(value, "safe_when", `${path}.safe_when`, diagnostics);
+  requireOptionalString(value, "confirmation_policy", `${path}.confirmation_policy`, diagnostics);
+  requireOptionalStringArray(value, "progress_signals", `${path}.progress_signals`, diagnostics);
+  requireOptionalStringArray(value, "result_fields", `${path}.result_fields`, diagnostics);
+  return true;
+}
+
+function validateMonitorFacet(
+  container: Record<string, unknown>,
+  field: string,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+) {
+  const monitorFacet = getOptionalRecord(container, field, path, diagnostics);
+  if (!monitorFacet) {
+    return;
+  }
+
+  const monitors = getOptionalRecord(monitorFacet, "monitors", `${path}.monitors`, diagnostics);
+  if (!monitors) {
+    return;
+  }
+
+  for (const [monitorId, monitor] of Object.entries(monitors)) {
+    validateMonitorDef(monitorId, monitor, `${path}.monitors.${monitorId}`, diagnostics);
+  }
+}
+
+function validateMonitorDef(monitorId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("monitor.invalid", path, "Monitor definition must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", monitorId, `${path}.id`, diagnostics);
+  requireString(value, "kind", `${path}.kind`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  requireOptionalStringArray(value, "source_ports", `${path}.source_ports`, diagnostics);
+  requireOptionalString(value, "severity", `${path}.severity`, diagnostics);
+  requireOptionalString(value, "status_port_id", `${path}.status_port_id`, diagnostics);
+  getOptionalRecord(value, "config", `${path}.config`, diagnostics);
+  return true;
+}
+
+function validateTraceGroupDef(traceGroupId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("trace_group.invalid", path, "Trace group definition must be an object."));
+    return false;
+  }
+
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  requireStringArray(value, "signals", `${path}.signals`, diagnostics);
+  requireOptionalNumber(value, "sample_hint_ms", `${path}.sample_hint_ms`, diagnostics);
+  requireOptionalString(value, "chart_hint", `${path}.chart_hint`, diagnostics);
+  return true;
+}
+
+function validatePersistenceSlotDef(slotId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("persistence_slot.invalid", path, "Persistence slot definition must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", slotId, `${path}.id`, diagnostics);
+  requireString(value, "slot_kind", `${path}.slot_kind`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  requireOptionalString(value, "owner_param_id", `${path}.owner_param_id`, diagnostics);
+  requireOptionalString(value, "nv_slot_hint", `${path}.nv_slot_hint`, diagnostics);
+  requireOptionalString(value, "flush_policy", `${path}.flush_policy`, diagnostics);
+  return true;
+}
+
+function validateTemplatePresetDef(presetId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("template_preset.invalid", path, "Template preset definition must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", presetId, `${path}.id`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  requireOptionalString(value, "description", `${path}.description`, diagnostics);
+  getOptionalRecord(value, "defaults", `${path}.defaults`, diagnostics);
   return true;
 }
 
@@ -391,6 +583,12 @@ function requireOptionalStringArray(value: Record<string, unknown>, field: strin
 function requireOptionalBoolean(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
   if (field in value && typeof value[field] !== "boolean") {
     diagnostics.push(error("field.boolean", path, `Field \`${field}\` must be a boolean when present.`));
+  }
+}
+
+function requireOptionalNumber(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
+  if (field in value && typeof value[field] !== "number") {
+    diagnostics.push(error("field.number", path, `Field \`${field}\` must be a number when present.`));
   }
 }
 
@@ -437,6 +635,19 @@ function requireRecord(
     return null;
   }
   return current;
+}
+
+function getOptionalRecord(
+  value: Record<string, unknown>,
+  field: string,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): Record<string, unknown> | null {
+  if (!(field in value) || value[field] === undefined) {
+    return null;
+  }
+
+  return requireRecord(value, field, path, diagnostics);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -2,10 +2,13 @@ import type {
   RuntimeConnection,
   RuntimeEndpoint,
   RuntimeInstance,
+  RuntimeFrontendRequirement,
+  RuntimeMonitor,
   RuntimeNativeExecution,
   RuntimeOperation,
   RuntimePack,
   RuntimePackSource,
+  RuntimePersistenceSlot,
   RuntimePort,
   RuntimeResolvedParam,
   RuntimeTraceGroup,
@@ -78,6 +81,27 @@ export function validateRuntimePack(value: unknown): ValidationResult {
   if (traceGroups) {
     for (const [traceGroupId, traceGroupValue] of Object.entries(traceGroups)) {
       validateRuntimeTraceGroup(traceGroupId, traceGroupValue, `$.trace_groups.${traceGroupId}`, diagnostics);
+    }
+  }
+
+  const monitors = requireRecord(value, "monitors", "$.monitors", diagnostics);
+  if (monitors) {
+    for (const [monitorId, monitorValue] of Object.entries(monitors)) {
+      validateRuntimeMonitor(monitorId, monitorValue, `$.monitors.${monitorId}`, diagnostics);
+    }
+  }
+
+  const frontendRequirements = requireRecord(value, "frontend_requirements", "$.frontend_requirements", diagnostics);
+  if (frontendRequirements) {
+    for (const [requirementId, requirementValue] of Object.entries(frontendRequirements)) {
+      validateRuntimeFrontendRequirement(requirementId, requirementValue, `$.frontend_requirements.${requirementId}`, diagnostics);
+    }
+  }
+
+  const persistenceSlots = requireRecord(value, "persistence_slots", "$.persistence_slots", diagnostics);
+  if (persistenceSlots) {
+    for (const [slotId, slotValue] of Object.entries(persistenceSlots)) {
+      validateRuntimePersistenceSlot(slotId, slotValue, `$.persistence_slots.${slotId}`, diagnostics);
     }
   }
 
@@ -176,6 +200,25 @@ function validateResolvedParam(value: unknown, path: string, diagnostics: Valida
   requireOptionalString(value, "value_type", `${path}.value_type`, diagnostics);
   requireOneOf(value, "source", ["default", "override", "instance_override", "parent_param", "materialized"], `${path}.source`, diagnostics);
 
+  if ("metadata" in value && value.metadata !== undefined) {
+    const metadata = requireRecord(value, "metadata", `${path}.metadata`, diagnostics);
+    if (metadata) {
+      requireOptionalString(metadata, "title", `${path}.metadata.title`, diagnostics);
+      requireOptionalString(metadata, "unit", `${path}.metadata.unit`, diagnostics);
+      requireOptionalNumber(metadata, "min", `${path}.metadata.min`, diagnostics);
+      requireOptionalNumber(metadata, "max", `${path}.metadata.max`, diagnostics);
+      requireOptionalNumber(metadata, "step", `${path}.metadata.step`, diagnostics);
+      requireOptionalString(metadata, "group", `${path}.metadata.group`, diagnostics);
+      requireOptionalString(metadata, "ui_hint", `${path}.metadata.ui_hint`, diagnostics);
+      requireOptionalString(metadata, "description", `${path}.metadata.description`, diagnostics);
+      requireOptionalString(metadata, "access_role", `${path}.metadata.access_role`, diagnostics);
+      requireOptionalString(metadata, "live_edit_policy", `${path}.metadata.live_edit_policy`, diagnostics);
+      requireOptionalString(metadata, "persist_policy", `${path}.metadata.persist_policy`, diagnostics);
+      requireOptionalString(metadata, "recipe_scope", `${path}.metadata.recipe_scope`, diagnostics);
+      requireOptionalString(metadata, "danger_level", `${path}.metadata.danger_level`, diagnostics);
+    }
+  }
+
   if ("provenance" in value && value.provenance !== undefined) {
     const provenance = requireRecord(value, "provenance", `${path}.provenance`, diagnostics);
     if (provenance) {
@@ -257,6 +300,8 @@ function validateRuntimeNativeExecution(
 
   requireString(value, "native_kind", `${path}.native_kind`, diagnostics);
   requireOptionalStringArray(value, "target_kinds", `${path}.target_kinds`, diagnostics);
+  requireOptionalString(value, "mode", `${path}.mode`, diagnostics);
+  requireOptionalStringArray(value, "frontend_requirement_ids", `${path}.frontend_requirement_ids`, diagnostics);
   if ("config_template" in value && typeof value.config_template === "undefined") {
     diagnostics.push(error("field.present", `${path}.config_template`, "Field `config_template` must not be undefined when present."));
   }
@@ -278,6 +323,21 @@ function validateRuntimeOperation(
   requireString(value, "owner_instance_id", `${path}.owner_instance_id`, diagnostics);
   requireString(value, "kind", `${path}.kind`, diagnostics);
   requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  requireOptionalString(value, "ui_hint", `${path}.ui_hint`, diagnostics);
+  requireOptionalStringArray(value, "safe_when", `${path}.safe_when`, diagnostics);
+  requireOptionalString(value, "confirmation_policy", `${path}.confirmation_policy`, diagnostics);
+  validateOptionalSignalRefs(value, "progress_signals", `${path}.progress_signals`, diagnostics);
+  requireOptionalStringArray(value, "result_fields", `${path}.result_fields`, diagnostics);
+  validateOptionalMetadataProvenance(value, "provenance", `${path}.provenance`, diagnostics);
+
+  if ("state_hint" in value && value.state_hint !== undefined) {
+    const stateHint = requireRecord(value, "state_hint", `${path}.state_hint`, diagnostics);
+    if (stateHint) {
+      requireOptionalString(stateHint, "availability", `${path}.state_hint.availability`, diagnostics);
+      requireOptionalString(stateHint, "progress_style", `${path}.state_hint.progress_style`, diagnostics);
+      requireOptionalBoolean(stateHint, "destructive", `${path}.state_hint.destructive`, diagnostics);
+    }
+  }
   return true;
 }
 
@@ -294,25 +354,86 @@ function validateRuntimeTraceGroup(
 
   requireExactString(value, "id", traceGroupId, `${path}.id`, diagnostics);
   requireString(value, "owner_instance_id", `${path}.owner_instance_id`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
 
-  const signals = value.signals;
-  if (!Array.isArray(signals)) {
-    diagnostics.push(error("field.array", `${path}.signals`, "Field `signals` must be an array."));
-  } else {
-    signals.forEach((entry, index) => {
-      if (!isRecord(entry)) {
-        diagnostics.push(error("runtime_trace_signal.invalid", `${path}.signals.${index}`, "Trace signal ref must be an object."));
-        return;
-      }
-      requireString(entry, "instance_id", `${path}.signals.${index}.instance_id`, diagnostics);
-      requireString(entry, "port_id", `${path}.signals.${index}.port_id`, diagnostics);
-    });
-  }
+  validateSignalRefs(value.signals, `${path}.signals`, diagnostics);
 
   if ("sample_hint_ms" in value && typeof value.sample_hint_ms !== "number") {
     diagnostics.push(error("field.number", `${path}.sample_hint_ms`, "Field `sample_hint_ms` must be a number when present."));
   }
   requireOptionalString(value, "chart_hint", `${path}.chart_hint`, diagnostics);
+  validateOptionalMetadataProvenance(value, "provenance", `${path}.provenance`, diagnostics);
+  return true;
+}
+
+function validateRuntimeMonitor(
+  monitorId: string,
+  value: unknown,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): value is RuntimeMonitor {
+  if (!isRecord(value)) {
+    diagnostics.push(error("runtime_monitor.invalid", path, "Runtime monitor must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", monitorId, `${path}.id`, diagnostics);
+  requireString(value, "owner_instance_id", `${path}.owner_instance_id`, diagnostics);
+  requireString(value, "kind", `${path}.kind`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  validateOptionalSignalRefs(value, "source_ports", `${path}.source_ports`, diagnostics);
+  requireOptionalString(value, "severity", `${path}.severity`, diagnostics);
+  requireOptionalString(value, "status_port_id", `${path}.status_port_id`, diagnostics);
+  requireOptionalRecord(value, "config", `${path}.config`, diagnostics);
+  validateOptionalMetadataProvenance(value, "provenance", `${path}.provenance`, diagnostics);
+  return true;
+}
+
+function validateRuntimeFrontendRequirement(
+  requirementId: string,
+  value: unknown,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): value is RuntimeFrontendRequirement {
+  if (!isRecord(value)) {
+    diagnostics.push(error("runtime_frontend_requirement.invalid", path, "Runtime frontend requirement must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", requirementId, `${path}.id`, diagnostics);
+  requireString(value, "owner_instance_id", `${path}.owner_instance_id`, diagnostics);
+  requireString(value, "kind", `${path}.kind`, diagnostics);
+  requireOptionalString(value, "mode", `${path}.mode`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  validateOptionalSignalRefs(value, "source_ports", `${path}.source_ports`, diagnostics);
+  requireOptionalString(value, "binding_kind", `${path}.binding_kind`, diagnostics);
+  requireOptionalString(value, "channel_kind", `${path}.channel_kind`, diagnostics);
+  requireOptionalString(value, "value_type", `${path}.value_type`, diagnostics);
+  requireOptionalBoolean(value, "required", `${path}.required`, diagnostics);
+  requireOptionalRecord(value, "config", `${path}.config`, diagnostics);
+  validateOptionalMetadataProvenance(value, "provenance", `${path}.provenance`, diagnostics);
+  return true;
+}
+
+function validateRuntimePersistenceSlot(
+  slotId: string,
+  value: unknown,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): value is RuntimePersistenceSlot {
+  if (!isRecord(value)) {
+    diagnostics.push(error("runtime_persistence_slot.invalid", path, "Runtime persistence slot must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", slotId, `${path}.id`, diagnostics);
+  requireString(value, "owner_instance_id", `${path}.owner_instance_id`, diagnostics);
+  requireString(value, "slot_kind", `${path}.slot_kind`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  requireOptionalString(value, "owner_param_id", `${path}.owner_param_id`, diagnostics);
+  requireOptionalString(value, "nv_slot_hint", `${path}.nv_slot_hint`, diagnostics);
+  requireOptionalString(value, "flush_policy", `${path}.flush_policy`, diagnostics);
+  validateOptionalMetadataProvenance(value, "provenance", `${path}.provenance`, diagnostics);
   return true;
 }
 
@@ -339,9 +460,21 @@ function requireOptionalStringArray(value: Record<string, unknown>, field: strin
   }
 }
 
+function requireOptionalNumber(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
+  if (field in value && typeof value[field] !== "number") {
+    diagnostics.push(error("field.number", path, `Field \`${field}\` must be a number when present.`));
+  }
+}
+
 function requireBoolean(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
   if (typeof value[field] !== "boolean") {
     diagnostics.push(error("field.boolean", path, `Field \`${field}\` must be a boolean.`));
+  }
+}
+
+function requireOptionalBoolean(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
+  if (field in value && typeof value[field] !== "boolean") {
+    diagnostics.push(error("field.boolean", path, `Field \`${field}\` must be a boolean when present.`));
   }
 }
 
@@ -381,6 +514,75 @@ function requireRecord(
     return null;
   }
   return current;
+}
+
+function requireOptionalRecord(
+  value: Record<string, unknown>,
+  field: string,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): Record<string, unknown> | null {
+  if (!(field in value) || value[field] === undefined) {
+    return null;
+  }
+
+  return requireRecord(value, field, path, diagnostics);
+}
+
+function validateSignalRefs(value: unknown, path: string, diagnostics: ValidationDiagnostic[]) {
+  if (!Array.isArray(value)) {
+    diagnostics.push(error("field.array", path, "Field must be an array."));
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (!isRecord(entry)) {
+      diagnostics.push(error("runtime_trace_signal.invalid", `${path}.${index}`, "Signal ref must be an object."));
+      return;
+    }
+    requireString(entry, "instance_id", `${path}.${index}.instance_id`, diagnostics);
+    requireString(entry, "port_id", `${path}.${index}.port_id`, diagnostics);
+  });
+}
+
+function validateOptionalSignalRefs(
+  value: Record<string, unknown>,
+  field: string,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+) {
+  if (!(field in value) || value[field] === undefined) {
+    return;
+  }
+
+  validateSignalRefs(value[field], path, diagnostics);
+}
+
+function validateOptionalMetadataProvenance(
+  value: Record<string, unknown>,
+  field: string,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+) {
+  if (!(field in value) || value[field] === undefined) {
+    return;
+  }
+
+  const provenance = requireRecord(value, field, path, diagnostics);
+  if (!provenance) {
+    return;
+  }
+
+  requireString(provenance, "owner_instance_id", `${path}.owner_instance_id`, diagnostics);
+  requireOneOf(
+    provenance,
+    "facet_kind",
+    ["operation", "trace_group", "monitor", "frontend_requirement", "persistence_slot"],
+    `${path}.facet_kind`,
+    diagnostics
+  );
+  requireString(provenance, "facet_id", `${path}.facet_id`, diagnostics);
+  requireOptionalString(provenance, "source_type_ref", `${path}.source_type_ref`, diagnostics);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

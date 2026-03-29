@@ -1,0 +1,206 @@
+{
+  "id": "pulse_flowmeter",
+  "kind": "object_type",
+  "meta": {
+    "title": "Pulse Flowmeter",
+    "version": "1.0.0",
+    "origin": "library",
+    "library_id": "std",
+    "description": "Universal pulse-driven flowmeter with hall, analog-threshold, and remote pulse modes."
+  },
+  "interface": {
+    "ports": {
+      "pulse_in": {
+        "id": "pulse_in",
+        "direction": "in",
+        "channel_kind": "signal",
+        "value_type": "bool"
+      },
+      "analog_source": {
+        "id": "analog_source",
+        "direction": "in",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "remote_pulse": {
+        "id": "remote_pulse",
+        "direction": "in",
+        "channel_kind": "signal",
+        "value_type": "bool"
+      },
+      "flow_rate": {
+        "id": "flow_rate",
+        "direction": "out",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "total_volume": {
+        "id": "total_volume",
+        "direction": "out",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "source_ok": {
+        "id": "source_ok",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "pulse_seen": {
+        "id": "pulse_seen",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      }
+    },
+    "params": {
+      "sensor_mode": {
+        "id": "sensor_mode",
+        "value_type": "string",
+        "default": "hall_pulse",
+        "group": "source",
+        "ui_hint": "enum",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "k_factor": {
+        "id": "k_factor",
+        "value_type": "float",
+        "default": 1.0,
+        "unit": "pulses_per_unit",
+        "min": 0.0001,
+        "max": 1000000,
+        "step": 0.0001,
+        "group": "calibration",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      }
+    },
+    "alarms": {}
+  },
+  "locals": {
+    "signals": {},
+    "vars": {}
+  },
+  "implementation": {
+    "native": {
+      "native_kind": "std.pulse_flowmeter.v1",
+      "target_kinds": ["esp32.shipcontroller.v1"],
+      "config_template": "shipcontroller.pulse_flowmeter.v1"
+    },
+    "composition": null,
+    "state": null,
+    "flow": null
+  },
+  "facets": {
+    "frontends": {
+      "requirements": {
+        "hall_pulse_source": {
+          "id": "hall_pulse_source",
+          "kind": "pulse_input",
+          "mode": "hall_pulse",
+          "source_ports": ["pulse_in"],
+          "binding_kind": "digital_in",
+          "channel_kind": "signal",
+          "value_type": "bool",
+          "required": false
+        },
+        "analog_threshold_source": {
+          "id": "analog_threshold_source",
+          "kind": "analog_threshold_input",
+          "mode": "analog_threshold_pulse",
+          "source_ports": ["analog_source"],
+          "binding_kind": "analog_in",
+          "channel_kind": "telemetry",
+          "value_type": "float",
+          "required": false
+        },
+        "remote_pulse_source": {
+          "id": "remote_pulse_source",
+          "kind": "remote_point",
+          "mode": "remote_pulse",
+          "source_ports": ["remote_pulse"],
+          "binding_kind": "service",
+          "channel_kind": "signal",
+          "value_type": "bool",
+          "required": false
+        }
+      }
+    },
+    "operations": {
+      "operations": {
+        "reset_totalizer": {
+          "id": "reset_totalizer",
+          "kind": "reset_totalizer",
+          "title": "Reset Totalizer",
+          "ui_hint": "danger",
+          "safe_when": ["stopped"],
+          "confirmation_policy": "required",
+          "progress_signals": ["source_ok"],
+          "result_fields": ["completed", "total_volume"]
+        }
+      }
+    },
+    "monitoring": {
+      "monitors": {
+        "no_pulse_timeout": {
+          "id": "no_pulse_timeout",
+          "kind": "timeout",
+          "source_ports": ["pulse_in", "analog_source", "remote_pulse"],
+          "severity": "warning",
+          "status_port_id": "source_ok"
+        }
+      }
+    },
+    "debug": {
+      "trace_groups": {
+        "process": {
+          "title": "Process",
+          "signals": ["flow_rate", "total_volume", "pulse_seen", "source_ok"],
+          "sample_hint_ms": 500,
+          "chart_hint": "line"
+        }
+      }
+    },
+    "persistence": {
+      "slots": {
+        "totalizer": {
+          "id": "totalizer",
+          "slot_kind": "counter",
+          "nv_slot_hint": "nv.totalizer",
+          "flush_policy": "periodic"
+        }
+      }
+    },
+    "templates": {
+      "presets": {
+        "hall_sensor_preset": {
+          "id": "hall_sensor_preset",
+          "defaults": {
+            "sensor_mode": "hall_pulse"
+          }
+        },
+        "analog_threshold_preset": {
+          "id": "analog_threshold_preset",
+          "defaults": {
+            "sensor_mode": "analog_threshold_pulse"
+          }
+        },
+        "remote_pulse_preset": {
+          "id": "remote_pulse_preset",
+          "defaults": {
+            "sensor_mode": "remote_pulse"
+          }
+        }
+      }
+    }
+  },
+  "diagnostics": {}
+}
