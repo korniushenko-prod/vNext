@@ -9,8 +9,11 @@ import capabilityHardeningProject from "./fixtures/capability-hardening-demo.pro
 import capabilityHardeningRuntimeSnapshot from "./fixtures/capability-hardening-demo.runtime-pack.snapshot.json" with { type: "json" };
 import emptyProject from "./fixtures/empty-project.json" with { type: "json" };
 import invalidProject from "./fixtures/invalid-missing-type.project.json" with { type: "json" };
+import invalidPidControllerMissingPvResourceProject from "./fixtures/invalid-pid-controller-missing-pv-resource.project.json" with { type: "json" };
 import invalidPulseFlowmeterBadModeProject from "./fixtures/invalid-pulse-flowmeter-bad-mode.project.json" with { type: "json" };
 import invalidPulseFlowmeterMissingSourceProject from "./fixtures/invalid-pulse-flowmeter-missing-source.project.json" with { type: "json" };
+import pidControllerProject from "./fixtures/pid-controller.project.json" with { type: "json" };
+import pidControllerRuntimeSnapshot from "./fixtures/pid-controller.runtime-pack.snapshot.json" with { type: "json" };
 import pulseFlowmeterProject from "./fixtures/pulse-flowmeter.project.minimal.json" with { type: "json" };
 import pulseFlowmeterRuntimeSnapshot from "./fixtures/pulse-flowmeter.runtime-pack.snapshot.json" with { type: "json" };
 import timedRelayLibraryProject from "./fixtures/timed-relay-library.project.json" with { type: "json" };
@@ -357,6 +360,60 @@ test("pulse flowmeter bad mode produces the canonical unsupported mode diagnosti
 
   assert.equal(result.ok, false);
   assert.ok(result.diagnostics.some((entry) => entry.code === "frontend.mode.unsupported"));
+});
+
+test("pid controller slice materializes runtime metadata, native execution and required frontend requirements", () => {
+  const result = materializeProject(pidControllerProject as ProjectModel, {
+    pack_id: "pid-controller-demo-pack",
+    generated_at: "2026-03-29T12:00:00Z"
+  });
+
+  assert.equal(result.ok, true);
+  assert.ok(result.pack.instances.pid_1);
+  assert.equal(result.pack.instances.pid_1.native_execution?.native_kind, "std.pid_controller.v1");
+  assert.deepEqual(result.pack.instances.pid_1.native_execution?.frontend_requirement_ids, [
+    "fe_pid_1_mv_output",
+    "fe_pid_1_pv_source"
+  ]);
+  assert.ok(result.pack.connections.conn_sig_pv_sensor_to_pid_t1);
+  assert.ok(result.pack.frontend_requirements.fe_pid_1_pv_source);
+  assert.ok(result.pack.frontend_requirements.fe_pid_1_mv_output);
+  assert.ok(result.pack.operations.op_pid_1_reset_integral);
+  assert.ok(result.pack.operations.op_pid_1_hold);
+  assert.ok(result.pack.operations.op_pid_1_release);
+  assert.ok(result.pack.trace_groups.tg_pid_1_control_loop);
+  assert.ok(result.pack.trace_groups.tg_pid_1_mode);
+  assert.ok(result.pack.monitors.mon_pid_1_pv_stale);
+  assert.ok(result.pack.monitors.mon_pid_1_output_saturated);
+  assert.ok(result.pack.monitors.mon_pid_1_manual_override_active);
+  assert.ok(result.pack.persistence_slots.ps_pid_1_kp);
+  assert.ok(result.pack.persistence_slots.ps_pid_1_ti);
+  assert.ok(result.pack.persistence_slots.ps_pid_1_td);
+  assert.ok(result.pack.resources.hw_pv_sensor_1);
+  assert.ok(result.pack.resources.hw_pid_1_mv_out);
+
+  const runtimeValidation = validateRuntimePack(result.pack);
+  assert.equal(runtimeValidation.ok, true);
+});
+
+test("pid controller slice matches the runtime pack golden snapshot", () => {
+  const result = materializeProject(pidControllerProject as ProjectModel, {
+    pack_id: "pid-controller-demo-pack",
+    generated_at: "2026-03-29T12:00:00Z"
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(
+    canonicalStringify(result.pack),
+    canonicalStringify(pidControllerRuntimeSnapshot)
+  );
+});
+
+test("pid controller missing PV resource produces the canonical frontend resource diagnostic", () => {
+  const result = materializeProject(invalidPidControllerMissingPvResourceProject as ProjectModel);
+
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some((entry) => entry.code === "frontend.resource.missing"));
 });
 
 function canonicalStringify(value: unknown): string {

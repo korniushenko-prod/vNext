@@ -1,0 +1,263 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "demo_pid_controller_invalid_project",
+    "title": "PID Controller Invalid Demo"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "analog_input": {
+        "id": "analog_input",
+        "kind": "object_type",
+        "meta": {
+          "title": "Analog Input",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std"
+        },
+        "interface": {
+          "ports": {
+            "value": {
+              "id": "value",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.analog_input.v1",
+            "target_kinds": ["esp32.shipcontroller.v1"],
+            "config_template": "shipcontroller.analog_input.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      },
+      "pid_controller": {
+        "id": "pid_controller",
+        "kind": "object_type",
+        "meta": {
+          "title": "PID Controller",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std"
+        },
+        "interface": {
+          "ports": {
+            "pv": {
+              "id": "pv",
+              "direction": "in",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "sp": {
+              "id": "sp",
+              "direction": "in",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "enable_cmd": {
+              "id": "enable_cmd",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "mode_cmd": {
+              "id": "mode_cmd",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "string"
+            },
+            "manual_mv": {
+              "id": "manual_mv",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "float"
+            },
+            "mv_out": {
+              "id": "mv_out",
+              "direction": "out",
+              "channel_kind": "command",
+              "value_type": "float"
+            },
+            "loop_ok": {
+              "id": "loop_ok",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "in_auto": {
+              "id": "in_auto",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "saturated": {
+              "id": "saturated",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "kp": {
+              "id": "kp",
+              "value_type": "float",
+              "default": 1
+            },
+            "ti": {
+              "id": "ti",
+              "value_type": "float",
+              "default": 10
+            },
+            "td": {
+              "id": "td",
+              "value_type": "float",
+              "default": 0
+            },
+            "sample_time_ms": {
+              "id": "sample_time_ms",
+              "value_type": "u32",
+              "default": 100
+            },
+            "output_min": {
+              "id": "output_min",
+              "value_type": "float",
+              "default": 0
+            },
+            "output_max": {
+              "id": "output_max",
+              "value_type": "float",
+              "default": 100
+            },
+            "direction": {
+              "id": "direction",
+              "value_type": "string",
+              "default": "reverse"
+            },
+            "pv_filter_tau_ms": {
+              "id": "pv_filter_tau_ms",
+              "value_type": "u32",
+              "default": 0
+            },
+            "deadband": {
+              "id": "deadband",
+              "value_type": "float",
+              "default": 0
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.pid_controller.v1",
+            "target_kinds": ["esp32.shipcontroller.v1"],
+            "config_template": "shipcontroller.pid_controller.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {
+              "pv_source": {
+                "id": "pv_source",
+                "kind": "process_value_input",
+                "source_ports": ["pv"],
+                "binding_kind": "analog_in",
+                "channel_kind": "telemetry",
+                "value_type": "float",
+                "required": true
+              },
+              "mv_output": {
+                "id": "mv_output",
+                "kind": "control_output",
+                "source_ports": ["mv_out"],
+                "binding_kind": "analog_out",
+                "channel_kind": "command",
+                "value_type": "float",
+                "required": true
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "pv_sensor_1": {
+        "id": "pv_sensor_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/analog_input",
+        "title": "PV Sensor",
+        "enabled": true,
+        "param_values": {}
+      },
+      "pid_1": {
+        "id": "pid_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/pid_controller",
+        "title": "PID Controller #1",
+        "enabled": true,
+        "param_values": {}
+      }
+    },
+    "signals": {
+      "sig_pv_sensor_to_pid": {
+        "id": "sig_pv_sensor_to_pid",
+        "title": "PV Sensor -> PID",
+        "source": {
+          "instance_id": "pv_sensor_1",
+          "port_id": "value"
+        },
+        "targets": {
+          "t1": {
+            "instance_id": "pid_1",
+            "port_id": "pv"
+          }
+        }
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {
+      "hw_pid_1_mv_out": {
+        "id": "hw_pid_1_mv_out",
+        "instance_id": "pid_1",
+        "port_id": "mv_out",
+        "binding_kind": "analog_out",
+        "config": {
+          "channel": 1
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

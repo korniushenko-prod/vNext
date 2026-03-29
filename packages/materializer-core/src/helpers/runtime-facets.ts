@@ -214,11 +214,11 @@ function buildOperationStateHint(operation: ObjectOperationDef): RuntimeOperatio
     return undefined;
   }
 
-  return {
+  return omitUndefined({
     availability,
     progress_style,
     destructive
-  };
+  });
 }
 
 function omitUndefined<T extends Record<string, unknown>>(value: T): T {
