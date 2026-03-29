@@ -1,0 +1,427 @@
+{
+  "id": "pid_controller",
+  "kind": "object_type",
+  "meta": {
+    "title": "PID Controller",
+    "version": "1.0.0",
+    "origin": "library",
+    "library_id": "std",
+    "description": "Canonical PID v1 control loop with manual/auto modes, bounded output, monitors, traces and maintenance operations."
+  },
+  "interface": {
+    "ports": {
+      "pv": {
+        "id": "pv",
+        "title": "Process Value",
+        "direction": "in",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "sp": {
+        "id": "sp",
+        "title": "Setpoint",
+        "direction": "in",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "enable_cmd": {
+        "id": "enable_cmd",
+        "title": "Enable Command",
+        "direction": "in",
+        "channel_kind": "command",
+        "value_type": "bool"
+      },
+      "mode_cmd": {
+        "id": "mode_cmd",
+        "title": "Mode Command",
+        "direction": "in",
+        "channel_kind": "command",
+        "value_type": "string"
+      },
+      "manual_mv": {
+        "id": "manual_mv",
+        "title": "Manual Output",
+        "direction": "in",
+        "channel_kind": "command",
+        "value_type": "float"
+      },
+      "mv_out": {
+        "id": "mv_out",
+        "title": "Manipulated Variable Output",
+        "direction": "out",
+        "channel_kind": "command",
+        "value_type": "float"
+      },
+      "loop_ok": {
+        "id": "loop_ok",
+        "title": "Loop OK",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "in_auto": {
+        "id": "in_auto",
+        "title": "In Auto",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "saturated": {
+        "id": "saturated",
+        "title": "Output Saturated",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      }
+    },
+    "params": {
+      "kp": {
+        "id": "kp",
+        "title": "Proportional Gain",
+        "description": "Proportional gain for the control loop.",
+        "value_type": "float",
+        "default": 1.0,
+        "min": 0,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "tuning",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "ti": {
+        "id": "ti",
+        "title": "Integral Time",
+        "description": "Integral time constant.",
+        "value_type": "float",
+        "default": 10.0,
+        "unit": "s",
+        "min": 0,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "tuning",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "td": {
+        "id": "td",
+        "title": "Derivative Time",
+        "description": "Derivative time constant.",
+        "value_type": "float",
+        "default": 0.0,
+        "unit": "s",
+        "min": 0,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "tuning",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "sample_time_ms": {
+        "id": "sample_time_ms",
+        "title": "Sample Time",
+        "description": "Loop execution sample period.",
+        "value_type": "u32",
+        "default": 100,
+        "unit": "ms",
+        "min": 1,
+        "max": 60000,
+        "step": 1,
+        "group": "timing",
+        "ui_hint": "duration_ms",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "output_min": {
+        "id": "output_min",
+        "title": "Output Minimum",
+        "description": "Minimum output clamp.",
+        "value_type": "float",
+        "default": 0.0,
+        "unit": "percent",
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "limits",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "output_max": {
+        "id": "output_max",
+        "title": "Output Maximum",
+        "description": "Maximum output clamp.",
+        "value_type": "float",
+        "default": 100.0,
+        "unit": "percent",
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "limits",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "direction": {
+        "id": "direction",
+        "title": "Control Direction",
+        "description": "Direct or reverse acting loop.",
+        "value_type": "string",
+        "default": "reverse",
+        "group": "tuning",
+        "ui_hint": "enum",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "pv_filter_tau_ms": {
+        "id": "pv_filter_tau_ms",
+        "title": "PV Filter Tau",
+        "description": "Optional first-order PV filter time constant.",
+        "value_type": "u32",
+        "default": 0,
+        "unit": "ms",
+        "min": 0,
+        "max": 60000,
+        "step": 1,
+        "group": "filtering",
+        "ui_hint": "duration_ms",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "deadband": {
+        "id": "deadband",
+        "title": "Deadband",
+        "description": "Error deadband around setpoint.",
+        "value_type": "float",
+        "default": 0.0,
+        "unit": "engineering_units",
+        "min": 0,
+        "max": 1000000,
+        "step": 0.001,
+        "group": "tuning",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      }
+    },
+    "alarms": {}
+  },
+  "locals": {
+    "signals": {},
+    "vars": {}
+  },
+  "implementation": {
+    "native": {
+      "native_kind": "std.pid_controller.v1",
+      "target_kinds": [
+        "esp32.shipcontroller.v1"
+      ],
+      "config_template": "shipcontroller.pid_controller.v1"
+    },
+    "composition": null,
+    "state": null,
+    "flow": null
+  },
+  "facets": {
+    "frontends": {
+      "requirements": {
+        "pv_source": {
+          "id": "pv_source",
+          "kind": "process_value_input",
+          "title": "PV Source",
+          "source_ports": ["pv"],
+          "binding_kind": "analog_in",
+          "channel_kind": "telemetry",
+          "value_type": "float",
+          "required": true
+        },
+        "mv_output": {
+          "id": "mv_output",
+          "kind": "control_output",
+          "title": "MV Output",
+          "source_ports": ["mv_out"],
+          "binding_kind": "analog_out",
+          "channel_kind": "command",
+          "value_type": "float",
+          "required": true
+        }
+      }
+    },
+    "operations": {
+      "operations": {
+        "reset_integral": {
+          "id": "reset_integral",
+          "kind": "reset_integral",
+          "title": "Reset Integral",
+          "ui_hint": "secondary",
+          "safe_when": ["enabled", "manual_mode"],
+          "confirmation_policy": "optional",
+          "progress_signals": ["loop_ok"],
+          "result_fields": ["completed"]
+        },
+        "hold": {
+          "id": "hold",
+          "kind": "hold",
+          "title": "Hold Output",
+          "ui_hint": "secondary",
+          "safe_when": ["enabled"],
+          "confirmation_policy": "optional",
+          "progress_signals": ["in_auto"],
+          "result_fields": ["completed"]
+        },
+        "release": {
+          "id": "release",
+          "kind": "release",
+          "title": "Release Hold",
+          "ui_hint": "primary",
+          "safe_when": ["enabled"],
+          "confirmation_policy": "optional",
+          "progress_signals": ["in_auto"],
+          "result_fields": ["completed"]
+        }
+      }
+    },
+    "monitoring": {
+      "monitors": {
+        "pv_stale": {
+          "id": "pv_stale",
+          "kind": "stale",
+          "title": "PV Stale",
+          "source_ports": ["pv"],
+          "severity": "warning",
+          "status_port_id": "loop_ok"
+        },
+        "output_saturated": {
+          "id": "output_saturated",
+          "kind": "threshold",
+          "title": "Output Saturated",
+          "source_ports": ["mv_out"],
+          "severity": "info",
+          "status_port_id": "saturated"
+        },
+        "manual_override_active": {
+          "id": "manual_override_active",
+          "kind": "state",
+          "title": "Manual Override Active",
+          "source_ports": ["in_auto"],
+          "severity": "info",
+          "status_port_id": "in_auto"
+        }
+      }
+    },
+    "debug": {
+      "trace_groups": {
+        "control_loop": {
+          "title": "Control Loop",
+          "signals": ["pv", "sp", "mv_out", "error"],
+          "sample_hint_ms": 250,
+          "chart_hint": "line"
+        },
+        "mode": {
+          "title": "Mode",
+          "signals": ["enable_cmd", "in_auto", "saturated"],
+          "sample_hint_ms": 250,
+          "chart_hint": "timeline"
+        }
+      }
+    },
+    "persistence": {
+      "slots": {
+        "kp": {
+          "id": "kp",
+          "slot_kind": "config",
+          "title": "Kp",
+          "owner_param_id": "kp",
+          "nv_slot_hint": "nv.pid.kp",
+          "flush_policy": "on_change"
+        },
+        "ti": {
+          "id": "ti",
+          "slot_kind": "config",
+          "title": "Ti",
+          "owner_param_id": "ti",
+          "nv_slot_hint": "nv.pid.ti",
+          "flush_policy": "on_change"
+        },
+        "td": {
+          "id": "td",
+          "slot_kind": "config",
+          "title": "Td",
+          "owner_param_id": "td",
+          "nv_slot_hint": "nv.pid.td",
+          "flush_policy": "on_change"
+        }
+      }
+    },
+    "templates": {
+      "presets": {
+        "fast_loop": {
+          "id": "fast_loop",
+          "title": "Fast Loop",
+          "description": "Preset for responsive low-lag processes.",
+          "defaults": {
+            "kp": 2.0,
+            "ti": 2.5,
+            "td": 0.1,
+            "sample_time_ms": 50,
+            "pv_filter_tau_ms": 25
+          }
+        },
+        "slow_process": {
+          "id": "slow_process",
+          "title": "Slow Process",
+          "description": "Preset for lag-dominant loops.",
+          "defaults": {
+            "kp": 0.8,
+            "ti": 30.0,
+            "td": 0.0,
+            "sample_time_ms": 500,
+            "pv_filter_tau_ms": 250
+          }
+        },
+        "temperature_loop": {
+          "id": "temperature_loop",
+          "title": "Temperature Loop",
+          "description": "Preset for thermal processes with moderate inertia.",
+          "defaults": {
+            "kp": 1.2,
+            "ti": 20.0,
+            "td": 2.0,
+            "sample_time_ms": 250,
+            "pv_filter_tau_ms": 500
+          }
+        }
+      }
+    }
+  },
+  "diagnostics": {}
+}

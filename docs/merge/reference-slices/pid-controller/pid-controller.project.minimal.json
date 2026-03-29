@@ -1,0 +1,50 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "pid_controller_demo",
+    "title": "PID Controller Demo"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {
+      "pid_1": {
+        "id": "pid_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/pid_controller",
+        "title": "PID Controller #1",
+        "enabled": true,
+        "param_values": {
+          "kp": {
+            "kind": "literal",
+            "value": 1.5
+          },
+          "ti": {
+            "kind": "literal",
+            "value": 12.0
+          },
+          "sample_time_ms": {
+            "kind": "literal",
+            "value": 100
+          }
+        }
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}
