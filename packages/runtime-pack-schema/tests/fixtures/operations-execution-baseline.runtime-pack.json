@@ -1,0 +1,132 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "operations-execution-baseline-pack",
+  "source": {
+    "project_id": "operations_execution_baseline_demo",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {
+    "flowmeter_1": {
+      "id": "flowmeter_1",
+      "type_ref": "library:std/pulse_flowmeter",
+      "enabled": true,
+      "ports": {},
+      "params": {},
+      "alarms": {}
+    },
+    "run_hours_1": {
+      "id": "run_hours_1",
+      "type_ref": "library:std/run_hours_counter",
+      "enabled": true,
+      "ports": {},
+      "params": {},
+      "alarms": {}
+    },
+    "maintenance_counter_1": {
+      "id": "maintenance_counter_1",
+      "type_ref": "library:std/maintenance_counter",
+      "enabled": true,
+      "ports": {},
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {
+    "op_flowmeter_1_reset_totalizer": {
+      "id": "op_flowmeter_1_reset_totalizer",
+      "owner_instance_id": "flowmeter_1",
+      "kind": "reset_totalizer",
+      "title": "Reset Totalizer",
+      "confirmation_policy": "required",
+      "cancel_mode": "not_cancellable",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ],
+        "failure_fields": [
+          {
+            "id": "reason_code",
+            "value_type": "string"
+          }
+        ]
+      }
+    },
+    "op_run_hours_1_reset_counter": {
+      "id": "op_run_hours_1_reset_counter",
+      "owner_instance_id": "run_hours_1",
+      "kind": "reset_counter",
+      "title": "Reset Counter",
+      "confirmation_policy": "required",
+      "cancel_mode": "not_cancellable",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ]
+      }
+    },
+    "op_maintenance_counter_1_reset_interval": {
+      "id": "op_maintenance_counter_1_reset_interval",
+      "owner_instance_id": "maintenance_counter_1",
+      "kind": "reset_interval",
+      "title": "Reset Interval",
+      "confirmation_policy": "required",
+      "cancel_mode": "not_cancellable",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ],
+        "failure_fields": [
+          {
+            "id": "remaining_out",
+            "value_type": "float"
+          }
+        ]
+      }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": true,
+    "cancel_supported": false,
+    "progress_supported": true,
+    "result_supported": true,
+    "audit_required": true,
+    "execution_baseline_kinds": [
+      "reset_totalizer",
+      "reset_counter",
+      "reset_interval"
+    ],
+    "confirmation_token_validation": "when_required",
+    "failure_payload_supported": true,
+    "audit_hook_mode": "operation_events"
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

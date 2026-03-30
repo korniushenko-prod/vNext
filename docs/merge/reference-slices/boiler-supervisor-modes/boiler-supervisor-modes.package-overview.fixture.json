@@ -1,0 +1,169 @@
+{
+  "description": "Read-only package mode / phase overview for the boiler-like Wave 13 reference domain.",
+  "effective_objects": [
+    {
+      "execution_boundary": "ordinary_runtime_object",
+      "id": "boiler_supervisor_modes_1__boiler_core_1",
+      "package_neutral": true,
+      "title": "Boiler Supervisor Core",
+      "type_title": "Boiler Supervisor Core"
+    },
+    {
+      "execution_boundary": "ordinary_runtime_object",
+      "id": "boiler_supervisor_modes_1__flow_guard_1",
+      "package_neutral": true,
+      "title": "Flow Guard",
+      "type_title": "Flow Guard"
+    },
+    {
+      "execution_boundary": "ordinary_runtime_object",
+      "id": "boiler_supervisor_modes_1__maintenance_counter_1",
+      "package_neutral": true,
+      "title": "Boiler Maintenance Counter",
+      "type_title": "Maintenance Counter"
+    }
+  ],
+  "id": "package-overview-boiler-supervisor-modes",
+  "members": [
+    {
+      "boundary_note": "Wave 13 only summarizes child supervisory state into package mode / phase metadata.",
+      "effective_object_id": "boiler_supervisor_modes_1__boiler_core_1",
+      "id": "boiler_core_1",
+      "preset_ref": "",
+      "related_surfaces": [],
+      "role": "control_core",
+      "template_ref": "",
+      "title": "Boiler Supervisor Core",
+      "type_ref": "project:boiler_supervisor_core",
+      "type_title": "Boiler Supervisor Core"
+    },
+    {
+      "boundary_note": "Flow availability remains child-owned and is only referenced by package mode / phase metadata.",
+      "effective_object_id": "boiler_supervisor_modes_1__flow_guard_1",
+      "id": "flow_guard_1",
+      "preset_ref": "",
+      "related_surfaces": [],
+      "role": "availability_guard",
+      "template_ref": "",
+      "title": "Flow Guard",
+      "type_ref": "project:flow_guard",
+      "type_title": "Flow Guard"
+    },
+    {
+      "boundary_note": "Maintenance remains downstream and package-level mode / phase stays execution-neutral.",
+      "effective_object_id": "boiler_supervisor_modes_1__maintenance_counter_1",
+      "id": "maintenance_counter_1",
+      "preset_ref": "",
+      "related_surfaces": [],
+      "role": "service_monitor",
+      "template_ref": "",
+      "title": "Boiler Maintenance Counter",
+      "type_ref": "project:maintenance_counter",
+      "type_title": "Maintenance Counter"
+    }
+  ],
+  "package_definition": {
+    "boundary_notes": [
+      "Package mode / phase remains a generic package orchestration metadata layer only.",
+      "BoilerSupervisorModes v1 is boiler-like reference content only and does not introduce burner execution."
+    ],
+    "origin": "project",
+    "package_id": "boiler_supervisor_modes",
+    "preset_count": 0,
+    "presets": [],
+    "template_count": 0,
+    "templates": [],
+    "title": "BoilerSupervisorModes v1"
+  },
+  "package_instance_id": "boiler_supervisor_modes_1",
+  "package_mode_phase": {
+    "active_mode": {
+      "id": "standby",
+      "title": "Standby"
+    },
+    "active_phase": {
+      "id": "precheck",
+      "title": "Precheck"
+    },
+    "mode_groups": [
+      {
+        "id": "availability_modes",
+        "member_count": 2,
+        "summary": "Off and standby remain the non-running supervisory modes.",
+        "title": "Availability Modes"
+      },
+      {
+        "id": "control_modes",
+        "member_count": 1,
+        "summary": "Run remains the active control-oriented mode.",
+        "title": "Control Modes"
+      }
+    ],
+    "mode_summary_entries": [
+      {
+        "id": "off_summary",
+        "semantic_state": "inactive",
+        "summary": "Off lane remains inactive.",
+        "title": "Off Summary"
+      },
+      {
+        "id": "standby_summary",
+        "semantic_state": "active",
+        "summary": "Standby is the current supervisory mode.",
+        "title": "Standby Summary"
+      },
+      {
+        "id": "run_summary",
+        "semantic_state": "inactive",
+        "summary": "Run mode becomes active only after precheck clears.",
+        "title": "Run Summary"
+      }
+    ],
+    "package_coordination_id": "",
+    "package_supervision_id": "",
+    "phase_groups": [
+      {
+        "id": "preparation_phases",
+        "member_count": 2,
+        "summary": "Phases that prepare active supervision.",
+        "title": "Preparation Phases"
+      },
+      {
+        "id": "active_phases",
+        "member_count": 1,
+        "summary": "Phases that represent active run behavior.",
+        "title": "Active Phases"
+      }
+    ],
+    "phase_summary_entries": [
+      {
+        "id": "idle_summary",
+        "semantic_state": "inactive",
+        "summary": "Idle phase is inactive.",
+        "title": "Idle Summary"
+      },
+      {
+        "id": "precheck_summary",
+        "semantic_state": "active",
+        "summary": "Precheck is active while supervisory gates are evaluated.",
+        "title": "Precheck Summary"
+      },
+      {
+        "id": "run_phase_summary",
+        "semantic_state": "inactive",
+        "summary": "Run phase follows the core run lane.",
+        "title": "Run Phase Summary"
+      }
+    ],
+    "snapshot_state": "mode_phase_available",
+    "trace_groups": [
+      {
+        "id": "mode_phase_trace",
+        "signal_count": 3,
+        "summary": "standby_out, run_out, remaining_out",
+        "title": "Mode / Phase Trace"
+      }
+    ]
+  },
+  "title": "BoilerSupervisorModes v1"
+}

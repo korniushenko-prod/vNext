@@ -1,0 +1,67 @@
+{
+  "request_id": "readback_pkg_override_handover_1",
+  "target_id": "esp32-demo-1",
+  "collected_at": "2026-03-30T23:58:00Z",
+  "signals": {},
+  "resources": {},
+  "package_override_handover_snapshots": {
+    "boiler_supervisor_overrides_1": {
+      "package_instance_id": "boiler_supervisor_overrides_1",
+      "state": "accepted",
+      "handover_summary": {
+        "current_holder_id": "manual_owner",
+        "current_lane": "manual",
+        "requested_holder_id": "service_owner",
+        "accepted_request_ids": [
+          "release_to_auto",
+          "return_to_auto"
+        ],
+        "blocked_request_ids": [
+          "service_takeover"
+        ],
+        "denied_request_ids": [
+          "remote_takeover"
+        ],
+        "last_handover_reason": "manual_override_active",
+        "summary": "Manual override is active while release back to auto remains available."
+      },
+      "handover_request_states": {
+        "release_to_auto": {
+          "request_kind": "request_release",
+          "requested_holder_id": "auto_owner",
+          "requested_lane": "auto",
+          "state": "accepted",
+          "request_preview": "request_release -> auto_owner",
+          "summary": "Current holder may release control back to the automatic lane."
+        },
+        "remote_takeover": {
+          "request_kind": "request_takeover",
+          "requested_holder_id": "remote_owner",
+          "requested_lane": "remote",
+          "state": "denied",
+          "denied_reason": "held_by_other_owner",
+          "request_preview": "request_takeover -> remote_owner",
+          "summary": "Remote takeover is denied while manual override remains the active holder."
+        },
+        "return_to_auto": {
+          "request_kind": "request_return_to_auto",
+          "requested_holder_id": "auto_owner",
+          "requested_lane": "auto",
+          "state": "accepted",
+          "request_preview": "request_return_to_auto -> auto_owner",
+          "summary": "Return-to-auto remains available as the bounded fallback handover."
+        },
+        "service_takeover": {
+          "request_kind": "request_takeover",
+          "requested_holder_id": "service_owner",
+          "requested_lane": "service",
+          "state": "blocked",
+          "blocked_reason": "blocked_by_policy",
+          "request_preview": "request_takeover -> service_owner",
+          "summary": "Service takeover is blocked until the active manual holder releases authority."
+        }
+      }
+    }
+  },
+  "diagnostics": []
+}

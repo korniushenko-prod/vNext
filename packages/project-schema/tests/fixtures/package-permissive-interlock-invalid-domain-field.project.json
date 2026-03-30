@@ -1,0 +1,65 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "package_permissive_interlock_invalid_domain_field",
+    "title": "Package Permissive Interlock Invalid Domain Field"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "package_gate_source": {
+        "id": "package_gate_source",
+        "kind": "object_type",
+        "meta": { "title": "Package Gate Source", "origin": "project" },
+        "interface": {
+          "ports": {
+            "state_out": { "id": "state_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "blocked_out": { "id": "blocked_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "invalid_pkg": {
+        "id": "invalid_pkg",
+        "kind": "package_definition",
+        "meta": { "title": "Invalid Package", "origin": "project" },
+        "members": {
+          "guard_1": { "id": "guard_1", "kind": "package_member", "type_ref": "project:package_gate_source" }
+        },
+        "signals": {},
+        "permissive_interlock": {
+          "flame_safeguard": true,
+          "permissives": {
+            "feedwater_ok": {
+              "id": "feedwater_ok",
+              "source_ports": [{ "member_id": "guard_1", "port_id": "state_out" }]
+            }
+          },
+          "interlocks": {},
+          "gate_summary": {
+            "id": "gate_summary"
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "invalid_pkg_1": { "id": "invalid_pkg_1", "kind": "package_instance", "package_ref": "invalid_pkg" }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

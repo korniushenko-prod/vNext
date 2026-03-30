@@ -1,0 +1,220 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "package_arbitration_invalid_ownership",
+    "title": "Package Arbitration Invalid Ownership"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "package_command_source": {
+        "id": "package_command_source",
+        "kind": "object_type",
+        "meta": {
+          "title": "Package Command Source",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "authority_out": { "id": "authority_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "blocked_out": { "id": "blocked_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "denied_out": { "id": "denied_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "superseded_out": { "id": "superseded_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "facets": {},
+        "implementation": {
+          "native": null,
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "boiler_supervisor_arbitration": {
+        "id": "boiler_supervisor_arbitration",
+        "kind": "package_definition",
+        "meta": {
+          "title": "BoilerSupervisorArbitration v1",
+          "origin": "project",
+          "description": "Boiler-like reference package for generic package command arbitration baseline.",
+          "domain": "boiler",
+          "package_kind": "boiler_supervisor_arbitration_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "auto_owner_1": { "id": "auto_owner_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Auto Owner" },
+          "manual_owner_1": { "id": "manual_owner_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Manual Owner" },
+          "service_owner_1": { "id": "service_owner_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Service Owner" },
+          "remote_owner_1": { "id": "remote_owner_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Remote Owner" },
+          "enable_request_1": { "id": "enable_request_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Enable Request Target" },
+          "reset_request_1": { "id": "reset_request_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Reset Request Target" }
+        },
+        "signals": {},
+        "arbitration": {
+          "ownership_lanes": {
+            "auto_owner": {
+              "id": "auto_owner",
+              "title": "Auto Owner",
+              "lane": "field",
+              "source_ports": [{ "member_id": "auto_owner_1", "port_id": "authority_out" }],
+              "summary": "Automatic ownership lane is available."
+            },
+            "manual_owner": {
+              "id": "manual_owner",
+              "title": "Manual Owner",
+              "lane": "manual",
+              "source_ports": [{ "member_id": "manual_owner_1", "port_id": "authority_out" }],
+              "summary": "Manual ownership lane is active."
+            },
+            "service_owner": {
+              "id": "service_owner",
+              "title": "Service Owner",
+              "lane": "service",
+              "source_ports": [{ "member_id": "service_owner_1", "port_id": "authority_out" }],
+              "summary": "Service ownership lane is available for maintenance use."
+            },
+            "remote_owner": {
+              "id": "remote_owner",
+              "title": "Remote Owner",
+              "lane": "remote",
+              "source_ports": [{ "member_id": "remote_owner_1", "port_id": "authority_out" }],
+              "summary": "Remote ownership lane is available but not active."
+            }
+          },
+          "ownership_summary": {
+            "id": "ownership_summary",
+            "title": "Ownership Summary",
+            "active_lane_refs": ["manual_owner"],
+            "summary": "Manual ownership is currently active."
+          },
+          "command_lanes": {
+            "enable_auto": {
+              "id": "enable_auto",
+              "title": "Enable In Auto",
+              "request_kind": "request_enable",
+              "ownership_lane_ref": "auto_owner",
+              "target_member_id": "enable_request_1",
+              "arbitration_result": "accepted",
+              "summary": "Enable request is accepted for the automatic lane.",
+              "request_preview": "request_enable -> enable_request_1"
+            },
+            "reset_service": {
+              "id": "reset_service",
+              "title": "Reset In Service",
+              "request_kind": "request_reset",
+              "ownership_lane_ref": "service_owner",
+              "target_member_id": "reset_request_1",
+              "arbitration_result": "blocked",
+              "blocked_reason": "service_lockout",
+              "summary": "Reset request is blocked while manual ownership stays active.",
+              "request_preview": "request_reset -> reset_request_1"
+            },
+            "disable_remote": {
+              "id": "disable_remote",
+              "title": "Disable From Remote",
+              "request_kind": "request_disable",
+              "ownership_lane_ref": "remote_owner",
+              "target_member_id": "enable_request_1",
+              "arbitration_result": "denied",
+              "denied_reason": "manual_owner_active",
+              "summary": "Remote disable is denied because manual ownership has authority.",
+              "request_preview": "request_disable -> enable_request_1"
+            },
+            "start_service": {
+              "id": "start_service",
+              "title": "Start In Service",
+              "request_kind": "request_start",
+              "ownership_lane_ref": "service_owner",
+              "target_member_id": "enable_request_1",
+              "arbitration_result": "superseded",
+              "superseded_by_lane_ref": "enable_auto",
+              "summary": "Service start is superseded by the accepted auto enable request.",
+              "request_preview": "request_start -> enable_request_1"
+            }
+          },
+          "command_summary": {
+            "id": "command_summary",
+            "title": "Command Summary",
+            "active_owner_lane_refs": ["manual_owner"],
+            "accepted_lane_refs": ["enable_auto"],
+            "blocked_lane_refs": ["reset_service"],
+            "denied_lane_refs": ["disable_remote"],
+            "superseded_lane_refs": ["start_service"],
+            "summary": "One accepted lane remains active while blocked, denied, and superseded outcomes stay explicit."
+          },
+          "summary_outputs": {
+            "command_ready": {
+              "id": "command_ready",
+              "value_type": "bool",
+              "source": { "member_id": "enable_request_1", "port_id": "ready_out" }
+            },
+            "command_denied": {
+              "id": "command_denied",
+              "value_type": "bool",
+              "source": { "member_id": "enable_request_1", "port_id": "denied_out" }
+            }
+          },
+          "aggregate_monitors": {
+            "arbitration_health": {
+              "id": "arbitration_health",
+              "kind": "boolean_health_rollup",
+              "source_ports": [
+                { "member_id": "auto_owner_1", "port_id": "authority_out" },
+                { "member_id": "manual_owner_1", "port_id": "authority_out" },
+                { "member_id": "enable_request_1", "port_id": "ready_out" }
+              ]
+            }
+          },
+          "trace_groups": {
+            "arbitration_trace": {
+              "id": "arbitration_trace",
+              "signals": [
+                { "member_id": "manual_owner_1", "port_id": "authority_out" },
+                { "member_id": "reset_request_1", "port_id": "blocked_out" },
+                { "member_id": "enable_request_1", "port_id": "denied_out" }
+              ]
+            }
+          }
+        },
+        "boundary_notes": [
+          "Wave 17 package arbitration remains package-neutral and does not introduce a hidden package execution engine.",
+          "Boiler-like content is reference-only and does not define boiler-specific shared semantics."
+        ]
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_supervisor_arbitration_1": {
+        "id": "boiler_supervisor_arbitration_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor_arbitration"
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

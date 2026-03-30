@@ -1,0 +1,212 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "demo_relay",
+    "title": "Timed Relay Demo"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "timed_relay": {
+        "id": "timed_relay",
+        "kind": "object_type",
+        "meta": {
+          "title": "Timed Relay",
+          "version": "1.0.0",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "enable_cmd": {
+              "id": "enable_cmd",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "relay_out": {
+              "id": "relay_out",
+              "direction": "out",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "active_fb": {
+              "id": "active_fb",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "remaining_ms": {
+              "id": "remaining_ms",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "u32"
+            }
+          },
+          "params": {
+            "pulse_time_ms": {
+              "id": "pulse_time_ms",
+              "value_type": "u32",
+              "default": 5000
+            },
+            "retriggerable": {
+              "id": "retriggerable",
+              "value_type": "bool",
+              "default": true
+            },
+            "require_enable": {
+              "id": "require_enable",
+              "value_type": "bool",
+              "default": false
+            },
+            "output_inverted": {
+              "id": "output_inverted",
+              "value_type": "bool",
+              "default": false
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.timed_relay.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.timed_relay.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "operations": {
+            "operations": {
+              "test_pulse": {
+                "id": "test_pulse",
+                "title": "Test Pulse"
+              },
+              "reset": {
+                "id": "reset",
+                "title": "Reset"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "basic": {
+                "signals": [
+                  "active_fb",
+                  "relay_out",
+                  "remaining_ms"
+                ],
+                "sample_hint_ms": 100,
+                "chart_hint": "timeline"
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      }
+    },
+    "templates": {
+      "timed_relay_service_preset": {
+        "id": "timed_relay_service_preset",
+        "kind": "object_template",
+        "base_type_ref": "project:timed_relay",
+        "origin": "library_template",
+        "meta": {
+          "title": "Timed Relay Service Preset",
+          "version": "1.0.0",
+          "description": "Reusable timed relay preset for invariance tests."
+        },
+        "defaults": {
+          "param_values": {
+            "pulse_time_ms": {
+              "kind": "literal",
+              "value": 5000
+            },
+            "retriggerable": {
+              "kind": "literal",
+              "value": true
+            },
+            "require_enable": {
+              "kind": "literal",
+              "value": false
+            },
+            "ghost_param": {
+              "kind": "literal",
+              "value": 123
+            }
+          },
+          "tags": {
+            "preset_family": "service"
+          },
+          "facet_defaults": {
+            "debug_preset": "timed_relay_service"
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "relay_1": {
+        "id": "relay_1",
+        "kind": "object_instance",
+        "type_ref": "project:timed_relay",
+        "title": "Relay #1",
+        "enabled": true,
+        "param_values": {
+          "output_inverted": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        "template_ref": "timed_relay_service_preset"
+      }
+    },
+    "signals": {
+      "sig_relay_feedback": {
+        "id": "sig_relay_feedback",
+        "title": "Relay Feedback",
+        "source": {
+          "instance_id": "relay_1",
+          "port_id": "relay_out"
+        },
+        "targets": {
+          "t1": {
+            "instance_id": "relay_1",
+            "port_id": "enable_cmd"
+          }
+        }
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {
+      "relay_out_pin": {
+        "id": "relay_out_pin",
+        "instance_id": "relay_1",
+        "port_id": "relay_out",
+        "binding_kind": "digital_out",
+        "config": {
+          "pin": 5
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

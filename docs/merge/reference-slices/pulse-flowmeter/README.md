@@ -37,6 +37,14 @@ The public contract stays small:
 The public object is still one `ObjectType`.
 Mode choice is done by the `sensor_mode` parameter and by presets, not by creating three unrelated public library objects.
 
+The frozen offline target artifact now carries `reset_totalizer` on the Wave 8
+execution baseline.
+It stays synthetic and offline-only, but the artifact now marks the operation
+as `execution_baseline: true` with frozen confirmation token, cancel, progress,
+and audit summary metadata.
+This behavior is additive-only beyond bugfixes and does not introduce real
+backend execution hooks.
+
 ## Public behavior
 
 External behavior:

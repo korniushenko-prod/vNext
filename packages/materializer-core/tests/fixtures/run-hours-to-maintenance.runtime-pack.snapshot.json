@@ -1,0 +1,770 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "run-hours-to-maintenance-demo-pack",
+  "source": {
+    "project_id": "demo_run_hours_to_maintenance_project",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-29T19:00:00Z"
+  },
+  "instances": {
+    "motor_status_1": {
+      "id": "motor_status_1",
+      "type_ref": "library:std/digital_input",
+      "title": "Motor Status",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.digital_input.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.digital_input.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_run_hours_to_maintenance_project"
+      }
+    },
+    "run_hours_1": {
+      "id": "run_hours_1",
+      "type_ref": "library:std/run_hours_counter",
+      "title": "Run Hours Counter #1",
+      "enabled": true,
+      "ports": {
+        "active_in": {
+          "id": "active_in",
+          "direction": "in",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        },
+        "running_out": {
+          "id": "running_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "total_hours": {
+          "id": "total_hours",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "total_seconds": {
+          "id": "total_seconds",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "u32"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "persist_enabled": {
+          "value": true,
+          "value_type": "bool",
+          "source": "instance_override",
+          "metadata": {
+            "group": "persistence",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "run_hours_1",
+            "param_id": "persist_enabled",
+            "source_layer": "system"
+          }
+        },
+        "persist_period_s": {
+          "value": 60,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "s",
+            "min": 1,
+            "max": 86400,
+            "step": 1,
+            "group": "persistence",
+            "ui_hint": "duration_s",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "run_hours_1",
+            "param_id": "persist_period_s",
+            "source_layer": "system"
+          }
+        },
+        "rounding_mode": {
+          "value": "tenths",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "calculation",
+            "ui_hint": "enum",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "run_hours_1",
+            "param_id": "rounding_mode",
+            "source_layer": "system"
+          }
+        },
+        "min_active_time_ms": {
+          "value": 1000,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "ms",
+            "min": 0,
+            "max": 60000,
+            "step": 10,
+            "group": "calculation",
+            "ui_hint": "duration_ms",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "run_hours_1",
+            "param_id": "min_active_time_ms",
+            "source_layer": "system"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.run_hours_counter.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.run_hours_counter.v1",
+        "frontend_requirement_ids": [
+          "fe_run_hours_1_activity_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_run_hours_to_maintenance_project"
+      }
+    },
+    "maintenance_counter_1": {
+      "id": "maintenance_counter_1",
+      "type_ref": "library:std/maintenance_counter",
+      "title": "Maintenance Counter #1",
+      "enabled": true,
+      "ports": {
+        "usage_total_in": {
+          "id": "usage_total_in",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "remaining_out": {
+          "id": "remaining_out",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "due_out": {
+          "id": "due_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "overdue_out": {
+          "id": "overdue_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "progress_out": {
+          "id": "progress_out",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "service_interval": {
+          "value": 500,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "usage_units",
+            "min": 0.0001,
+            "max": 1000000000,
+            "step": 0.1,
+            "group": "service",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "maintenance_counter_1",
+            "param_id": "service_interval",
+            "source_layer": "system"
+          }
+        },
+        "warning_before": {
+          "value": 50,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "usage_units",
+            "min": 0,
+            "max": 1000000000,
+            "step": 0.1,
+            "group": "service",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "maintenance_counter_1",
+            "param_id": "warning_before",
+            "source_layer": "system"
+          }
+        },
+        "overdue_margin": {
+          "value": 0,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "usage_units",
+            "min": 0,
+            "max": 1000000000,
+            "step": 0.1,
+            "group": "service",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "maintenance_counter_1",
+            "param_id": "overdue_margin",
+            "source_layer": "system"
+          }
+        },
+        "auto_rollover": {
+          "value": false,
+          "value_type": "bool",
+          "source": "instance_override",
+          "metadata": {
+            "group": "service",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "maintenance_counter_1",
+            "param_id": "auto_rollover",
+            "source_layer": "system"
+          }
+        },
+        "persist_enabled": {
+          "value": true,
+          "value_type": "bool",
+          "source": "instance_override",
+          "metadata": {
+            "group": "persistence",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "maintenance_counter_1",
+            "param_id": "persist_enabled",
+            "source_layer": "system"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.maintenance_counter.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.maintenance_counter.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_run_hours_to_maintenance_project"
+      }
+    }
+  },
+  "connections": {
+    "conn_sig_motor_status_to_run_hours_t1": {
+      "id": "conn_sig_motor_status_to_run_hours_t1",
+      "source": {
+        "instance_id": "motor_status_1",
+        "port_id": "value"
+      },
+      "target": {
+        "instance_id": "run_hours_1",
+        "port_id": "active_in"
+      },
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "demo_run_hours_to_maintenance_project",
+        "signal_id": "sig_motor_status_to_run_hours"
+      }
+    },
+    "conn_sig_run_hours_to_maintenance_counter_t1": {
+      "id": "conn_sig_run_hours_to_maintenance_counter_t1",
+      "source": {
+        "instance_id": "run_hours_1",
+        "port_id": "total_hours"
+      },
+      "target": {
+        "instance_id": "maintenance_counter_1",
+        "port_id": "usage_total_in"
+      },
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "demo_run_hours_to_maintenance_project",
+        "signal_id": "sig_run_hours_to_maintenance_counter"
+      }
+    }
+  },
+  "resources": {
+    "hw_motor_status_1": {
+      "id": "hw_motor_status_1",
+      "binding_kind": "digital_in",
+      "instance_id": "motor_status_1",
+      "port_id": "value",
+      "config": {
+        "pin": 4
+      }
+    }
+  },
+  "operations": {
+    "op_run_hours_1_reset_counter": {
+      "id": "op_run_hours_1_reset_counter",
+      "owner_instance_id": "run_hours_1",
+      "kind": "reset_counter",
+      "title": "Reset Counter",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "stopped"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "total_hours",
+            "value_type": "float"
+          },
+          {
+            "id": "total_seconds",
+            "value_type": "u32"
+          }
+        ]
+      },
+      "ui_hint": "danger",
+      "safe_when": [
+        "stopped"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "run_hours_1",
+          "port_id": "source_ok"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "total_hours",
+        "total_seconds"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals",
+        "destructive": true
+      },
+      "provenance": {
+        "owner_instance_id": "run_hours_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_counter",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "op_maintenance_counter_1_acknowledge_due": {
+      "id": "op_maintenance_counter_1_acknowledge_due",
+      "owner_instance_id": "maintenance_counter_1",
+      "kind": "acknowledge_due",
+      "title": "Acknowledge Due",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "due_active"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "acknowledged",
+            "value_type": "bool"
+          }
+        ]
+      },
+      "ui_hint": "secondary",
+      "safe_when": [
+        "due_active"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "due_out"
+        },
+        {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "overdue_out"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "acknowledged"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "provenance": {
+        "owner_instance_id": "maintenance_counter_1",
+        "facet_kind": "operation",
+        "facet_id": "acknowledge_due",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    },
+    "op_maintenance_counter_1_reset_interval": {
+      "id": "op_maintenance_counter_1_reset_interval",
+      "owner_instance_id": "maintenance_counter_1",
+      "kind": "reset_interval",
+      "title": "Reset Interval",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "service_allowed"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "remaining_out",
+            "value_type": "float"
+          },
+          {
+            "id": "progress_out",
+            "value_type": "float"
+          }
+        ]
+      },
+      "ui_hint": "danger",
+      "safe_when": [
+        "service_allowed"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "remaining_out"
+        },
+        {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "progress_out"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "remaining_out",
+        "progress_out"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals",
+        "destructive": true
+      },
+      "provenance": {
+        "owner_instance_id": "maintenance_counter_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_interval",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    }
+  },
+  "trace_groups": {
+    "tg_run_hours_1_runtime": {
+      "id": "tg_run_hours_1_runtime",
+      "owner_instance_id": "run_hours_1",
+      "title": "Runtime",
+      "signals": [
+        {
+          "instance_id": "run_hours_1",
+          "port_id": "active_in"
+        },
+        {
+          "instance_id": "run_hours_1",
+          "port_id": "running_out"
+        },
+        {
+          "instance_id": "run_hours_1",
+          "port_id": "total_hours"
+        }
+      ],
+      "sample_hint_ms": 1000,
+      "chart_hint": "line",
+      "provenance": {
+        "owner_instance_id": "run_hours_1",
+        "facet_kind": "trace_group",
+        "facet_id": "runtime",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "tg_maintenance_counter_1_maintenance": {
+      "id": "tg_maintenance_counter_1_maintenance",
+      "owner_instance_id": "maintenance_counter_1",
+      "title": "Maintenance",
+      "signals": [
+        {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "usage_total_in"
+        },
+        {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "remaining_out"
+        },
+        {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "due_out"
+        },
+        {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "overdue_out"
+        }
+      ],
+      "sample_hint_ms": 1000,
+      "chart_hint": "line",
+      "provenance": {
+        "owner_instance_id": "maintenance_counter_1",
+        "facet_kind": "trace_group",
+        "facet_id": "maintenance",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    }
+  },
+  "monitors": {
+    "mon_run_hours_1_stale_source": {
+      "id": "mon_run_hours_1_stale_source",
+      "owner_instance_id": "run_hours_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "run_hours_1",
+          "port_id": "active_in"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "run_hours_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "mon_run_hours_1_unexpected_toggle_rate": {
+      "id": "mon_run_hours_1_unexpected_toggle_rate",
+      "owner_instance_id": "run_hours_1",
+      "kind": "rate",
+      "source_ports": [
+        {
+          "instance_id": "run_hours_1",
+          "port_id": "active_in"
+        }
+      ],
+      "severity": "info",
+      "status_port_id": "running_out",
+      "provenance": {
+        "owner_instance_id": "run_hours_1",
+        "facet_kind": "monitor",
+        "facet_id": "unexpected_toggle_rate",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "mon_maintenance_counter_1_stale_source": {
+      "id": "mon_maintenance_counter_1_stale_source",
+      "owner_instance_id": "maintenance_counter_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "usage_total_in"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "maintenance_counter_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    },
+    "mon_maintenance_counter_1_interval_invalid": {
+      "id": "mon_maintenance_counter_1_interval_invalid",
+      "owner_instance_id": "maintenance_counter_1",
+      "kind": "invalid",
+      "source_ports": [],
+      "severity": "error",
+      "status_port_id": "due_out",
+      "provenance": {
+        "owner_instance_id": "maintenance_counter_1",
+        "facet_kind": "monitor",
+        "facet_id": "interval_invalid",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    }
+  },
+  "frontend_requirements": {
+    "fe_run_hours_1_activity_source": {
+      "id": "fe_run_hours_1_activity_source",
+      "owner_instance_id": "run_hours_1",
+      "kind": "activity_input",
+      "source_ports": [
+        {
+          "instance_id": "run_hours_1",
+          "port_id": "active_in"
+        }
+      ],
+      "binding_kind": "digital_in",
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "required": true,
+      "provenance": {
+        "owner_instance_id": "run_hours_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "activity_source",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    }
+  },
+  "persistence_slots": {
+    "ps_run_hours_1_total_runtime": {
+      "id": "ps_run_hours_1_total_runtime",
+      "owner_instance_id": "run_hours_1",
+      "slot_kind": "counter",
+      "nv_slot_hint": "nv.run_hours.total_runtime",
+      "flush_policy": "periodic",
+      "provenance": {
+        "owner_instance_id": "run_hours_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "total_runtime",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "ps_maintenance_counter_1_reset_baseline": {
+      "id": "ps_maintenance_counter_1_reset_baseline",
+      "owner_instance_id": "maintenance_counter_1",
+      "slot_kind": "state",
+      "nv_slot_hint": "nv.maintenance.reset_baseline",
+      "flush_policy": "on_change",
+      "provenance": {
+        "owner_instance_id": "maintenance_counter_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "reset_baseline",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    },
+    "ps_maintenance_counter_1_acknowledge_state": {
+      "id": "ps_maintenance_counter_1_acknowledge_state",
+      "owner_instance_id": "maintenance_counter_1",
+      "slot_kind": "state",
+      "nv_slot_hint": "nv.maintenance.acknowledge_state",
+      "flush_policy": "on_change",
+      "provenance": {
+        "owner_instance_id": "maintenance_counter_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "acknowledge_state",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": false,
+    "cancel_supported": false,
+    "progress_supported": false,
+    "result_supported": false,
+    "audit_required": false
+  }
+}

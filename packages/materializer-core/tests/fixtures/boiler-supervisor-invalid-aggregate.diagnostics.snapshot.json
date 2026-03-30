@@ -1,0 +1,16 @@
+[
+  {
+    "code": "package_supervision.member.unresolved",
+    "severity": "error",
+    "phase": "structural_validation",
+    "path": "$.definitions.packages.boiler_supervisor.supervision.aggregate_monitors.health_rollup.source_ports[1].member_id",
+    "message": "Package supervision source references unknown member `missing_flowmeter_member`."
+  },
+  {
+    "phase": "flatten_packages",
+    "code": "package_supervision.member.unresolved",
+    "severity": "error",
+    "path": "$.definitions.packages.boiler_supervisor.supervision.aggregate_monitors.health_rollup.source_ports[1]",
+    "message": "Package supervision child source boiler_pkg_1__missing_flowmeter_member.source_ok cannot be resolved from flattened runtime instances."
+  }
+]

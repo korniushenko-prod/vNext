@@ -1,0 +1,296 @@
+{
+  "id": "package-overview-boiler-supervisor",
+  "title": "BoilerSupervisor v1",
+  "description": "Read-only package supervision surface over frozen child objects. Summary outputs, rollups, traces, and proxy operations stay metadata-first and target-neutral.",
+  "package_instance_id": "boiler_pkg_1",
+  "package_definition": {
+    "package_id": "std.boiler_supervisor.v1",
+    "title": "Boiler Supervisor v1",
+    "origin": "std_library",
+    "preset_count": 1,
+    "template_count": 2,
+    "presets": [
+      "default_supervision"
+    ],
+    "templates": [
+      "run_hours_service_preset",
+      "maintenance_service_saved"
+    ],
+    "boundary_notes": [
+      "Package supervision remains authoring-only and derives summary metadata from flattened child objects.",
+      "Proxy operations stay generic or Wave 9-specialized child lanes. The package adds no execution engine of its own."
+    ]
+  },
+  "members": [
+    {
+      "id": "pid_1",
+      "title": "Pressure Controller",
+      "role": "control_core",
+      "type_title": "PID Controller v1",
+      "type_ref": "std:pid_controller_v1",
+      "template_ref": "",
+      "preset_ref": "default_supervision",
+      "effective_object_id": "boiler_pkg_1__pid_1",
+      "boundary_note": "Control core only. Package supervision can proxy child operations but cannot add package-specific execution.",
+      "related_surfaces": [
+        {
+          "title": "PID + hold/release/autotune",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-pid"
+        }
+      ]
+    },
+    {
+      "id": "flowmeter_1",
+      "title": "Feedwater Flowmeter",
+      "role": "usage_source",
+      "type_title": "PulseFlowmeter v1",
+      "type_ref": "std:pulse_flowmeter_v1",
+      "template_ref": "",
+      "preset_ref": "default_supervision",
+      "effective_object_id": "boiler_pkg_1__flowmeter_1",
+      "boundary_note": "Acquisition stays on the child object. Package supervision only summarizes and proxies the child surface.",
+      "related_surfaces": [
+        {
+          "title": "PulseFlowmeter + reset_totalizer",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-flowmeter"
+        }
+      ]
+    },
+    {
+      "id": "run_hours_1",
+      "title": "Boiler Runtime Hours",
+      "role": "usage_accumulator",
+      "type_title": "RunHoursCounter v1",
+      "type_ref": "std:run_hours_counter_v1",
+      "template_ref": "run_hours_service_preset",
+      "preset_ref": "default_supervision",
+      "effective_object_id": "boiler_pkg_1__run_hours_1",
+      "boundary_note": "Accumulated runtime stays on the child counter and is surfaced upward as package summary only.",
+      "related_surfaces": [
+        {
+          "title": "RunHoursCounter + reset_counter",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-runhours"
+        }
+      ]
+    },
+    {
+      "id": "maintenance_counter_1",
+      "title": "Boiler Maintenance Counter",
+      "role": "service_monitor",
+      "type_title": "MaintenanceCounter v1",
+      "type_ref": "std:maintenance_counter_v1",
+      "template_ref": "maintenance_service_saved",
+      "preset_ref": "default_supervision",
+      "effective_object_id": "boiler_pkg_1__maintenance_counter_1",
+      "boundary_note": "Downstream maintenance monitoring only. The package keeps usage accumulation upstream and only exposes package-level rollups.",
+      "related_surfaces": [
+        {
+          "title": "MaintenanceCounter + service operations",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-maintenance"
+        }
+      ]
+    },
+    {
+      "id": "threshold_monitor_1",
+      "title": "Maintenance Due Monitor",
+      "role": "monitor",
+      "type_title": "ThresholdMonitor v1",
+      "type_ref": "std:threshold_monitor_v1",
+      "template_ref": "",
+      "preset_ref": "default_supervision",
+      "effective_object_id": "boiler_pkg_1__threshold_monitor_1",
+      "boundary_note": "Pure downstream monitor over child outputs. Package supervision uses it for summary and alarm rollups only.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "boiler_pkg_1__pid_1",
+      "title": "Pressure Controller",
+      "type_title": "PID Controller v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_pkg_1__flowmeter_1",
+      "title": "Feedwater Flowmeter",
+      "type_title": "PulseFlowmeter v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_pkg_1__run_hours_1",
+      "title": "Boiler Runtime Hours",
+      "type_title": "RunHoursCounter v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_pkg_1__maintenance_counter_1",
+      "title": "Boiler Maintenance Counter",
+      "type_title": "MaintenanceCounter v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_pkg_1__threshold_monitor_1",
+      "title": "Maintenance Due Monitor",
+      "type_title": "ThresholdMonitor v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ],
+  "package_supervision": {
+    "snapshot_state": "alarm_present",
+    "summary_outputs": [
+      {
+        "id": "package_ok",
+        "title": "Package OK",
+        "value": "false",
+        "semantic_state": "degraded"
+      },
+      {
+        "id": "alarm_present",
+        "title": "Alarm Present",
+        "value": "true",
+        "semantic_state": "alarm_present"
+      },
+      {
+        "id": "maintenance_due",
+        "title": "Maintenance Due",
+        "value": "true",
+        "semantic_state": "maintenance_due"
+      },
+      {
+        "id": "loop_in_auto",
+        "title": "Loop In Auto",
+        "value": "true",
+        "semantic_state": "healthy"
+      },
+      {
+        "id": "flow_ok",
+        "title": "Flow OK",
+        "value": "true",
+        "semantic_state": "healthy"
+      },
+      {
+        "id": "runtime_total",
+        "title": "Runtime Total",
+        "value": "148.6 h",
+        "semantic_state": "informational"
+      }
+    ],
+    "aggregate_monitors": [
+      {
+        "id": "health_rollup",
+        "title": "Health Rollup",
+        "state": "degraded",
+        "severity": "warning",
+        "summary": "Threshold alarm is active while the rest of the package remains online."
+      }
+    ],
+    "aggregate_alarms": [
+      {
+        "id": "alarm_rollup",
+        "title": "Alarm Rollup",
+        "state": "alarm_present",
+        "severity": "warning",
+        "summary": "Maintenance due is active and the threshold monitor is latched."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "process_summary",
+        "title": "Process Summary",
+        "signal_count": 3,
+        "summary": "runtime_total, flow_rate, mv_out"
+      },
+      {
+        "id": "health_summary",
+        "title": "Health Summary",
+        "signal_count": 3,
+        "summary": "alarm_active, due_out, loop_ok"
+      }
+    ],
+    "operation_proxies": [
+      {
+        "id": "reset_flow_totalizer",
+        "title": "Reset Flow Totalizer",
+        "child_operation_kind": "reset_totalizer",
+        "state": "available",
+        "summary": "Ready on target."
+      },
+      {
+        "id": "reset_runtime_counter",
+        "title": "Reset Runtime Counter",
+        "child_operation_kind": "reset_counter",
+        "state": "running",
+        "summary": "Synthetic reset baseline is currently running."
+      },
+      {
+        "id": "reset_maintenance_interval",
+        "title": "Reset Maintenance Interval",
+        "child_operation_kind": "reset_interval",
+        "state": "completed",
+        "summary": "Last maintenance reset completed successfully."
+      },
+      {
+        "id": "pid_autotune",
+        "title": "PID Autotune",
+        "child_operation_kind": "autotune",
+        "state": "blocked",
+        "summary": "Blocked until the loop is forced into manual mode."
+      },
+      {
+        "id": "pid_autotune_retry",
+        "title": "PID Autotune Retry",
+        "child_operation_kind": "autotune",
+        "state": "failed",
+        "summary": "Previous autotune attempt failed because PV oscillation never stabilized."
+      },
+      {
+        "id": "pid_autotune_cancelled",
+        "title": "PID Autotune Cancelled",
+        "child_operation_kind": "autotune",
+        "state": "cancelled",
+        "summary": "Most recent specialized run was cancelled by operator."
+      }
+    ],
+    "child_summary_cards": [
+      {
+        "member_id": "pid_1",
+        "title": "Pressure Controller",
+        "state": "blocked",
+        "summary": "Autotune is blocked; hold and release remain available."
+      },
+      {
+        "member_id": "flowmeter_1",
+        "title": "Feedwater Flowmeter",
+        "state": "healthy",
+        "summary": "Remote source quality is good and totalizer reset is available."
+      },
+      {
+        "member_id": "run_hours_1",
+        "title": "Boiler Runtime Hours",
+        "state": "running",
+        "summary": "Runtime reset placeholder reports running synthetic lifecycle."
+      },
+      {
+        "member_id": "maintenance_counter_1",
+        "title": "Boiler Maintenance Counter",
+        "state": "maintenance_due",
+        "summary": "Service interval reached; reset interval already completed once."
+      },
+      {
+        "member_id": "threshold_monitor_1",
+        "title": "Maintenance Due Monitor",
+        "state": "alarm_present",
+        "summary": "Alarm is active and contributing to package rollups."
+      }
+    ]
+  }
+}

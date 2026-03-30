@@ -1,0 +1,95 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "package-mode-phase-valid-pack",
+  "source": {
+    "project_id": "package_mode_phase_valid",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {
+    "pump_pkg_1__pump_group_1": {
+      "id": "pump_pkg_1__pump_group_1",
+      "type_ref": "project:pump_group",
+      "enabled": true,
+      "ports": {
+        "off_out": { "id": "off_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "auto_out": { "id": "auto_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "service_out": { "id": "service_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "pumping_out": { "id": "pumping_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+      },
+      "params": {},
+      "alarms": {}
+    },
+    "pump_pkg_1__maintenance_counter_1": {
+      "id": "pump_pkg_1__maintenance_counter_1",
+      "type_ref": "project:maintenance_counter",
+      "enabled": true,
+      "ports": {
+        "remaining_out": { "id": "remaining_out", "direction": "out", "channel_kind": "telemetry", "value_type": "float" }
+      },
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "package_mode_phase": {
+    "pkgmode_pump_pkg_1": {
+      "id": "pkgmode_pump_pkg_1",
+      "package_instance_id": "pump_pkg_1",
+      "title": "PumpSkidSupervisorModes v1",
+      "modes": {
+        "off": { "id": "off", "qualified_id": "pkgmode_pump_pkg_1.mode.off", "title": "Off", "phase_ids": ["pkgmode_pump_pkg_1.phase.idle"] },
+        "auto": { "id": "auto", "qualified_id": "pkgmode_pump_pkg_1.mode.auto", "title": "Auto", "phase_ids": ["pkgmode_pump_pkg_1.phase.idle", "pkgmode_pump_pkg_1.phase.ready", "pkgmode_pump_pkg_1.phase.pumping"] },
+        "service": { "id": "service", "qualified_id": "pkgmode_pump_pkg_1.mode.service", "title": "Service", "phase_ids": ["pkgmode_pump_pkg_1.phase.ready"] }
+      },
+      "phases": {
+        "idle": { "id": "idle", "qualified_id": "pkgmode_pump_pkg_1.phase.idle", "title": "Idle", "source_ports": [{ "instance_id": "pump_pkg_1__pump_group_1", "port_id": "off_out" }] },
+        "ready": { "id": "ready", "qualified_id": "pkgmode_pump_pkg_1.phase.ready", "title": "Ready", "source_ports": [{ "instance_id": "pump_pkg_1__pump_group_1", "port_id": "ready_out" }] },
+        "pumping": { "id": "pumping", "qualified_id": "pkgmode_pump_pkg_1.phase.pumping", "title": "Pumping", "source_ports": [{ "instance_id": "pump_pkg_1__pump_group_1", "port_id": "pumping_out" }] }
+      },
+      "mode_summary": {
+        "id": "mode_summary",
+        "title": "Package Mode Summary",
+        "default_mode_id": "pkgmode_pump_pkg_1.mode.auto",
+        "entries": {
+          "off_summary": { "id": "off_summary", "mode_id": "pkgmode_pump_pkg_1.mode.off", "source_ports": [{ "instance_id": "pump_pkg_1__pump_group_1", "port_id": "off_out" }] },
+          "auto_summary": { "id": "auto_summary", "mode_id": "pkgmode_pump_pkg_1.mode.auto", "source_ports": [{ "instance_id": "pump_pkg_1__pump_group_1", "port_id": "auto_out" }] },
+          "service_summary": { "id": "service_summary", "mode_id": "pkgmode_pump_pkg_1.mode.service", "source_ports": [{ "instance_id": "pump_pkg_1__pump_group_1", "port_id": "service_out" }] }
+        }
+      },
+      "phase_summary": {
+        "id": "phase_summary",
+        "title": "Package Phase Summary",
+        "default_phase_id": "pkgmode_pump_pkg_1.phase.ready",
+        "entries": {
+          "idle_summary": { "id": "idle_summary", "phase_id": "pkgmode_pump_pkg_1.phase.idle", "source_ports": [{ "instance_id": "pump_pkg_1__pump_group_1", "port_id": "off_out" }] },
+          "ready_summary": { "id": "ready_summary", "phase_id": "pkgmode_pump_pkg_1.phase.ready", "source_ports": [{ "instance_id": "pump_pkg_1__pump_group_1", "port_id": "ready_out" }] },
+          "pumping_summary": { "id": "pumping_summary", "phase_id": "pkgmode_pump_pkg_1.phase.pumping", "source_ports": [{ "instance_id": "pump_pkg_1__pump_group_1", "port_id": "pumping_out" }] }
+        }
+      },
+      "active_mode_id": "pkgmode_pump_pkg_1.mode.auto",
+      "active_phase_id": "pkgmode_pump_pkg_1.phase.ready",
+      "package_mode_groups": {
+        "availability_modes": { "id": "availability_modes", "mode_ids": ["pkgmode_pump_pkg_1.mode.off", "pkgmode_pump_pkg_1.mode.auto"] }
+      },
+      "package_phase_groups": {
+        "active_phases": { "id": "active_phases", "phase_ids": ["pkgmode_pump_pkg_1.phase.pumping"] }
+      },
+      "trace_groups": {
+        "mode_phase_trace": {
+          "id": "mode_phase_trace",
+          "signals": [
+            { "instance_id": "pump_pkg_1__pump_group_1", "port_id": "ready_out" },
+            { "instance_id": "pump_pkg_1__maintenance_counter_1", "port_id": "remaining_out" }
+          ]
+        }
+      }
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

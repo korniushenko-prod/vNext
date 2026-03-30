@@ -1,0 +1,19 @@
+{
+  "request_id": "readback-002",
+  "target_id": "esp32.shipcontroller.v1",
+  "collected_at": "2026-03-30T10:00:00Z",
+  "signals": {},
+  "resources": {},
+  "operation_snapshots": {
+    "op_run_hours_1_reset_counter": {
+      "operation_id": "op_run_hours_1_reset_counter",
+      "state": "failed",
+      "message": "Reset rejected because source feedback is stale.",
+      "failure": {
+        "reason_code": "source_stale"
+      },
+      "audit_record_id": "audit-002"
+    }
+  },
+  "diagnostics": []
+}

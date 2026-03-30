@@ -1,0 +1,36 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "operations-invalid-confirmation-pack",
+  "source": {
+    "project_id": "operations_invalid_confirmation",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {
+    "counter_1": {
+      "id": "counter_1",
+      "type_ref": "library:std/run_hours_counter",
+      "enabled": true,
+      "ports": {},
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {
+    "op_counter_1_reset": {
+      "id": "op_counter_1_reset",
+      "owner_instance_id": "counter_1",
+      "kind": "reset_hours",
+      "confirmation_policy": "dangerous_maybe",
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      }
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

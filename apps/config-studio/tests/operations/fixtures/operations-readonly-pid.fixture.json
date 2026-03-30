@@ -1,0 +1,102 @@
+{
+  "id": "operations-readonly-pid",
+  "title": "PID + hold/release/autotune",
+  "description": "PID operations prove the UI stays generic: running hold, cancelled release and metadata-only autotune.",
+  "subject_label": "PID Controller #1",
+  "metadata_only_operation_ids": [
+    "op_pid_1_autotune"
+  ],
+  "runtimePack": {
+    "pack_id": "operations-readonly-pid-pack",
+    "operations": {
+      "op_pid_1_hold": {
+        "id": "op_pid_1_hold",
+        "owner_instance_id": "pid_1",
+        "kind": "hold",
+        "title": "Hold Output",
+        "confirmation_policy": "required",
+        "availability": {
+          "mode": "always",
+          "required_states": []
+        },
+        "progress_mode": "signal_based",
+        "result_contract": {
+          "mode": "applyable_result",
+          "fields": [
+            { "id": "completed", "value_type": "bool", "title": "Completed" },
+            { "id": "hold_active", "value_type": "bool", "title": "Hold Active" }
+          ]
+        }
+      },
+      "op_pid_1_release": {
+        "id": "op_pid_1_release",
+        "owner_instance_id": "pid_1",
+        "kind": "release",
+        "title": "Release Hold",
+        "confirmation_policy": "required",
+        "availability": {
+          "mode": "guarded",
+          "required_states": ["hold_active"]
+        },
+        "progress_mode": "signal_based",
+        "result_contract": {
+          "mode": "applyable_result",
+          "fields": [
+            { "id": "completed", "value_type": "bool", "title": "Completed" },
+            { "id": "hold_active", "value_type": "bool", "title": "Hold Active" }
+          ]
+        }
+      },
+      "op_pid_1_autotune": {
+        "id": "op_pid_1_autotune",
+        "owner_instance_id": "pid_1",
+        "kind": "autotune",
+        "title": "PID Autotune",
+        "confirmation_policy": "required",
+        "availability": {
+          "mode": "always",
+          "required_states": []
+        },
+        "progress_mode": "signal_based",
+        "result_contract": {
+          "mode": "recommendation",
+          "fields": [
+            { "id": "recommended_kp", "value_type": "float", "title": "Recommended Kp" },
+            { "id": "recommended_ti", "value_type": "float", "title": "Recommended Ti" },
+            { "id": "recommended_td", "value_type": "float", "title": "Recommended Td" }
+          ]
+        }
+      }
+    },
+    "operation_runtime_contract": {
+      "invoke_supported": false,
+      "cancel_supported": false,
+      "progress_supported": true,
+      "result_supported": true,
+      "audit_required": false
+    }
+  },
+  "runtimeSnapshot": {
+    "operation_snapshots": {
+      "op_pid_1_hold": {
+        "operation_id": "op_pid_1_hold",
+        "state": "running",
+        "progress": 55,
+        "message": "Hold output ramping down."
+      },
+      "op_pid_1_release": {
+        "operation_id": "op_pid_1_release",
+        "state": "cancelled",
+        "message": "Release request cancelled before apply."
+      }
+    }
+  },
+  "operationsSupport": {
+    "enabled": true,
+    "invoke": false,
+    "cancel": false,
+    "progress": true,
+    "result_payload": true,
+    "confirmation": true
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "package_instance_id": "pump_pkg_1",
+  "intent": "request_phase_abort",
+  "target_phase_id": "pkgmode_pump_pkg_1.phase.flush",
+  "confirmation_token": "confirm-package-1"
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "code": "package_mode_phase.phase_transition.ref.unresolved",
+    "severity": "error",
+    "phase": "structural_validation",
+    "path": "$.definitions.packages.pump_skid_supervisor_modes_execution.mode_phase.allowed_phase_transitions.bad_transition.phase_ref",
+    "message": "Package phase transition `bad_transition` references unknown phase `missing_phase`."
+  },
+  {
+    "code": "package_mode_phase.phase_transition.mode_ref.unresolved",
+    "severity": "error",
+    "phase": "structural_validation",
+    "path": "$.definitions.packages.pump_skid_supervisor_modes_execution.mode_phase.allowed_phase_transitions.bad_transition.allowed_mode_refs[1]",
+    "message": "Package phase transition `bad_transition` references unknown allowed mode `missing_mode`."
+  },
+  {
+    "phase": "flatten_packages",
+    "code": "package_mode_phase.phase_transition.ref.unresolved",
+    "severity": "error",
+    "path": "$.definitions.packages.pump_skid_supervisor_modes_execution.mode_phase.allowed_phase_transitions.bad_transition.phase_ref",
+    "message": "Package phase transition bad_transition references unknown phase missing_phase."
+  }
+]

@@ -6,7 +6,9 @@ export type MaterializerSeverity = "error" | "warning";
 export type MaterializerPhase =
   | "structural_validation"
   | "normalize_project"
+  | "flatten_packages"
   | "build_type_registry"
+  | "resolve_templates"
   | "materialize_system_instances"
   | "materialize_system_signals"
   | "expand_composition"

@@ -1,0 +1,59 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "invalid_write_demo",
+    "title": "Invalid Write Command Demo"
+  },
+  "imports": {
+    "libraries": [
+      "std"
+    ],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {
+      "remote_point_1": {
+        "id": "remote_point_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/remote_point_frontend",
+        "enabled": true,
+        "param_values": {
+          "bridge_ref": {
+            "kind": "literal",
+            "value": "comm_bridge_1"
+          },
+          "register_address": {
+            "kind": "literal",
+            "value": 100
+          },
+          "register_kind": {
+            "kind": "literal",
+            "value": "holding"
+          },
+          "register_count": {
+            "kind": "literal",
+            "value": 2
+          },
+          "write_enabled": {
+            "kind": "literal",
+            "value": true
+          }
+        }
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

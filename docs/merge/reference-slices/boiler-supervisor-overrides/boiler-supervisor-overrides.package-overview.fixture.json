@@ -1,0 +1,220 @@
+{
+  "id": "package-overview-boiler-supervisor-overrides",
+  "title": "BoilerSupervisorOverrides v1",
+  "description": "Read-only package override / handover surface over explicit current holder, requested holder, and bounded handover requests.",
+  "package_instance_id": "boiler_supervisor_overrides_1",
+  "package_definition": {
+    "package_id": "boiler_supervisor_overrides",
+    "title": "Boiler Supervisor Overrides",
+    "origin": "project",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Package override / handover remains generic, package-neutral, and non-safety.",
+      "Boiler-like content is reference-only and does not define boiler-specific authority semantics."
+    ]
+  },
+  "members": [
+    {
+      "id": "auto_owner_1",
+      "title": "Auto Owner",
+      "type_title": "Package Command Source",
+      "role": "holder",
+      "effective_object_id": "boiler_supervisor_overrides_1__auto_owner_1",
+      "boundary_note": "Auto holder remains a flattened child object.",
+      "related_surfaces": []
+    },
+    {
+      "id": "manual_owner_1",
+      "title": "Manual Owner",
+      "type_title": "Package Command Source",
+      "role": "holder",
+      "effective_object_id": "boiler_supervisor_overrides_1__manual_owner_1",
+      "boundary_note": "Manual holder remains a flattened child object.",
+      "related_surfaces": []
+    },
+    {
+      "id": "service_owner_1",
+      "title": "Service Owner",
+      "type_title": "Package Command Source",
+      "role": "holder",
+      "effective_object_id": "boiler_supervisor_overrides_1__service_owner_1",
+      "boundary_note": "Service holder remains a flattened child object.",
+      "related_surfaces": []
+    },
+    {
+      "id": "takeover_request_1",
+      "title": "Takeover Request Surface",
+      "type_title": "Package Command Source",
+      "role": "request_surface",
+      "effective_object_id": "boiler_supervisor_overrides_1__takeover_request_1",
+      "boundary_note": "Handover request surfaces remain flattened child objects.",
+      "related_surfaces": []
+    },
+    {
+      "id": "release_request_1",
+      "title": "Release Request Surface",
+      "type_title": "Package Command Source",
+      "role": "request_surface",
+      "effective_object_id": "boiler_supervisor_overrides_1__release_request_1",
+      "boundary_note": "Handover request surfaces remain flattened child objects.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "boiler_supervisor_overrides_1__manual_owner_1",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_overrides_1__release_request_1",
+      "package_neutral": true
+    }
+  ],
+  "package_override_handover": {
+    "snapshot_state": "accepted",
+    "authority_holders": [
+      {
+        "id": "auto_owner",
+        "title": "Auto Holder",
+        "lane": "auto",
+        "source_ports": [
+          {
+            "instance_id": "boiler_supervisor_overrides_1__auto_owner_1",
+            "port_id": "authority_out"
+          }
+        ],
+        "summary": "Automatic lane is available for return-to-auto."
+      },
+      {
+        "id": "manual_owner",
+        "title": "Manual Holder",
+        "lane": "manual",
+        "source_ports": [
+          {
+            "instance_id": "boiler_supervisor_overrides_1__manual_owner_1",
+            "port_id": "authority_out"
+          }
+        ],
+        "summary": "Manual holder is currently active."
+      },
+      {
+        "id": "service_owner",
+        "title": "Service Holder",
+        "lane": "service",
+        "source_ports": [
+          {
+            "instance_id": "boiler_supervisor_overrides_1__service_owner_1",
+            "port_id": "authority_out"
+          }
+        ],
+        "summary": "Service holder can request bounded takeover."
+      },
+      {
+        "id": "remote_owner",
+        "title": "Remote Holder",
+        "lane": "remote",
+        "source_ports": [
+          {
+            "instance_id": "boiler_supervisor_overrides_1__remote_owner_1",
+            "port_id": "authority_out"
+          }
+        ],
+        "summary": "Remote holder remains visible but not authoritative."
+      }
+    ],
+    "handover_summary": {
+      "id": "handover_summary",
+      "current_holder_id": "manual_owner",
+      "current_lane": "manual",
+      "requested_holder_id": "service_owner",
+      "accepted_request_ids": [
+        "release_to_auto",
+        "return_to_auto"
+      ],
+      "blocked_request_ids": [
+        "service_takeover"
+      ],
+      "denied_request_ids": [
+        "remote_takeover"
+      ],
+      "last_handover_reason": "manual_override_active",
+      "summary": "Manual override is active while release back to auto remains available."
+    },
+    "handover_requests": [
+      {
+        "id": "service_takeover",
+        "title": "Service Takeover",
+        "request_kind": "request_takeover",
+        "requested_holder_id": "service_owner",
+        "requested_lane": "service",
+        "state": "blocked",
+        "blocked_reason": "blocked_by_policy",
+        "request_preview": "request_takeover -> service_owner",
+        "summary": "Service takeover is blocked until the active manual holder releases authority."
+      },
+      {
+        "id": "release_to_auto",
+        "title": "Release To Auto",
+        "request_kind": "request_release",
+        "requested_holder_id": "auto_owner",
+        "requested_lane": "auto",
+        "state": "accepted",
+        "request_preview": "request_release -> auto_owner",
+        "summary": "Current holder may release control back to the automatic lane."
+      },
+      {
+        "id": "return_to_auto",
+        "title": "Return To Auto",
+        "request_kind": "request_return_to_auto",
+        "requested_holder_id": "auto_owner",
+        "requested_lane": "auto",
+        "state": "accepted",
+        "request_preview": "request_return_to_auto -> auto_owner",
+        "summary": "Return-to-auto remains available as the bounded fallback handover."
+      },
+      {
+        "id": "remote_takeover",
+        "title": "Remote Takeover",
+        "request_kind": "request_takeover",
+        "requested_holder_id": "remote_owner",
+        "requested_lane": "remote",
+        "state": "denied",
+        "denied_reason": "held_by_other_owner",
+        "request_preview": "request_takeover -> remote_owner",
+        "summary": "Remote takeover is denied while manual override remains the active holder."
+      }
+    ],
+    "summary_outputs": [
+      {
+        "id": "override_ready",
+        "semantic_state": "informational",
+        "value": "true",
+        "summary": "Release path is ready."
+      },
+      {
+        "id": "override_blocked",
+        "semantic_state": "informational",
+        "value": "true",
+        "summary": "Blocked takeover remains visible."
+      }
+    ],
+    "aggregate_monitors": [
+      {
+        "id": "override_handover_health",
+        "state": "accepted",
+        "severity": "info",
+        "summary": "Override / handover monitor stays healthy."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "override_handover_trace",
+        "signal_count": 3,
+        "summary": "Holder and request traces stay visible."
+      }
+    ]
+  }
+}

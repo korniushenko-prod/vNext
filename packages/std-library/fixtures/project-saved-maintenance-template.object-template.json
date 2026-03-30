@@ -1,0 +1,34 @@
+{
+  "id": "maintenance_service_saved",
+  "kind": "object_template",
+  "base_type_ref": "library:std/maintenance_counter",
+  "origin": "project_saved",
+  "meta": {
+    "title": "Saved Maintenance Service Preset",
+    "version": "1.0.0",
+    "description": "Project-saved configured maintenance preset sharing the same template contract."
+  },
+  "defaults": {
+    "param_values": {
+      "service_interval": {
+        "kind": "literal",
+        "value": 250
+      },
+      "warning_before": {
+        "kind": "literal",
+        "value": 25
+      },
+      "overdue_margin": {
+        "kind": "literal",
+        "value": 10
+      }
+    },
+    "tags": {
+      "origin": "project_saved",
+      "category": "maintenance"
+    },
+    "facet_defaults": {
+      "monitor_preset": "maintenance_due"
+    }
+  }
+}

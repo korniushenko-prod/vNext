@@ -1,0 +1,63 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "invalid_missing_bridge_demo",
+    "title": "Invalid Missing Bridge Ref Demo"
+  },
+  "imports": {
+    "libraries": [
+      "std"
+    ],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {
+      "remote_point_1": {
+        "id": "remote_point_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/remote_point_frontend",
+        "enabled": true,
+        "param_values": {
+          "register_address": {
+            "kind": "literal",
+            "value": 100
+          },
+          "register_kind": {
+            "kind": "literal",
+            "value": "holding"
+          },
+          "register_count": {
+            "kind": "literal",
+            "value": 2
+          },
+          "byte_order": {
+            "kind": "literal",
+            "value": "big_endian"
+          },
+          "word_order": {
+            "kind": "literal",
+            "value": "big_endian"
+          },
+          "value_decode": {
+            "kind": "literal",
+            "value": "float32"
+          }
+        }
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

@@ -1,0 +1,392 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "event-counter-demo-pack",
+  "source": {
+    "project_id": "demo_event_counter_project",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-29T18:10:00Z"
+  },
+  "instances": {
+    "pulse_source_1": {
+      "id": "pulse_source_1",
+      "type_ref": "library:std/digital_input",
+      "title": "Pulse Source",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.digital_input.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.digital_input.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_event_counter_project"
+      }
+    },
+    "event_counter_1": {
+      "id": "event_counter_1",
+      "type_ref": "library:std/event_counter",
+      "title": "Event Counter #1",
+      "enabled": true,
+      "ports": {
+        "event_in": {
+          "id": "event_in",
+          "direction": "in",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        },
+        "count_out": {
+          "id": "count_out",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "u32"
+        },
+        "event_seen": {
+          "id": "event_seen",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "edge_mode": {
+          "value": "rising",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "counting",
+            "ui_hint": "enum",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "event_counter_1",
+            "param_id": "edge_mode",
+            "source_layer": "system"
+          }
+        },
+        "debounce_ms": {
+          "value": 20,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "ms",
+            "min": 0,
+            "max": 10000,
+            "step": 1,
+            "group": "counting",
+            "ui_hint": "duration_ms",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "event_counter_1",
+            "param_id": "debounce_ms",
+            "source_layer": "system"
+          }
+        },
+        "persist_enabled": {
+          "value": true,
+          "value_type": "bool",
+          "source": "instance_override",
+          "metadata": {
+            "group": "persistence",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "event_counter_1",
+            "param_id": "persist_enabled",
+            "source_layer": "system"
+          }
+        },
+        "persist_period_s": {
+          "value": 60,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "s",
+            "min": 1,
+            "max": 86400,
+            "step": 1,
+            "group": "persistence",
+            "ui_hint": "duration_s",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "event_counter_1",
+            "param_id": "persist_period_s",
+            "source_layer": "system"
+          }
+        },
+        "increment_step": {
+          "value": 1,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "min": 1,
+            "max": 1000,
+            "step": 1,
+            "group": "counting",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "event_counter_1",
+            "param_id": "increment_step",
+            "source_layer": "system"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.event_counter.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.event_counter.v1",
+        "frontend_requirement_ids": [
+          "fe_event_counter_1_event_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_event_counter_project"
+      }
+    }
+  },
+  "connections": {
+    "conn_sig_pulse_source_to_event_counter_t1": {
+      "id": "conn_sig_pulse_source_to_event_counter_t1",
+      "source": {
+        "instance_id": "pulse_source_1",
+        "port_id": "value"
+      },
+      "target": {
+        "instance_id": "event_counter_1",
+        "port_id": "event_in"
+      },
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "demo_event_counter_project",
+        "signal_id": "sig_pulse_source_to_event_counter"
+      }
+    }
+  },
+  "resources": {
+    "hw_pulse_source_1": {
+      "id": "hw_pulse_source_1",
+      "binding_kind": "digital_in",
+      "instance_id": "pulse_source_1",
+      "port_id": "value",
+      "config": {
+        "pin": 5
+      }
+    }
+  },
+  "operations": {
+    "op_event_counter_1_reset_counter": {
+      "id": "op_event_counter_1_reset_counter",
+      "owner_instance_id": "event_counter_1",
+      "kind": "reset_counter",
+      "title": "Reset Counter",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "stopped"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "count_out",
+            "value_type": "u32"
+          }
+        ]
+      },
+      "ui_hint": "danger",
+      "safe_when": [
+        "stopped"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "event_counter_1",
+          "port_id": "source_ok"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "count_out"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals",
+        "destructive": true
+      },
+      "provenance": {
+        "owner_instance_id": "event_counter_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_counter",
+        "source_type_ref": "library:event_counter"
+      }
+    }
+  },
+  "trace_groups": {
+    "tg_event_counter_1_counting": {
+      "id": "tg_event_counter_1_counting",
+      "owner_instance_id": "event_counter_1",
+      "title": "Counting",
+      "signals": [
+        {
+          "instance_id": "event_counter_1",
+          "port_id": "event_in"
+        },
+        {
+          "instance_id": "event_counter_1",
+          "port_id": "event_seen"
+        },
+        {
+          "instance_id": "event_counter_1",
+          "port_id": "count_out"
+        }
+      ],
+      "sample_hint_ms": 250,
+      "chart_hint": "timeline",
+      "provenance": {
+        "owner_instance_id": "event_counter_1",
+        "facet_kind": "trace_group",
+        "facet_id": "counting",
+        "source_type_ref": "library:event_counter"
+      }
+    }
+  },
+  "monitors": {
+    "mon_event_counter_1_stale_source": {
+      "id": "mon_event_counter_1_stale_source",
+      "owner_instance_id": "event_counter_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "event_counter_1",
+          "port_id": "event_in"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "event_counter_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:event_counter"
+      }
+    },
+    "mon_event_counter_1_unexpected_event_rate": {
+      "id": "mon_event_counter_1_unexpected_event_rate",
+      "owner_instance_id": "event_counter_1",
+      "kind": "rate",
+      "source_ports": [
+        {
+          "instance_id": "event_counter_1",
+          "port_id": "event_in"
+        }
+      ],
+      "severity": "info",
+      "status_port_id": "event_seen",
+      "provenance": {
+        "owner_instance_id": "event_counter_1",
+        "facet_kind": "monitor",
+        "facet_id": "unexpected_event_rate",
+        "source_type_ref": "library:event_counter"
+      }
+    }
+  },
+  "frontend_requirements": {
+    "fe_event_counter_1_event_source": {
+      "id": "fe_event_counter_1_event_source",
+      "owner_instance_id": "event_counter_1",
+      "kind": "event_input",
+      "source_ports": [
+        {
+          "instance_id": "event_counter_1",
+          "port_id": "event_in"
+        }
+      ],
+      "binding_kind": "digital_in",
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "required": true,
+      "provenance": {
+        "owner_instance_id": "event_counter_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "event_source",
+        "source_type_ref": "library:event_counter"
+      }
+    }
+  },
+  "persistence_slots": {
+    "ps_event_counter_1_total_count": {
+      "id": "ps_event_counter_1_total_count",
+      "owner_instance_id": "event_counter_1",
+      "slot_kind": "counter",
+      "nv_slot_hint": "nv.event_counter.total_count",
+      "flush_policy": "periodic",
+      "provenance": {
+        "owner_instance_id": "event_counter_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "total_count",
+        "source_type_ref": "library:event_counter"
+      }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": false,
+    "cancel_supported": false,
+    "progress_supported": false,
+    "result_supported": false,
+    "audit_required": false
+  }
+}

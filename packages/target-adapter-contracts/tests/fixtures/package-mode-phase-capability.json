@@ -1,0 +1,28 @@
+{
+  "target_id": "esp32.shipcontroller.v1",
+  "display_name": "ESP32 ShipController Offline Adapter",
+  "supported_binding_kinds": ["digital_in", "digital_out", "analog_in", "analog_out", "service", "bus"],
+  "supported_channel_kinds": ["signal", "command", "state", "event", "alarm", "telemetry"],
+  "supported_value_types": ["bool", "int", "float", "duration", "string", "u32"],
+  "supported_native_kinds": ["std.pid_controller.v1"],
+  "supported_operation_kinds": ["reset_totalizer", "reset_counter", "reset_interval", "autotune"],
+  "supports_trace": true,
+  "supports_operations": true,
+  "supports_persistence": true,
+  "supports_simulation": false,
+  "limits": {
+    "max_instances": 512,
+    "max_connections": 2048,
+    "max_resources": 1024
+  },
+  "package_mode_phase_support": {
+    "enabled": true,
+    "modes": true,
+    "phases": true,
+    "mode_summary": true,
+    "phase_summary": true,
+    "groups": true,
+    "trace_groups": true,
+    "active_refs": true
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "0.4.0",
+  "meta": { "project_id": "package_supervision_invalid_missing_child", "title": "Package Supervision Invalid Missing Child" },
+  "imports": { "libraries": ["std"], "packages": [] },
+  "definitions": {
+    "object_types": {
+      "threshold_monitor": {
+        "id": "threshold_monitor",
+        "kind": "object_type",
+        "meta": { "title": "Threshold Monitor", "origin": "project" },
+        "interface": { "ports": { "package_ok": { "id": "package_ok", "direction": "out", "channel_kind": "state", "value_type": "bool" } }, "params": {}, "alarms": {} },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "broken_supervisor": {
+        "id": "broken_supervisor",
+        "kind": "package_definition",
+        "meta": { "title": "Broken Supervisor", "origin": "project", "package_kind": "boiler_supervisor_v1", "safety_scope": "non_safety_skeleton" },
+        "members": {
+          "threshold_monitor_1": { "id": "threshold_monitor_1", "kind": "package_member", "type_ref": "threshold_monitor" }
+        },
+        "signals": {},
+        "supervision": {
+          "summary_outputs": {
+            "package_ok": {
+              "id": "package_ok",
+              "value_type": "bool",
+              "source": { "member_id": "missing_child", "port_id": "package_ok" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": { "instances": {}, "signals": {}, "packages": { "broken_1": { "id": "broken_1", "kind": "package_instance", "package_ref": "broken_supervisor" } } },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

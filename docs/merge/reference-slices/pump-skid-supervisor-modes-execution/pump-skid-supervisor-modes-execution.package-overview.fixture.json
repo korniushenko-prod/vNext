@@ -1,0 +1,159 @@
+{
+  "id": "package-overview-pump-skid-supervisor-modes-execution",
+  "title": "PumpSkidSupervisorModesExecution v1",
+  "description": "Generic package mode transition execution surface for the mandatory non-boiler Wave 14 reference domain.",
+  "package_instance_id": "pump_skid_supervisor_modes_execution_1",
+  "package_definition": {
+    "package_id": "pump_skid_supervisor_modes_execution",
+    "title": "PumpSkidSupervisorModesExecution v1",
+    "origin": "project",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Non-boiler acceptance remains mandatory for Wave 14 package execution baseline.",
+      "Package transition execution stays generic and never becomes skid-specific imperative runtime."
+    ]
+  },
+  "members": [
+    {
+      "id": "pump_group_1",
+      "title": "Pump Group",
+      "role": "pump_group",
+      "type_title": "Pump Group",
+      "type_ref": "project:pump_group",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "pump_skid_supervisor_modes_execution_1__pump_group_1",
+      "boundary_note": "Execution requests stay bounded package transitions over child-owned lanes.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "pump_skid_supervisor_modes_execution_1__pump_group_1",
+      "title": "Pump Group",
+      "type_title": "Pump Group",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ],
+  "package_mode_phase": {
+    "snapshot_state": "mode_phase_available",
+    "active_mode": {
+      "id": "auto",
+      "title": "Auto"
+    },
+    "active_phase": {
+      "id": "prime",
+      "title": "Prime"
+    },
+    "active_transition": {
+      "id": "abort_flush",
+      "intent": "request_phase_abort",
+      "lifecycle_state": "cancelled",
+      "guard_state": "clear",
+      "target_label": "Flush Phase",
+      "summary": "Synthetic package phase abort completed as a bounded cancel path."
+    },
+    "transition_actions": [
+      {
+        "id": "to_service",
+        "title": "Request Service Mode",
+        "intent": "request_mode_change",
+        "lifecycle_state": "pending",
+        "guard_state": "clear",
+        "target_label": "Service Mode",
+        "request_preview": "request_mode_change -> pkgmode_pump_skid_supervisor_modes_execution_1.mode.service",
+        "summary": "Mode change is waiting for confirmation token on the synthetic transport boundary."
+      },
+      {
+        "id": "start_run",
+        "title": "Start Run Phase",
+        "intent": "request_phase_start",
+        "lifecycle_state": "completed",
+        "guard_state": "clear",
+        "target_label": "Run Phase",
+        "request_preview": "request_phase_start -> pkgmode_pump_skid_supervisor_modes_execution_1.phase.run",
+        "summary": "Run phase start completed on the generic synthetic execution path."
+      },
+      {
+        "id": "abort_flush",
+        "title": "Abort Flush Phase",
+        "intent": "request_phase_abort",
+        "lifecycle_state": "cancelled",
+        "guard_state": "clear",
+        "target_label": "Flush Phase",
+        "request_preview": "request_phase_abort -> pkgmode_pump_skid_supervisor_modes_execution_1.phase.flush",
+        "summary": "Abort remains bounded and package-neutral even on the non-boiler domain."
+      }
+    ],
+    "mode_summary_entries": [
+      {
+        "id": "off_summary",
+        "title": "Off Summary",
+        "semantic_state": "inactive",
+        "summary": "Off remains inactive."
+      },
+      {
+        "id": "auto_summary",
+        "title": "Auto Summary",
+        "semantic_state": "active",
+        "summary": "Auto is the current bounded execution mode."
+      },
+      {
+        "id": "service_summary",
+        "title": "Service Summary",
+        "semantic_state": "informational",
+        "summary": "Service is available through the synthetic request lane."
+      }
+    ],
+    "phase_summary_entries": [
+      {
+        "id": "idle_summary",
+        "title": "Idle Summary",
+        "semantic_state": "inactive",
+        "summary": "Idle is inactive."
+      },
+      {
+        "id": "prime_summary",
+        "title": "Prime Summary",
+        "semantic_state": "active",
+        "summary": "Prime is the current active phase."
+      },
+      {
+        "id": "run_summary",
+        "title": "Run Summary",
+        "semantic_state": "informational",
+        "summary": "Run remains the bounded active target phase."
+      }
+    ],
+    "mode_groups": [
+      {
+        "id": "availability_modes",
+        "title": "Availability Modes",
+        "member_count": 2,
+        "summary": "Off and auto define normal skid availability."
+      }
+    ],
+    "phase_groups": [
+      {
+        "id": "active_phases",
+        "title": "Active Phases",
+        "member_count": 2,
+        "summary": "Prime and run remain the bounded active lane."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "mode_phase_trace",
+        "title": "Mode / Phase Trace",
+        "signal_count": 2,
+        "summary": "prime_out, run_out"
+      }
+    ],
+    "package_supervision_id": "",
+    "package_coordination_id": ""
+  }
+}

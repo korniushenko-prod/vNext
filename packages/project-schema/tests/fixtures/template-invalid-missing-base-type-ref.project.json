@@ -1,0 +1,46 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "template_invalid_missing_base_type_ref",
+    "title": "Template Invalid Missing Base Type Ref"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "templates": {
+      "broken_template": {
+        "id": "broken_template",
+        "kind": "object_template",
+        "origin": "library_template",
+        "meta": {
+          "title": "Broken Template"
+        },
+        "defaults": {
+          "param_values": {
+            "pulse_time_ms": {
+              "kind": "literal",
+              "value": 1000
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

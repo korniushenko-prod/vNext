@@ -1,0 +1,14 @@
+{
+  "id": "support.register_map.v1",
+  "kind": "support_contract",
+  "title": "RegisterMap",
+  "fields": [
+    "register_address",
+    "register_kind",
+    "register_count",
+    "byte_order",
+    "word_order",
+    "value_decode"
+  ],
+  "scope": "single_point_baseline"
+}

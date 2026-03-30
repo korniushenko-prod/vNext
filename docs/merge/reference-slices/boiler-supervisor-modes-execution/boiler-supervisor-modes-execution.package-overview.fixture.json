@@ -1,0 +1,178 @@
+{
+  "id": "package-overview-boiler-supervisor-modes-execution",
+  "title": "BoilerSupervisorModesExecution v1",
+  "description": "Generic package mode transition execution surface for the boiler-like Wave 14 reference domain.",
+  "package_instance_id": "boiler_supervisor_modes_execution_1",
+  "package_definition": {
+    "package_id": "boiler_supervisor_modes_execution",
+    "title": "BoilerSupervisorModesExecution v1",
+    "origin": "project",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Wave 14 opens only bounded package mode / phase execution baseline.",
+      "Boiler-like content remains reference-only and does not introduce burner sequence runtime."
+    ]
+  },
+  "members": [
+    {
+      "id": "boiler_core_1",
+      "title": "Boiler Mode Core",
+      "role": "control_core",
+      "type_title": "Boiler Mode Core",
+      "type_ref": "project:boiler_mode_core",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+      "boundary_note": "Package transition execution stays bounded and package-neutral over this child lane.",
+      "related_surfaces": []
+    },
+    {
+      "id": "flow_guard_1",
+      "title": "Flow Guard",
+      "role": "availability_guard",
+      "type_title": "Flow Guard",
+      "type_ref": "project:flow_guard",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_modes_execution_1__flow_guard_1",
+      "boundary_note": "Guard diagnostics stay synthetic and do not become safety runtime.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+      "title": "Boiler Mode Core",
+      "type_title": "Boiler Mode Core",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_modes_execution_1__flow_guard_1",
+      "title": "Flow Guard",
+      "type_title": "Flow Guard",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ],
+  "package_mode_phase": {
+    "snapshot_state": "mode_phase_available",
+    "active_mode": {
+      "id": "auto",
+      "title": "Auto"
+    },
+    "active_phase": {
+      "id": "precheck",
+      "title": "Precheck"
+    },
+    "active_transition": {
+      "id": "start_run",
+      "intent": "request_phase_start",
+      "lifecycle_state": "running",
+      "guard_state": "clear",
+      "target_label": "Run Phase",
+      "summary": "Synthetic package phase start is running over the bounded run lane."
+    },
+    "transition_actions": [
+      {
+        "id": "to_service",
+        "title": "Request Service Mode",
+        "intent": "request_mode_change",
+        "lifecycle_state": "completed",
+        "guard_state": "clear",
+        "target_label": "Service Mode",
+        "request_preview": "request_mode_change -> pkgmode_boiler_supervisor_modes_execution_1.mode.service",
+        "summary": "Synthetic mode change baseline completed without opening package-specific execution."
+      },
+      {
+        "id": "start_run",
+        "title": "Start Run Phase",
+        "intent": "request_phase_start",
+        "lifecycle_state": "running",
+        "guard_state": "clear",
+        "target_label": "Run Phase",
+        "request_preview": "request_phase_start -> pkgmode_boiler_supervisor_modes_execution_1.phase.run",
+        "summary": "Phase start remains a bounded generic request over the active run lane."
+      },
+      {
+        "id": "abort_shutdown",
+        "title": "Abort Shutdown Phase",
+        "intent": "request_phase_abort",
+        "lifecycle_state": "failed",
+        "guard_state": "blocked",
+        "target_label": "Shutdown Phase",
+        "request_preview": "request_phase_abort -> pkgmode_boiler_supervisor_modes_execution_1.phase.shutdown",
+        "summary": "Abort is surfaced as blocked by guard diagnostics rather than hidden sequence behavior."
+      }
+    ],
+    "mode_summary_entries": [
+      {
+        "id": "off_summary",
+        "title": "Off Summary",
+        "semantic_state": "inactive",
+        "summary": "Off lane remains inactive."
+      },
+      {
+        "id": "auto_summary",
+        "title": "Auto Summary",
+        "semantic_state": "active",
+        "summary": "Auto is the current bounded execution mode."
+      },
+      {
+        "id": "service_summary",
+        "title": "Service Summary",
+        "semantic_state": "inactive",
+        "summary": "Service is available only on explicit bounded request."
+      }
+    ],
+    "phase_summary_entries": [
+      {
+        "id": "idle_summary",
+        "title": "Idle Summary",
+        "semantic_state": "inactive",
+        "summary": "Idle lane is inactive."
+      },
+      {
+        "id": "precheck_summary",
+        "title": "Precheck Summary",
+        "semantic_state": "active",
+        "summary": "Precheck is active while bounded run request is being evaluated."
+      },
+      {
+        "id": "run_summary",
+        "title": "Run Summary",
+        "semantic_state": "informational",
+        "summary": "Run lane is the target of the current synthetic phase start."
+      }
+    ],
+    "mode_groups": [
+      {
+        "id": "availability_modes",
+        "title": "Availability Modes",
+        "member_count": 2,
+        "summary": "Off and auto remain the bounded availability lane."
+      }
+    ],
+    "phase_groups": [
+      {
+        "id": "active_phases",
+        "title": "Active Phases",
+        "member_count": 2,
+        "summary": "Run and shutdown remain the bounded active phase lanes."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "mode_phase_trace",
+        "title": "Mode / Phase Trace",
+        "signal_count": 2,
+        "summary": "auto_out, run_out"
+      }
+    ],
+    "package_supervision_id": "",
+    "package_coordination_id": ""
+  }
+}

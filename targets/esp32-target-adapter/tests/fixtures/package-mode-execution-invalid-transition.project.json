@@ -1,0 +1,80 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "package_mode_execution_invalid_transition",
+    "title": "Package Mode Execution Invalid Transition"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "pump_group": {
+        "id": "pump_group",
+        "kind": "object_type",
+        "meta": { "title": "Pump Group", "origin": "project" },
+        "interface": {
+          "ports": {
+            "off_out": { "id": "off_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "pump_skid_supervisor_modes_execution": {
+        "id": "pump_skid_supervisor_modes_execution",
+        "kind": "package_definition",
+        "meta": {
+          "title": "PumpSkidSupervisorModesExecution v1",
+          "origin": "project"
+        },
+        "members": {
+          "pump_group_1": { "id": "pump_group_1", "kind": "package_member", "type_ref": "project:pump_group" }
+        },
+        "signals": {},
+        "mode_phase": {
+          "modes": {
+            "off": { "id": "off", "phase_refs": ["idle"] },
+            "auto": { "id": "auto", "phase_refs": ["idle"] },
+            "service": { "id": "service", "phase_refs": ["idle"] }
+          },
+          "phases": {
+            "idle": { "id": "idle", "source_ports": [{ "member_id": "pump_group_1", "port_id": "off_out" }] }
+          },
+          "mode_summary": { "id": "mode_summary", "entries": {} },
+          "phase_summary": { "id": "phase_summary", "entries": {} },
+          "active_mode_ref": "auto",
+          "active_phase_ref": "idle",
+          "allowed_phase_transitions": {
+            "bad_transition": {
+              "id": "bad_transition",
+              "intent": "request_phase_start",
+              "phase_ref": "missing_phase",
+              "allowed_mode_refs": ["auto", "missing_mode"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "pump_skid_supervisor_modes_execution_1": {
+        "id": "pump_skid_supervisor_modes_execution_1",
+        "kind": "package_instance",
+        "package_ref": "pump_skid_supervisor_modes_execution"
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

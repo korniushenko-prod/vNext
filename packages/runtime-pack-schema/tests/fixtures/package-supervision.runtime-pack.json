@@ -1,0 +1,104 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "package-supervision-pack",
+  "source": {
+    "project_id": "boiler_supervision_demo",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T22:00:00Z"
+  },
+  "instances": {
+    "boiler_supervisor_1__pid_1": {
+      "id": "boiler_supervisor_1__pid_1",
+      "type_ref": "library:std/pid_controller",
+      "enabled": true,
+      "ports": {
+        "loop_in_auto": { "id": "loop_in_auto", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+      },
+      "params": {},
+      "alarms": {}
+    },
+    "boiler_supervisor_1__run_hours_1": {
+      "id": "boiler_supervisor_1__run_hours_1",
+      "type_ref": "library:std/run_hours_counter",
+      "enabled": true,
+      "ports": {
+        "runtime_total": { "id": "runtime_total", "direction": "out", "channel_kind": "telemetry", "value_type": "float" }
+      },
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {
+    "op_boiler_supervisor_1__run_hours_1_reset_counter": {
+      "id": "op_boiler_supervisor_1__run_hours_1_reset_counter",
+      "owner_instance_id": "boiler_supervisor_1__run_hours_1",
+      "kind": "reset_counter",
+      "title": "Reset Counter",
+      "confirmation_policy": "required",
+      "availability": { "mode": "guarded", "required_states": ["enabled"] },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          { "id": "completed", "value_type": "bool" }
+        ]
+      }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": true,
+    "cancel_supported": false,
+    "progress_supported": true,
+    "result_supported": true,
+    "audit_required": true
+  },
+  "package_supervision": {
+    "pkg_boiler_supervisor_1": {
+      "id": "pkg_boiler_supervisor_1",
+      "package_instance_id": "boiler_supervisor_1",
+      "title": "Boiler Supervisor",
+      "summary_outputs": {
+        "runtime_total": {
+          "id": "runtime_total",
+          "value_type": "float",
+          "source": {
+            "instance_id": "boiler_supervisor_1__run_hours_1",
+            "port_id": "runtime_total"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "health_rollup": {
+          "id": "health_rollup",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            { "instance_id": "boiler_supervisor_1__pid_1", "port_id": "loop_in_auto" }
+          ]
+        }
+      },
+      "aggregate_alarms": {},
+      "trace_groups": {
+        "process_summary": {
+          "id": "process_summary",
+          "signals": [
+            { "instance_id": "boiler_supervisor_1__run_hours_1", "port_id": "runtime_total" }
+          ]
+        }
+      },
+      "operation_proxies": {
+        "reset_runtime_counter": {
+          "id": "reset_runtime_counter",
+          "target_operation_id": "op_boiler_supervisor_1__run_hours_1_reset_counter",
+          "target_owner_instance_id": "boiler_supervisor_1__run_hours_1",
+          "child_operation_kind": "reset_counter"
+        }
+      }
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

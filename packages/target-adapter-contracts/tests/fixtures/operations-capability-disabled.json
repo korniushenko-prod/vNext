@@ -1,0 +1,26 @@
+{
+  "target_id": "esp32.shipcontroller.v1",
+  "display_name": "ESP32 ShipController",
+  "supported_binding_kinds": ["digital_in", "digital_out"],
+  "supported_channel_kinds": ["signal", "command", "state"],
+  "supported_value_types": ["bool", "u32"],
+  "supported_native_kinds": ["std.timed_relay.v1"],
+  "supported_operation_kinds": [],
+  "supports_trace": true,
+  "supports_operations": false,
+  "operations_support": {
+    "enabled": false,
+    "invoke": false,
+    "cancel": false,
+    "progress": false,
+    "result_payload": false,
+    "confirmation": false
+  },
+  "supports_persistence": false,
+  "supports_simulation": false,
+  "limits": {
+    "max_instances": 32,
+    "max_connections": 64,
+    "max_resources": 32
+  }
+}

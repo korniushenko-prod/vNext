@@ -33,16 +33,16 @@
         }
       },
       "alarms": {},
-      "source_scope": {
-        "kind": "system",
-        "owner_id": "demo_timed_relay_project"
-      },
       "native_execution": {
         "native_kind": "std.digital_input.v1",
         "target_kinds": [
           "esp32.shipcontroller.v1"
         ],
         "config_template": "shipcontroller.digital_input.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_timed_relay_project"
       }
     },
     "relay_1": {
@@ -131,16 +131,16 @@
         }
       },
       "alarms": {},
-      "source_scope": {
-        "kind": "system",
-        "owner_id": "demo_timed_relay_project"
-      },
       "native_execution": {
         "native_kind": "std.timed_relay.v1",
         "target_kinds": [
           "esp32.shipcontroller.v1"
         ],
         "config_template": "shipcontroller.timed_relay.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_timed_relay_project"
       }
     },
     "pump_contact_1": {
@@ -169,16 +169,16 @@
         }
       },
       "alarms": {},
-      "source_scope": {
-        "kind": "system",
-        "owner_id": "demo_timed_relay_project"
-      },
       "native_execution": {
         "native_kind": "std.digital_output.v1",
         "target_kinds": [
           "esp32.shipcontroller.v1"
         ],
         "config_template": "shipcontroller.digital_output.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_timed_relay_project"
       }
     }
   },
@@ -220,7 +220,6 @@
       }
     }
   },
-  "frontend_requirements": {},
   "resources": {
     "res_start_button_1": {
       "id": "res_start_button_1",
@@ -249,6 +248,14 @@
       "owner_instance_id": "relay_1",
       "kind": "test_pulse",
       "title": "Test Pulse",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      },
       "provenance": {
         "owner_instance_id": "relay_1",
         "facet_kind": "operation",
@@ -261,6 +268,14 @@
       "owner_instance_id": "relay_1",
       "kind": "reset",
       "title": "Reset",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      },
       "provenance": {
         "owner_instance_id": "relay_1",
         "facet_kind": "operation",
@@ -298,5 +313,13 @@
     }
   },
   "monitors": {},
-  "persistence_slots": {}
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "operation_runtime_contract": {
+    "invoke_supported": false,
+    "cancel_supported": false,
+    "progress_supported": false,
+    "result_supported": false,
+    "audit_required": false
+  }
 }

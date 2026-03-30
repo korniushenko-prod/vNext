@@ -40,6 +40,34 @@
           "resource_id": "hw_pulse_source_1"
         }
       }
+    ],
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "operations": [
+      {
+        "id": "op_flowmeter_1_reset_totalizer",
+        "owner_instance_id": "flowmeter_1",
+        "kind": "reset_totalizer",
+        "metadata_only": true,
+        "title": "Reset Totalizer",
+        "confirmation_policy": "required",
+        "availability_mode": "guarded",
+        "progress_mode": "signal_based",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "total_volume",
+            "value_type": "float"
+          }
+        ]
+      }
     ]
   },
   "diagnostics": []

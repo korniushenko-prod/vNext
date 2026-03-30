@@ -1,0 +1,254 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "demo_threshold_monitor_project",
+    "title": "Threshold Monitor Demo"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "analog_input": {
+        "id": "analog_input",
+        "kind": "object_type",
+        "meta": {
+          "title": "Analog Input",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std"
+        },
+        "interface": {
+          "ports": {
+            "value": {
+              "id": "value",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.analog_input.v1",
+            "target_kinds": ["esp32.shipcontroller.v1"],
+            "config_template": "shipcontroller.analog_input.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      },
+      "threshold_monitor": {
+        "id": "threshold_monitor",
+        "kind": "object_type",
+        "meta": {
+          "title": "Threshold Monitor",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std",
+          "description": "Monitors a numeric value against high, low, or window limits with hysteresis and source timeout handling."
+        },
+        "interface": {
+          "ports": {
+            "value_in": { "id": "value_in", "direction": "in", "channel_kind": "telemetry", "value_type": "float" },
+            "above_out": { "id": "above_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "below_out": { "id": "below_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "in_window_out": { "id": "in_window_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "alarm_active": { "id": "alarm_active", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "source_ok": { "id": "source_ok", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {
+            "mode": { "id": "mode", "value_type": "string", "default": "high", "group": "thresholds", "ui_hint": "enum", "access_role": "engineer", "live_edit_policy": "immediate", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "low" },
+            "threshold_a": { "id": "threshold_a", "value_type": "float", "default": 0.0, "unit": "engineering_units", "min": -1000000, "max": 1000000, "step": 0.01, "group": "thresholds", "ui_hint": "numeric", "access_role": "engineer", "live_edit_policy": "immediate", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "low" },
+            "threshold_b": { "id": "threshold_b", "value_type": "float", "default": 100.0, "unit": "engineering_units", "min": -1000000, "max": 1000000, "step": 0.01, "group": "thresholds", "ui_hint": "numeric", "access_role": "engineer", "live_edit_policy": "immediate", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "low" },
+            "hysteresis": { "id": "hysteresis", "value_type": "float", "default": 0.5, "unit": "engineering_units", "min": 0, "max": 1000000, "step": 0.01, "group": "thresholds", "ui_hint": "numeric", "access_role": "engineer", "live_edit_policy": "immediate", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "low" },
+            "latch_alarm": { "id": "latch_alarm", "value_type": "bool", "default": false, "group": "alarming", "ui_hint": "toggle", "access_role": "engineer", "live_edit_policy": "immediate", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "medium" },
+            "timeout_ms": { "id": "timeout_ms", "value_type": "u32", "default": 5000, "unit": "ms", "min": 0, "max": 3600000, "step": 100, "group": "alarming", "ui_hint": "duration_ms", "access_role": "engineer", "live_edit_policy": "immediate", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "low" }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.threshold_monitor.v1",
+            "target_kinds": ["esp32.shipcontroller.v1"],
+            "config_template": "shipcontroller.threshold_monitor.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {
+              "value_source": {
+                "id": "value_source",
+                "kind": "process_value_input",
+                "source_ports": ["value_in"],
+                "binding_kind": "analog_in",
+                "channel_kind": "telemetry",
+                "value_type": "float",
+                "required": true
+              }
+            }
+          },
+          "operations": {
+            "operations": {
+              "reset_latch": {
+                "id": "reset_latch",
+                "kind": "reset_latch",
+                "title": "Reset Latch",
+                "ui_hint": "secondary",
+                "safe_when": ["alarm_latched"],
+                "confirmation_policy": "optional",
+                "progress_signals": ["alarm_active"],
+                "result_fields": ["completed", "alarm_active"]
+              }
+            }
+          },
+          "monitoring": {
+            "monitors": {
+              "stale_source": {
+                "id": "stale_source",
+                "kind": "stale",
+                "source_ports": ["value_in"],
+                "severity": "warning",
+                "status_port_id": "source_ok"
+              },
+              "value_missing": {
+                "id": "value_missing",
+                "kind": "missing",
+                "source_ports": ["value_in"],
+                "severity": "warning",
+                "status_port_id": "source_ok"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "thresholds": {
+                "title": "Thresholds",
+                "signals": ["value_in", "above_out", "below_out", "alarm_active"],
+                "sample_hint_ms": 500,
+                "chart_hint": "line"
+              }
+            }
+          },
+          "templates": {
+            "presets": {
+              "high_limit": {
+                "id": "high_limit",
+                "defaults": {
+                  "mode": "high",
+                  "threshold_a": 100.0,
+                  "threshold_b": 100.0,
+                  "hysteresis": 1.0,
+                  "latch_alarm": false,
+                  "timeout_ms": 5000
+                }
+              },
+              "low_limit": {
+                "id": "low_limit",
+                "defaults": {
+                  "mode": "low",
+                  "threshold_a": 20.0,
+                  "threshold_b": 20.0,
+                  "hysteresis": 1.0,
+                  "latch_alarm": false,
+                  "timeout_ms": 5000
+                }
+              },
+              "window_limit": {
+                "id": "window_limit",
+                "defaults": {
+                  "mode": "window",
+                  "threshold_a": 20.0,
+                  "threshold_b": 80.0,
+                  "hysteresis": 1.0,
+                  "latch_alarm": false,
+                  "timeout_ms": 5000
+                }
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "process_value_1": {
+        "id": "process_value_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/analog_input",
+        "title": "Process Value",
+        "enabled": true,
+        "param_values": {}
+      },
+      "threshold_monitor_1": {
+        "id": "threshold_monitor_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/threshold_monitor",
+        "title": "Threshold Monitor #1",
+        "enabled": true,
+        "param_values": {
+          "mode": { "kind": "literal", "value": "high" },
+          "threshold_a": { "kind": "literal", "value": 90.0 },
+          "threshold_b": { "kind": "literal", "value": 90.0 },
+          "hysteresis": { "kind": "literal", "value": 2.0 },
+          "latch_alarm": { "kind": "literal", "value": true },
+          "timeout_ms": { "kind": "literal", "value": 5000 }
+        }
+      }
+    },
+    "signals": {
+      "sig_process_value_to_threshold_monitor": {
+        "id": "sig_process_value_to_threshold_monitor",
+        "title": "Process Value -> Threshold Monitor",
+        "source": {
+          "instance_id": "process_value_1",
+          "port_id": "value"
+        },
+        "targets": {
+          "t1": {
+            "instance_id": "threshold_monitor_1",
+            "port_id": "value_in"
+          }
+        }
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {
+      "hw_process_value_1": {
+        "id": "hw_process_value_1",
+        "instance_id": "process_value_1",
+        "port_id": "value",
+        "binding_kind": "analog_in",
+        "config": {
+          "channel": 0
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

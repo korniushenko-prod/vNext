@@ -1,47 +1,74 @@
 {
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "pulse-flowmeter-demo-pack",
+  "capability_profile": "esp32-basic-io",
   "artifacts": {
-    "analog_inputs": [],
     "digital_inputs": [
       {
-        "debounce_ms": 20,
         "id": "di_pulse_source_1",
         "instance_id": "pulse_source_1",
         "pin": 14,
-        "pullup": true
+        "pullup": true,
+        "debounce_ms": 20
       }
     ],
+    "analog_inputs": [],
     "digital_outputs": [],
-    "pid_controllers": [],
+    "timed_relays": [],
     "pulse_flowmeters": [
       {
+        "id": "flowmeter_1",
+        "native_kind": "std.pulse_flowmeter.v1",
+        "sensor_mode": "hall_pulse",
+        "k_factor": 450,
         "filter_window_ms": 250,
+        "threshold_on": 2,
+        "threshold_off": 1,
+        "stale_timeout_ms": 5000,
+        "persistence_slot_id": "ps_flowmeter_1_totalizer",
         "frontend_requirement_ids": [
           "fe_flowmeter_1_hall_pulse_source"
         ],
-        "id": "flowmeter_1",
-        "k_factor": 450,
-        "native_kind": "std.pulse_flowmeter.v1",
-        "persistence_slot_id": "ps_flowmeter_1_totalizer",
-        "sensor_mode": "hall_pulse",
         "source": {
-          "binding_kind": "digital_in",
-          "connection_id": "conn_sig_pulse_source_to_flowmeter_t1",
-          "instance_id": "pulse_source_1",
-          "mode": "hall_pulse",
-          "port_id": "value",
           "requirement_id": "fe_flowmeter_1_hall_pulse_source",
+          "mode": "hall_pulse",
+          "binding_kind": "digital_in",
+          "instance_id": "pulse_source_1",
+          "port_id": "value",
+          "connection_id": "conn_sig_pulse_source_to_flowmeter_t1",
           "resource_id": "hw_pulse_source_1"
-        },
-        "stale_timeout_ms": 5000,
-        "threshold_off": 1,
-        "threshold_on": 2
+        }
       }
     ],
-    "timed_relays": []
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "operations": [
+      {
+        "id": "op_flowmeter_1_reset_totalizer",
+        "owner_instance_id": "flowmeter_1",
+        "kind": "reset_totalizer",
+        "metadata_only": true,
+        "title": "Reset Totalizer",
+        "confirmation_policy": "required",
+        "availability_mode": "guarded",
+        "progress_mode": "signal_based",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "total_volume",
+            "value_type": "float"
+          }
+        ]
+      }
+    ]
   },
-  "capability_profile": "esp32-basic-io",
-  "diagnostics": [],
-  "schema_version": "0.1.0",
-  "source_pack_id": "pulse-flowmeter-demo-pack",
-  "target_kind": "esp32.shipcontroller.v1"
+  "diagnostics": []
 }

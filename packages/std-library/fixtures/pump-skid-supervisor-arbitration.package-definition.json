@@ -1,0 +1,151 @@
+{
+  "id": "pump_skid_supervisor_arbitration",
+  "kind": "package_definition",
+  "meta": {
+    "title": "PumpSkidSupervisorArbitration v1",
+    "origin": "project",
+    "description": "Non-boiler reference package for generic package command arbitration baseline.",
+    "domain": "pump_skid",
+    "package_kind": "pump_skid_supervisor_arbitration_v1",
+    "safety_scope": "non_safety_skeleton"
+  },
+  "members": {
+    "auto_owner_1": { "id": "auto_owner_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Auto Owner" },
+    "manual_owner_1": { "id": "manual_owner_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Manual Owner" },
+    "service_owner_1": { "id": "service_owner_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Service Owner" },
+    "remote_owner_1": { "id": "remote_owner_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Remote Owner" },
+    "start_request_1": { "id": "start_request_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Start Request Target" },
+    "disable_request_1": { "id": "disable_request_1", "kind": "package_member", "type_ref": "project:package_command_source", "title": "Disable Request Target" }
+  },
+  "signals": {},
+  "arbitration": {
+    "ownership_lanes": {
+      "auto_owner": {
+        "id": "auto_owner",
+        "title": "Auto Owner",
+        "lane": "auto",
+        "source_ports": [{ "member_id": "auto_owner_1", "port_id": "authority_out" }],
+        "summary": "Automatic ownership lane is active."
+      },
+      "manual_owner": {
+        "id": "manual_owner",
+        "title": "Manual Owner",
+        "lane": "manual",
+        "source_ports": [{ "member_id": "manual_owner_1", "port_id": "authority_out" }],
+        "summary": "Manual ownership lane is available but not active."
+      },
+      "service_owner": {
+        "id": "service_owner",
+        "title": "Service Owner",
+        "lane": "service",
+        "source_ports": [{ "member_id": "service_owner_1", "port_id": "authority_out" }],
+        "summary": "Service ownership lane is available for maintenance use."
+      },
+      "remote_owner": {
+        "id": "remote_owner",
+        "title": "Remote Owner",
+        "lane": "remote",
+        "source_ports": [{ "member_id": "remote_owner_1", "port_id": "authority_out" }],
+        "summary": "Remote ownership lane is available but denied for reset."
+      }
+    },
+    "ownership_summary": {
+      "id": "ownership_summary",
+      "title": "Ownership Summary",
+      "active_lane_refs": ["auto_owner"],
+      "summary": "Automatic ownership is currently active."
+    },
+    "command_lanes": {
+      "start_auto": {
+        "id": "start_auto",
+        "title": "Start In Auto",
+        "request_kind": "request_start",
+        "ownership_lane_ref": "auto_owner",
+        "target_member_id": "start_request_1",
+        "arbitration_result": "accepted",
+        "summary": "Automatic start request is accepted.",
+        "request_preview": "request_start -> start_request_1"
+      },
+      "disable_service": {
+        "id": "disable_service",
+        "title": "Disable In Service",
+        "request_kind": "request_disable",
+        "ownership_lane_ref": "service_owner",
+        "target_member_id": "disable_request_1",
+        "arbitration_result": "blocked",
+        "blocked_reason": "service_window_closed",
+        "summary": "Service disable is blocked until the maintenance window opens.",
+        "request_preview": "request_disable -> disable_request_1"
+      },
+      "reset_remote": {
+        "id": "reset_remote",
+        "title": "Reset From Remote",
+        "request_kind": "request_reset",
+        "ownership_lane_ref": "remote_owner",
+        "target_member_id": "disable_request_1",
+        "arbitration_result": "denied",
+        "denied_reason": "auto_owner_active",
+        "summary": "Remote reset is denied because automatic ownership has authority.",
+        "request_preview": "request_reset -> disable_request_1"
+      },
+      "stop_manual": {
+        "id": "stop_manual",
+        "title": "Stop In Manual",
+        "request_kind": "request_stop",
+        "ownership_lane_ref": "manual_owner",
+        "target_member_id": "start_request_1",
+        "arbitration_result": "superseded",
+        "superseded_by_lane_ref": "start_auto",
+        "summary": "Manual stop is superseded by the accepted auto start request.",
+        "request_preview": "request_stop -> start_request_1"
+      }
+    },
+    "command_summary": {
+      "id": "command_summary",
+      "title": "Command Summary",
+      "active_owner_lane_refs": ["auto_owner"],
+      "accepted_lane_refs": ["start_auto"],
+      "blocked_lane_refs": ["disable_service"],
+      "denied_lane_refs": ["reset_remote"],
+      "superseded_lane_refs": ["stop_manual"],
+      "summary": "Automatic ownership remains active while blocked, denied, and superseded command outcomes stay explicit."
+    },
+    "summary_outputs": {
+      "command_ready": {
+        "id": "command_ready",
+        "value_type": "bool",
+        "source": { "member_id": "start_request_1", "port_id": "ready_out" }
+      },
+      "command_blocked": {
+        "id": "command_blocked",
+        "value_type": "bool",
+        "source": { "member_id": "disable_request_1", "port_id": "blocked_out" }
+      }
+    },
+    "aggregate_monitors": {
+      "arbitration_health": {
+        "id": "arbitration_health",
+        "kind": "boolean_health_rollup",
+        "source_ports": [
+          { "member_id": "auto_owner_1", "port_id": "authority_out" },
+          { "member_id": "start_request_1", "port_id": "ready_out" },
+          { "member_id": "disable_request_1", "port_id": "blocked_out" }
+        ]
+      }
+    },
+    "trace_groups": {
+      "arbitration_trace": {
+        "id": "arbitration_trace",
+        "signals": [
+          { "member_id": "auto_owner_1", "port_id": "authority_out" },
+          { "member_id": "disable_request_1", "port_id": "blocked_out" },
+          { "member_id": "disable_request_1", "port_id": "denied_out" }
+        ]
+      }
+    }
+  },
+  "boundary_notes": [
+    "Wave 17 package arbitration remains package-neutral and bounded to explicit command intent metadata.",
+    "Pump-skid content is the mandatory second acceptance domain and does not inherit boiler-specific semantics."
+  ]
+}

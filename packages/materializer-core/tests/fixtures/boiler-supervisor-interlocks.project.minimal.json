@@ -1,0 +1,213 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_supervisor_interlocks_reference_minimal",
+    "title": "BoilerSupervisorInterlocks Reference Minimal"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "package_gate_source": {
+        "id": "package_gate_source",
+        "kind": "object_type",
+        "meta": {
+          "title": "Package Gate Source",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "state_out": { "id": "state_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "blocked_out": { "id": "blocked_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": null,
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "boiler_supervisor_interlocks": {
+        "id": "boiler_supervisor_interlocks",
+        "kind": "package_definition",
+        "meta": {
+          "title": "BoilerSupervisorInterlocks v1",
+          "origin": "project",
+          "description": "Boiler-like reference package for package-neutral permissive/interlock gating.",
+          "domain": "boiler",
+          "package_kind": "boiler_supervisor_interlocks_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "feedwater_guard_1": { "id": "feedwater_guard_1", "kind": "package_member", "type_ref": "project:package_gate_source", "title": "Feedwater Guard" },
+          "circulation_guard_1": { "id": "circulation_guard_1", "kind": "package_member", "type_ref": "project:package_gate_source", "title": "Circulation Guard" },
+          "demand_guard_1": { "id": "demand_guard_1", "kind": "package_member", "type_ref": "project:package_gate_source", "title": "Demand Guard" },
+          "fault_latch_1": { "id": "fault_latch_1", "kind": "package_member", "type_ref": "project:package_gate_source", "title": "Fault Latch" }
+        },
+        "signals": {},
+        "mode_phase": {
+          "modes": {
+            "off": { "id": "off", "title": "Off", "phase_refs": ["idle"] },
+            "auto": { "id": "auto", "title": "Auto", "phase_refs": ["idle", "run"] },
+            "service": { "id": "service", "title": "Service", "phase_refs": ["shutdown"] }
+          },
+          "phases": {
+            "idle": { "id": "idle", "title": "Idle", "source_ports": [{ "member_id": "demand_guard_1", "port_id": "state_out" }] },
+            "run": { "id": "run", "title": "Run", "source_ports": [{ "member_id": "circulation_guard_1", "port_id": "state_out" }] },
+            "shutdown": { "id": "shutdown", "title": "Shutdown", "source_ports": [{ "member_id": "fault_latch_1", "port_id": "state_out" }] }
+          },
+          "mode_summary": {
+            "id": "mode_summary",
+            "entries": {
+              "off_summary": { "id": "off_summary", "mode_ref": "off", "source_ports": [{ "member_id": "fault_latch_1", "port_id": "state_out" }] },
+              "auto_summary": { "id": "auto_summary", "mode_ref": "auto", "source_ports": [{ "member_id": "demand_guard_1", "port_id": "state_out" }] },
+              "service_summary": { "id": "service_summary", "mode_ref": "service", "source_ports": [{ "member_id": "fault_latch_1", "port_id": "blocked_out" }] }
+            }
+          },
+          "phase_summary": {
+            "id": "phase_summary",
+            "entries": {
+              "idle_summary": { "id": "idle_summary", "phase_ref": "idle", "source_ports": [{ "member_id": "demand_guard_1", "port_id": "state_out" }] },
+              "run_summary": { "id": "run_summary", "phase_ref": "run", "source_ports": [{ "member_id": "circulation_guard_1", "port_id": "state_out" }] },
+              "shutdown_summary": { "id": "shutdown_summary", "phase_ref": "shutdown", "source_ports": [{ "member_id": "fault_latch_1", "port_id": "state_out" }] }
+            }
+          },
+          "active_mode_ref": "auto",
+          "active_phase_ref": "idle",
+          "allowed_mode_transitions": {
+            "to_auto": { "id": "to_auto", "intent": "request_mode_change", "from_mode_ref": "off", "to_mode_ref": "auto", "guard_notes": ["package_gate_clear"] }
+          },
+          "allowed_phase_transitions": {
+            "abort_shutdown": { "id": "abort_shutdown", "intent": "request_phase_abort", "phase_ref": "shutdown", "allowed_mode_refs": ["service"], "guard_notes": ["operator_confirmation"] }
+          }
+        },
+        "permissive_interlock": {
+          "permissives": {
+            "feedwater_ok": {
+              "id": "feedwater_ok",
+              "title": "Feedwater OK",
+              "source_ports": [{ "member_id": "feedwater_guard_1", "port_id": "state_out" }],
+              "blocked_reason_code": "feedwater_missing"
+            },
+            "circulation_ok": {
+              "id": "circulation_ok",
+              "title": "Circulation OK",
+              "source_ports": [{ "member_id": "circulation_guard_1", "port_id": "state_out" }],
+              "blocked_reason_code": "circulation_missing"
+            },
+            "demand_present": {
+              "id": "demand_present",
+              "title": "Demand Present",
+              "source_ports": [{ "member_id": "demand_guard_1", "port_id": "state_out" }],
+              "blocked_reason_code": "demand_missing"
+            }
+          },
+          "interlocks": {
+            "permissive_blocked": {
+              "id": "permissive_blocked",
+              "title": "Permissive Blocked",
+              "source_ports": [{ "member_id": "feedwater_guard_1", "port_id": "blocked_out" }],
+              "active_state": "held",
+              "reason_code": "permissive_blocked",
+              "diagnostic_ref": "diag_permissive_blocked"
+            },
+            "package_faulted": {
+              "id": "package_faulted",
+              "title": "Package Faulted",
+              "source_ports": [{ "member_id": "fault_latch_1", "port_id": "state_out" }],
+              "active_state": "faulted",
+              "reason_code": "package_faulted",
+              "diagnostic_ref": "diag_package_faulted"
+            }
+          },
+          "gate_summary": {
+            "id": "gate_summary",
+            "title": "Gate Summary",
+            "default_state": "ready",
+            "permissive_refs": ["feedwater_ok", "circulation_ok", "demand_present"],
+            "interlock_refs": ["permissive_blocked", "package_faulted"],
+            "transition_guards": {
+              "allow_auto_run": {
+                "id": "allow_auto_run",
+                "title": "Allow Auto Run",
+                "mode_transition_ref": "to_auto",
+                "permissive_refs": ["feedwater_ok", "circulation_ok", "demand_present"],
+                "interlock_refs": ["permissive_blocked", "package_faulted"],
+                "summary": "Auto run is allowed only when permissives are clear and no interlock is active."
+              }
+            }
+          },
+          "summary_outputs": {
+            "package_ready": {
+              "id": "package_ready",
+              "value_type": "bool",
+              "source": { "member_id": "demand_guard_1", "port_id": "state_out" }
+            },
+            "package_faulted": {
+              "id": "package_faulted",
+              "value_type": "bool",
+              "source": { "member_id": "fault_latch_1", "port_id": "state_out" }
+            }
+          },
+          "aggregate_monitors": {
+            "gate_health": {
+              "id": "gate_health",
+              "kind": "boolean_health_rollup",
+              "source_ports": [
+                { "member_id": "feedwater_guard_1", "port_id": "state_out" },
+                { "member_id": "circulation_guard_1", "port_id": "state_out" },
+                { "member_id": "demand_guard_1", "port_id": "state_out" }
+              ]
+            }
+          },
+          "trace_groups": {
+            "gate_trace": {
+              "id": "gate_trace",
+              "signals": [
+                { "member_id": "feedwater_guard_1", "port_id": "state_out" },
+                { "member_id": "fault_latch_1", "port_id": "state_out" }
+              ]
+            }
+          }
+        },
+        "boundary_notes": [
+          "Wave 15 permissive/interlock baseline remains package-neutral.",
+          "Boiler-like content is reference-only and does not introduce safety semantics."
+        ]
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_supervisor_interlocks_1": {
+        "id": "boiler_supervisor_interlocks_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor_interlocks"
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

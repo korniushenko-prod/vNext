@@ -1,0 +1,98 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "package-permissive-interlock-pack",
+  "source": {
+    "project_id": "package_permissive_interlock_demo",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {
+    "pkg_1__guard_1": {
+      "id": "pkg_1__guard_1",
+      "type_ref": "project:package_gate_source",
+      "enabled": true,
+      "ports": {
+        "state_out": {
+          "id": "state_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "package_permissive_interlock": {
+    "pkggate_pkg_1": {
+      "id": "pkggate_pkg_1",
+      "package_instance_id": "pkg_1",
+      "title": "Package Gate",
+      "permissives": {
+        "feedwater_ok": {
+          "id": "feedwater_ok",
+          "qualified_id": "pkggate_pkg_1.perm.feedwater_ok",
+          "source_ports": [{ "instance_id": "pkg_1__guard_1", "port_id": "state_out" }],
+          "blocked_reason_code": "feedwater_missing"
+        }
+      },
+      "interlocks": {
+        "package_faulted": {
+          "id": "package_faulted",
+          "qualified_id": "pkggate_pkg_1.int.package_faulted",
+          "source_ports": [{ "instance_id": "pkg_1__guard_1", "port_id": "blocked_out" }],
+          "active_state": "faulted",
+          "reason_code": "package_faulted",
+          "diagnostic_ref": "diag_package_faulted"
+        }
+      },
+      "gate_summary": {
+        "id": "gate_summary",
+        "default_state": "ready",
+        "permissive_ids": ["pkggate_pkg_1.perm.feedwater_ok"],
+        "interlock_ids": ["pkggate_pkg_1.int.package_faulted"],
+        "transition_guards": {
+          "allow_auto_run": {
+            "id": "allow_auto_run",
+            "qualified_id": "pkggate_pkg_1.guard.allow_auto_run",
+            "permissive_ids": ["pkggate_pkg_1.perm.feedwater_ok"],
+            "interlock_ids": ["pkggate_pkg_1.int.package_faulted"],
+            "mode_transition_id": "pkgmode_pkg_1.mode.to_auto"
+          }
+        }
+      },
+      "summary_outputs": {
+        "package_ready": {
+          "id": "package_ready",
+          "value_type": "bool",
+          "source": { "instance_id": "pkg_1__guard_1", "port_id": "state_out" }
+        }
+      },
+      "aggregate_monitors": {
+        "gate_health": {
+          "id": "gate_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [{ "instance_id": "pkg_1__guard_1", "port_id": "state_out" }]
+        }
+      },
+      "trace_groups": {
+        "gate_trace": {
+          "id": "gate_trace",
+          "signals": [{ "instance_id": "pkg_1__guard_1", "port_id": "state_out" }]
+        }
+      }
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

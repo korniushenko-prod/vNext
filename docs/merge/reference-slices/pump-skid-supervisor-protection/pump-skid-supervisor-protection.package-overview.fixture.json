@@ -1,0 +1,158 @@
+{
+  "id": "package-overview-pump-skid-supervisor-protection",
+  "title": "PumpSkidSupervisorProtection v1",
+  "description": "Read-only package protection / recovery surface in the second reference domain. Vocabulary stays generic and does not imply boiler-specific semantics.",
+  "package_instance_id": "pump_skid_supervisor_protection_1",
+  "package_definition": {
+    "package_id": "pump_skid_supervisor_protection",
+    "title": "PumpSkidSupervisorProtection v1",
+    "origin": "project",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Package protection / recovery remains generic, non-safety, and read-only at this wave.",
+      "Pump-skid protection states are summarized from child members and do not create hidden coordination or sequence runtime."
+    ]
+  },
+  "members": [
+    {
+      "id": "motor_trip_1",
+      "title": "Motor Trip Source",
+      "role": "trip_source",
+      "type_title": "Package Protection Source",
+      "type_ref": "project:package_protection_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+      "boundary_note": "Trip indication stays child-owned and generic at the package layer.",
+      "related_surfaces": []
+    },
+    {
+      "id": "suction_guard_1",
+      "title": "Suction Guard",
+      "role": "inhibit_source",
+      "type_title": "Package Protection Source",
+      "type_ref": "project:package_protection_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+      "boundary_note": "Suction inhibit remains a child source and only feeds the package summary.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "pump_skid_supervisor_protection_1__motor_trip_1",
+      "title": "Motor Trip Source",
+      "type_title": "Package Protection Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_protection_1__suction_guard_1",
+      "title": "Suction Guard",
+      "type_title": "Package Protection Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ],
+  "package_protection_recovery": {
+    "snapshot_state": "ready",
+    "protection_summary": {
+      "state": "ready",
+      "ready": true,
+      "trip_reason_ids": [],
+      "inhibit_reason_ids": [],
+      "recovery_request_ids": [
+        "request_recovery",
+        "reset_motor_trip"
+      ],
+      "diagnostic_summary_ids": [
+        "ready_path"
+      ]
+    },
+    "trips": [
+      {
+        "id": "motor_trip",
+        "title": "Motor Trip",
+        "state": "ready",
+        "latching": false,
+        "reason_code": "motor_trip_active",
+        "diagnostic_ref": "diag_motor_trip",
+        "summary": "Motor trip remains clear on the ready baseline."
+      }
+    ],
+    "inhibits": [
+      {
+        "id": "suction_blocked",
+        "title": "Suction Blocked",
+        "state": "ready",
+        "reason_code": "suction_blocked",
+        "diagnostic_ref": "diag_suction_blocked",
+        "summary": "Suction path inhibit remains clear on the ready baseline."
+      }
+    ],
+    "diagnostic_summaries": [
+      {
+        "id": "ready_path",
+        "title": "Ready Path",
+        "trip_ids": [],
+        "inhibit_ids": [],
+        "summary": "Protection baseline is clear and the package is ready."
+      }
+    ],
+    "recovery_requests": [
+      {
+        "id": "request_recovery",
+        "title": "Request Recovery",
+        "kind": "reset",
+        "availability_state": "unavailable",
+        "target_operation_id": "op_pump_skid_supervisor_protection_1__motor_trip_1_request_recovery",
+        "target_owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+        "summary": "Recovery request remains visible but inactive while the package is ready."
+      },
+      {
+        "id": "reset_motor_trip",
+        "title": "Reset Motor Trip",
+        "kind": "reset_latch",
+        "availability_state": "unavailable",
+        "target_operation_id": "op_pump_skid_supervisor_protection_1__motor_trip_1_reset_trip",
+        "target_owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+        "summary": "Trip reset stays explicit without adding runnable package semantics."
+      }
+    ],
+    "summary_outputs": [
+      {
+        "id": "package_ready",
+        "title": "Package Ready",
+        "value": "true",
+        "semantic_state": "ready"
+      },
+      {
+        "id": "package_tripped",
+        "title": "Package Tripped",
+        "value": "false",
+        "semantic_state": "informational"
+      }
+    ],
+    "aggregate_monitors": [
+      {
+        "id": "protection_health",
+        "title": "Protection Health",
+        "state": "ready",
+        "severity": "info",
+        "summary": "Protection baseline is clear across the non-boiler reference domain."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "protection_trace",
+        "title": "Protection Trace",
+        "signal_count": 2,
+        "summary": "blocked_out, trip_out"
+      }
+    ]
+  }
+}

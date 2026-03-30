@@ -1,0 +1,88 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "operations-recommendation-pack",
+  "source": {
+    "project_id": "operations_recommendation_demo",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {
+    "pid_1": {
+      "id": "pid_1",
+      "type_ref": "library:std/pid_controller",
+      "enabled": true,
+      "ports": {
+        "pv_in": {
+          "id": "pv_in",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "mode_out": {
+          "id": "mode_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "string"
+        }
+      },
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {
+    "op_pid_1_autotune": {
+      "id": "op_pid_1_autotune",
+      "owner_instance_id": "pid_1",
+      "kind": "pid_autotune",
+      "title": "PID Autotune",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "guarded",
+        "required_signals": [
+          {
+            "instance_id": "pid_1",
+            "port_id": "pv_in"
+          }
+        ],
+        "required_states": [
+          "manual_mode"
+        ],
+        "notes": "Autotune requires operator confirmation and stable process state."
+      },
+      "progress_mode": "signal_based",
+      "progress_signals": [
+        {
+          "instance_id": "pid_1",
+          "port_id": "mode_out"
+        }
+      ],
+      "result_contract": {
+        "mode": "recommendation",
+        "fields": [
+          {
+            "id": "kp",
+            "value_type": "float",
+            "title": "Recommended Kp"
+          },
+          {
+            "id": "ki",
+            "value_type": "float",
+            "title": "Recommended Ki"
+          }
+        ]
+      }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": true,
+    "cancel_supported": true,
+    "progress_supported": true,
+    "result_supported": true,
+    "audit_required": true
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

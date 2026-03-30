@@ -1,0 +1,48 @@
+{
+  "id": "operations-readonly-runhours",
+  "title": "RunHoursCounter + reset_counter",
+  "description": "Guarded reset operation remains read-only and shows no live snapshot yet.",
+  "subject_label": "Run Hours Counter #1",
+  "runtimePack": {
+    "pack_id": "operations-readonly-runhours-pack",
+    "operations": {
+      "op_run_hours_1_reset_counter": {
+        "id": "op_run_hours_1_reset_counter",
+        "owner_instance_id": "run_hours_1",
+        "kind": "reset_counter",
+        "title": "Reset Counter",
+        "confirmation_policy": "required",
+        "availability": {
+          "mode": "guarded",
+          "required_states": ["stopped"]
+        },
+        "progress_mode": "signal_based",
+        "result_contract": {
+          "mode": "applyable_result",
+          "fields": [
+            { "id": "completed", "value_type": "bool", "title": "Completed" },
+            { "id": "total_seconds", "value_type": "u32", "title": "Total Seconds" }
+          ]
+        }
+      }
+    },
+    "operation_runtime_contract": {
+      "invoke_supported": false,
+      "cancel_supported": false,
+      "progress_supported": false,
+      "result_supported": false,
+      "audit_required": false
+    }
+  },
+  "runtimeSnapshot": {
+    "operation_snapshots": {}
+  },
+  "operationsSupport": {
+    "enabled": true,
+    "invoke": false,
+    "cancel": false,
+    "progress": false,
+    "result_payload": false,
+    "confirmation": true
+  }
+}

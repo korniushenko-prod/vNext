@@ -1,0 +1,27 @@
+{
+  "target_id": "esp32.shipcontroller.v1",
+  "display_name": "ESP32 ShipController",
+  "supported_binding_kinds": ["digital_in", "digital_out", "analog_in", "analog_out", "service", "bus"],
+  "supported_channel_kinds": ["state", "command", "measurement", "diagnostic"],
+  "supported_value_types": ["bool", "number", "string"],
+  "supported_native_kinds": [],
+  "supported_operation_kinds": ["reset_totalizer", "reset_counter", "reset_interval"],
+  "supports_trace": true,
+  "supports_operations": true,
+  "package_arbitration_support": {
+    "enabled": true,
+    "ownership_lanes": true,
+    "command_summary": true,
+    "reason_codes": true,
+    "request_preview": true,
+    "supported_ownership_lanes": ["auto", "manual", "service", "remote"],
+    "supported_request_kinds": ["request_start", "request_stop", "request_reset", "request_enable", "request_disable"]
+  },
+  "supports_persistence": true,
+  "supports_simulation": false,
+  "limits": {
+    "max_instances": 64,
+    "max_connections": 128,
+    "max_resources": 64
+  }
+}

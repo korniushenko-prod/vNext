@@ -1,0 +1,288 @@
+{
+  "id": "package-overview-boiler-supervisor-arbitration",
+  "title": "BoilerSupervisorArbitration v1",
+  "description": "Read-only package arbitration surface over explicit ownership lanes and command results. This remains generic command arbitration metadata, not a hidden package execution engine.",
+  "package_instance_id": "boiler_supervisor_arbitration_1",
+  "package_definition": {
+    "package_id": "boiler_supervisor_arbitration",
+    "title": "BoilerSupervisorArbitration v1",
+    "origin": "project",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Package arbitration remains generic and package-neutral. It summarizes ownership and command outcomes over flattened child objects only.",
+      "Boiler-like content here is reference-only and does not introduce burner-specific execution semantics."
+    ]
+  },
+  "members": [
+    {
+      "id": "auto_owner_1",
+      "title": "Auto Owner",
+      "role": "ownership_lane",
+      "type_title": "Package Command Source",
+      "type_ref": "project:package_command_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_arbitration_1__auto_owner_1",
+      "boundary_note": "Ownership source only. It exposes authority state and does not execute package commands itself.",
+      "related_surfaces": []
+    },
+    {
+      "id": "manual_owner_1",
+      "title": "Manual Owner",
+      "role": "ownership_lane",
+      "type_title": "Package Command Source",
+      "type_ref": "project:package_command_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_arbitration_1__manual_owner_1",
+      "boundary_note": "Manual ownership remains a generic child source and does not gain package-local execution behavior.",
+      "related_surfaces": []
+    },
+    {
+      "id": "service_owner_1",
+      "title": "Service Owner",
+      "role": "ownership_lane",
+      "type_title": "Package Command Source",
+      "type_ref": "project:package_command_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_arbitration_1__service_owner_1",
+      "boundary_note": "Service lane exists only as explicit ownership metadata over child members.",
+      "related_surfaces": []
+    },
+    {
+      "id": "remote_owner_1",
+      "title": "Remote Owner",
+      "role": "ownership_lane",
+      "type_title": "Package Command Source",
+      "type_ref": "project:package_command_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_arbitration_1__remote_owner_1",
+      "boundary_note": "Remote ownership remains explicit and generic, without vendor-specific command wiring.",
+      "related_surfaces": []
+    },
+    {
+      "id": "enable_request_1",
+      "title": "Enable Request Target",
+      "role": "command_target",
+      "type_title": "Package Command Source",
+      "type_ref": "project:package_command_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_arbitration_1__enable_request_1",
+      "boundary_note": "Command targets stay flattened child objects; package arbitration only summarizes the decision lane.",
+      "related_surfaces": []
+    },
+    {
+      "id": "reset_request_1",
+      "title": "Reset Request Target",
+      "role": "command_target",
+      "type_title": "Package Command Source",
+      "type_ref": "project:package_command_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_arbitration_1__reset_request_1",
+      "boundary_note": "Reset target remains a plain child member with no hidden package command execution.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "boiler_supervisor_arbitration_1__auto_owner_1",
+      "title": "Auto Owner",
+      "type_title": "Package Command Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_arbitration_1__manual_owner_1",
+      "title": "Manual Owner",
+      "type_title": "Package Command Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_arbitration_1__service_owner_1",
+      "title": "Service Owner",
+      "type_title": "Package Command Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_arbitration_1__remote_owner_1",
+      "title": "Remote Owner",
+      "type_title": "Package Command Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_arbitration_1__enable_request_1",
+      "title": "Enable Request Target",
+      "type_title": "Package Command Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_arbitration_1__reset_request_1",
+      "title": "Reset Request Target",
+      "type_title": "Package Command Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ],
+  "package_arbitration": {
+    "snapshot_state": "accepted",
+    "ownership_summary": {
+      "id": "ownership_summary",
+      "active_lane_ids": [
+        "manual_owner"
+      ],
+      "summary": "Manual ownership is currently active."
+    },
+    "ownership_lanes": [
+      {
+        "id": "auto_owner",
+        "title": "Auto Owner",
+        "lane": "auto",
+        "summary": "Automatic ownership lane is available.",
+        "source_ports": [
+          {
+            "instance_id": "boiler_supervisor_arbitration_1__auto_owner_1",
+            "port_id": "authority_out"
+          }
+        ]
+      },
+      {
+        "id": "manual_owner",
+        "title": "Manual Owner",
+        "lane": "manual",
+        "summary": "Manual ownership lane is active.",
+        "source_ports": [
+          {
+            "instance_id": "boiler_supervisor_arbitration_1__manual_owner_1",
+            "port_id": "authority_out"
+          }
+        ]
+      },
+      {
+        "id": "service_owner",
+        "title": "Service Owner",
+        "lane": "service",
+        "summary": "Service ownership lane is available for maintenance use.",
+        "source_ports": [
+          {
+            "instance_id": "boiler_supervisor_arbitration_1__service_owner_1",
+            "port_id": "authority_out"
+          }
+        ]
+      },
+      {
+        "id": "remote_owner",
+        "title": "Remote Owner",
+        "lane": "remote",
+        "summary": "Remote ownership lane is available but not active.",
+        "source_ports": [
+          {
+            "instance_id": "boiler_supervisor_arbitration_1__remote_owner_1",
+            "port_id": "authority_out"
+          }
+        ]
+      }
+    ],
+    "command_summary": {
+      "id": "command_summary",
+      "active_owner_lane_ids": [
+        "manual_owner"
+      ],
+      "accepted_lane_ids": [
+        "enable_auto"
+      ],
+      "blocked_lane_ids": [
+        "reset_service"
+      ],
+      "denied_lane_ids": [
+        "disable_remote"
+      ],
+      "superseded_lane_ids": [
+        "start_service"
+      ],
+      "summary": "One accepted lane remains active while blocked, denied, and superseded outcomes stay explicit."
+    },
+    "command_lanes": [
+      {
+        "id": "enable_auto",
+        "title": "Enable In Auto",
+        "request_kind": "request_enable",
+        "ownership_lane": "auto",
+        "arbitration_result": "accepted",
+        "request_preview": "request_enable -> enable_request_1",
+        "summary": "Enable request is accepted for the automatic lane."
+      },
+      {
+        "id": "reset_service",
+        "title": "Reset In Service",
+        "request_kind": "request_reset",
+        "ownership_lane": "service",
+        "arbitration_result": "blocked",
+        "blocked_reason": "service_lockout",
+        "request_preview": "request_reset -> reset_request_1",
+        "summary": "Reset request is blocked while manual ownership stays active."
+      },
+      {
+        "id": "disable_remote",
+        "title": "Disable From Remote",
+        "request_kind": "request_disable",
+        "ownership_lane": "remote",
+        "arbitration_result": "denied",
+        "denied_reason": "manual_owner_active",
+        "request_preview": "request_disable -> enable_request_1",
+        "summary": "Remote disable is denied because manual ownership has authority."
+      },
+      {
+        "id": "start_service",
+        "title": "Start In Service",
+        "request_kind": "request_start",
+        "ownership_lane": "service",
+        "arbitration_result": "superseded",
+        "superseded_by_lane_id": "enable_auto",
+        "request_preview": "request_start -> enable_request_1",
+        "summary": "Service start is superseded by the accepted auto enable request."
+      }
+    ],
+    "summary_outputs": [
+      {
+        "id": "command_ready",
+        "title": "Command Ready",
+        "value": "true",
+        "semantic_state": "healthy"
+      },
+      {
+        "id": "command_denied",
+        "title": "Command Denied",
+        "value": "true",
+        "semantic_state": "degraded"
+      }
+    ],
+    "aggregate_monitors": [
+      {
+        "id": "arbitration_health",
+        "title": "Arbitration Health",
+        "state": "accepted",
+        "severity": "info",
+        "summary": "At least one accepted lane is available while blocked and denied outcomes remain explicit."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "arbitration_trace",
+        "title": "Arbitration Trace",
+        "signal_count": 3,
+        "summary": "manual authority, blocked state, denied state"
+      }
+    ]
+  }
+}

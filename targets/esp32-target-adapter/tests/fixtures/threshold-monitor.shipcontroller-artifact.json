@@ -1,0 +1,68 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "threshold-monitor-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [],
+    "analog_inputs": [
+      {
+        "id": "ai_process_value_1",
+        "instance_id": "process_value_1",
+        "pin": 0
+      }
+    ],
+    "digital_outputs": [],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [
+      {
+        "id": "threshold_monitor_1",
+        "native_kind": "std.threshold_monitor.v1",
+        "mode": "high",
+        "threshold_a": 90,
+        "threshold_b": 90,
+        "hysteresis": 2,
+        "latch_alarm": true,
+        "timeout_ms": 5000,
+        "frontend_requirement_ids": [
+          "fe_threshold_monitor_1_value_source"
+        ],
+        "source": {
+          "instance_id": "process_value_1",
+          "port_id": "value",
+          "connection_id": "conn_sig_process_value_to_threshold_monitor_t1",
+          "resource_id": "hw_process_value_1"
+        }
+      }
+    ],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "operations": [
+      {
+        "id": "op_threshold_monitor_1_reset_latch",
+        "owner_instance_id": "threshold_monitor_1",
+        "kind": "reset_latch",
+        "metadata_only": true,
+        "title": "Reset Latch",
+        "confirmation_policy": "none",
+        "availability_mode": "guarded",
+        "progress_mode": "signal_based",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "alarm_active",
+            "value_type": "bool"
+          }
+        ]
+      }
+    ]
+  },
+  "diagnostics": []
+}

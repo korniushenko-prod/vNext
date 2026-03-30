@@ -1,0 +1,101 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_supervisor_invalid_unknown_proxy_target",
+    "title": "Boiler Supervisor Invalid Unknown Proxy Target"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "pid_controller": {
+        "id": "pid_controller",
+        "kind": "object_type",
+        "meta": {
+          "title": "PID Controller",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "in_auto": {
+              "id": "in_auto",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "facets": {
+          "operations": {
+            "operations": {
+              "autotune": {
+                "id": "autotune",
+                "kind": "autotune",
+                "title": "PID Autotune"
+              }
+            }
+          }
+        },
+        "implementation": {
+          "native": null,
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "boiler_supervisor": {
+        "id": "boiler_supervisor",
+        "kind": "package_definition",
+        "meta": {
+          "title": "Boiler Supervisor",
+          "origin": "project",
+          "package_kind": "boiler_supervisor_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "pid_1": {
+            "id": "pid_1",
+            "kind": "package_member",
+            "type_ref": "pid_controller"
+          }
+        },
+        "signals": {},
+        "supervision": {
+          "operation_proxies": {
+            "pid_autotune": {
+              "id": "pid_autotune",
+              "target_member_id": "pid_1",
+              "target_operation_id": "missing_operation",
+              "child_operation_kind": "autotune"
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_supervisor_1": {
+        "id": "boiler_supervisor_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor"
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

@@ -1,5 +1,10 @@
 {
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "pid-controller-demo-pack",
+  "capability_profile": "esp32-basic-io",
   "artifacts": {
+    "digital_inputs": [],
     "analog_inputs": [
       {
         "id": "ai_pv_sensor_1",
@@ -7,49 +12,101 @@
         "pin": 0
       }
     ],
-    "digital_inputs": [],
     "digital_outputs": [],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
     "pid_controllers": [
       {
-        "deadband": 0.05,
-        "direction": "reverse",
-        "frontend_requirement_ids": [
-          "fe_pid_1_mv_output",
-          "fe_pid_1_pv_source"
-        ],
         "id": "pid_1",
-        "kp": 1.5,
-        "mv_output": {
-          "instance_id": "pid_1",
-          "port_id": "mv_out",
-          "resource_id": "hw_pid_1_mv_out"
-        },
         "native_kind": "std.pid_controller.v1",
-        "output_max": 100,
+        "kp": 1.5,
+        "ti": 12,
+        "td": 0.25,
+        "sample_time_ms": 100,
         "output_min": 0,
+        "output_max": 100,
+        "direction": "reverse",
+        "pv_filter_tau_ms": 250,
+        "deadband": 0.05,
         "persistence_slot_ids": [
           "ps_pid_1_kp",
           "ps_pid_1_td",
           "ps_pid_1_ti"
         ],
-        "pv_filter_tau_ms": 250,
+        "frontend_requirement_ids": [
+          "fe_pid_1_mv_output",
+          "fe_pid_1_pv_source"
+        ],
         "pv_source": {
-          "connection_id": "conn_sig_pv_sensor_to_pid_t1",
           "instance_id": "pv_sensor_1",
           "port_id": "value",
+          "connection_id": "conn_sig_pv_sensor_to_pid_t1",
           "resource_id": "hw_pv_sensor_1"
         },
-        "sample_time_ms": 100,
-        "td": 0.25,
-        "ti": 12
+        "mv_output": {
+          "instance_id": "pid_1",
+          "port_id": "mv_out",
+          "resource_id": "hw_pid_1_mv_out"
+        }
       }
     ],
-    "pulse_flowmeters": [],
-    "timed_relays": []
+    "operations": [
+      {
+        "id": "op_pid_1_hold",
+        "owner_instance_id": "pid_1",
+        "kind": "hold",
+        "metadata_only": true,
+        "title": "Hold Output",
+        "confirmation_policy": "none",
+        "availability_mode": "guarded",
+        "progress_mode": "signal_based",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ]
+      },
+      {
+        "id": "op_pid_1_release",
+        "owner_instance_id": "pid_1",
+        "kind": "release",
+        "metadata_only": true,
+        "title": "Release Hold",
+        "confirmation_policy": "none",
+        "availability_mode": "guarded",
+        "progress_mode": "signal_based",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ]
+      },
+      {
+        "id": "op_pid_1_reset_integral",
+        "owner_instance_id": "pid_1",
+        "kind": "reset_integral",
+        "metadata_only": true,
+        "title": "Reset Integral",
+        "confirmation_policy": "none",
+        "availability_mode": "guarded",
+        "progress_mode": "signal_based",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ]
+      }
+    ]
   },
-  "capability_profile": "esp32-basic-io",
-  "diagnostics": [],
-  "schema_version": "0.1.0",
-  "source_pack_id": "pid-controller-demo-pack",
-  "target_kind": "esp32.shipcontroller.v1"
+  "diagnostics": []
 }

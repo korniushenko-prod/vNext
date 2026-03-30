@@ -1,0 +1,413 @@
+{
+  "id": "package-overview-pump-skid-supervisor-pilot",
+  "title": "PumpSkidSupervisor v1",
+  "description": "First pilot-track package overview. Package shape stays authoring-first here; deploy/apply/readback closes on the commissioning surface.",
+  "package_instance_id": "pump_skid_supervisor_1",
+  "package_definition": {
+    "package_id": "std.pump_skid_supervisor.v1",
+    "title": "PumpSkidSupervisor v1",
+    "origin": "project",
+    "preset_count": 3,
+    "template_count": 3,
+    "presets": [
+      "single_pump_basic",
+      "single_pump_with_run_hours",
+      "duty_standby_basic"
+    ],
+    "templates": [
+      "run_hours_pilot_template",
+      "maintenance_pilot_template",
+      "pressure_high_alarm_template"
+    ],
+    "boundary_notes": [
+      "Pilot package remains an authoring-layer assembly. Runtime pack and target artifact stay package-neutral after flattening.",
+      "This slice is bounded to PumpSkidSupervisor v1 MVP acceptance and does not open a new generic package runtime layer.",
+      "Deploy/apply/readback baseline is surfaced separately on the commissioning surface."
+    ]
+  },
+  "members": [
+    {
+      "id": "pump_group_1",
+      "title": "Pump Group",
+      "role": "package_state",
+      "type_title": "Pump Group",
+      "type_ref": "project:pump_group",
+      "template_ref": "",
+      "preset_ref": "single_pump_with_run_hours",
+      "effective_object_id": "pump_skid_supervisor_1__pump_group_1",
+      "boundary_note": "Bounded package state helper for pilot mode summaries only.",
+      "related_surfaces": []
+    },
+    {
+      "id": "pump_cmd_1",
+      "title": "Pump Command Output",
+      "role": "actuator",
+      "type_title": "Digital Output v1",
+      "type_ref": "std:digital_output_v1",
+      "template_ref": "",
+      "preset_ref": "single_pump_with_run_hours",
+      "effective_object_id": "pump_skid_supervisor_1__pump_cmd_1",
+      "boundary_note": "Physical actuation binding remains on the flattened effective object.",
+      "related_surfaces": []
+    },
+    {
+      "id": "run_feedback_1",
+      "title": "Run Feedback",
+      "role": "feedback",
+      "type_title": "Digital Input v1",
+      "type_ref": "std:digital_input_v1",
+      "template_ref": "",
+      "preset_ref": "single_pump_with_run_hours",
+      "effective_object_id": "pump_skid_supervisor_1__run_feedback_1",
+      "boundary_note": "Acquisition remains a child object concern and is only rolled up at package level.",
+      "related_surfaces": []
+    },
+    {
+      "id": "fault_feedback_1",
+      "title": "Fault Feedback",
+      "role": "fault_feedback",
+      "type_title": "Digital Input v1",
+      "type_ref": "std:digital_input_v1",
+      "template_ref": "",
+      "preset_ref": "single_pump_with_run_hours",
+      "effective_object_id": "pump_skid_supervisor_1__fault_feedback_1",
+      "boundary_note": "Fault visibility remains on the child object and is summarized upward.",
+      "related_surfaces": []
+    },
+    {
+      "id": "pressure_pv_1",
+      "title": "Pressure PV",
+      "role": "process_value",
+      "type_title": "Analog Input v1",
+      "type_ref": "std:analog_input_v1",
+      "template_ref": "",
+      "preset_ref": "single_pump_with_run_hours",
+      "effective_object_id": "pump_skid_supervisor_1__pressure_pv_1",
+      "boundary_note": "Analog acquisition remains on the effective object layer.",
+      "related_surfaces": []
+    },
+    {
+      "id": "run_hours_1",
+      "title": "Run Hours Counter",
+      "role": "usage_accumulator",
+      "type_title": "RunHoursCounter v1",
+      "type_ref": "std:run_hours_counter_v1",
+      "template_ref": "run_hours_pilot_template",
+      "preset_ref": "single_pump_with_run_hours",
+      "effective_object_id": "pump_skid_supervisor_1__run_hours_1",
+      "boundary_note": "Run hours flatten into an ordinary runtime object and feed downstream usage_total_in.",
+      "related_surfaces": [
+        {
+          "title": "RunHoursCounter + reset_counter",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-runhours"
+        }
+      ]
+    },
+    {
+      "id": "maintenance_counter_1",
+      "title": "Maintenance Counter",
+      "role": "service_monitor",
+      "type_title": "MaintenanceCounter v1",
+      "type_ref": "std:maintenance_counter_v1",
+      "template_ref": "maintenance_pilot_template",
+      "preset_ref": "single_pump_with_run_hours",
+      "effective_object_id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "boundary_note": "Maintenance counter remains downstream-only and consumes accumulated usage from run hours.",
+      "related_surfaces": [
+        {
+          "title": "MaintenanceCounter + service operations",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-maintenance"
+        }
+      ]
+    },
+    {
+      "id": "pressure_monitor_1",
+      "title": "Pressure High Monitor",
+      "role": "monitor",
+      "type_title": "ThresholdMonitor v1",
+      "type_ref": "std:threshold_monitor_v1",
+      "template_ref": "pressure_high_alarm_template",
+      "preset_ref": "single_pump_with_run_hours",
+      "effective_object_id": "pump_skid_supervisor_1__pressure_monitor_1",
+      "boundary_note": "Threshold monitor remains downstream over normalized pressure value.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "pump_skid_supervisor_1__pump_group_1",
+      "title": "Pump Group",
+      "type_title": "Pump Group",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_1__pump_cmd_1",
+      "title": "Pump Command Output",
+      "type_title": "Digital Output v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_1__run_feedback_1",
+      "title": "Run Feedback",
+      "type_title": "Digital Input v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_1__fault_feedback_1",
+      "title": "Fault Feedback",
+      "type_title": "Digital Input v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_1__pressure_pv_1",
+      "title": "Pressure PV",
+      "type_title": "Analog Input v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_1__run_hours_1",
+      "title": "Run Hours Counter",
+      "type_title": "RunHoursCounter v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "title": "Maintenance Counter",
+      "type_title": "MaintenanceCounter v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_1__pressure_monitor_1",
+      "title": "Pressure High Monitor",
+      "type_title": "ThresholdMonitor v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ],
+  "package_supervision": {
+    "snapshot_state": "healthy",
+    "summary_outputs": [
+      {
+        "id": "package_ready",
+        "title": "Package Ready",
+        "value": "true",
+        "semantic_state": "healthy"
+      },
+      {
+        "id": "package_running",
+        "title": "Package Running",
+        "value": "true",
+        "semantic_state": "running"
+      },
+      {
+        "id": "package_faulted",
+        "title": "Package Faulted",
+        "value": "false",
+        "semantic_state": "healthy"
+      },
+      {
+        "id": "pressure_value",
+        "title": "Pressure Value",
+        "value": "3.4 bar",
+        "semantic_state": "informational"
+      },
+      {
+        "id": "runtime_total",
+        "title": "Runtime Total",
+        "value": "148.6 h",
+        "semantic_state": "informational"
+      }
+    ],
+    "aggregate_monitors": [
+      {
+        "id": "package_health",
+        "title": "Package Health",
+        "state": "healthy",
+        "severity": "info",
+        "summary": "Run, pressure, and readiness signals are healthy on the pilot baseline."
+      }
+    ],
+    "aggregate_alarms": [
+      {
+        "id": "package_alarm_rollup",
+        "title": "Package Alarm Rollup",
+        "state": "healthy",
+        "severity": "info",
+        "summary": "No pressure or fault alarm is active on the pilot baseline."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "process_trace",
+        "title": "Process Trace",
+        "signal_count": 3,
+        "summary": "pressure_value, runtime_total, remaining_out"
+      },
+      {
+        "id": "status_trace",
+        "title": "Status Trace",
+        "signal_count": 3,
+        "summary": "package_ready, package_running, package_faulted"
+      }
+    ],
+    "operation_proxies": [
+      {
+        "id": "reset_runtime_counter",
+        "title": "Reset Runtime Counter",
+        "state": "available",
+        "summary": "Child reset counter lane is available."
+      },
+      {
+        "id": "reset_maintenance_interval",
+        "title": "Reset Maintenance Interval",
+        "state": "available",
+        "summary": "Child maintenance reset lane is available."
+      }
+    ],
+    "child_summary_cards": [
+      {
+        "id": "pump_group_state",
+        "member_id": "pump_group_1",
+        "title": "Pump Group",
+        "state": "healthy",
+        "summary": "Automatic group state is online."
+      },
+      {
+        "id": "pressure_monitor_state",
+        "member_id": "pressure_monitor_1",
+        "title": "Pressure Monitor",
+        "state": "healthy",
+        "summary": "Pressure high monitor is clear."
+      },
+      {
+        "id": "maintenance_state",
+        "member_id": "maintenance_counter_1",
+        "title": "Maintenance Counter",
+        "state": "healthy",
+        "summary": "Maintenance window is not yet due."
+      }
+    ]
+  },
+  "package_mode_phase": {
+    "snapshot_state": "mode_phase_available",
+    "active_mode": {
+      "id": "auto",
+      "title": "Auto"
+    },
+    "active_phase": {
+      "id": "running",
+      "title": "Running"
+    },
+    "mode_summary_entries": [
+      {
+        "id": "off_summary",
+        "title": "Off",
+        "semantic_state": "informational",
+        "summary": "Package parked."
+      },
+      {
+        "id": "auto_summary",
+        "title": "Auto",
+        "semantic_state": "healthy",
+        "summary": "Automatic lane is active."
+      },
+      {
+        "id": "manual_summary",
+        "title": "Manual",
+        "semantic_state": "informational",
+        "summary": "Manual lane is available but inactive."
+      }
+    ],
+    "phase_summary_entries": [
+      {
+        "id": "idle_summary",
+        "title": "Idle",
+        "semantic_state": "informational",
+        "summary": "No circulation."
+      },
+      {
+        "id": "ready_summary",
+        "title": "Ready",
+        "semantic_state": "healthy",
+        "summary": "Start conditions are satisfied."
+      },
+      {
+        "id": "running_summary",
+        "title": "Running",
+        "semantic_state": "running",
+        "summary": "Pump skid is circulating."
+      }
+    ],
+    "mode_groups": [
+      {
+        "id": "availability_modes",
+        "title": "Availability Modes",
+        "member_count": 2,
+        "summary": "Off and auto availability grouping."
+      },
+      {
+        "id": "commissioning_modes",
+        "title": "Commissioning Modes",
+        "member_count": 1,
+        "summary": "Manual service lane grouping."
+      }
+    ],
+    "phase_groups": [
+      {
+        "id": "standby_phases",
+        "title": "Standby Phases",
+        "member_count": 2,
+        "summary": "Idle and ready phases."
+      },
+      {
+        "id": "active_phases",
+        "title": "Active Phases",
+        "member_count": 1,
+        "summary": "Running phase."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "mode_phase_trace",
+        "title": "Mode / Phase Trace",
+        "signal_count": 3,
+        "summary": "active_mode, active_phase, start_running"
+      }
+    ],
+    "transition_actions": [
+      {
+        "id": "to_manual",
+        "title": "Request Manual Mode",
+        "intent": "request_mode_change",
+        "lifecycle_state": "pending",
+        "guard_state": "clear",
+        "summary": "Manual handover request is pending confirmation."
+      },
+      {
+        "id": "start_running",
+        "title": "Request Phase Start",
+        "intent": "request_phase_start",
+        "lifecycle_state": "completed",
+        "guard_state": "clear",
+        "summary": "Phase start already completed on the pilot baseline."
+      },
+      {
+        "id": "abort_running",
+        "title": "Request Phase Abort",
+        "intent": "request_phase_abort",
+        "lifecycle_state": "blocked",
+        "guard_state": "blocked",
+        "summary": "Abort remains blocked while the circulation lane is healthy."
+      }
+    ]
+  }
+}

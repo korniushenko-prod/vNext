@@ -1,0 +1,51 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "package-mode-execution-invalid-pack",
+  "source": {
+    "project_id": "package_mode_execution_invalid",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {},
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "package_mode_runtime_contract": {
+    "package_mode_execution_supported": true,
+    "phase_transition_execution_supported": true,
+    "transition_guard_diagnostics_supported": true,
+    "supported_intents": [
+      "request_mode_change",
+      "request_sequence_jump"
+    ]
+  },
+  "package_mode_phase": {
+    "pkgmode_invalid_1": {
+      "id": "pkgmode_invalid_1",
+      "package_instance_id": "invalid_1",
+      "modes": {},
+      "phases": {},
+      "mode_summary": {
+        "id": "mode_summary",
+        "entries": {}
+      },
+      "phase_summary": {
+        "id": "phase_summary",
+        "entries": {}
+      },
+      "active_mode_id": "missing_mode",
+      "active_phase_id": "missing_phase",
+      "allowed_phase_transitions": {
+        "invalid_phase_transition": {
+          "id": "invalid_phase_transition",
+          "intent": "request_phase_start",
+          "phase_id": "missing_phase",
+          "phase_state": "warming_up"
+        }
+      }
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

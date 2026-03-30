@@ -1,0 +1,150 @@
+{
+  "description": "Read-only package mode / phase overview for the non-boiler Wave 13 reference domain.",
+  "effective_objects": [
+    {
+      "execution_boundary": "ordinary_runtime_object",
+      "id": "pump_skid_supervisor_modes_1__pump_group_1",
+      "package_neutral": true,
+      "title": "Pump Group",
+      "type_title": "Pump Group"
+    },
+    {
+      "execution_boundary": "ordinary_runtime_object",
+      "id": "pump_skid_supervisor_modes_1__maintenance_counter_1",
+      "package_neutral": true,
+      "title": "Pump Maintenance Counter",
+      "type_title": "Maintenance Counter"
+    }
+  ],
+  "id": "package-overview-pump-skid-supervisor-modes",
+  "members": [
+    {
+      "boundary_note": "Mode and phase metadata stay derived from child group state only.",
+      "effective_object_id": "pump_skid_supervisor_modes_1__pump_group_1",
+      "id": "pump_group_1",
+      "preset_ref": "",
+      "related_surfaces": [],
+      "role": "pump_group",
+      "template_ref": "",
+      "title": "Pump Group",
+      "type_ref": "project:pump_group",
+      "type_title": "Pump Group"
+    },
+    {
+      "boundary_note": "Downstream service data remains child-owned and only summarized upward.",
+      "effective_object_id": "pump_skid_supervisor_modes_1__maintenance_counter_1",
+      "id": "maintenance_counter_1",
+      "preset_ref": "",
+      "related_surfaces": [],
+      "role": "service_monitor",
+      "template_ref": "",
+      "title": "Pump Maintenance Counter",
+      "type_ref": "project:maintenance_counter",
+      "type_title": "Maintenance Counter"
+    }
+  ],
+  "package_definition": {
+    "boundary_notes": [
+      "PumpSkidSupervisorModes v1 is the mandatory non-boiler acceptance slice for Wave 13.",
+      "Package mode / phase metadata remains authoring-level only and does not switch child execution."
+    ],
+    "origin": "project",
+    "package_id": "std.pump_skid_supervisor_modes.v1",
+    "preset_count": 0,
+    "presets": [],
+    "template_count": 0,
+    "templates": [],
+    "title": "PumpSkidSupervisorModes v1"
+  },
+  "package_instance_id": "pump_skid_supervisor_modes_1",
+  "package_mode_phase": {
+    "active_mode": {
+      "id": "auto",
+      "title": "Auto"
+    },
+    "active_phase": {
+      "id": "ready",
+      "title": "Ready"
+    },
+    "mode_groups": [
+      {
+        "id": "availability_modes",
+        "member_count": 2,
+        "summary": "Off and auto cover normal skid availability.",
+        "title": "Availability Modes"
+      },
+      {
+        "id": "service_modes",
+        "member_count": 1,
+        "summary": "Service remains a separate supervisory lane.",
+        "title": "Service Modes"
+      }
+    ],
+    "mode_summary_entries": [
+      {
+        "id": "off_summary",
+        "semantic_state": "inactive",
+        "summary": "Off mode is inactive.",
+        "title": "Off Summary"
+      },
+      {
+        "id": "auto_summary",
+        "semantic_state": "active",
+        "summary": "Auto is the active package mode.",
+        "title": "Auto Summary"
+      },
+      {
+        "id": "service_summary",
+        "semantic_state": "inactive",
+        "summary": "Service remains inactive.",
+        "title": "Service Summary"
+      }
+    ],
+    "package_coordination_id": "",
+    "package_supervision_id": "",
+    "phase_groups": [
+      {
+        "id": "preparation_phases",
+        "member_count": 2,
+        "summary": "Idle and ready form the preparation lane.",
+        "title": "Preparation Phases"
+      },
+      {
+        "id": "active_phases",
+        "member_count": 1,
+        "summary": "Pumping is the only active phase.",
+        "title": "Active Phases"
+      }
+    ],
+    "phase_summary_entries": [
+      {
+        "id": "idle_summary",
+        "semantic_state": "inactive",
+        "summary": "Idle is currently inactive.",
+        "title": "Idle Summary"
+      },
+      {
+        "id": "ready_summary",
+        "semantic_state": "active",
+        "summary": "Ready is active while waiting for pumping demand.",
+        "title": "Ready Summary"
+      },
+      {
+        "id": "pumping_summary",
+        "semantic_state": "inactive",
+        "summary": "Pumping will activate only when demand is present.",
+        "title": "Pumping Summary"
+      }
+    ],
+    "snapshot_state": "mode_phase_available",
+    "trace_groups": [
+      {
+        "id": "mode_phase_trace",
+        "signal_count": 3,
+        "summary": "ready_out, pumping_out, remaining_out",
+        "title": "Mode / Phase Trace"
+      }
+    ]
+  },
+  "title": "PumpSkidSupervisorModes v1"
+}

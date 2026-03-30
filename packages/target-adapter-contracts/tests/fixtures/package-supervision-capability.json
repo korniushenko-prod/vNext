@@ -1,0 +1,34 @@
+{
+  "target_id": "esp32-basic-io",
+  "display_name": "ESP32 Basic IO",
+  "supported_binding_kinds": ["digital_in", "digital_out", "analog_in", "analog_out"],
+  "supported_channel_kinds": ["signal", "telemetry", "state", "alarm", "command"],
+  "supported_value_types": ["bool", "float", "u32", "string"],
+  "supported_native_kinds": ["std.pid_controller.v1", "std.run_hours_counter.v1"],
+  "supported_operation_kinds": ["reset_counter", "autotune"],
+  "supports_trace": true,
+  "supports_operations": true,
+  "operations_support": {
+    "enabled": true,
+    "invoke": true,
+    "cancel": true,
+    "progress": true,
+    "result_payload": true,
+    "confirmation": true
+  },
+  "package_supervision_support": {
+    "enabled": true,
+    "summary_outputs": true,
+    "aggregate_monitors": true,
+    "aggregate_alarms": true,
+    "trace_groups": true,
+    "operation_proxies": true
+  },
+  "supports_persistence": true,
+  "supports_simulation": false,
+  "limits": {
+    "max_instances": 128,
+    "max_connections": 256,
+    "max_resources": 128
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "package-mode-phase-invalid-pack",
+  "source": {
+    "project_id": "package_mode_phase_invalid",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {},
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "package_mode_phase": {
+    "pkgmode_invalid": {
+      "id": "pkgmode_invalid",
+      "package_instance_id": "pkg_invalid",
+      "modes": {
+        "off": { "id": "off", "qualified_id": "pkgmode_invalid.mode.off" }
+      },
+      "phases": {
+        "idle": { "id": "idle", "qualified_id": "pkgmode_invalid.phase.idle", "source_ports": [] }
+      },
+      "mode_summary": {
+        "id": "mode_summary",
+        "entries": {
+          "off_summary": { "id": "off_summary", "mode_id": 42, "source_ports": [] }
+        }
+      },
+      "phase_summary": {
+        "id": "phase_summary",
+        "entries": {
+          "idle_summary": { "id": "idle_summary", "phase_id": "pkgmode_invalid.phase.idle", "source_ports": [] }
+        }
+      },
+      "active_mode_id": "pkgmode_invalid.mode.off",
+      "active_phase_id": "pkgmode_invalid.phase.idle"
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

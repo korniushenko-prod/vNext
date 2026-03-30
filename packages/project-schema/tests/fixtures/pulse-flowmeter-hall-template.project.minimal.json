@@ -1,0 +1,78 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "pulse_flowmeter_hall_template_demo",
+    "title": "Pulse Flowmeter Hall Template Demo"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "templates": {
+      "pulse_flowmeter_hall_preset": {
+        "id": "pulse_flowmeter_hall_preset",
+        "kind": "object_template",
+        "base_type_ref": "library:std/pulse_flowmeter",
+        "origin": "library_template",
+        "meta": {
+          "title": "Pulse Flowmeter Hall Preset",
+          "version": "1.0.0",
+          "description": "Reusable configured preset for the hall-pulse flowmeter baseline."
+        },
+        "defaults": {
+          "param_values": {
+            "k_factor": {
+              "kind": "literal",
+              "value": 450
+            },
+            "filter_window_ms": {
+              "kind": "literal",
+              "value": 250
+            },
+            "stale_timeout_ms": {
+              "kind": "literal",
+              "value": 3000
+            }
+          },
+          "tags": {
+            "sensor_mode": "hall_pulse",
+            "category": "flowmeter"
+          },
+          "facet_defaults": {
+            "debug_preset": "hall_flowmeter"
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "flowmeter_1": {
+        "id": "flowmeter_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/pulse_flowmeter",
+        "template_ref": "pulse_flowmeter_hall_preset",
+        "enabled": true,
+        "param_values": {
+          "threshold_on": {
+            "kind": "literal",
+            "value": 0.6
+          }
+        }
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

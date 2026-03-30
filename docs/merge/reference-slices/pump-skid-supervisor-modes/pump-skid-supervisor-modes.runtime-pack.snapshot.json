@@ -1,0 +1,439 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "pump-skid-supervisor-modes-demo-pack",
+  "source": {
+    "project_id": "pump_skid_supervisor_modes_reference_minimal",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-31T00:35:00Z"
+  },
+  "instances": {
+    "pump_skid_supervisor_modes_1__pump_group_1": {
+      "id": "pump_skid_supervisor_modes_1__pump_group_1",
+      "type_ref": "project:pump_group",
+      "title": "pump_skid_supervisor_modes_1 / Pump Group",
+      "enabled": true,
+      "ports": {
+        "off_out": {
+          "id": "off_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "auto_out": {
+          "id": "auto_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "service_out": {
+          "id": "service_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "pumping_out": {
+          "id": "pumping_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_modes_reference_minimal"
+      }
+    },
+    "pump_skid_supervisor_modes_1__run_hours_1": {
+      "id": "pump_skid_supervisor_modes_1__run_hours_1",
+      "type_ref": "project:run_hours_counter",
+      "title": "pump_skid_supervisor_modes_1 / Pump Runtime Counter",
+      "enabled": true,
+      "ports": {
+        "active_in": {
+          "id": "active_in",
+          "direction": "in",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "total_hours": {
+          "id": "total_hours",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_modes_reference_minimal"
+      }
+    },
+    "pump_skid_supervisor_modes_1__maintenance_counter_1": {
+      "id": "pump_skid_supervisor_modes_1__maintenance_counter_1",
+      "type_ref": "project:maintenance_counter",
+      "title": "pump_skid_supervisor_modes_1 / Pump Maintenance Counter",
+      "enabled": true,
+      "ports": {
+        "usage_total_in": {
+          "id": "usage_total_in",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "due_out": {
+          "id": "due_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "remaining_out": {
+          "id": "remaining_out",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_modes_reference_minimal"
+      }
+    },
+    "pump_skid_supervisor_modes_1__threshold_monitor_1": {
+      "id": "pump_skid_supervisor_modes_1__threshold_monitor_1",
+      "type_ref": "project:threshold_monitor",
+      "title": "pump_skid_supervisor_modes_1 / Pump Remaining Monitor",
+      "enabled": true,
+      "ports": {
+        "value_in": {
+          "id": "value_in",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "alarm_active": {
+          "id": "alarm_active",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_modes_reference_minimal"
+      }
+    }
+  },
+  "connections": {
+    "conn_pump_skid_supervisor_modes_1__sig_pumping_to_run_hours_runtime_active": {
+      "id": "conn_pump_skid_supervisor_modes_1__sig_pumping_to_run_hours_runtime_active",
+      "source": {
+        "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+        "port_id": "pumping_out"
+      },
+      "target": {
+        "instance_id": "pump_skid_supervisor_modes_1__run_hours_1",
+        "port_id": "active_in"
+      },
+      "channel_kind": "state",
+      "value_type": "bool",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "pump_skid_supervisor_modes_reference_minimal",
+        "signal_id": "pump_skid_supervisor_modes_1__sig_pumping_to_run_hours"
+      }
+    },
+    "conn_pump_skid_supervisor_modes_1__sig_runtime_to_maintenance_maintenance_usage": {
+      "id": "conn_pump_skid_supervisor_modes_1__sig_runtime_to_maintenance_maintenance_usage",
+      "source": {
+        "instance_id": "pump_skid_supervisor_modes_1__run_hours_1",
+        "port_id": "total_hours"
+      },
+      "target": {
+        "instance_id": "pump_skid_supervisor_modes_1__maintenance_counter_1",
+        "port_id": "usage_total_in"
+      },
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "pump_skid_supervisor_modes_reference_minimal",
+        "signal_id": "pump_skid_supervisor_modes_1__sig_runtime_to_maintenance"
+      }
+    },
+    "conn_pump_skid_supervisor_modes_1__sig_remaining_to_monitor_remaining_monitor": {
+      "id": "conn_pump_skid_supervisor_modes_1__sig_remaining_to_monitor_remaining_monitor",
+      "source": {
+        "instance_id": "pump_skid_supervisor_modes_1__maintenance_counter_1",
+        "port_id": "remaining_out"
+      },
+      "target": {
+        "instance_id": "pump_skid_supervisor_modes_1__threshold_monitor_1",
+        "port_id": "value_in"
+      },
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "pump_skid_supervisor_modes_reference_minimal",
+        "signal_id": "pump_skid_supervisor_modes_1__sig_remaining_to_monitor"
+      }
+    }
+  },
+  "resources": {},
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "package_mode_runtime_contract": {
+    "package_mode_execution_supported": true,
+    "phase_transition_execution_supported": true,
+    "transition_guard_diagnostics_supported": true,
+    "supported_intents": [
+      "request_mode_change",
+      "request_phase_start",
+      "request_phase_abort"
+    ]
+  },
+  "package_mode_phase": {
+    "pkgmode_pump_skid_supervisor_modes_1": {
+      "id": "pkgmode_pump_skid_supervisor_modes_1",
+      "package_instance_id": "pump_skid_supervisor_modes_1",
+      "title": "PumpSkidSupervisorModes v1",
+      "modes": {
+        "off": {
+          "id": "off",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_1.mode.off",
+          "title": "Off",
+          "summary": "Pump skid is parked and not pumping.",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_modes_1.phase.idle"
+          ]
+        },
+        "auto": {
+          "id": "auto",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_1.mode.auto",
+          "title": "Auto",
+          "summary": "Pump skid is ready for automatic demand handling.",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_modes_1.phase.idle",
+            "pkgmode_pump_skid_supervisor_modes_1.phase.ready",
+            "pkgmode_pump_skid_supervisor_modes_1.phase.pumping"
+          ]
+        },
+        "service": {
+          "id": "service",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_1.mode.service",
+          "title": "Service",
+          "summary": "Pump skid is under service supervision without automatic demand.",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_modes_1.phase.ready"
+          ]
+        }
+      },
+      "phases": {
+        "idle": {
+          "id": "idle",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_1.phase.idle",
+          "title": "Idle",
+          "summary": "No pumping demand is active.",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+              "port_id": "off_out"
+            }
+          ]
+        },
+        "ready": {
+          "id": "ready",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_1.phase.ready",
+          "title": "Ready",
+          "summary": "Skid prerequisites are met and the group is ready.",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+              "port_id": "ready_out"
+            }
+          ]
+        },
+        "pumping": {
+          "id": "pumping",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_1.phase.pumping",
+          "title": "Pumping",
+          "summary": "Pump skid is actively pumping.",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+              "port_id": "pumping_out"
+            }
+          ]
+        }
+      },
+      "mode_summary": {
+        "id": "mode_summary",
+        "title": "Package Mode Summary",
+        "default_mode_id": "pkgmode_pump_skid_supervisor_modes_1.mode.auto",
+        "entries": {
+          "off_summary": {
+            "id": "off_summary",
+            "title": "Off Summary",
+            "mode_id": "pkgmode_pump_skid_supervisor_modes_1.mode.off",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+                "port_id": "off_out"
+              }
+            ],
+            "summary": "Off mode is exposed from the pump group child lane."
+          },
+          "auto_summary": {
+            "id": "auto_summary",
+            "title": "Auto Summary",
+            "mode_id": "pkgmode_pump_skid_supervisor_modes_1.mode.auto",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+                "port_id": "auto_out"
+              }
+            ],
+            "summary": "Auto mode remains child-state driven."
+          },
+          "service_summary": {
+            "id": "service_summary",
+            "title": "Service Summary",
+            "mode_id": "pkgmode_pump_skid_supervisor_modes_1.mode.service",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+                "port_id": "service_out"
+              }
+            ],
+            "summary": "Service mode is a supervisory metadata lane only."
+          }
+        }
+      },
+      "phase_summary": {
+        "id": "phase_summary",
+        "title": "Package Phase Summary",
+        "default_phase_id": "pkgmode_pump_skid_supervisor_modes_1.phase.ready",
+        "entries": {
+          "idle_summary": {
+            "id": "idle_summary",
+            "title": "Idle Summary",
+            "phase_id": "pkgmode_pump_skid_supervisor_modes_1.phase.idle",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+                "port_id": "off_out"
+              }
+            ],
+            "summary": "Idle phase is derived from the pump group off-state."
+          },
+          "ready_summary": {
+            "id": "ready_summary",
+            "title": "Ready Summary",
+            "phase_id": "pkgmode_pump_skid_supervisor_modes_1.phase.ready",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+                "port_id": "ready_out"
+              }
+            ],
+            "summary": "Ready phase remains child-group driven."
+          },
+          "pumping_summary": {
+            "id": "pumping_summary",
+            "title": "Pumping Summary",
+            "phase_id": "pkgmode_pump_skid_supervisor_modes_1.phase.pumping",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+                "port_id": "pumping_out"
+              }
+            ],
+            "summary": "Pumping phase remains child-group driven."
+          }
+        }
+      },
+      "active_mode_id": "pkgmode_pump_skid_supervisor_modes_1.mode.auto",
+      "active_phase_id": "pkgmode_pump_skid_supervisor_modes_1.phase.ready",
+      "package_mode_groups": {
+        "availability_modes": {
+          "id": "availability_modes",
+          "title": "Availability Modes",
+          "mode_ids": [
+            "pkgmode_pump_skid_supervisor_modes_1.mode.off",
+            "pkgmode_pump_skid_supervisor_modes_1.mode.auto"
+          ],
+          "summary": "Normal operating availability modes."
+        },
+        "service_modes": {
+          "id": "service_modes",
+          "title": "Service Modes",
+          "mode_ids": [
+            "pkgmode_pump_skid_supervisor_modes_1.mode.service"
+          ],
+          "summary": "Service-only supervisory mode."
+        }
+      },
+      "package_phase_groups": {
+        "preparation_phases": {
+          "id": "preparation_phases",
+          "title": "Preparation Phases",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_modes_1.phase.idle",
+            "pkgmode_pump_skid_supervisor_modes_1.phase.ready"
+          ],
+          "summary": "Pre-pumping phases."
+        },
+        "active_phases": {
+          "id": "active_phases",
+          "title": "Active Phases",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_modes_1.phase.pumping"
+          ],
+          "summary": "Active pumping phases."
+        }
+      },
+      "trace_groups": {
+        "mode_phase_trace": {
+          "id": "mode_phase_trace",
+          "title": "Mode / Phase Trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_modes_1__pump_group_1",
+              "port_id": "pumping_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_modes_1__maintenance_counter_1",
+              "port_id": "remaining_out"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

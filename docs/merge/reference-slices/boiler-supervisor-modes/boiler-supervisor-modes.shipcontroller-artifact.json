@@ -1,0 +1,247 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "boiler-supervisor-modes-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [],
+    "analog_inputs": [],
+    "digital_outputs": [],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "package_mode_phase": [
+      {
+        "id": "pkgmode_boiler_supervisor_modes_1",
+        "package_instance_id": "boiler_supervisor_modes_1",
+        "title": "BoilerSupervisorModes v1",
+        "modes": [
+          {
+            "id": "off",
+            "qualified_id": "pkgmode_boiler_supervisor_modes_1.mode.off",
+            "title": "Off",
+            "summary": "Package is parked with no active boiler demand.",
+            "phase_ids": [
+              "pkgmode_boiler_supervisor_modes_1.phase.idle"
+            ]
+          },
+          {
+            "id": "run",
+            "qualified_id": "pkgmode_boiler_supervisor_modes_1.mode.run",
+            "title": "Run",
+            "summary": "Package is in active control supervision.",
+            "phase_ids": [
+              "pkgmode_boiler_supervisor_modes_1.phase.precheck",
+              "pkgmode_boiler_supervisor_modes_1.phase.run"
+            ]
+          },
+          {
+            "id": "standby",
+            "qualified_id": "pkgmode_boiler_supervisor_modes_1.mode.standby",
+            "title": "Standby",
+            "summary": "Package is healthy and waiting for supervisory run demand.",
+            "phase_ids": [
+              "pkgmode_boiler_supervisor_modes_1.phase.idle",
+              "pkgmode_boiler_supervisor_modes_1.phase.precheck"
+            ]
+          }
+        ],
+        "phases": [
+          {
+            "id": "idle",
+            "qualified_id": "pkgmode_boiler_supervisor_modes_1.phase.idle",
+            "title": "Idle",
+            "summary": "Package remains available with no active run lane.",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                "port_id": "idle_out"
+              }
+            ]
+          },
+          {
+            "id": "precheck",
+            "qualified_id": "pkgmode_boiler_supervisor_modes_1.phase.precheck",
+            "title": "Precheck",
+            "summary": "Flow and maintenance prerequisites are evaluated before run.",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_1__flow_guard_1",
+                "port_id": "source_ok"
+              },
+              {
+                "instance_id": "boiler_supervisor_modes_1__maintenance_counter_1",
+                "port_id": "source_ok"
+              }
+            ]
+          },
+          {
+            "id": "run",
+            "qualified_id": "pkgmode_boiler_supervisor_modes_1.phase.run",
+            "title": "Run",
+            "summary": "Boiler supervisory run lane is active.",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                "port_id": "run_out"
+              }
+            ]
+          }
+        ],
+        "mode_summary": {
+          "id": "mode_summary",
+          "title": "Package Mode Summary",
+          "default_mode_id": "pkgmode_boiler_supervisor_modes_1.mode.standby",
+          "entries": [
+            {
+              "id": "off_summary",
+              "title": "Off Summary",
+              "mode_id": "pkgmode_boiler_supervisor_modes_1.mode.off",
+              "source_ports": [
+                {
+                  "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                  "port_id": "off_out"
+                }
+              ],
+              "summary": "Off lane remains inactive."
+            },
+            {
+              "id": "run_summary",
+              "title": "Run Summary",
+              "mode_id": "pkgmode_boiler_supervisor_modes_1.mode.run",
+              "source_ports": [
+                {
+                  "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                  "port_id": "run_out"
+                }
+              ],
+              "summary": "Run mode becomes active only after precheck clears."
+            },
+            {
+              "id": "standby_summary",
+              "title": "Standby Summary",
+              "mode_id": "pkgmode_boiler_supervisor_modes_1.mode.standby",
+              "source_ports": [
+                {
+                  "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                  "port_id": "standby_out"
+                }
+              ],
+              "summary": "Standby is the current supervisory mode."
+            }
+          ]
+        },
+        "phase_summary": {
+          "id": "phase_summary",
+          "title": "Package Phase Summary",
+          "default_phase_id": "pkgmode_boiler_supervisor_modes_1.phase.precheck",
+          "entries": [
+            {
+              "id": "idle_summary",
+              "title": "Idle Summary",
+              "phase_id": "pkgmode_boiler_supervisor_modes_1.phase.idle",
+              "source_ports": [
+                {
+                  "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                  "port_id": "idle_out"
+                }
+              ],
+              "summary": "Idle phase is inactive."
+            },
+            {
+              "id": "precheck_summary",
+              "title": "Precheck Summary",
+              "phase_id": "pkgmode_boiler_supervisor_modes_1.phase.precheck",
+              "source_ports": [
+                {
+                  "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                  "port_id": "precheck_out"
+                }
+              ],
+              "summary": "Precheck is active while supervisory gates are evaluated."
+            },
+            {
+              "id": "run_phase_summary",
+              "title": "Run Phase Summary",
+              "phase_id": "pkgmode_boiler_supervisor_modes_1.phase.run",
+              "source_ports": [
+                {
+                  "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                  "port_id": "run_out"
+                }
+              ],
+              "summary": "Run phase follows the core run lane."
+            }
+          ]
+        },
+        "active_mode_id": "pkgmode_boiler_supervisor_modes_1.mode.standby",
+        "active_phase_id": "pkgmode_boiler_supervisor_modes_1.phase.precheck",
+        "allowed_mode_transitions": [],
+        "allowed_phase_transitions": [],
+        "package_mode_groups": [
+          {
+            "id": "availability_modes",
+            "title": "Availability Modes",
+            "mode_ids": [
+              "pkgmode_boiler_supervisor_modes_1.mode.off",
+              "pkgmode_boiler_supervisor_modes_1.mode.standby"
+            ],
+            "summary": "Non-running supervisory modes."
+          },
+          {
+            "id": "control_modes",
+            "title": "Control Modes",
+            "mode_ids": [
+              "pkgmode_boiler_supervisor_modes_1.mode.run"
+            ],
+            "summary": "Active control supervisory mode."
+          }
+        ],
+        "package_phase_groups": [
+          {
+            "id": "active_phases",
+            "title": "Active Phases",
+            "phase_ids": [
+              "pkgmode_boiler_supervisor_modes_1.phase.run"
+            ],
+            "summary": "Phases that represent active run behavior."
+          },
+          {
+            "id": "preparation_phases",
+            "title": "Preparation Phases",
+            "phase_ids": [
+              "pkgmode_boiler_supervisor_modes_1.phase.idle",
+              "pkgmode_boiler_supervisor_modes_1.phase.precheck"
+            ],
+            "summary": "Phases that prepare active supervision."
+          }
+        ],
+        "trace_groups": [
+          {
+            "id": "mode_phase_trace",
+            "title": "Mode / Phase Trace",
+            "signals": [
+              {
+                "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                "port_id": "standby_out"
+              },
+              {
+                "instance_id": "boiler_supervisor_modes_1__boiler_core_1",
+                "port_id": "run_out"
+              },
+              {
+                "instance_id": "boiler_supervisor_modes_1__maintenance_counter_1",
+                "port_id": "remaining_out"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "diagnostics": []
+}

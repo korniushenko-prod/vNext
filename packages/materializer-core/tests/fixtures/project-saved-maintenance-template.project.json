@@ -1,0 +1,420 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "demo_maintenance_counter_project",
+    "title": "Maintenance Counter Demo"
+  },
+  "imports": {
+    "libraries": [
+      "std"
+    ],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "analog_input": {
+        "id": "analog_input",
+        "kind": "object_type",
+        "meta": {
+          "title": "Analog Input",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std"
+        },
+        "interface": {
+          "ports": {
+            "value": {
+              "id": "value",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.analog_input.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.analog_input.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      },
+      "maintenance_counter": {
+        "id": "maintenance_counter",
+        "kind": "object_type",
+        "meta": {
+          "title": "Maintenance Counter",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std",
+          "description": "Evaluates accumulated usage against a service interval and exposes due and overdue maintenance states."
+        },
+        "interface": {
+          "ports": {
+            "usage_total_in": {
+              "id": "usage_total_in",
+              "direction": "in",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "remaining_out": {
+              "id": "remaining_out",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "due_out": {
+              "id": "due_out",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "overdue_out": {
+              "id": "overdue_out",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "progress_out": {
+              "id": "progress_out",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "source_ok": {
+              "id": "source_ok",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "service_interval": {
+              "id": "service_interval",
+              "value_type": "float",
+              "default": 1000,
+              "unit": "usage_units",
+              "min": 0.0001,
+              "max": 1000000000,
+              "step": 0.1,
+              "group": "service",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "warning_before": {
+              "id": "warning_before",
+              "value_type": "float",
+              "default": 100,
+              "unit": "usage_units",
+              "min": 0,
+              "max": 1000000000,
+              "step": 0.1,
+              "group": "service",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "overdue_margin": {
+              "id": "overdue_margin",
+              "value_type": "float",
+              "default": 0,
+              "unit": "usage_units",
+              "min": 0,
+              "max": 1000000000,
+              "step": 0.1,
+              "group": "service",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "auto_rollover": {
+              "id": "auto_rollover",
+              "value_type": "bool",
+              "default": false,
+              "group": "service",
+              "ui_hint": "toggle",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "persist_enabled": {
+              "id": "persist_enabled",
+              "value_type": "bool",
+              "default": true,
+              "group": "persistence",
+              "ui_hint": "toggle",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.maintenance_counter.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.maintenance_counter.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {}
+          },
+          "operations": {
+            "operations": {
+              "acknowledge_due": {
+                "id": "acknowledge_due",
+                "kind": "acknowledge_due",
+                "title": "Acknowledge Due",
+                "ui_hint": "secondary",
+                "safe_when": [
+                  "due_active"
+                ],
+                "confirmation_policy": "optional",
+                "progress_signals": [
+                  "due_out",
+                  "overdue_out"
+                ],
+                "result_fields": [
+                  "completed",
+                  "acknowledged"
+                ]
+              },
+              "reset_interval": {
+                "id": "reset_interval",
+                "kind": "reset_interval",
+                "title": "Reset Interval",
+                "ui_hint": "danger",
+                "safe_when": [
+                  "service_allowed"
+                ],
+                "confirmation_policy": "required",
+                "progress_signals": [
+                  "remaining_out",
+                  "progress_out"
+                ],
+                "result_fields": [
+                  "completed",
+                  "remaining_out",
+                  "progress_out"
+                ]
+              }
+            }
+          },
+          "monitoring": {
+            "monitors": {
+              "stale_source": {
+                "id": "stale_source",
+                "kind": "stale",
+                "source_ports": [
+                  "usage_total_in"
+                ],
+                "severity": "warning",
+                "status_port_id": "source_ok"
+              },
+              "interval_invalid": {
+                "id": "interval_invalid",
+                "kind": "invalid",
+                "severity": "error",
+                "status_port_id": "due_out"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "maintenance": {
+                "title": "Maintenance",
+                "signals": [
+                  "usage_total_in",
+                  "remaining_out",
+                  "due_out",
+                  "overdue_out"
+                ],
+                "sample_hint_ms": 1000,
+                "chart_hint": "line"
+              }
+            }
+          },
+          "persistence": {
+            "slots": {
+              "reset_baseline": {
+                "id": "reset_baseline",
+                "slot_kind": "state",
+                "nv_slot_hint": "nv.maintenance.reset_baseline",
+                "flush_policy": "on_change"
+              },
+              "acknowledge_state": {
+                "id": "acknowledge_state",
+                "slot_kind": "state",
+                "nv_slot_hint": "nv.maintenance.acknowledge_state",
+                "flush_policy": "on_change"
+              }
+            }
+          },
+          "templates": {
+            "presets": {
+              "hours_based_service": {
+                "id": "hours_based_service",
+                "defaults": {
+                  "service_interval": 500,
+                  "warning_before": 50,
+                  "overdue_margin": 0,
+                  "auto_rollover": false,
+                  "persist_enabled": true
+                }
+              },
+              "cycles_based_service": {
+                "id": "cycles_based_service",
+                "defaults": {
+                  "service_interval": 10000,
+                  "warning_before": 500,
+                  "overdue_margin": 0,
+                  "auto_rollover": false,
+                  "persist_enabled": true
+                }
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      }
+    },
+    "templates": {
+      "maintenance_service_saved": {
+        "id": "maintenance_service_saved",
+        "kind": "object_template",
+        "base_type_ref": "library:std/maintenance_counter",
+        "origin": "project_saved",
+        "meta": {
+          "title": "Saved Maintenance Service Preset",
+          "version": "1.0.0",
+          "description": "Project-saved maintenance preset."
+        },
+        "defaults": {
+          "param_values": {
+            "service_interval": {
+              "kind": "literal",
+              "value": 500
+            },
+            "warning_before": {
+              "kind": "literal",
+              "value": 50
+            },
+            "overdue_margin": {
+              "kind": "literal",
+              "value": 0
+            },
+            "persist_enabled": {
+              "kind": "literal",
+              "value": true
+            }
+          },
+          "tags": {
+            "origin": "project_saved"
+          },
+          "facet_defaults": {
+            "monitor_preset": "maintenance_service"
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "usage_source_1": {
+        "id": "usage_source_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/analog_input",
+        "title": "Usage Source",
+        "enabled": true,
+        "param_values": {}
+      },
+      "maintenance_counter_1": {
+        "id": "maintenance_counter_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/maintenance_counter",
+        "title": "Maintenance Counter #1",
+        "enabled": true,
+        "param_values": {
+          "auto_rollover": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        "template_ref": "maintenance_service_saved"
+      }
+    },
+    "signals": {
+      "sig_usage_source_to_maintenance_counter": {
+        "id": "sig_usage_source_to_maintenance_counter",
+        "title": "Usage Source -> Maintenance Counter",
+        "source": {
+          "instance_id": "usage_source_1",
+          "port_id": "value"
+        },
+        "targets": {
+          "t1": {
+            "instance_id": "maintenance_counter_1",
+            "port_id": "usage_total_in"
+          }
+        }
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {
+      "hw_usage_source_1": {
+        "id": "hw_usage_source_1",
+        "instance_id": "usage_source_1",
+        "port_id": "value",
+        "binding_kind": "analog_in",
+        "config": {
+          "channel": 1
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

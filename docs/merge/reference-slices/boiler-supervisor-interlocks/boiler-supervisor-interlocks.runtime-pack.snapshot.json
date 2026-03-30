@@ -1,0 +1,461 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "boiler-supervisor-interlocks-demo-pack",
+  "source": {
+    "project_id": "boiler_supervisor_interlocks_reference_minimal",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T23:59:59Z"
+  },
+  "instances": {
+    "boiler_supervisor_interlocks_1__feedwater_guard_1": {
+      "id": "boiler_supervisor_interlocks_1__feedwater_guard_1",
+      "type_ref": "project:package_gate_source",
+      "title": "boiler_supervisor_interlocks_1 / Feedwater Guard",
+      "enabled": true,
+      "ports": {
+        "state_out": {
+          "id": "state_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_interlocks_reference_minimal"
+      }
+    },
+    "boiler_supervisor_interlocks_1__circulation_guard_1": {
+      "id": "boiler_supervisor_interlocks_1__circulation_guard_1",
+      "type_ref": "project:package_gate_source",
+      "title": "boiler_supervisor_interlocks_1 / Circulation Guard",
+      "enabled": true,
+      "ports": {
+        "state_out": {
+          "id": "state_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_interlocks_reference_minimal"
+      }
+    },
+    "boiler_supervisor_interlocks_1__demand_guard_1": {
+      "id": "boiler_supervisor_interlocks_1__demand_guard_1",
+      "type_ref": "project:package_gate_source",
+      "title": "boiler_supervisor_interlocks_1 / Demand Guard",
+      "enabled": true,
+      "ports": {
+        "state_out": {
+          "id": "state_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_interlocks_reference_minimal"
+      }
+    },
+    "boiler_supervisor_interlocks_1__fault_latch_1": {
+      "id": "boiler_supervisor_interlocks_1__fault_latch_1",
+      "type_ref": "project:package_gate_source",
+      "title": "boiler_supervisor_interlocks_1 / Fault Latch",
+      "enabled": true,
+      "ports": {
+        "state_out": {
+          "id": "state_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_interlocks_reference_minimal"
+      }
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "package_mode_runtime_contract": {
+    "package_mode_execution_supported": true,
+    "phase_transition_execution_supported": true,
+    "transition_guard_diagnostics_supported": true,
+    "supported_intents": [
+      "request_mode_change",
+      "request_phase_start",
+      "request_phase_abort"
+    ]
+  },
+  "package_mode_phase": {
+    "pkgmode_boiler_supervisor_interlocks_1": {
+      "id": "pkgmode_boiler_supervisor_interlocks_1",
+      "package_instance_id": "boiler_supervisor_interlocks_1",
+      "title": "BoilerSupervisorInterlocks v1",
+      "modes": {
+        "off": {
+          "id": "off",
+          "qualified_id": "pkgmode_boiler_supervisor_interlocks_1.mode.off",
+          "title": "Off",
+          "phase_ids": [
+            "pkgmode_boiler_supervisor_interlocks_1.phase.idle"
+          ]
+        },
+        "auto": {
+          "id": "auto",
+          "qualified_id": "pkgmode_boiler_supervisor_interlocks_1.mode.auto",
+          "title": "Auto",
+          "phase_ids": [
+            "pkgmode_boiler_supervisor_interlocks_1.phase.idle",
+            "pkgmode_boiler_supervisor_interlocks_1.phase.run"
+          ]
+        },
+        "service": {
+          "id": "service",
+          "qualified_id": "pkgmode_boiler_supervisor_interlocks_1.mode.service",
+          "title": "Service",
+          "phase_ids": [
+            "pkgmode_boiler_supervisor_interlocks_1.phase.shutdown"
+          ]
+        }
+      },
+      "phases": {
+        "idle": {
+          "id": "idle",
+          "qualified_id": "pkgmode_boiler_supervisor_interlocks_1.phase.idle",
+          "title": "Idle",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__demand_guard_1",
+              "port_id": "state_out"
+            }
+          ]
+        },
+        "run": {
+          "id": "run",
+          "qualified_id": "pkgmode_boiler_supervisor_interlocks_1.phase.run",
+          "title": "Run",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__circulation_guard_1",
+              "port_id": "state_out"
+            }
+          ]
+        },
+        "shutdown": {
+          "id": "shutdown",
+          "qualified_id": "pkgmode_boiler_supervisor_interlocks_1.phase.shutdown",
+          "title": "Shutdown",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__fault_latch_1",
+              "port_id": "state_out"
+            }
+          ]
+        }
+      },
+      "mode_summary": {
+        "id": "mode_summary",
+        "entries": {
+          "off_summary": {
+            "id": "off_summary",
+            "mode_id": "pkgmode_boiler_supervisor_interlocks_1.mode.off",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_interlocks_1__fault_latch_1",
+                "port_id": "state_out"
+              }
+            ]
+          },
+          "auto_summary": {
+            "id": "auto_summary",
+            "mode_id": "pkgmode_boiler_supervisor_interlocks_1.mode.auto",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_interlocks_1__demand_guard_1",
+                "port_id": "state_out"
+              }
+            ]
+          },
+          "service_summary": {
+            "id": "service_summary",
+            "mode_id": "pkgmode_boiler_supervisor_interlocks_1.mode.service",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_interlocks_1__fault_latch_1",
+                "port_id": "blocked_out"
+              }
+            ]
+          }
+        }
+      },
+      "phase_summary": {
+        "id": "phase_summary",
+        "entries": {
+          "idle_summary": {
+            "id": "idle_summary",
+            "phase_id": "pkgmode_boiler_supervisor_interlocks_1.phase.idle",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_interlocks_1__demand_guard_1",
+                "port_id": "state_out"
+              }
+            ]
+          },
+          "run_summary": {
+            "id": "run_summary",
+            "phase_id": "pkgmode_boiler_supervisor_interlocks_1.phase.run",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_interlocks_1__circulation_guard_1",
+                "port_id": "state_out"
+              }
+            ]
+          },
+          "shutdown_summary": {
+            "id": "shutdown_summary",
+            "phase_id": "pkgmode_boiler_supervisor_interlocks_1.phase.shutdown",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_interlocks_1__fault_latch_1",
+                "port_id": "state_out"
+              }
+            ]
+          }
+        }
+      },
+      "active_mode_id": "pkgmode_boiler_supervisor_interlocks_1.mode.auto",
+      "active_phase_id": "pkgmode_boiler_supervisor_interlocks_1.phase.idle",
+      "allowed_mode_transitions": {
+        "to_auto": {
+          "id": "to_auto",
+          "intent": "request_mode_change",
+          "from_mode_id": "pkgmode_boiler_supervisor_interlocks_1.mode.off",
+          "to_mode_id": "pkgmode_boiler_supervisor_interlocks_1.mode.auto",
+          "guard_state": "clear",
+          "guard_notes": [
+            "package_gate_clear"
+          ]
+        }
+      },
+      "allowed_phase_transitions": {
+        "abort_shutdown": {
+          "id": "abort_shutdown",
+          "intent": "request_phase_abort",
+          "phase_id": "pkgmode_boiler_supervisor_interlocks_1.phase.shutdown",
+          "allowed_mode_ids": [
+            "pkgmode_boiler_supervisor_interlocks_1.mode.service"
+          ],
+          "phase_state": "running",
+          "transition_state": "running",
+          "guard_state": "blocked",
+          "guard_notes": [
+            "operator_confirmation"
+          ]
+        }
+      }
+    }
+  },
+  "package_permissive_interlock": {
+    "pkggate_boiler_supervisor_interlocks_1": {
+      "id": "pkggate_boiler_supervisor_interlocks_1",
+      "package_instance_id": "boiler_supervisor_interlocks_1",
+      "title": "BoilerSupervisorInterlocks v1",
+      "permissives": {
+        "feedwater_ok": {
+          "id": "feedwater_ok",
+          "qualified_id": "pkggate_boiler_supervisor_interlocks_1.perm.feedwater_ok",
+          "title": "Feedwater OK",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__feedwater_guard_1",
+              "port_id": "state_out"
+            }
+          ],
+          "blocked_reason_code": "feedwater_missing"
+        },
+        "circulation_ok": {
+          "id": "circulation_ok",
+          "qualified_id": "pkggate_boiler_supervisor_interlocks_1.perm.circulation_ok",
+          "title": "Circulation OK",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__circulation_guard_1",
+              "port_id": "state_out"
+            }
+          ],
+          "blocked_reason_code": "circulation_missing"
+        },
+        "demand_present": {
+          "id": "demand_present",
+          "qualified_id": "pkggate_boiler_supervisor_interlocks_1.perm.demand_present",
+          "title": "Demand Present",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__demand_guard_1",
+              "port_id": "state_out"
+            }
+          ],
+          "blocked_reason_code": "demand_missing"
+        }
+      },
+      "interlocks": {
+        "permissive_blocked": {
+          "id": "permissive_blocked",
+          "qualified_id": "pkggate_boiler_supervisor_interlocks_1.int.permissive_blocked",
+          "title": "Permissive Blocked",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__feedwater_guard_1",
+              "port_id": "blocked_out"
+            }
+          ],
+          "active_state": "held",
+          "reason_code": "permissive_blocked",
+          "diagnostic_ref": "diag_permissive_blocked"
+        },
+        "package_faulted": {
+          "id": "package_faulted",
+          "qualified_id": "pkggate_boiler_supervisor_interlocks_1.int.package_faulted",
+          "title": "Package Faulted",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__fault_latch_1",
+              "port_id": "state_out"
+            }
+          ],
+          "active_state": "faulted",
+          "reason_code": "package_faulted",
+          "diagnostic_ref": "diag_package_faulted"
+        }
+      },
+      "gate_summary": {
+        "id": "gate_summary",
+        "title": "Gate Summary",
+        "default_state": "ready",
+        "permissive_ids": [
+          "pkggate_boiler_supervisor_interlocks_1.perm.feedwater_ok",
+          "pkggate_boiler_supervisor_interlocks_1.perm.circulation_ok",
+          "pkggate_boiler_supervisor_interlocks_1.perm.demand_present"
+        ],
+        "interlock_ids": [
+          "pkggate_boiler_supervisor_interlocks_1.int.permissive_blocked",
+          "pkggate_boiler_supervisor_interlocks_1.int.package_faulted"
+        ],
+        "transition_guards": {
+          "allow_auto_run": {
+            "id": "allow_auto_run",
+            "qualified_id": "pkggate_boiler_supervisor_interlocks_1.guard.allow_auto_run",
+            "title": "Allow Auto Run",
+            "permissive_ids": [
+              "pkggate_boiler_supervisor_interlocks_1.perm.feedwater_ok",
+              "pkggate_boiler_supervisor_interlocks_1.perm.circulation_ok",
+              "pkggate_boiler_supervisor_interlocks_1.perm.demand_present"
+            ],
+            "interlock_ids": [
+              "pkggate_boiler_supervisor_interlocks_1.int.permissive_blocked",
+              "pkggate_boiler_supervisor_interlocks_1.int.package_faulted"
+            ],
+            "mode_transition_id": "pkgmode_boiler_supervisor_interlocks_1.mode_transition.to_auto",
+            "summary": "Auto run is allowed only when permissives are clear and no interlock is active."
+          }
+        }
+      },
+      "summary_outputs": {
+        "package_ready": {
+          "id": "package_ready",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "boiler_supervisor_interlocks_1__demand_guard_1",
+            "port_id": "state_out"
+          }
+        },
+        "package_faulted": {
+          "id": "package_faulted",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "boiler_supervisor_interlocks_1__fault_latch_1",
+            "port_id": "state_out"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "gate_health": {
+          "id": "gate_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__feedwater_guard_1",
+              "port_id": "state_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__circulation_guard_1",
+              "port_id": "state_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__demand_guard_1",
+              "port_id": "state_out"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "gate_trace": {
+          "id": "gate_trace",
+          "signals": [
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__feedwater_guard_1",
+              "port_id": "state_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_interlocks_1__fault_latch_1",
+              "port_id": "state_out"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,459 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "boiler-supervisor-overrides-demo-pack",
+  "source": {
+    "project_id": "boiler_supervisor_overrides_reference_e2e",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T23:59:00Z"
+  },
+  "instances": {
+    "boiler_supervisor_overrides_1__auto_owner_1": {
+      "id": "boiler_supervisor_overrides_1__auto_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_overrides_1 / Auto Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_overrides_reference_e2e"
+      }
+    },
+    "boiler_supervisor_overrides_1__manual_owner_1": {
+      "id": "boiler_supervisor_overrides_1__manual_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_overrides_1 / Manual Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_overrides_reference_e2e"
+      }
+    },
+    "boiler_supervisor_overrides_1__service_owner_1": {
+      "id": "boiler_supervisor_overrides_1__service_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_overrides_1 / Service Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_overrides_reference_e2e"
+      }
+    },
+    "boiler_supervisor_overrides_1__remote_owner_1": {
+      "id": "boiler_supervisor_overrides_1__remote_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_overrides_1 / Remote Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_overrides_reference_e2e"
+      }
+    },
+    "boiler_supervisor_overrides_1__takeover_request_1": {
+      "id": "boiler_supervisor_overrides_1__takeover_request_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_overrides_1 / Takeover Request Surface",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_overrides_reference_e2e"
+      }
+    },
+    "boiler_supervisor_overrides_1__release_request_1": {
+      "id": "boiler_supervisor_overrides_1__release_request_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_overrides_1 / Release Request Surface",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_overrides_reference_e2e"
+      }
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "package_override_handover": {
+    "pkgho_boiler_supervisor_overrides_1": {
+      "id": "pkgho_boiler_supervisor_overrides_1",
+      "package_instance_id": "boiler_supervisor_overrides_1",
+      "title": "BoilerSupervisorOverrides v1",
+      "authority_holders": {
+        "auto_owner": {
+          "id": "auto_owner",
+          "title": "Auto Holder",
+          "lane": "auto",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_overrides_1__auto_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Automatic lane is available for return-to-auto."
+        },
+        "manual_owner": {
+          "id": "manual_owner",
+          "title": "Manual Holder",
+          "lane": "manual",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_overrides_1__manual_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Manual holder is currently active."
+        },
+        "service_owner": {
+          "id": "service_owner",
+          "title": "Service Holder",
+          "lane": "service",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_overrides_1__service_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Service holder can request bounded takeover."
+        },
+        "remote_owner": {
+          "id": "remote_owner",
+          "title": "Remote Holder",
+          "lane": "remote",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_overrides_1__remote_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Remote holder remains visible but not authoritative."
+        }
+      },
+      "handover_summary": {
+        "id": "handover_summary",
+        "title": "Override Summary",
+        "current_holder_id": "manual_owner",
+        "current_lane": "manual",
+        "requested_holder_id": "service_owner",
+        "accepted_request_ids": [
+          "release_to_auto",
+          "return_to_auto"
+        ],
+        "blocked_request_ids": [
+          "service_takeover"
+        ],
+        "denied_request_ids": [
+          "remote_takeover"
+        ],
+        "last_handover_reason": "manual_override_active",
+        "summary": "Manual override is active while release back to auto remains available."
+      },
+      "handover_requests": {
+        "service_takeover": {
+          "id": "service_takeover",
+          "title": "Service Takeover",
+          "request_kind": "request_takeover",
+          "requested_holder_id": "service_owner",
+          "requested_lane": "service",
+          "state": "blocked",
+          "summary": "Service takeover is blocked until the active manual holder releases authority.",
+          "request_preview": "request_takeover -> service_owner",
+          "blocked_reason": "blocked_by_policy"
+        },
+        "release_to_auto": {
+          "id": "release_to_auto",
+          "title": "Release To Auto",
+          "request_kind": "request_release",
+          "requested_holder_id": "auto_owner",
+          "requested_lane": "auto",
+          "state": "accepted",
+          "summary": "Current holder may release control back to the automatic lane.",
+          "request_preview": "request_release -> auto_owner"
+        },
+        "return_to_auto": {
+          "id": "return_to_auto",
+          "title": "Return To Auto",
+          "request_kind": "request_return_to_auto",
+          "requested_holder_id": "auto_owner",
+          "requested_lane": "auto",
+          "state": "accepted",
+          "summary": "Return-to-auto remains available as the bounded fallback handover.",
+          "request_preview": "request_return_to_auto -> auto_owner"
+        },
+        "remote_takeover": {
+          "id": "remote_takeover",
+          "title": "Remote Takeover",
+          "request_kind": "request_takeover",
+          "requested_holder_id": "remote_owner",
+          "requested_lane": "remote",
+          "state": "denied",
+          "summary": "Remote takeover is denied while manual override remains the active holder.",
+          "request_preview": "request_takeover -> remote_owner",
+          "denied_reason": "held_by_other_owner"
+        }
+      },
+      "summary_outputs": {
+        "override_ready": {
+          "id": "override_ready",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "boiler_supervisor_overrides_1__release_request_1",
+            "port_id": "ready_out"
+          }
+        },
+        "override_blocked": {
+          "id": "override_blocked",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "boiler_supervisor_overrides_1__takeover_request_1",
+            "port_id": "blocked_out"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "override_handover_health": {
+          "id": "override_handover_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_overrides_1__manual_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_overrides_1__takeover_request_1",
+              "port_id": "blocked_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_overrides_1__release_request_1",
+              "port_id": "ready_out"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "override_handover_trace": {
+          "id": "override_handover_trace",
+          "signals": [
+            {
+              "instance_id": "boiler_supervisor_overrides_1__manual_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_overrides_1__takeover_request_1",
+              "port_id": "blocked_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_overrides_1__release_request_1",
+              "port_id": "ready_out"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

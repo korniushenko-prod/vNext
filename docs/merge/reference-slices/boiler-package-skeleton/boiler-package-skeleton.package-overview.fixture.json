@@ -1,0 +1,151 @@
+{
+  "id": "package-overview-boiler-skeleton",
+  "title": "BoilerPackageSkeleton v1",
+  "description": "Read-only authoring-layer package overview for the first proven package baseline. This remains a skeleton, not full burner-management logic.",
+  "package_instance_id": "boiler_pkg_1",
+  "package_definition": {
+    "package_id": "std.boiler_supervisor.v1",
+    "title": "Boiler Supervisor Skeleton",
+    "origin": "std_library",
+    "preset_count": 2,
+    "template_count": 4,
+    "presets": [
+      "boiler_loop_default",
+      "maintenance_service_default"
+    ],
+    "templates": [
+      "pid_loop_template",
+      "hall_flowmeter_template",
+      "runtime_counter_template",
+      "maintenance_counter_template"
+    ],
+    "boundary_notes": [
+      "Package is an authoring-layer assembly only. Runtime and target outputs stay package-neutral after flattening.",
+      "BoilerPackageSkeleton v1 is a composition skeleton for loop, monitoring, and maintenance slices. It is not burner-management, ignition, or safety logic.",
+      "Effective object path must remain invariant with the explicit-expanded project path when values are identical."
+    ]
+  },
+  "members": [
+    {
+      "id": "pid_1",
+      "title": "PID Controller",
+      "role": "control_core",
+      "type_title": "PID Controller v1",
+      "type_ref": "std:pid_controller_v1",
+      "template_ref": "std:pid_loop_template",
+      "preset_ref": "boiler_loop_default",
+      "effective_object_id": "boiler_pkg_1__pid_1",
+      "boundary_note": "Control core only. Autotune is allowed as the specialized Wave 9 operation lane; package itself adds no execution kind.",
+      "related_surfaces": [
+        {
+          "title": "PID + hold/release/autotune",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-pid"
+        }
+      ]
+    },
+    {
+      "id": "flowmeter_1",
+      "title": "Pulse Flowmeter",
+      "role": "usage_source",
+      "type_title": "PulseFlowmeter v1",
+      "type_ref": "std:pulse_flowmeter_v1",
+      "template_ref": "std:hall_flowmeter_template",
+      "preset_ref": "boiler_loop_default",
+      "effective_object_id": "boiler_pkg_1__flowmeter_1",
+      "boundary_note": "Acquisition-capable member. Resource binding belongs to the flattened effective object, not to a package execution layer.",
+      "related_surfaces": [
+        {
+          "title": "PulseFlowmeter + reset_totalizer",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-flowmeter"
+        }
+      ]
+    },
+    {
+      "id": "run_hours_1",
+      "title": "Run Hours Counter",
+      "role": "usage_accumulator",
+      "type_title": "RunHoursCounter v1",
+      "type_ref": "std:run_hours_counter_v1",
+      "template_ref": "std:runtime_counter_template",
+      "preset_ref": "maintenance_service_default",
+      "effective_object_id": "boiler_pkg_1__run_hours_1",
+      "boundary_note": "Counter member contributes accumulated usage_total_out. It is still flattened into an ordinary runtime object.",
+      "related_surfaces": [
+        {
+          "title": "RunHoursCounter + reset_counter",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-runhours"
+        }
+      ]
+    },
+    {
+      "id": "maintenance_counter_1",
+      "title": "Maintenance Counter",
+      "role": "service_monitor",
+      "type_title": "MaintenanceCounter v1",
+      "type_ref": "std:maintenance_counter_v1",
+      "template_ref": "std:maintenance_counter_template",
+      "preset_ref": "maintenance_service_default",
+      "effective_object_id": "boiler_pkg_1__maintenance_counter_1",
+      "boundary_note": "Downstream monitoring object only. It consumes accumulated usage input and does not gain hidden acquisition logic from the package.",
+      "related_surfaces": [
+        {
+          "title": "MaintenanceCounter + service operations",
+          "section": "Operations Overview",
+          "fixture_id": "operations-readonly-maintenance"
+        }
+      ]
+    },
+    {
+      "id": "remaining_monitor_1",
+      "title": "Remaining Threshold Monitor",
+      "role": "monitor",
+      "type_title": "ThresholdMonitor v1",
+      "type_ref": "std:threshold_monitor_v1",
+      "template_ref": "",
+      "preset_ref": "maintenance_service_default",
+      "effective_object_id": "boiler_pkg_1__remaining_monitor_1",
+      "boundary_note": "Pure downstream monitor over normalized values. Package keeps it as composition, not direct acquisition.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "boiler_pkg_1__pid_1",
+      "title": "PID Controller",
+      "type_title": "PID Controller v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_pkg_1__flowmeter_1",
+      "title": "Pulse Flowmeter",
+      "type_title": "PulseFlowmeter v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_pkg_1__run_hours_1",
+      "title": "Run Hours Counter",
+      "type_title": "RunHoursCounter v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_pkg_1__maintenance_counter_1",
+      "title": "Maintenance Counter",
+      "type_title": "MaintenanceCounter v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_pkg_1__remaining_monitor_1",
+      "title": "Remaining Threshold Monitor",
+      "type_title": "ThresholdMonitor v1",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_supervisor_reference_minimal",
+    "title": "Boiler Supervisor Reference Minimal"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "templates": {
+      "run_hours_service_preset": {
+        "id": "run_hours_service_preset",
+        "kind": "object_template",
+        "base_type_ref": "library:std/run_hours_counter",
+        "origin": "library_template",
+        "meta": {
+          "title": "Run Hours Service Preset",
+          "version": "1.0.0",
+          "description": "Reusable configured preset for a persisted run-hours counter."
+        },
+        "defaults": {
+          "param_values": {
+            "persist_enabled": { "kind": "literal", "value": true },
+            "persist_period_s": { "kind": "literal", "value": 60 },
+            "rounding_mode": { "kind": "literal", "value": "tenths" }
+          }
+        }
+      },
+      "maintenance_service_saved": {
+        "id": "maintenance_service_saved",
+        "kind": "object_template",
+        "base_type_ref": "library:std/maintenance_counter",
+        "origin": "project_saved",
+        "meta": {
+          "title": "Saved Maintenance Service Preset",
+          "version": "1.0.0",
+          "description": "Project-saved configured maintenance preset sharing the same template contract."
+        },
+        "defaults": {
+          "param_values": {
+            "service_interval": { "kind": "literal", "value": 250 },
+            "warning_before": { "kind": "literal", "value": 25 },
+            "overdue_margin": { "kind": "literal", "value": 10 }
+          }
+        }
+      }
+    },
+    "packages": {
+      "boiler_supervisor": {
+        "id": "boiler_supervisor",
+        "kind": "package_definition",
+        "meta": {
+          "title": "Boiler Supervisor v1",
+          "version": "1.0.0",
+          "origin": "project",
+          "description": "Supervisory boiler package built from frozen library objects and package-level supervision metadata.",
+          "domain": "boiler",
+          "package_kind": "boiler_supervisor_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "pid_1": {
+            "id": "pid_1",
+            "kind": "package_member",
+            "type_ref": "library:std/pid_controller"
+          },
+          "flowmeter_1": {
+            "id": "flowmeter_1",
+            "kind": "package_member",
+            "type_ref": "library:std/pulse_flowmeter"
+          },
+          "run_hours_1": {
+            "id": "run_hours_1",
+            "kind": "package_member",
+            "type_ref": "library:std/run_hours_counter",
+            "template_ref": "run_hours_service_preset"
+          },
+          "maintenance_counter_1": {
+            "id": "maintenance_counter_1",
+            "kind": "package_member",
+            "type_ref": "library:std/maintenance_counter",
+            "template_ref": "maintenance_service_saved"
+          },
+          "threshold_monitor_1": {
+            "id": "threshold_monitor_1",
+            "kind": "package_member",
+            "type_ref": "library:std/threshold_monitor"
+          }
+        },
+        "signals": {
+          "sig_runtime_to_maintenance": {
+            "id": "sig_runtime_to_maintenance",
+            "source": {
+              "instance_id": "run_hours_1",
+              "port_id": "total_seconds"
+            },
+            "targets": {
+              "maintenance_usage": {
+                "instance_id": "maintenance_counter_1",
+                "port_id": "usage_total_in"
+              }
+            }
+          }
+        },
+        "supervision": {
+          "summary_outputs": {
+            "package_ok": {
+              "id": "package_ok",
+              "value_type": "bool",
+              "source": { "member_id": "threshold_monitor_1", "port_id": "source_ok" }
+            },
+            "maintenance_due": {
+              "id": "maintenance_due",
+              "value_type": "bool",
+              "source": { "member_id": "maintenance_counter_1", "port_id": "due_out" }
+            }
+          },
+          "trace_groups": {
+            "process_summary": {
+              "id": "process_summary",
+              "signals": [
+                { "member_id": "run_hours_1", "port_id": "total_hours" },
+                { "member_id": "pid_1", "port_id": "mv_out" }
+              ]
+            }
+          },
+          "operation_proxies": {
+            "reset_runtime_counter": {
+              "id": "reset_runtime_counter",
+              "target_member_id": "run_hours_1",
+              "target_operation_id": "reset_counter",
+              "child_operation_kind": "reset_counter"
+            },
+            "pid_autotune": {
+              "id": "pid_autotune",
+              "target_member_id": "pid_1",
+              "target_operation_id": "autotune",
+              "child_operation_kind": "autotune"
+            }
+          }
+        },
+        "boundary_notes": [
+          "BoilerSupervisor v1 is a supervisory skeleton only.",
+          "Package supervision remains authoring-level aggregation over child objects."
+        ]
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_supervisor_1": {
+        "id": "boiler_supervisor_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor"
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

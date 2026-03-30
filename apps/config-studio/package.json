@@ -4,6 +4,6 @@
   "private": true,
   "description": "Static authoring shell migrated from universal_plc into vNext",
   "scripts": {
-    "check": "echo config-studio shell has no build pipeline yet"
+    "check": "node --test --test-isolation=none tests/operations/operation-ui-fixtures.test.js tests/operations/operation-ui-mappers.test.js tests/operations/operation-readonly-surface.test.js tests/operations/operation-transport-guards.test.js tests/operations/operation-transport-mappers.test.js tests/operations/operation-command-intents.test.js tests/operations/operation-service-lifecycle-e2e.test.js tests/operations/operation-execution-baseline-e2e.test.js tests/operations/operation-pid-autotune-e2e.test.js tests/packages/package-overview-readonly.test.js tests/packages/package-overview-e2e.test.js tests/packages/package-commissioning-surface.test.js tests/packages/package-commissioning-e2e.test.js tests/packages/package-pilot-verification-harness.test.js tests/packages/package-controlled-pilot-rollout.test.js tests/packages/package-commissioning-walkthrough.test.js"
   }
 }

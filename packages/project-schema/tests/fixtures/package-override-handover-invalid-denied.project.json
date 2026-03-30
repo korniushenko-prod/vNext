@@ -1,0 +1,346 @@
+{
+    "schema_version":  "0.4.0",
+    "meta":  {
+                 "project_id":  "package_override_handover_invalid_denied",
+                 "title":  "PumpSkidSupervisorOverrides Reference E2E"
+             },
+    "imports":  {
+                    "libraries":  [
+
+                                  ],
+                    "packages":  [
+
+                                 ]
+                },
+    "definitions":  {
+                        "object_types":  {
+                                             "package_command_source":  {
+                                                                            "id":  "package_command_source",
+                                                                            "kind":  "object_type",
+                                                                            "meta":  {
+                                                                                         "title":  "Package Command Source",
+                                                                                         "origin":  "project"
+                                                                                     },
+                                                                            "interface":  {
+                                                                                              "ports":  {
+                                                                                                            "authority_out":  {
+                                                                                                                                  "id":  "authority_out",
+                                                                                                                                  "direction":  "out",
+                                                                                                                                  "channel_kind":  "state",
+                                                                                                                                  "value_type":  "bool"
+                                                                                                                              },
+                                                                                                            "ready_out":  {
+                                                                                                                              "id":  "ready_out",
+                                                                                                                              "direction":  "out",
+                                                                                                                              "channel_kind":  "state",
+                                                                                                                              "value_type":  "bool"
+                                                                                                                          },
+                                                                                                            "blocked_out":  {
+                                                                                                                                "id":  "blocked_out",
+                                                                                                                                "direction":  "out",
+                                                                                                                                "channel_kind":  "state",
+                                                                                                                                "value_type":  "bool"
+                                                                                                                            },
+                                                                                                            "denied_out":  {
+                                                                                                                               "id":  "denied_out",
+                                                                                                                               "direction":  "out",
+                                                                                                                               "channel_kind":  "state",
+                                                                                                                               "value_type":  "bool"
+                                                                                                                           },
+                                                                                                            "superseded_out":  {
+                                                                                                                                   "id":  "superseded_out",
+                                                                                                                                   "direction":  "out",
+                                                                                                                                   "channel_kind":  "state",
+                                                                                                                                   "value_type":  "bool"
+                                                                                                                               }
+                                                                                                        },
+                                                                                              "params":  {
+
+                                                                                                         },
+                                                                                              "alarms":  {
+
+                                                                                                         }
+                                                                                          },
+                                                                            "locals":  {
+                                                                                           "signals":  {
+
+                                                                                                       },
+                                                                                           "vars":  {
+
+                                                                                                    }
+                                                                                       },
+                                                                            "facets":  {
+
+                                                                                       },
+                                                                            "implementation":  {
+                                                                                                   "native":  null,
+                                                                                                   "composition":  null,
+                                                                                                   "state":  null,
+                                                                                                   "flow":  null
+                                                                                               },
+                                                                            "diagnostics":  {
+
+                                                                                            }
+                                                                        }
+                                         },
+                        "packages":  {
+                                         "pump_skid_supervisor_overrides":  {
+                                                                                "id":  "pump_skid_supervisor_overrides",
+                                                                                "kind":  "package_definition",
+                                                                                "meta":  {
+                                                                                             "title":  "PumpSkidSupervisorOverrides v1",
+                                                                                             "origin":  "project",
+                                                                                             "description":  "Non-boiler reference package for generic package override/handover baseline.",
+                                                                                             "domain":  "pump_skid",
+                                                                                             "package_kind":  "pump_skid_supervisor_overrides_v1",
+                                                                                             "safety_scope":  "non_safety_skeleton"
+                                                                                         },
+                                                                                "members":  {
+                                                                                                "auto_owner_1":  {
+                                                                                                                     "id":  "auto_owner_1",
+                                                                                                                     "kind":  "package_member",
+                                                                                                                     "type_ref":  "project:package_command_source",
+                                                                                                                     "title":  "Auto Owner"
+                                                                                                                 },
+                                                                                                "manual_owner_1":  {
+                                                                                                                       "id":  "manual_owner_1",
+                                                                                                                       "kind":  "package_member",
+                                                                                                                       "type_ref":  "project:package_command_source",
+                                                                                                                       "title":  "Manual Owner"
+                                                                                                                   },
+                                                                                                "service_owner_1":  {
+                                                                                                                        "id":  "service_owner_1",
+                                                                                                                        "kind":  "package_member",
+                                                                                                                        "type_ref":  "project:package_command_source",
+                                                                                                                        "title":  "Service Owner"
+                                                                                                                    },
+                                                                                                "remote_owner_1":  {
+                                                                                                                       "id":  "remote_owner_1",
+                                                                                                                       "kind":  "package_member",
+                                                                                                                       "type_ref":  "project:package_command_source",
+                                                                                                                       "title":  "Remote Owner"
+                                                                                                                   },
+                                                                                                "handover_request_1":  {
+                                                                                                                           "id":  "handover_request_1",
+                                                                                                                           "kind":  "package_member",
+                                                                                                                           "type_ref":  "project:package_command_source",
+                                                                                                                           "title":  "Handover Request Surface"
+                                                                                                                       },
+                                                                                                "return_auto_request_1":  {
+                                                                                                                              "id":  "return_auto_request_1",
+                                                                                                                              "kind":  "package_member",
+                                                                                                                              "type_ref":  "project:package_command_source",
+                                                                                                                              "title":  "Return To Auto Surface"
+                                                                                                                          }
+                                                                                            },
+                                                                                "signals":  {
+
+                                                                                            },
+                                                                                "override_handover":  {
+                                                                                                          "authority_holders":  {
+                                                                                                                                    "auto_owner":  {
+                                                                                                                                                       "id":  "auto_owner",
+                                                                                                                                                       "title":  "Auto Holder",
+                                                                                                                                                       "lane":  "auto",
+                                                                                                                                                       "source_ports":  [
+                                                                                                                                                                            {
+                                                                                                                                                                                "member_id":  "auto_owner_1",
+                                                                                                                                                                                "port_id":  "authority_out"
+                                                                                                                                                                            }
+                                                                                                                                                                        ],
+                                                                                                                                                       "summary":  "Automatic lane is currently active."
+                                                                                                                                                   },
+                                                                                                                                    "manual_owner":  {
+                                                                                                                                                         "id":  "manual_owner",
+                                                                                                                                                         "title":  "Manual Holder",
+                                                                                                                                                         "lane":  "manual",
+                                                                                                                                                         "source_ports":  [
+                                                                                                                                                                              {
+                                                                                                                                                                                  "member_id":  "manual_owner_1",
+                                                                                                                                                                                  "port_id":  "authority_out"
+                                                                                                                                                                              }
+                                                                                                                                                                          ],
+                                                                                                                                                         "summary":  "Manual holder can request local handover."
+                                                                                                                                                     },
+                                                                                                                                    "service_owner":  {
+                                                                                                                                                          "id":  "service_owner",
+                                                                                                                                                          "title":  "Service Holder",
+                                                                                                                                                          "lane":  "service",
+                                                                                                                                                          "source_ports":  [
+                                                                                                                                                                               {
+                                                                                                                                                                                   "member_id":  "service_owner_1",
+                                                                                                                                                                                   "port_id":  "authority_out"
+                                                                                                                                                                               }
+                                                                                                                                                                           ],
+                                                                                                                                                          "summary":  "Service holder is available for maintenance takeover."
+                                                                                                                                                      },
+                                                                                                                                    "remote_owner":  {
+                                                                                                                                                         "id":  "remote_owner",
+                                                                                                                                                         "title":  "Remote Holder",
+                                                                                                                                                         "lane":  "remote",
+                                                                                                                                                         "source_ports":  [
+                                                                                                                                                                              {
+                                                                                                                                                                                  "member_id":  "remote_owner_1",
+                                                                                                                                                                                  "port_id":  "authority_out"
+                                                                                                                                                                              }
+                                                                                                                                                                          ],
+                                                                                                                                                         "summary":  "Remote holder is visible but not currently requested."
+                                                                                                                                                     }
+                                                                                                                                },
+                                                                                                          "handover_summary":  {
+                                                                                                                                   "id":  "handover_summary",
+                                                                                                                                   "title":  "Override Summary",
+                                                                                                                                   "current_holder_ref":  "auto_owner",
+                                                                                                                                   "current_lane":  "auto",
+                                                                                                                                   "requested_holder_ref":  "manual_owner",
+                                                                                                                                   "accepted_request_refs":  [
+                                                                                                                                                                 "manual_takeover",
+                                                                                                                                                                 "return_to_auto"
+                                                                                                                                                             ],
+                                                                                                                                   "blocked_request_refs":  [
+                                                                                                                                                                "service_takeover"
+                                                                                                                                                            ],
+                                                                                                                                   "denied_request_refs":  [
+                                                                                                                                                               "remote_release"
+                                                                                                                                                           ],
+                                                                                                                                   "last_handover_reason":  "returned_to_auto",
+                                                                                                                                   "summary":  "Automatic authority is active while a manual takeover remains available."
+                                                                                                                               },
+                                                                                                          "handover_requests":  {
+                                                                                                                                    "manual_takeover":  {
+                                                                                                                                                            "id":  "manual_takeover",
+                                                                                                                                                            "title":  "Manual Takeover",
+                                                                                                                                                            "request_kind":  "request_takeover",
+                                                                                                                                                            "requested_holder_ref":  "manual_owner",
+                                                                                                                                                            "state":  "accepted",
+                                                                                                                                                            "summary":  "Local manual handover is available from the panel lane.",
+                                                                                                                                                            "request_preview":  "request_takeover -\u003e manual_owner"
+                                                                                                                                                        },
+                                                                                                                                    "service_takeover":  {
+                                                                                                                                                             "id":  "service_takeover",
+                                                                                                                                                             "title":  "Service Takeover",
+                                                                                                                                                             "request_kind":  "request_takeover",
+                                                                                                                                                             "requested_holder_ref":  "service_owner",
+                                                                                                                                                             "state":  "blocked",
+                                                                                                                                                             "blocked_reason":  "not_available",
+                                                                                                                                                             "summary":  "Service takeover is blocked until the maintenance window is open.",
+                                                                                                                                                             "request_preview":  "request_takeover -\u003e service_owner"
+                                                                                                                                                         },
+                                                                                                                                    "return_to_auto":  {
+                                                                                                                                                           "id":  "return_to_auto",
+                                                                                                                                                           "title":  "Return To Auto",
+                                                                                                                                                           "request_kind":  "request_return_to_auto",
+                                                                                                                                                           "requested_holder_ref":  "auto_owner",
+                                                                                                                                                           "state":  "accepted",
+                                                                                                                                                           "summary":  "Return-to-auto stays available as the package-neutral fallback.",
+                                                                                                                                                           "request_preview":  "request_return_to_auto -\u003e auto_owner"
+                                                                                                                                                       },
+                                                                                                                                    "remote_release":  {
+                                                                                                                                                           "id":  "remote_release",
+                                                                                                                                                           "title":  "Remote Release",
+                                                                                                                                                           "request_kind":  "request_release",
+                                                                                                                                                           "requested_holder_ref":  "remote_owner",
+                                                                                                                                                           "state":  "denied",
+                                                                                                                                                           "summary":  "Remote release is denied because the automatic holder remains authoritative.",
+                                                                                                                                                           "request_preview":  "request_release -\u003e remote_owner"
+                                                                                                                                                       }
+                                                                                                                                },
+                                                                                                          "summary_outputs":  {
+                                                                                                                                  "override_ready":  {
+                                                                                                                                                         "id":  "override_ready",
+                                                                                                                                                         "value_type":  "bool",
+                                                                                                                                                         "source":  {
+                                                                                                                                                                        "member_id":  "handover_request_1",
+                                                                                                                                                                        "port_id":  "ready_out"
+                                                                                                                                                                    }
+                                                                                                                                                     },
+                                                                                                                                  "override_denied":  {
+                                                                                                                                                          "id":  "override_denied",
+                                                                                                                                                          "value_type":  "bool",
+                                                                                                                                                          "source":  {
+                                                                                                                                                                         "member_id":  "return_auto_request_1",
+                                                                                                                                                                         "port_id":  "denied_out"
+                                                                                                                                                                     }
+                                                                                                                                                      }
+                                                                                                                              },
+                                                                                                          "aggregate_monitors":  {
+                                                                                                                                     "override_handover_health":  {
+                                                                                                                                                                      "id":  "override_handover_health",
+                                                                                                                                                                      "kind":  "boolean_health_rollup",
+                                                                                                                                                                      "source_ports":  [
+                                                                                                                                                                                           {
+                                                                                                                                                                                               "member_id":  "auto_owner_1",
+                                                                                                                                                                                               "port_id":  "authority_out"
+                                                                                                                                                                                           },
+                                                                                                                                                                                           {
+                                                                                                                                                                                               "member_id":  "handover_request_1",
+                                                                                                                                                                                               "port_id":  "ready_out"
+                                                                                                                                                                                           },
+                                                                                                                                                                                           {
+                                                                                                                                                                                               "member_id":  "return_auto_request_1",
+                                                                                                                                                                                               "port_id":  "denied_out"
+                                                                                                                                                                                           }
+                                                                                                                                                                                       ]
+                                                                                                                                                                  }
+                                                                                                                                 },
+                                                                                                          "trace_groups":  {
+                                                                                                                               "override_handover_trace":  {
+                                                                                                                                                               "id":  "override_handover_trace",
+                                                                                                                                                               "signals":  [
+                                                                                                                                                                               {
+                                                                                                                                                                                   "member_id":  "auto_owner_1",
+                                                                                                                                                                                   "port_id":  "authority_out"
+                                                                                                                                                                               },
+                                                                                                                                                                               {
+                                                                                                                                                                                   "member_id":  "handover_request_1",
+                                                                                                                                                                                   "port_id":  "blocked_out"
+                                                                                                                                                                               },
+                                                                                                                                                                               {
+                                                                                                                                                                                   "member_id":  "return_auto_request_1",
+                                                                                                                                                                                   "port_id":  "denied_out"
+                                                                                                                                                                               }
+                                                                                                                                                                           ]
+                                                                                                                                                           }
+                                                                                                                           }
+                                                                                                      },
+                                                                                "boundary_notes":  [
+                                                                                                       "Wave 18 package override/handover remains package-neutral and bounded to explicit holder and handover visibility.",
+                                                                                                       "Pump-skid content is the mandatory second acceptance domain and does not inherit boiler-specific semantics."
+                                                                                                   ]
+                                                                            }
+                                     }
+                    },
+    "system":  {
+                   "instances":  {
+
+                                 },
+                   "signals":  {
+
+                               },
+                   "packages":  {
+                                    "pump_skid_supervisor_overrides_1":  {
+                                                                             "id":  "pump_skid_supervisor_overrides_1",
+                                                                             "kind":  "package_instance",
+                                                                             "package_ref":  "pump_skid_supervisor_overrides"
+                                                                         }
+                                }
+               },
+    "hardware":  {
+                     "bindings":  {
+
+                                  }
+                 },
+    "views":  {
+                  "screens":  {
+
+                              }
+              },
+    "layouts":  {
+                    "system":  {
+
+                               },
+                    "definitions":  {
+
+                                    }
+                }
+}

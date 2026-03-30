@@ -1,0 +1,351 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "pump-skid-supervisor-interlocks-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [],
+    "analog_inputs": [],
+    "digital_outputs": [],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "package_mode_phase": [
+      {
+        "id": "pkgmode_pump_skid_supervisor_interlocks_1",
+        "package_instance_id": "pump_skid_supervisor_interlocks_1",
+        "title": "PumpSkidSupervisorInterlocks v1",
+        "modes": [
+          {
+            "id": "auto",
+            "qualified_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode.auto",
+            "title": "Auto",
+            "phase_ids": [
+              "pkgmode_pump_skid_supervisor_interlocks_1.phase.idle",
+              "pkgmode_pump_skid_supervisor_interlocks_1.phase.run"
+            ]
+          },
+          {
+            "id": "off",
+            "qualified_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode.off",
+            "title": "Off",
+            "phase_ids": [
+              "pkgmode_pump_skid_supervisor_interlocks_1.phase.idle"
+            ]
+          },
+          {
+            "id": "service",
+            "qualified_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode.service",
+            "title": "Service",
+            "phase_ids": [
+              "pkgmode_pump_skid_supervisor_interlocks_1.phase.flush"
+            ]
+          }
+        ],
+        "phases": [
+          {
+            "id": "flush",
+            "qualified_id": "pkgmode_pump_skid_supervisor_interlocks_1.phase.flush",
+            "title": "Flush",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__fault_latch_1",
+                "port_id": "blocked_out"
+              }
+            ]
+          },
+          {
+            "id": "idle",
+            "qualified_id": "pkgmode_pump_skid_supervisor_interlocks_1.phase.idle",
+            "title": "Idle",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__motor_ready_1",
+                "port_id": "state_out"
+              }
+            ]
+          },
+          {
+            "id": "run",
+            "qualified_id": "pkgmode_pump_skid_supervisor_interlocks_1.phase.run",
+            "title": "Run",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__discharge_guard_1",
+                "port_id": "state_out"
+              }
+            ]
+          }
+        ],
+        "mode_summary": {
+          "id": "mode_summary",
+          "entries": [
+            {
+              "id": "auto_summary",
+              "mode_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode.auto",
+              "source_ports": [
+                {
+                  "instance_id": "pump_skid_supervisor_interlocks_1__motor_ready_1",
+                  "port_id": "state_out"
+                }
+              ]
+            },
+            {
+              "id": "off_summary",
+              "mode_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode.off",
+              "source_ports": [
+                {
+                  "instance_id": "pump_skid_supervisor_interlocks_1__fault_latch_1",
+                  "port_id": "state_out"
+                }
+              ]
+            },
+            {
+              "id": "service_summary",
+              "mode_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode.service",
+              "source_ports": [
+                {
+                  "instance_id": "pump_skid_supervisor_interlocks_1__fault_latch_1",
+                  "port_id": "blocked_out"
+                }
+              ]
+            }
+          ]
+        },
+        "phase_summary": {
+          "id": "phase_summary",
+          "entries": [
+            {
+              "id": "flush_summary",
+              "phase_id": "pkgmode_pump_skid_supervisor_interlocks_1.phase.flush",
+              "source_ports": [
+                {
+                  "instance_id": "pump_skid_supervisor_interlocks_1__fault_latch_1",
+                  "port_id": "blocked_out"
+                }
+              ]
+            },
+            {
+              "id": "idle_summary",
+              "phase_id": "pkgmode_pump_skid_supervisor_interlocks_1.phase.idle",
+              "source_ports": [
+                {
+                  "instance_id": "pump_skid_supervisor_interlocks_1__motor_ready_1",
+                  "port_id": "state_out"
+                }
+              ]
+            },
+            {
+              "id": "run_summary",
+              "phase_id": "pkgmode_pump_skid_supervisor_interlocks_1.phase.run",
+              "source_ports": [
+                {
+                  "instance_id": "pump_skid_supervisor_interlocks_1__discharge_guard_1",
+                  "port_id": "state_out"
+                }
+              ]
+            }
+          ]
+        },
+        "active_mode_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode.auto",
+        "active_phase_id": "pkgmode_pump_skid_supervisor_interlocks_1.phase.idle",
+        "allowed_mode_transitions": [
+          {
+            "id": "to_auto",
+            "intent": "request_mode_change",
+            "from_mode_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode.off",
+            "to_mode_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode.auto",
+            "guard_state": "clear",
+            "guard_notes": [
+              "package_gate_clear"
+            ]
+          }
+        ],
+        "allowed_phase_transitions": [
+          {
+            "id": "abort_flush",
+            "intent": "request_phase_abort",
+            "phase_id": "pkgmode_pump_skid_supervisor_interlocks_1.phase.flush",
+            "allowed_mode_ids": [
+              "pkgmode_pump_skid_supervisor_interlocks_1.mode.service"
+            ],
+            "phase_state": "running",
+            "transition_state": "running",
+            "guard_state": "blocked",
+            "guard_notes": [
+              "operator_confirmation"
+            ]
+          }
+        ],
+        "package_mode_groups": [],
+        "package_phase_groups": [],
+        "trace_groups": []
+      }
+    ],
+    "package_permissive_interlock": [
+      {
+        "id": "pkggate_pump_skid_supervisor_interlocks_1",
+        "package_instance_id": "pump_skid_supervisor_interlocks_1",
+        "title": "PumpSkidSupervisorInterlocks v1",
+        "permissives": [
+          {
+            "id": "discharge_path_ok",
+            "qualified_id": "pkggate_pump_skid_supervisor_interlocks_1.perm.discharge_path_ok",
+            "title": "Discharge Path OK",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__discharge_guard_1",
+                "port_id": "state_out"
+              }
+            ],
+            "blocked_reason_code": "discharge_path_missing"
+          },
+          {
+            "id": "motor_ready",
+            "qualified_id": "pkggate_pump_skid_supervisor_interlocks_1.perm.motor_ready",
+            "title": "Motor Ready",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__motor_ready_1",
+                "port_id": "state_out"
+              }
+            ],
+            "blocked_reason_code": "motor_not_ready"
+          },
+          {
+            "id": "suction_ok",
+            "qualified_id": "pkggate_pump_skid_supervisor_interlocks_1.perm.suction_ok",
+            "title": "Suction OK",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__suction_guard_1",
+                "port_id": "state_out"
+              }
+            ],
+            "blocked_reason_code": "suction_missing"
+          }
+        ],
+        "interlocks": [
+          {
+            "id": "package_faulted",
+            "qualified_id": "pkggate_pump_skid_supervisor_interlocks_1.int.package_faulted",
+            "title": "Package Faulted",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__fault_latch_1",
+                "port_id": "state_out"
+              }
+            ],
+            "active_state": "faulted",
+            "reason_code": "package_faulted",
+            "diagnostic_ref": "diag_package_faulted"
+          },
+          {
+            "id": "permissive_blocked",
+            "qualified_id": "pkggate_pump_skid_supervisor_interlocks_1.int.permissive_blocked",
+            "title": "Permissive Blocked",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__suction_guard_1",
+                "port_id": "blocked_out"
+              }
+            ],
+            "active_state": "held",
+            "reason_code": "permissive_blocked",
+            "diagnostic_ref": "diag_permissive_blocked"
+          }
+        ],
+        "gate_summary": {
+          "id": "gate_summary",
+          "title": "Gate Summary",
+          "default_state": "ready",
+          "permissive_ids": [
+            "pkggate_pump_skid_supervisor_interlocks_1.perm.suction_ok",
+            "pkggate_pump_skid_supervisor_interlocks_1.perm.discharge_path_ok",
+            "pkggate_pump_skid_supervisor_interlocks_1.perm.motor_ready"
+          ],
+          "interlock_ids": [
+            "pkggate_pump_skid_supervisor_interlocks_1.int.permissive_blocked",
+            "pkggate_pump_skid_supervisor_interlocks_1.int.package_faulted"
+          ],
+          "transition_guards": [
+            {
+              "id": "allow_auto_run",
+              "qualified_id": "pkggate_pump_skid_supervisor_interlocks_1.guard.allow_auto_run",
+              "title": "Allow Auto Run",
+              "permissive_ids": [
+                "pkggate_pump_skid_supervisor_interlocks_1.perm.suction_ok",
+                "pkggate_pump_skid_supervisor_interlocks_1.perm.discharge_path_ok",
+                "pkggate_pump_skid_supervisor_interlocks_1.perm.motor_ready"
+              ],
+              "interlock_ids": [
+                "pkggate_pump_skid_supervisor_interlocks_1.int.permissive_blocked",
+                "pkggate_pump_skid_supervisor_interlocks_1.int.package_faulted"
+              ],
+              "mode_transition_id": "pkgmode_pump_skid_supervisor_interlocks_1.mode_transition.to_auto",
+              "summary": "Auto run is allowed only when pump-skid permissives are clear and no interlock is active."
+            }
+          ]
+        },
+        "summary_outputs": [
+          {
+            "id": "package_faulted",
+            "value_type": "bool",
+            "source": {
+              "instance_id": "pump_skid_supervisor_interlocks_1__fault_latch_1",
+              "port_id": "state_out"
+            }
+          },
+          {
+            "id": "package_ready",
+            "value_type": "bool",
+            "source": {
+              "instance_id": "pump_skid_supervisor_interlocks_1__motor_ready_1",
+              "port_id": "state_out"
+            }
+          }
+        ],
+        "aggregate_monitors": [
+          {
+            "id": "gate_health",
+            "kind": "boolean_health_rollup",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__suction_guard_1",
+                "port_id": "state_out"
+              },
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__discharge_guard_1",
+                "port_id": "state_out"
+              },
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__motor_ready_1",
+                "port_id": "state_out"
+              }
+            ]
+          }
+        ],
+        "trace_groups": [
+          {
+            "id": "gate_trace",
+            "signals": [
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__suction_guard_1",
+                "port_id": "state_out"
+              },
+              {
+                "instance_id": "pump_skid_supervisor_interlocks_1__fault_latch_1",
+                "port_id": "state_out"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "diagnostics": []
+}

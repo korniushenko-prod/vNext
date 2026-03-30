@@ -79,7 +79,22 @@ let state = {
   signalComposer: defaultSignalComposer(),
   fileHandle: null,
   fileName: "",
-  dirty: false
+  dirty: false,
+  operationReadonly: {
+    fixtureId: "operations-readonly-flowmeter",
+    selectedOperationId: ""
+  },
+  packageOverview: {
+    fixtureId: "package-overview-boiler-skeleton",
+    selectedMemberId: ""
+  },
+  packageCommissioning: {
+    fixtureId: "package-commissioning-pump-skid-supervisor-pilot"
+  },
+  operationTransport: {
+    confirmationTokens: {},
+    dispatches: {}
+  }
 };
 
 let routePreviewUpdater = null;
@@ -3358,6 +3373,606 @@ function renderProject() {
 
   top.append(start, current);
   refs.workspace.append(top);
+  refs.workspace.append(buildReadonlyPackageOverviewPanel());
+  refs.workspace.append(buildPackageCommissioningPanel());
+  refs.workspace.append(buildReadonlyOperationSurfacePanel());
+}
+
+function listReadonlyPackageFixtures() {
+  return Array.isArray(window.PackageOverviewFixtures?.READONLY_PACKAGE_OVERVIEW_FIXTURES)
+    ? window.PackageOverviewFixtures.READONLY_PACKAGE_OVERVIEW_FIXTURES
+    : [];
+}
+
+function resolveReadonlyPackageOverviewSurface() {
+  const fixtures = listReadonlyPackageFixtures();
+  if (!fixtures.length || !window.PackageOverviewReadonly) {
+    return { fixtures, fixture: null, surface: null };
+  }
+
+  if (!fixtures.some((fixture) => fixture.id === state.packageOverview.fixtureId)) {
+    state.packageOverview.fixtureId = fixtures[0].id;
+  }
+
+  const fixture = fixtures.find((entry) => entry.id === state.packageOverview.fixtureId) || fixtures[0];
+  const surface = window.PackageOverviewReadonly.createReadonlyPackageOverviewViewModel({
+    fixture,
+    selectedMemberId: state.packageOverview.selectedMemberId
+  });
+  state.packageOverview.selectedMemberId = surface.selected_member_id;
+
+  return { fixtures, fixture, surface };
+}
+
+function buildReadonlyPackageOverviewPanel() {
+  const section = panel("Package Overview", "Read-only authoring-layer package surface over the frozen package baseline. It now also shows package supervision, coordination, package permissive/interlock, package protection/recovery, package arbitration, package override/handover, and bounded package mode transition execution summary without introducing backend transport, safety runtime, or real package sequence runtime.");
+  const resolved = resolveReadonlyPackageOverviewSurface();
+
+  if (!resolved.fixture || !resolved.surface) {
+    const empty = document.createElement("div");
+    empty.className = "subview-empty";
+    empty.textContent = "Package overview fixtures are not loaded in this browser session.";
+    section.append(empty);
+    return section;
+  }
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "package-overview-toolbar";
+  resolved.fixtures.forEach((fixture) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `package-overview-picker${fixture.id === resolved.fixture.id ? " is-active" : ""}`;
+    btn.innerHTML = `<strong>${fixture.title}</strong><span>${fixture.package_definition.package_id}</span>`;
+    btn.onclick = () => {
+      state.packageOverview.fixtureId = fixture.id;
+      state.packageOverview.selectedMemberId = "";
+      render();
+    };
+    toolbar.append(btn);
+  });
+  section.append(toolbar);
+
+  const summary = document.createElement("div");
+  summary.className = "package-overview-summary";
+  const activeSurfaceLabel = resolved.surface.active_package_surface_kind === "override_handover"
+    ? resolved.surface.package_override_handover.snapshot_state_label
+    : resolved.surface.active_package_surface_kind === "arbitration"
+    ? resolved.surface.package_arbitration.snapshot_state_label
+    : resolved.surface.active_package_surface_kind === "mode_phase"
+    ? resolved.surface.package_mode_phase.snapshot_state_label
+    : resolved.surface.active_package_surface_kind === "coordination"
+      ? resolved.surface.package_coordination.snapshot_state_label
+      : resolved.surface.package_supervision.snapshot_state_label;
+  const activeSurfaceTitle = resolved.surface.active_package_surface_kind === "override_handover"
+    ? "Override / Handover"
+    : resolved.surface.active_package_surface_kind === "arbitration"
+    ? "Arbitration"
+    : resolved.surface.active_package_surface_kind === "mode_phase"
+    ? "Mode / Phase"
+    : resolved.surface.active_package_surface_kind === "coordination"
+      ? "Coordination"
+      : "Supervision";
+  [
+    ["Members", String(resolved.surface.members.length)],
+    ["Templates", String(resolved.surface.package_definition.template_count)],
+    ["Presets", String(resolved.surface.package_definition.preset_count)],
+    ["Effective Objects", String(resolved.surface.effective_objects.length)],
+    [activeSurfaceTitle, activeSurfaceLabel]
+  ].forEach(([k, v]) => summary.append(kv(k, v)));
+  section.append(summary);
+
+  const shell = document.createElement("div");
+  shell.className = "package-overview-shell";
+
+  const list = document.createElement("div");
+  list.className = "package-overview-list";
+  if (!resolved.surface.members.length) {
+    const empty = document.createElement("div");
+    empty.className = "subview-empty";
+    empty.textContent = "No package members are present in this fixture.";
+    list.append(empty);
+  } else {
+    resolved.surface.members.forEach((member) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = `package-overview-card${member.id === resolved.surface.selected_member_id ? " is-active" : ""}`;
+      card.innerHTML = window.PackageOverviewReadonly.renderReadonlyPackageMemberMarkup(member);
+      card.onclick = () => {
+        state.packageOverview.selectedMemberId = member.id;
+        render();
+      };
+      list.append(card);
+    });
+  }
+  shell.append(list);
+
+  const details = document.createElement("div");
+  details.className = "package-overview-details";
+  details.innerHTML = window.PackageOverviewReadonly.renderReadonlyPackageDetailsMarkup(resolved.surface);
+  shell.append(details);
+
+  section.append(shell);
+  return section;
+}
+
+function listPackageCommissioningFixtures() {
+  return Array.isArray(window.PackageCommissioningFixtures?.PACKAGE_COMMISSIONING_FIXTURES)
+    ? window.PackageCommissioningFixtures.PACKAGE_COMMISSIONING_FIXTURES
+    : [];
+}
+
+function resolvePackageCommissioningSurface() {
+  const fixtures = listPackageCommissioningFixtures();
+  if (!fixtures.length || !window.PackageCommissioningSurface) {
+    return { fixtures, fixture: null, surface: null };
+  }
+
+  if (!fixtures.some((fixture) => fixture.id === state.packageCommissioning.fixtureId)) {
+    state.packageCommissioning.fixtureId = fixtures[0].id;
+  }
+
+  const fixture = fixtures.find((entry) => entry.id === state.packageCommissioning.fixtureId) || fixtures[0];
+  const surface = window.PackageCommissioningSurface.createPackageCommissioningViewModel({
+    fixture
+  });
+
+  return { fixtures, fixture, surface };
+}
+
+function buildPackageCommissioningPanel() {
+  const section = panel("Pilot Commissioning", "First production-like commissioning surface for PumpSkidSupervisor v1. It shows package state, template/preset choice, binding summary, apply result, readback status, and bounded commissioning diagnostics without turning config-studio into a generic HMI editor.");
+  const resolved = resolvePackageCommissioningSurface();
+
+  if (!resolved.fixture || !resolved.surface) {
+    const empty = document.createElement("div");
+    empty.className = "subview-empty";
+    empty.textContent = "Package commissioning fixtures are not loaded in this browser session.";
+    section.append(empty);
+    return section;
+  }
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "package-overview-toolbar";
+  resolved.fixtures.forEach((fixture) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `package-overview-picker${fixture.id === resolved.fixture.id ? " is-active" : ""}`;
+    btn.innerHTML = `<strong>${fixture.title}</strong><span>${fixture.package_definition.package_id}</span>`;
+    btn.onclick = () => {
+      state.packageCommissioning.fixtureId = fixture.id;
+      render();
+    };
+    toolbar.append(btn);
+  });
+  section.append(toolbar);
+
+  const details = document.createElement("div");
+  details.className = "package-overview-details";
+  details.innerHTML = window.PackageCommissioningSurface.renderPackageCommissioningMarkup(resolved.surface);
+  section.append(details);
+
+  return section;
+}
+
+function listReadonlyOperationFixtures() {
+  return Array.isArray(window.OperationReadonlyFixtures?.READONLY_OPERATION_FIXTURES)
+    ? window.OperationReadonlyFixtures.READONLY_OPERATION_FIXTURES
+    : [];
+}
+
+function resolveReadonlyOperationSurface() {
+  const fixtures = listReadonlyOperationFixtures();
+  if (!fixtures.length || !window.OperationReadonlySurface) {
+    return { fixtures, fixture: null, surface: null };
+  }
+
+  if (!fixtures.some((fixture) => fixture.id === state.operationReadonly.fixtureId)) {
+    state.operationReadonly.fixtureId = fixtures[0].id;
+  }
+
+  const fixture = fixtures.find((entry) => entry.id === state.operationReadonly.fixtureId) || fixtures[0];
+  const runtimeSnapshot = buildReadonlyOperationRuntimeSnapshot(fixture);
+  const surface = window.OperationReadonlySurface.createReadonlyOperationSurfaceViewModel({
+    fixture: {
+      ...fixture,
+      runtimeSnapshot
+    },
+    selectedOperationId: state.operationReadonly.selectedOperationId
+  });
+  state.operationReadonly.selectedOperationId = surface.selected_operation_id;
+
+  return { fixtures, fixture, surface };
+}
+
+function buildReadonlyOperationSurfacePanel() {
+  const section = panel("Operations Overview", "Metadata-first operation surface over the frozen operations spine. Transport and lifecycle remain synthetic and execution-neutral here.");
+  const resolved = resolveReadonlyOperationSurface();
+
+  if (!resolved.fixture || !resolved.surface) {
+    const empty = document.createElement("div");
+    empty.className = "subview-empty";
+    empty.textContent = "Operation surface contracts are not loaded in this browser session.";
+    section.append(empty);
+    return section;
+  }
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "operation-readonly-toolbar";
+  resolved.fixtures.forEach((fixture) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `operation-readonly-picker${fixture.id === resolved.fixture.id ? " is-active" : ""}`;
+    btn.innerHTML = `<strong>${fixture.title}</strong><span>${fixture.subject_label}</span>`;
+    btn.onclick = () => {
+      state.operationReadonly.fixtureId = fixture.id;
+      state.operationReadonly.selectedOperationId = "";
+      render();
+    };
+    toolbar.append(btn);
+  });
+  section.append(toolbar);
+
+  const summary = document.createElement("div");
+  summary.className = "operation-readonly-summary";
+  [
+    ["Operations", String(resolved.surface.operations.length)],
+    ["Subject", resolved.surface.subject_label],
+    ["Target Support", resolved.surface.operations_support.enabled ? "Read-only metadata" : "Unsupported"]
+  ].forEach(([k, v]) => summary.append(kv(k, v)));
+  section.append(summary);
+
+  const shell = document.createElement("div");
+  shell.className = "operation-readonly-shell";
+
+  const list = document.createElement("div");
+  list.className = "operation-readonly-list";
+  if (!resolved.surface.operations.length) {
+    const empty = document.createElement("div");
+    empty.className = "subview-empty";
+    empty.textContent = "No operations are present in this fixture.";
+    list.append(empty);
+  } else {
+    resolved.surface.operations.forEach((item) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = `operation-readonly-card${item.id === resolved.surface.selected_operation_id ? " is-active" : ""}`;
+      card.innerHTML = window.OperationReadonlySurface.renderReadonlyOperationCardMarkup(item);
+      card.onclick = () => {
+        state.operationReadonly.selectedOperationId = item.id;
+        render();
+      };
+      list.append(card);
+    });
+  }
+  shell.append(list);
+
+  const details = document.createElement("div");
+  details.className = "operation-readonly-details";
+  details.innerHTML = window.OperationReadonlySurface.renderReadonlyOperationDetailsMarkup(resolved.surface);
+  shell.append(details);
+
+  section.append(shell);
+  section.append(buildOperationTransportPanel(resolved.fixture, resolved.surface));
+  return section;
+}
+
+function buildReadonlyOperationRuntimeSnapshot(fixture) {
+  if (!window.OperationTransportMappers) {
+    return fixture.runtimeSnapshot;
+  }
+
+  const dispatchRegistry = {};
+  Object.entries(state.operationTransport.dispatches).forEach(([key, entry]) => {
+    if (key.startsWith(`${fixture.id}::`)) {
+      dispatchRegistry[key] = entry;
+    }
+  });
+
+  return window.OperationTransportMappers.overlayRuntimeSnapshot(fixture.runtimeSnapshot, dispatchRegistry);
+}
+
+function buildOperationTransportPanel(fixture, surface) {
+  const panelSection = panel("Operation Transport Wiring", "Generic UI/service lifecycle boundary over the frozen operations spine. Synthetic fixtures stand in for backend execution here: Wave 8 reset kinds stay runnable, and Wave 9 adds a specialized PID autotune lane with progress and recommendation handling.");
+  const selected = surface.selected_operation;
+  const transportFixture = window.OperationTransportFixtures?.getTransportFixture
+    ? window.OperationTransportFixtures.getTransportFixture(fixture.id)
+    : null;
+
+  if (!selected || !transportFixture || !window.OperationCommandIntents || !window.OperationTransportMappers) {
+    const empty = document.createElement("div");
+    empty.className = "subview-empty";
+    empty.textContent = "Transport boundary is not available for this fixture.";
+    panelSection.append(empty);
+    return panelSection;
+  }
+
+  const token = getOperationConfirmationToken(fixture.id, selected.id);
+  const dispatchEntry = getOperationDispatchEntry(fixture.id, selected.id);
+  const intents = window.OperationCommandIntents.resolveOperationCommandIntents({
+    operationVm: selected,
+    targetSupport: transportFixture.operations_support,
+    confirmationToken: token,
+    localDispatch: dispatchEntry
+  });
+  const invokePreview = window.OperationTransportMappers.buildInvocationRequest(selected, {
+    targetSupport: transportFixture.operations_support,
+    confirmationToken: token,
+    inputs: transportFixture.default_inputs?.[selected.id]
+  });
+  const applyPreview = window.OperationTransportMappers.buildInvocationRequest(selected, {
+    action: "apply_recommendation",
+    targetSupport: transportFixture.operations_support,
+    confirmationToken: token
+  });
+  const rejectPreview = window.OperationTransportMappers.buildInvocationRequest(selected, {
+    action: "reject_recommendation",
+    targetSupport: transportFixture.operations_support,
+    confirmationToken: token
+  });
+  const cancelPreview = window.OperationTransportMappers.buildCancelRequest(selected, {
+    targetSupport: transportFixture.operations_support
+  });
+
+  const summary = document.createElement("div");
+  summary.className = "operation-transport-summary";
+  [
+    ["Execution Lane", selected.execution_summary?.lane || (selected.metadata_only ? "metadata_only" : "baseline_runnable")],
+    ["Runnable", boolLabel(selected.execution_summary?.runnable === true)],
+    ["Invoke", boolLabel(transportFixture.operations_support.invoke)],
+    ["Cancel", boolLabel(transportFixture.operations_support.cancel)],
+    ["Confirmation", boolLabel(transportFixture.operations_support.confirmation)],
+    ["Confirmation Token Rule", transportFixture.operations_support.confirmation_token_validation || "none"],
+    ["Baseline Kinds", (transportFixture.operations_support.execution_baseline_kinds || []).join(", ") || "none"],
+    ["Recommendation Lifecycle", boolLabel(transportFixture.operations_support.recommendation_lifecycle === true)],
+    ["Progress Payload", boolLabel(transportFixture.operations_support.progress_payload === true)],
+    ["Local Dispatch", dispatchEntry ? dispatchEntry.intent_state : "idle"]
+  ].forEach(([k, v]) => summary.append(kv(k, v)));
+  panelSection.append(summary);
+
+  const layout = document.createElement("div");
+  layout.className = "operation-transport-layout";
+
+  const controls = document.createElement("div");
+  controls.className = "operation-transport-controls";
+
+  if (selected.confirmation.required) {
+    const field = document.createElement("div");
+    field.className = "field full";
+    const label = document.createElement("label");
+    label.textContent = "Confirmation Token";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = token;
+    input.placeholder = "confirm-demo";
+    input.addEventListener("input", () => {
+      setOperationConfirmationToken(fixture.id, selected.id, input.value);
+    });
+    field.append(label, input);
+    controls.append(field);
+  }
+
+  const actionRow = document.createElement("div");
+  actionRow.className = "operation-transport-actions";
+
+  const invokeButton = document.createElement("button");
+  invokeButton.type = "button";
+  invokeButton.className = `btn${intents.invoke.enabled ? " primary" : ""}`;
+  invokeButton.textContent = "Dispatch Invoke";
+  invokeButton.disabled = !intents.invoke.enabled;
+  invokeButton.onclick = () => dispatchOperationAction("invoke", fixture.id, selected);
+  actionRow.append(invokeButton);
+
+  const cancelButton = document.createElement("button");
+  cancelButton.type = "button";
+  cancelButton.className = "btn";
+  cancelButton.textContent = "Dispatch Cancel";
+  cancelButton.disabled = !intents.cancel.enabled;
+  cancelButton.onclick = () => dispatchOperationAction("cancel", fixture.id, selected);
+  actionRow.append(cancelButton);
+
+  if (selected.execution_summary?.lane === "pid_autotune") {
+    const applyButton = document.createElement("button");
+    applyButton.type = "button";
+    applyButton.className = "btn";
+    applyButton.textContent = "Apply Recommendation";
+    applyButton.disabled = !intents.apply_recommendation?.enabled;
+    applyButton.onclick = () => dispatchOperationAction("apply_recommendation", fixture.id, selected);
+    actionRow.append(applyButton);
+
+    const rejectButton = document.createElement("button");
+    rejectButton.type = "button";
+    rejectButton.className = "btn";
+    rejectButton.textContent = "Reject Recommendation";
+    rejectButton.disabled = !intents.reject_recommendation?.enabled;
+    rejectButton.onclick = () => dispatchOperationAction("reject_recommendation", fixture.id, selected);
+    actionRow.append(rejectButton);
+  }
+
+  controls.append(actionRow);
+
+  const status = document.createElement("div");
+  status.className = "operation-transport-statuses";
+  [
+    transportBadge(`Invoke: ${intents.invoke.state}`, intentTone(intents.invoke.state)),
+    transportBadge(`Cancel: ${intents.cancel.state}`, intentTone(intents.cancel.state)),
+    intents.apply_recommendation ? transportBadge(`Apply: ${intents.apply_recommendation.state}`, intentTone(intents.apply_recommendation.state)) : null,
+    intents.reject_recommendation ? transportBadge(`Reject: ${intents.reject_recommendation.state}`, intentTone(intents.reject_recommendation.state)) : null,
+    dispatchEntry?.message ? transportBadge(dispatchEntry.message, intentTone(dispatchEntry.intent_state)) : null
+  ].filter(Boolean).forEach((badge) => status.append(badge));
+  controls.append(status);
+
+  layout.append(controls);
+
+  const previews = document.createElement("div");
+  previews.className = "operation-transport-previews";
+  [
+    transportPreviewBlock("Invocation Request", invokePreview),
+    selected.execution_summary?.lane === "pid_autotune"
+      ? transportPreviewBlock("Apply Recommendation", applyPreview)
+      : null,
+    selected.execution_summary?.lane === "pid_autotune"
+      ? transportPreviewBlock("Reject Recommendation", rejectPreview)
+      : null,
+    transportPreviewBlock("Cancel Request", cancelPreview)
+  ].filter(Boolean).forEach((entry) => previews.append(entry));
+  layout.append(previews);
+
+  if (selected.autotune_summary?.visible) {
+    previews.append(transportPreviewBlock("Autotune Recommendation", {
+      ok: true,
+      intent_state: selected.autotune_summary.recommendation_state || "none",
+      request: {
+        lane: selected.autotune_summary.lane,
+        summary: selected.autotune_summary.summary_text,
+        progress: Object.fromEntries((selected.autotune_summary.progress_fields || []).map((field) => [field.id, field.value ?? null])),
+        recommendation: Object.fromEntries((selected.autotune_summary.recommendation_fields || []).map((field) => [field.id, field.value ?? null]))
+      }
+    }));
+  }
+
+  panelSection.append(layout);
+  return panelSection;
+}
+
+function transportPreviewBlock(title, preview) {
+  const block = document.createElement("section");
+  block.className = "operation-transport-block";
+  const heading = document.createElement("h4");
+  heading.textContent = title;
+  block.append(heading);
+
+  const meta = document.createElement("div");
+  meta.className = "operation-transport-meta";
+  meta.textContent = preview.ok ? preview.intent_state : `${preview.intent_state} • ${preview.reason || "blocked"}`;
+  block.append(meta);
+
+  const pre = document.createElement("pre");
+  pre.className = "operation-transport-preview";
+  pre.textContent = preview.ok ? JSON.stringify(preview.request, null, 2) : "{}";
+  block.append(pre);
+  return block;
+}
+
+function transportBadge(label, tone) {
+  const chip = document.createElement("span");
+  chip.className = `operation-transport-badge is-${tone}`;
+  chip.textContent = label;
+  return chip;
+}
+
+function intentTone(state) {
+  switch (state) {
+    case "invoke_requested":
+    case "cancel_requested":
+    case "apply_recommendation":
+    case "reject_recommendation":
+      return "ok";
+    case "pending_dispatch":
+      return "warn";
+    case "dispatch_failed":
+    case "unsupported_by_target":
+      return "danger";
+    case "unsupported_execution":
+    case "confirmation_required":
+    case "blocked":
+      return "muted";
+    default:
+      return "muted";
+  }
+}
+
+function transportKey(fixtureId, operationId) {
+  return `${fixtureId}::${operationId}`;
+}
+
+function getOperationConfirmationToken(fixtureId, operationId) {
+  return state.operationTransport.confirmationTokens[transportKey(fixtureId, operationId)] || "";
+}
+
+function setOperationConfirmationToken(fixtureId, operationId, token) {
+  state.operationTransport.confirmationTokens[transportKey(fixtureId, operationId)] = token;
+}
+
+function getOperationDispatchEntry(fixtureId, operationId) {
+  return state.operationTransport.dispatches[transportKey(fixtureId, operationId)] || null;
+}
+
+async function dispatchOperationAction(action, fixtureId, operationVm) {
+  if (!window.OperationTransportFixtures || !window.OperationTransportMappers) return;
+  const transportFixture = window.OperationTransportFixtures.getTransportFixture(fixtureId);
+  if (!transportFixture) return;
+
+  const confirmationToken = getOperationConfirmationToken(fixtureId, operationVm.id);
+  const key = transportKey(fixtureId, operationVm.id);
+  const transport = window.OperationTransportFixtures.createSyntheticOperationTransport();
+  const built = action === "invoke"
+    ? window.OperationTransportMappers.buildInvocationRequest(operationVm, {
+      targetSupport: transportFixture.operations_support,
+      confirmationToken,
+      inputs: transportFixture.default_inputs?.[operationVm.id]
+    })
+    : action === "apply_recommendation" || action === "reject_recommendation"
+      ? window.OperationTransportMappers.buildInvocationRequest(operationVm, {
+        action,
+        targetSupport: transportFixture.operations_support,
+        confirmationToken
+      })
+    : window.OperationTransportMappers.buildCancelRequest(operationVm, {
+      targetSupport: transportFixture.operations_support
+    });
+
+  if (!built.ok) {
+    state.operationTransport.dispatches[key] = {
+      operation_id: operationVm.id,
+      action,
+      intent_state: built.intent_state,
+      message: built.reason || "Dispatch blocked.",
+      snapshot_patch: null
+    };
+    render();
+    return;
+  }
+
+  state.operationTransport.dispatches[key] = {
+    operation_id: operationVm.id,
+    action,
+    intent_state: "pending_dispatch",
+    message: "Dispatching through synthetic transport...",
+    request: built.request,
+    snapshot_patch: {
+      state: action === "invoke"
+        ? "accepted"
+        : action === "cancel"
+          ? "cancelled"
+          : action === "apply_recommendation"
+            ? "completed"
+            : "rejected",
+      message: "Local optimistic dispatch state."
+    }
+  };
+  render();
+
+  const rawResult = action === "invoke" || action === "apply_recommendation" || action === "reject_recommendation"
+    ? await transport.invokeOperation(built.request, { fixture_id: fixtureId })
+    : await transport.cancelOperation(built.request, { fixture_id: fixtureId });
+  const mapped = action === "invoke" || action === "apply_recommendation" || action === "reject_recommendation"
+    ? window.OperationTransportMappers.mapInvocationResult(rawResult, { operationId: operationVm.id })
+    : window.OperationTransportMappers.mapCancelResult(rawResult, { operationId: operationVm.id });
+
+  state.operationTransport.dispatches[key] = {
+    operation_id: operationVm.id,
+    action,
+    intent_state: mapped.intent_state,
+    message: mapped.message || rawResult.message || "Transport dispatch complete.",
+    request: built.request,
+    raw_result: rawResult,
+    snapshot_patch: mapped.snapshot_patch
+  };
+  render();
+}
+
+function boolLabel(value) {
+  return value ? "enabled" : "disabled";
 }
 
 function renderDefinitions() {

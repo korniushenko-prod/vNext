@@ -1,0 +1,3031 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "pump-skid-supervisor-demo-pack",
+  "source": {
+    "project_id": "pump_skid_supervisor_reference_e2e",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T00:00:00Z"
+  },
+  "instances": {
+    "pump_skid_supervisor_1__pump_group_1": {
+      "id": "pump_skid_supervisor_1__pump_group_1",
+      "type_ref": "project:pump_group",
+      "title": "Pump Skid Supervisor Pilot / Pump State Group",
+      "enabled": true,
+      "ports": {
+        "off_out": {
+          "id": "off_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "auto_out": {
+          "id": "auto_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "manual_out": {
+          "id": "manual_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "running_out": {
+          "id": "running_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "fault_out": {
+          "id": "fault_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__auto_owner_1": {
+      "id": "pump_skid_supervisor_1__auto_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "Pump Skid Supervisor Pilot / Auto Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__manual_owner_1": {
+      "id": "pump_skid_supervisor_1__manual_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "Pump Skid Supervisor Pilot / Manual Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__service_owner_1": {
+      "id": "pump_skid_supervisor_1__service_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "Pump Skid Supervisor Pilot / Service Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__remote_owner_1": {
+      "id": "pump_skid_supervisor_1__remote_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "Pump Skid Supervisor Pilot / Remote Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__start_request_1": {
+      "id": "pump_skid_supervisor_1__start_request_1",
+      "type_ref": "project:package_command_source",
+      "title": "Pump Skid Supervisor Pilot / Start Request",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__stop_request_1": {
+      "id": "pump_skid_supervisor_1__stop_request_1",
+      "type_ref": "project:package_command_source",
+      "title": "Pump Skid Supervisor Pilot / Stop Request",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__suction_guard_1": {
+      "id": "pump_skid_supervisor_1__suction_guard_1",
+      "type_ref": "project:package_protection_source",
+      "title": "Pump Skid Supervisor Pilot / Suction Guard",
+      "enabled": true,
+      "ports": {
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "trip_out": {
+          "id": "trip_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "recovering_out": {
+          "id": "recovering_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__motor_trip_1": {
+      "id": "pump_skid_supervisor_1__motor_trip_1",
+      "type_ref": "project:package_protection_source",
+      "title": "Pump Skid Supervisor Pilot / Motor Trip",
+      "enabled": true,
+      "ports": {
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "trip_out": {
+          "id": "trip_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "recovering_out": {
+          "id": "recovering_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__pump_cmd_1": {
+      "id": "pump_skid_supervisor_1__pump_cmd_1",
+      "type_ref": "library:std/digital_output",
+      "title": "Pump Skid Supervisor Pilot / Pump Command Output",
+      "enabled": true,
+      "ports": {
+        "cmd": {
+          "id": "cmd",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "active_high": {
+          "value": true,
+          "value_type": "bool",
+          "source": "default",
+          "metadata": {
+            "group": "output",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.digital_output.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.digital_output.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__run_feedback_1": {
+      "id": "pump_skid_supervisor_1__run_feedback_1",
+      "type_ref": "library:std/digital_input",
+      "title": "Pump Skid Supervisor Pilot / Pump Run Feedback",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.digital_input.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.digital_input.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__fault_feedback_1": {
+      "id": "pump_skid_supervisor_1__fault_feedback_1",
+      "type_ref": "library:std/digital_input",
+      "title": "Pump Skid Supervisor Pilot / Pump Fault Feedback",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.digital_input.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.digital_input.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__pressure_pv_1": {
+      "id": "pump_skid_supervisor_1__pressure_pv_1",
+      "type_ref": "library:std/analog_input",
+      "title": "Pump Skid Supervisor Pilot / Pressure PV",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.analog_input.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.analog_input.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__run_hours_1": {
+      "id": "pump_skid_supervisor_1__run_hours_1",
+      "type_ref": "library:std/run_hours_counter",
+      "title": "Pump Skid Supervisor Pilot / Run Hours Counter",
+      "enabled": true,
+      "ports": {
+        "active_in": {
+          "id": "active_in",
+          "direction": "in",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        },
+        "running_out": {
+          "id": "running_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "total_hours": {
+          "id": "total_hours",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "total_seconds": {
+          "id": "total_seconds",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "u32"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "persist_enabled": {
+          "value": true,
+          "value_type": "bool",
+          "source": "instance_override",
+          "metadata": {
+            "group": "persistence",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__run_hours_1",
+            "param_id": "persist_enabled",
+            "source_layer": "system"
+          }
+        },
+        "persist_period_s": {
+          "value": 60,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "s",
+            "min": 1,
+            "max": 86400,
+            "step": 1,
+            "group": "persistence",
+            "ui_hint": "duration_s",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__run_hours_1",
+            "param_id": "persist_period_s",
+            "source_layer": "system"
+          }
+        },
+        "rounding_mode": {
+          "value": "tenths",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "calculation",
+            "ui_hint": "enum",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__run_hours_1",
+            "param_id": "rounding_mode",
+            "source_layer": "system"
+          }
+        },
+        "min_active_time_ms": {
+          "value": 1000,
+          "value_type": "u32",
+          "source": "default",
+          "metadata": {
+            "unit": "ms",
+            "min": 0,
+            "max": 60000,
+            "step": 10,
+            "group": "calculation",
+            "ui_hint": "duration_ms",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.run_hours_counter.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.run_hours_counter.v1",
+        "frontend_requirement_ids": [
+          "fe_pump_skid_supervisor_1__run_hours_1_activity_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__maintenance_counter_1": {
+      "id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "type_ref": "library:std/maintenance_counter",
+      "title": "Pump Skid Supervisor Pilot / Maintenance Counter",
+      "enabled": true,
+      "ports": {
+        "usage_total_in": {
+          "id": "usage_total_in",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "remaining_out": {
+          "id": "remaining_out",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "due_out": {
+          "id": "due_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "overdue_out": {
+          "id": "overdue_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "progress_out": {
+          "id": "progress_out",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "service_interval": {
+          "value": 900,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "usage_units",
+            "min": 0.0001,
+            "max": 1000000000,
+            "step": 0.1,
+            "group": "service",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__maintenance_counter_1",
+            "param_id": "service_interval",
+            "source_layer": "system"
+          }
+        },
+        "warning_before": {
+          "value": 90,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "usage_units",
+            "min": 0,
+            "max": 1000000000,
+            "step": 0.1,
+            "group": "service",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__maintenance_counter_1",
+            "param_id": "warning_before",
+            "source_layer": "system"
+          }
+        },
+        "overdue_margin": {
+          "value": 15,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "usage_units",
+            "min": 0,
+            "max": 1000000000,
+            "step": 0.1,
+            "group": "service",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__maintenance_counter_1",
+            "param_id": "overdue_margin",
+            "source_layer": "system"
+          }
+        },
+        "auto_rollover": {
+          "value": false,
+          "value_type": "bool",
+          "source": "default",
+          "metadata": {
+            "group": "service",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          }
+        },
+        "persist_enabled": {
+          "value": true,
+          "value_type": "bool",
+          "source": "default",
+          "metadata": {
+            "group": "persistence",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.maintenance_counter.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.maintenance_counter.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_1__pressure_monitor_1": {
+      "id": "pump_skid_supervisor_1__pressure_monitor_1",
+      "type_ref": "library:std/threshold_monitor",
+      "title": "Pump Skid Supervisor Pilot / Pressure High Monitor",
+      "enabled": true,
+      "ports": {
+        "value_in": {
+          "id": "value_in",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "above_out": {
+          "id": "above_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "below_out": {
+          "id": "below_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "in_window_out": {
+          "id": "in_window_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "alarm_active": {
+          "id": "alarm_active",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "mode": {
+          "value": "high",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "thresholds",
+            "ui_hint": "enum",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__pressure_monitor_1",
+            "param_id": "mode",
+            "source_layer": "system"
+          }
+        },
+        "threshold_a": {
+          "value": 7,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "engineering_units",
+            "min": -1000000,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "thresholds",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__pressure_monitor_1",
+            "param_id": "threshold_a",
+            "source_layer": "system"
+          }
+        },
+        "threshold_b": {
+          "value": 7,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "engineering_units",
+            "min": -1000000,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "thresholds",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__pressure_monitor_1",
+            "param_id": "threshold_b",
+            "source_layer": "system"
+          }
+        },
+        "hysteresis": {
+          "value": 0.2,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "engineering_units",
+            "min": 0,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "thresholds",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pump_skid_supervisor_1__pressure_monitor_1",
+            "param_id": "hysteresis",
+            "source_layer": "system"
+          }
+        },
+        "latch_alarm": {
+          "value": false,
+          "value_type": "bool",
+          "source": "default",
+          "metadata": {
+            "group": "alarming",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          }
+        },
+        "timeout_ms": {
+          "value": 5000,
+          "value_type": "u32",
+          "source": "default",
+          "metadata": {
+            "unit": "ms",
+            "min": 0,
+            "max": 3600000,
+            "step": 100,
+            "group": "alarming",
+            "ui_hint": "duration_ms",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.threshold_monitor.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.threshold_monitor.v1",
+        "frontend_requirement_ids": [
+          "fe_pump_skid_supervisor_1__pressure_monitor_1_value_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e"
+      }
+    }
+  },
+  "connections": {
+    "conn_pump_skid_supervisor_1__sig_run_feedback_to_runtime_runtime_active": {
+      "id": "conn_pump_skid_supervisor_1__sig_run_feedback_to_runtime_runtime_active",
+      "source": {
+        "instance_id": "pump_skid_supervisor_1__run_feedback_1",
+        "port_id": "value"
+      },
+      "target": {
+        "instance_id": "pump_skid_supervisor_1__run_hours_1",
+        "port_id": "active_in"
+      },
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e",
+        "signal_id": "pump_skid_supervisor_1__sig_run_feedback_to_runtime"
+      }
+    },
+    "conn_pump_skid_supervisor_1__sig_runtime_to_maintenance_maintenance_usage": {
+      "id": "conn_pump_skid_supervisor_1__sig_runtime_to_maintenance_maintenance_usage",
+      "source": {
+        "instance_id": "pump_skid_supervisor_1__run_hours_1",
+        "port_id": "total_hours"
+      },
+      "target": {
+        "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+        "port_id": "usage_total_in"
+      },
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e",
+        "signal_id": "pump_skid_supervisor_1__sig_runtime_to_maintenance"
+      }
+    },
+    "conn_pump_skid_supervisor_1__sig_pressure_to_monitor_pressure_value": {
+      "id": "conn_pump_skid_supervisor_1__sig_pressure_to_monitor_pressure_value",
+      "source": {
+        "instance_id": "pump_skid_supervisor_1__pressure_pv_1",
+        "port_id": "value"
+      },
+      "target": {
+        "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+        "port_id": "value_in"
+      },
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "pump_skid_supervisor_reference_e2e",
+        "signal_id": "pump_skid_supervisor_1__sig_pressure_to_monitor"
+      }
+    }
+  },
+  "resources": {
+    "hw_pump_cmd_1": {
+      "id": "hw_pump_cmd_1",
+      "binding_kind": "digital_out",
+      "instance_id": "pump_skid_supervisor_1__pump_cmd_1",
+      "port_id": "cmd",
+      "config": {
+        "pin": 17,
+        "active_high": true
+      }
+    },
+    "hw_run_feedback_1": {
+      "id": "hw_run_feedback_1",
+      "binding_kind": "digital_in",
+      "instance_id": "pump_skid_supervisor_1__run_feedback_1",
+      "port_id": "value",
+      "config": {
+        "pin": 34
+      }
+    },
+    "hw_fault_feedback_1": {
+      "id": "hw_fault_feedback_1",
+      "binding_kind": "digital_in",
+      "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+      "port_id": "value",
+      "config": {
+        "pin": 35
+      }
+    },
+    "hw_pressure_pv_1": {
+      "id": "hw_pressure_pv_1",
+      "binding_kind": "analog_in",
+      "instance_id": "pump_skid_supervisor_1__pressure_pv_1",
+      "port_id": "value",
+      "config": {
+        "channel": 0
+      }
+    }
+  },
+  "operations": {
+    "op_pump_skid_supervisor_1__pump_group_1_start_supervision": {
+      "id": "op_pump_skid_supervisor_1__pump_group_1_start_supervision",
+      "owner_instance_id": "pump_skid_supervisor_1__pump_group_1",
+      "kind": "start_supervision",
+      "title": "Start Supervision",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      },
+      "state_hint": {
+        "destructive": true
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__pump_group_1",
+        "facet_kind": "operation",
+        "facet_id": "start_supervision",
+        "source_type_ref": "project:pump_group"
+      }
+    },
+    "op_pump_skid_supervisor_1__pump_group_1_stop_supervision": {
+      "id": "op_pump_skid_supervisor_1__pump_group_1_stop_supervision",
+      "owner_instance_id": "pump_skid_supervisor_1__pump_group_1",
+      "kind": "stop_supervision",
+      "title": "Stop Supervision",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__pump_group_1",
+        "facet_kind": "operation",
+        "facet_id": "stop_supervision",
+        "source_type_ref": "project:pump_group"
+      }
+    },
+    "op_pump_skid_supervisor_1__suction_guard_1_reset_trip": {
+      "id": "op_pump_skid_supervisor_1__suction_guard_1_reset_trip",
+      "owner_instance_id": "pump_skid_supervisor_1__suction_guard_1",
+      "kind": "reset_latch",
+      "title": "Reset Trip",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      },
+      "state_hint": {
+        "destructive": true
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__suction_guard_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_trip",
+        "source_type_ref": "project:package_protection_source"
+      }
+    },
+    "op_pump_skid_supervisor_1__suction_guard_1_request_recovery": {
+      "id": "op_pump_skid_supervisor_1__suction_guard_1_request_recovery",
+      "owner_instance_id": "pump_skid_supervisor_1__suction_guard_1",
+      "kind": "reset",
+      "title": "Request Recovery",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__suction_guard_1",
+        "facet_kind": "operation",
+        "facet_id": "request_recovery",
+        "source_type_ref": "project:package_protection_source"
+      }
+    },
+    "op_pump_skid_supervisor_1__motor_trip_1_reset_trip": {
+      "id": "op_pump_skid_supervisor_1__motor_trip_1_reset_trip",
+      "owner_instance_id": "pump_skid_supervisor_1__motor_trip_1",
+      "kind": "reset_latch",
+      "title": "Reset Trip",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      },
+      "state_hint": {
+        "destructive": true
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__motor_trip_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_trip",
+        "source_type_ref": "project:package_protection_source"
+      }
+    },
+    "op_pump_skid_supervisor_1__motor_trip_1_request_recovery": {
+      "id": "op_pump_skid_supervisor_1__motor_trip_1_request_recovery",
+      "owner_instance_id": "pump_skid_supervisor_1__motor_trip_1",
+      "kind": "reset",
+      "title": "Request Recovery",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__motor_trip_1",
+        "facet_kind": "operation",
+        "facet_id": "request_recovery",
+        "source_type_ref": "project:package_protection_source"
+      }
+    },
+    "op_pump_skid_supervisor_1__run_hours_1_reset_counter": {
+      "id": "op_pump_skid_supervisor_1__run_hours_1_reset_counter",
+      "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+      "kind": "reset_counter",
+      "title": "Reset Counter",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "stopped"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "total_hours",
+            "value_type": "float"
+          },
+          {
+            "id": "total_seconds",
+            "value_type": "u32"
+          }
+        ]
+      },
+      "ui_hint": "danger",
+      "safe_when": [
+        "stopped"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "pump_skid_supervisor_1__run_hours_1",
+          "port_id": "source_ok"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "total_hours",
+        "total_seconds"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals",
+        "destructive": true
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_counter",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "op_pump_skid_supervisor_1__maintenance_counter_1_acknowledge_due": {
+      "id": "op_pump_skid_supervisor_1__maintenance_counter_1_acknowledge_due",
+      "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "kind": "acknowledge_due",
+      "title": "Acknowledge Due",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "due_active"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "acknowledged",
+            "value_type": "bool"
+          }
+        ]
+      },
+      "ui_hint": "secondary",
+      "safe_when": [
+        "due_active"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "port_id": "due_out"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "port_id": "overdue_out"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "acknowledged"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+        "facet_kind": "operation",
+        "facet_id": "acknowledge_due",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    },
+    "op_pump_skid_supervisor_1__maintenance_counter_1_reset_interval": {
+      "id": "op_pump_skid_supervisor_1__maintenance_counter_1_reset_interval",
+      "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "kind": "reset_interval",
+      "title": "Reset Interval",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "service_allowed"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "remaining_out",
+            "value_type": "float"
+          },
+          {
+            "id": "progress_out",
+            "value_type": "float"
+          }
+        ]
+      },
+      "ui_hint": "danger",
+      "safe_when": [
+        "service_allowed"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "port_id": "remaining_out"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "port_id": "progress_out"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "remaining_out",
+        "progress_out"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals",
+        "destructive": true
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_interval",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    },
+    "op_pump_skid_supervisor_1__pressure_monitor_1_reset_latch": {
+      "id": "op_pump_skid_supervisor_1__pressure_monitor_1_reset_latch",
+      "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+      "kind": "reset_latch",
+      "title": "Reset Latch",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "alarm_latched"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "alarm_active",
+            "value_type": "bool"
+          }
+        ]
+      },
+      "ui_hint": "secondary",
+      "safe_when": [
+        "alarm_latched"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+          "port_id": "alarm_active"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "alarm_active"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_latch",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    }
+  },
+  "trace_groups": {
+    "tg_pump_skid_supervisor_1__run_hours_1_runtime": {
+      "id": "tg_pump_skid_supervisor_1__run_hours_1_runtime",
+      "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+      "title": "Runtime",
+      "signals": [
+        {
+          "instance_id": "pump_skid_supervisor_1__run_hours_1",
+          "port_id": "active_in"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__run_hours_1",
+          "port_id": "running_out"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__run_hours_1",
+          "port_id": "total_hours"
+        }
+      ],
+      "sample_hint_ms": 1000,
+      "chart_hint": "line",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+        "facet_kind": "trace_group",
+        "facet_id": "runtime",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "tg_pump_skid_supervisor_1__maintenance_counter_1_maintenance": {
+      "id": "tg_pump_skid_supervisor_1__maintenance_counter_1_maintenance",
+      "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "title": "Maintenance",
+      "signals": [
+        {
+          "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "port_id": "usage_total_in"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "port_id": "remaining_out"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "port_id": "due_out"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "port_id": "overdue_out"
+        }
+      ],
+      "sample_hint_ms": 1000,
+      "chart_hint": "line",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+        "facet_kind": "trace_group",
+        "facet_id": "maintenance",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    },
+    "tg_pump_skid_supervisor_1__pressure_monitor_1_thresholds": {
+      "id": "tg_pump_skid_supervisor_1__pressure_monitor_1_thresholds",
+      "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+      "title": "Thresholds",
+      "signals": [
+        {
+          "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+          "port_id": "value_in"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+          "port_id": "above_out"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+          "port_id": "below_out"
+        },
+        {
+          "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+          "port_id": "alarm_active"
+        }
+      ],
+      "sample_hint_ms": 500,
+      "chart_hint": "line",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+        "facet_kind": "trace_group",
+        "facet_id": "thresholds",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    }
+  },
+  "monitors": {
+    "mon_pump_skid_supervisor_1__run_hours_1_stale_source": {
+      "id": "mon_pump_skid_supervisor_1__run_hours_1_stale_source",
+      "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "pump_skid_supervisor_1__run_hours_1",
+          "port_id": "active_in"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "mon_pump_skid_supervisor_1__run_hours_1_unexpected_toggle_rate": {
+      "id": "mon_pump_skid_supervisor_1__run_hours_1_unexpected_toggle_rate",
+      "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+      "kind": "rate",
+      "source_ports": [
+        {
+          "instance_id": "pump_skid_supervisor_1__run_hours_1",
+          "port_id": "active_in"
+        }
+      ],
+      "severity": "info",
+      "status_port_id": "running_out",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+        "facet_kind": "monitor",
+        "facet_id": "unexpected_toggle_rate",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "mon_pump_skid_supervisor_1__maintenance_counter_1_stale_source": {
+      "id": "mon_pump_skid_supervisor_1__maintenance_counter_1_stale_source",
+      "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "port_id": "usage_total_in"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    },
+    "mon_pump_skid_supervisor_1__maintenance_counter_1_interval_invalid": {
+      "id": "mon_pump_skid_supervisor_1__maintenance_counter_1_interval_invalid",
+      "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "kind": "invalid",
+      "source_ports": [],
+      "severity": "error",
+      "status_port_id": "due_out",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+        "facet_kind": "monitor",
+        "facet_id": "interval_invalid",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    },
+    "mon_pump_skid_supervisor_1__pressure_monitor_1_stale_source": {
+      "id": "mon_pump_skid_supervisor_1__pressure_monitor_1_stale_source",
+      "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+          "port_id": "value_in"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    },
+    "mon_pump_skid_supervisor_1__pressure_monitor_1_value_missing": {
+      "id": "mon_pump_skid_supervisor_1__pressure_monitor_1_value_missing",
+      "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+      "kind": "missing",
+      "source_ports": [
+        {
+          "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+          "port_id": "value_in"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+        "facet_kind": "monitor",
+        "facet_id": "value_missing",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    }
+  },
+  "frontend_requirements": {
+    "fe_pump_skid_supervisor_1__run_hours_1_activity_source": {
+      "id": "fe_pump_skid_supervisor_1__run_hours_1_activity_source",
+      "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+      "kind": "activity_input",
+      "source_ports": [
+        {
+          "instance_id": "pump_skid_supervisor_1__run_hours_1",
+          "port_id": "active_in"
+        }
+      ],
+      "binding_kind": "digital_in",
+      "channel_kind": "signal",
+      "value_type": "bool",
+      "required": true,
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "activity_source",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "fe_pump_skid_supervisor_1__pressure_monitor_1_value_source": {
+      "id": "fe_pump_skid_supervisor_1__pressure_monitor_1_value_source",
+      "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+      "kind": "process_value_input",
+      "source_ports": [
+        {
+          "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+          "port_id": "value_in"
+        }
+      ],
+      "binding_kind": "analog_in",
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "required": true,
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "value_source",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    }
+  },
+  "persistence_slots": {
+    "ps_pump_skid_supervisor_1__run_hours_1_total_runtime": {
+      "id": "ps_pump_skid_supervisor_1__run_hours_1_total_runtime",
+      "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+      "slot_kind": "counter",
+      "nv_slot_hint": "nv.run_hours.total_runtime",
+      "flush_policy": "periodic",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "total_runtime",
+        "source_type_ref": "library:run_hours_counter"
+      }
+    },
+    "ps_pump_skid_supervisor_1__maintenance_counter_1_reset_baseline": {
+      "id": "ps_pump_skid_supervisor_1__maintenance_counter_1_reset_baseline",
+      "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "slot_kind": "state",
+      "nv_slot_hint": "nv.maintenance.reset_baseline",
+      "flush_policy": "on_change",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "reset_baseline",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    },
+    "ps_pump_skid_supervisor_1__maintenance_counter_1_acknowledge_state": {
+      "id": "ps_pump_skid_supervisor_1__maintenance_counter_1_acknowledge_state",
+      "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+      "slot_kind": "state",
+      "nv_slot_hint": "nv.maintenance.acknowledge_state",
+      "flush_policy": "on_change",
+      "provenance": {
+        "owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "acknowledge_state",
+        "source_type_ref": "library:maintenance_counter"
+      }
+    }
+  },
+  "package_supervision": {
+    "pkg_pump_skid_supervisor_1": {
+      "id": "pkg_pump_skid_supervisor_1",
+      "package_instance_id": "pump_skid_supervisor_1",
+      "title": "Pump Skid Supervisor Pilot",
+      "summary_outputs": {
+        "package_ready": {
+          "id": "package_ready",
+          "title": "Package Ready",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__pump_group_1",
+            "port_id": "ready_out"
+          }
+        },
+        "package_running": {
+          "id": "package_running",
+          "title": "Package Running",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__run_feedback_1",
+            "port_id": "value"
+          }
+        },
+        "package_faulted": {
+          "id": "package_faulted",
+          "title": "Package Faulted",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+            "port_id": "value"
+          }
+        },
+        "pressure_alarm": {
+          "id": "pressure_alarm",
+          "title": "Pressure Alarm",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+            "port_id": "alarm_active"
+          }
+        },
+        "maintenance_due": {
+          "id": "maintenance_due",
+          "title": "Maintenance Due",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+            "port_id": "due_out"
+          }
+        },
+        "runtime_total": {
+          "id": "runtime_total",
+          "title": "Runtime Total",
+          "value_type": "float",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__run_hours_1",
+            "port_id": "total_hours"
+          }
+        },
+        "pressure_value": {
+          "id": "pressure_value",
+          "title": "Pressure Value",
+          "value_type": "float",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__pressure_pv_1",
+            "port_id": "value"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "package_health": {
+          "id": "package_health",
+          "title": "Package Health",
+          "kind": "boolean_health_rollup",
+          "severity": "warning",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__run_feedback_1",
+              "port_id": "value"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+              "port_id": "source_ok"
+            }
+          ]
+        }
+      },
+      "aggregate_alarms": {
+        "package_alarm_rollup": {
+          "id": "package_alarm_rollup",
+          "title": "Package Alarm Rollup",
+          "severity": "warning",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+              "port_id": "value"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+              "port_id": "alarm_active"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+              "port_id": "due_out"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "process_trace": {
+          "id": "process_trace",
+          "title": "Process Trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pressure_pv_1",
+              "port_id": "value"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__run_hours_1",
+              "port_id": "total_hours"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+              "port_id": "remaining_out"
+            }
+          ]
+        },
+        "status_trace": {
+          "id": "status_trace",
+          "title": "Status Trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_1__run_feedback_1",
+              "port_id": "value"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+              "port_id": "value"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "ready_out"
+            }
+          ]
+        }
+      },
+      "operation_proxies": {
+        "reset_runtime_counter": {
+          "id": "reset_runtime_counter",
+          "title": "Reset Runtime Counter",
+          "target_operation_id": "op_pump_skid_supervisor_1__run_hours_1_reset_counter",
+          "target_owner_instance_id": "pump_skid_supervisor_1__run_hours_1",
+          "child_operation_kind": "reset_counter"
+        },
+        "reset_maintenance_interval": {
+          "id": "reset_maintenance_interval",
+          "title": "Reset Maintenance Interval",
+          "target_operation_id": "op_pump_skid_supervisor_1__maintenance_counter_1_reset_interval",
+          "target_owner_instance_id": "pump_skid_supervisor_1__maintenance_counter_1",
+          "child_operation_kind": "reset_interval"
+        },
+        "reset_pressure_latch": {
+          "id": "reset_pressure_latch",
+          "title": "Reset Pressure Alarm Latch",
+          "target_operation_id": "op_pump_skid_supervisor_1__pressure_monitor_1_reset_latch",
+          "target_owner_instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+          "child_operation_kind": "reset_latch"
+        }
+      }
+    }
+  },
+  "package_coordination": {
+    "pkgcoord_pump_skid_supervisor_1": {
+      "id": "pkgcoord_pump_skid_supervisor_1",
+      "package_instance_id": "pump_skid_supervisor_1",
+      "title": "Pump Skid Supervisor Pilot",
+      "package_state": {
+        "id": "package_state",
+        "title": "Package State",
+        "default_state": "ready",
+        "states": {
+          "standby": {
+            "id": "standby",
+            "state": "standby",
+            "title": "Standby",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "off_out"
+              }
+            ],
+            "summary": "Pump skid is parked."
+          },
+          "ready": {
+            "id": "ready",
+            "state": "ready",
+            "title": "Ready",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "ready_out"
+              }
+            ],
+            "summary": "Package is ready for automatic or manual start."
+          },
+          "circulation_active": {
+            "id": "circulation_active",
+            "state": "circulation_active",
+            "title": "Running",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "running_out"
+              }
+            ],
+            "summary": "Pump skid is actively circulating."
+          },
+          "control_active": {
+            "id": "control_active",
+            "state": "control_active",
+            "title": "Control Active",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "auto_out"
+              }
+            ],
+            "summary": "Automatic lane is active."
+          },
+          "fault_latched": {
+            "id": "fault_latched",
+            "state": "fault_latched",
+            "title": "Fault Latched",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+                "port_id": "value"
+              }
+            ],
+            "summary": "Fault feedback remains active."
+          }
+        }
+      },
+      "summary_outputs": {
+        "ready_summary": {
+          "id": "ready_summary",
+          "title": "Ready Summary",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__pump_group_1",
+            "port_id": "ready_out"
+          }
+        },
+        "running_summary": {
+          "id": "running_summary",
+          "title": "Running Summary",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__run_feedback_1",
+            "port_id": "value"
+          }
+        },
+        "fault_summary": {
+          "id": "fault_summary",
+          "title": "Fault Summary",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+            "port_id": "value"
+          }
+        },
+        "pressure_high_summary": {
+          "id": "pressure_high_summary",
+          "title": "Pressure High Summary",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+            "port_id": "alarm_active"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "coordination_health": {
+          "id": "coordination_health",
+          "title": "Coordination Health",
+          "kind": "boolean_health_rollup",
+          "severity": "warning",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+              "port_id": "source_ok"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "coordination_trace": {
+          "id": "coordination_trace",
+          "title": "Coordination Trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "auto_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "running_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+              "port_id": "value"
+            }
+          ]
+        }
+      },
+      "operation_proxies": {
+        "start_supervision": {
+          "id": "start_supervision",
+          "title": "Start Supervision",
+          "kind": "start_supervision",
+          "target_operation_id": "op_pump_skid_supervisor_1__pump_group_1_start_supervision",
+          "target_owner_instance_id": "pump_skid_supervisor_1__pump_group_1",
+          "child_operation_kind": "start_supervision"
+        },
+        "stop_supervision": {
+          "id": "stop_supervision",
+          "title": "Stop Supervision",
+          "kind": "stop_supervision",
+          "target_operation_id": "op_pump_skid_supervisor_1__pump_group_1_stop_supervision",
+          "target_owner_instance_id": "pump_skid_supervisor_1__pump_group_1",
+          "child_operation_kind": "stop_supervision"
+        }
+      }
+    }
+  },
+  "package_mode_runtime_contract": {
+    "package_mode_execution_supported": true,
+    "phase_transition_execution_supported": true,
+    "transition_guard_diagnostics_supported": true,
+    "supported_intents": [
+      "request_mode_change",
+      "request_phase_start",
+      "request_phase_abort"
+    ]
+  },
+  "package_mode_phase": {
+    "pkgmode_pump_skid_supervisor_1": {
+      "id": "pkgmode_pump_skid_supervisor_1",
+      "package_instance_id": "pump_skid_supervisor_1",
+      "title": "Pump Skid Supervisor Pilot",
+      "modes": {
+        "off": {
+          "id": "off",
+          "qualified_id": "pkgmode_pump_skid_supervisor_1.mode.off",
+          "title": "Off",
+          "summary": "Pump skid is parked.",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_1.phase.idle"
+          ]
+        },
+        "auto": {
+          "id": "auto",
+          "qualified_id": "pkgmode_pump_skid_supervisor_1.mode.auto",
+          "title": "Auto",
+          "summary": "Automatic lane is active.",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_1.phase.idle",
+            "pkgmode_pump_skid_supervisor_1.phase.ready",
+            "pkgmode_pump_skid_supervisor_1.phase.running"
+          ]
+        },
+        "manual": {
+          "id": "manual",
+          "qualified_id": "pkgmode_pump_skid_supervisor_1.mode.manual",
+          "title": "Manual",
+          "summary": "Manual lane is active for commissioning.",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_1.phase.ready",
+            "pkgmode_pump_skid_supervisor_1.phase.running"
+          ]
+        }
+      },
+      "phases": {
+        "idle": {
+          "id": "idle",
+          "qualified_id": "pkgmode_pump_skid_supervisor_1.phase.idle",
+          "title": "Idle",
+          "summary": "No run request is active.",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "off_out"
+            }
+          ]
+        },
+        "ready": {
+          "id": "ready",
+          "qualified_id": "pkgmode_pump_skid_supervisor_1.phase.ready",
+          "title": "Ready",
+          "summary": "Package is ready to start.",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "ready_out"
+            }
+          ]
+        },
+        "running": {
+          "id": "running",
+          "qualified_id": "pkgmode_pump_skid_supervisor_1.phase.running",
+          "title": "Running",
+          "summary": "Pump skid is running.",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "running_out"
+            }
+          ]
+        }
+      },
+      "mode_summary": {
+        "id": "mode_summary",
+        "title": "Mode Summary",
+        "default_mode_id": "pkgmode_pump_skid_supervisor_1.mode.auto",
+        "entries": {
+          "off_summary": {
+            "id": "off_summary",
+            "title": "Off Summary",
+            "mode_id": "pkgmode_pump_skid_supervisor_1.mode.off",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "off_out"
+              }
+            ]
+          },
+          "auto_summary": {
+            "id": "auto_summary",
+            "title": "Auto Summary",
+            "mode_id": "pkgmode_pump_skid_supervisor_1.mode.auto",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "auto_out"
+              }
+            ]
+          },
+          "manual_summary": {
+            "id": "manual_summary",
+            "title": "Manual Summary",
+            "mode_id": "pkgmode_pump_skid_supervisor_1.mode.manual",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "manual_out"
+              }
+            ]
+          }
+        }
+      },
+      "phase_summary": {
+        "id": "phase_summary",
+        "title": "Phase Summary",
+        "default_phase_id": "pkgmode_pump_skid_supervisor_1.phase.ready",
+        "entries": {
+          "idle_summary": {
+            "id": "idle_summary",
+            "title": "Idle Summary",
+            "phase_id": "pkgmode_pump_skid_supervisor_1.phase.idle",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "off_out"
+              }
+            ]
+          },
+          "ready_summary": {
+            "id": "ready_summary",
+            "title": "Ready Summary",
+            "phase_id": "pkgmode_pump_skid_supervisor_1.phase.ready",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "ready_out"
+              }
+            ]
+          },
+          "running_summary": {
+            "id": "running_summary",
+            "title": "Running Summary",
+            "phase_id": "pkgmode_pump_skid_supervisor_1.phase.running",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_1__pump_group_1",
+                "port_id": "running_out"
+              }
+            ]
+          }
+        }
+      },
+      "active_mode_id": "pkgmode_pump_skid_supervisor_1.mode.auto",
+      "active_phase_id": "pkgmode_pump_skid_supervisor_1.phase.ready",
+      "allowed_mode_transitions": {
+        "to_off": {
+          "id": "to_off",
+          "intent": "request_mode_change",
+          "from_mode_id": "pkgmode_pump_skid_supervisor_1.mode.auto",
+          "to_mode_id": "pkgmode_pump_skid_supervisor_1.mode.off",
+          "guard_state": "clear",
+          "guard_notes": [
+            "operator_confirmation"
+          ]
+        },
+        "to_manual": {
+          "id": "to_manual",
+          "intent": "request_mode_change",
+          "from_mode_id": "pkgmode_pump_skid_supervisor_1.mode.auto",
+          "to_mode_id": "pkgmode_pump_skid_supervisor_1.mode.manual",
+          "guard_state": "clear",
+          "guard_notes": [
+            "operator_confirmation"
+          ]
+        },
+        "return_auto": {
+          "id": "return_auto",
+          "intent": "request_mode_change",
+          "from_mode_id": "pkgmode_pump_skid_supervisor_1.mode.manual",
+          "to_mode_id": "pkgmode_pump_skid_supervisor_1.mode.auto",
+          "guard_state": "clear"
+        }
+      },
+      "allowed_phase_transitions": {
+        "start_running": {
+          "id": "start_running",
+          "intent": "request_phase_start",
+          "phase_id": "pkgmode_pump_skid_supervisor_1.phase.running",
+          "allowed_mode_ids": [
+            "pkgmode_pump_skid_supervisor_1.mode.auto",
+            "pkgmode_pump_skid_supervisor_1.mode.manual"
+          ],
+          "phase_state": "ready",
+          "transition_state": "idle",
+          "guard_state": "clear",
+          "guard_notes": [
+            "package_ready_required"
+          ]
+        },
+        "abort_running": {
+          "id": "abort_running",
+          "intent": "request_phase_abort",
+          "phase_id": "pkgmode_pump_skid_supervisor_1.phase.running",
+          "allowed_mode_ids": [
+            "pkgmode_pump_skid_supervisor_1.mode.manual"
+          ],
+          "phase_state": "running",
+          "transition_state": "running",
+          "guard_state": "blocked",
+          "guard_notes": [
+            "operator_confirmation"
+          ]
+        }
+      },
+      "package_mode_groups": {
+        "availability_modes": {
+          "id": "availability_modes",
+          "title": "Availability Modes",
+          "mode_ids": [
+            "pkgmode_pump_skid_supervisor_1.mode.off",
+            "pkgmode_pump_skid_supervisor_1.mode.auto"
+          ],
+          "summary": "Normal availability modes."
+        },
+        "commissioning_modes": {
+          "id": "commissioning_modes",
+          "title": "Commissioning Modes",
+          "mode_ids": [
+            "pkgmode_pump_skid_supervisor_1.mode.manual"
+          ],
+          "summary": "Manual commissioning mode."
+        }
+      },
+      "package_phase_groups": {
+        "standby_phases": {
+          "id": "standby_phases",
+          "title": "Standby Phases",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_1.phase.idle",
+            "pkgmode_pump_skid_supervisor_1.phase.ready"
+          ],
+          "summary": "Non-running phases."
+        },
+        "active_phases": {
+          "id": "active_phases",
+          "title": "Active Phases",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_1.phase.running"
+          ],
+          "summary": "Active run phase."
+        }
+      },
+      "trace_groups": {
+        "mode_phase_trace": {
+          "id": "mode_phase_trace",
+          "title": "Mode / Phase Trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "auto_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "manual_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "running_out"
+            }
+          ]
+        }
+      },
+      "package_supervision_id": "pkg_pump_skid_supervisor_1",
+      "package_coordination_id": "pkgcoord_pump_skid_supervisor_1"
+    }
+  },
+  "package_permissive_interlock": {
+    "pkggate_pump_skid_supervisor_1": {
+      "id": "pkggate_pump_skid_supervisor_1",
+      "package_instance_id": "pump_skid_supervisor_1",
+      "title": "Pump Skid Supervisor Pilot",
+      "permissives": {
+        "package_ready": {
+          "id": "package_ready",
+          "qualified_id": "pkggate_pump_skid_supervisor_1.perm.package_ready",
+          "title": "Package Ready",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "ready_out"
+            }
+          ],
+          "blocked_reason_code": "package_not_ready"
+        },
+        "pressure_signal_ok": {
+          "id": "pressure_signal_ok",
+          "qualified_id": "pkggate_pump_skid_supervisor_1.perm.pressure_signal_ok",
+          "title": "Pressure Signal OK",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+              "port_id": "source_ok"
+            }
+          ],
+          "blocked_reason_code": "pressure_signal_missing"
+        },
+        "motor_not_tripped": {
+          "id": "motor_not_tripped",
+          "qualified_id": "pkggate_pump_skid_supervisor_1.perm.motor_not_tripped",
+          "title": "Motor Not Tripped",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__motor_trip_1",
+              "port_id": "ready_out"
+            }
+          ],
+          "blocked_reason_code": "motor_trip_active"
+        }
+      },
+      "interlocks": {
+        "pressure_high": {
+          "id": "pressure_high",
+          "qualified_id": "pkggate_pump_skid_supervisor_1.int.pressure_high",
+          "title": "Pressure High",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+              "port_id": "alarm_active"
+            }
+          ],
+          "active_state": "held",
+          "reason_code": "pressure_high",
+          "diagnostic_ref": "diag_pressure_high"
+        },
+        "package_faulted": {
+          "id": "package_faulted",
+          "qualified_id": "pkggate_pump_skid_supervisor_1.int.package_faulted",
+          "title": "Package Faulted",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+              "port_id": "value"
+            }
+          ],
+          "active_state": "faulted",
+          "reason_code": "package_faulted",
+          "diagnostic_ref": "diag_package_faulted"
+        }
+      },
+      "gate_summary": {
+        "id": "gate_summary",
+        "title": "Gate Summary",
+        "default_state": "ready",
+        "permissive_ids": [
+          "pkggate_pump_skid_supervisor_1.perm.package_ready",
+          "pkggate_pump_skid_supervisor_1.perm.pressure_signal_ok",
+          "pkggate_pump_skid_supervisor_1.perm.motor_not_tripped"
+        ],
+        "interlock_ids": [
+          "pkggate_pump_skid_supervisor_1.int.pressure_high",
+          "pkggate_pump_skid_supervisor_1.int.package_faulted"
+        ],
+        "transition_guards": {
+          "allow_start_running": {
+            "id": "allow_start_running",
+            "qualified_id": "pkggate_pump_skid_supervisor_1.guard.allow_start_running",
+            "title": "Allow Start Running",
+            "permissive_ids": [
+              "pkggate_pump_skid_supervisor_1.perm.package_ready",
+              "pkggate_pump_skid_supervisor_1.perm.pressure_signal_ok",
+              "pkggate_pump_skid_supervisor_1.perm.motor_not_tripped"
+            ],
+            "interlock_ids": [
+              "pkggate_pump_skid_supervisor_1.int.pressure_high",
+              "pkggate_pump_skid_supervisor_1.int.package_faulted"
+            ],
+            "phase_transition_id": "pkgmode_pump_skid_supervisor_1.phase_transition.start_running",
+            "summary": "Run start is allowed only when package permissives are clear and no interlock is active."
+          }
+        }
+      },
+      "summary_outputs": {
+        "gate_ready": {
+          "id": "gate_ready",
+          "title": "Gate Ready",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__pump_group_1",
+            "port_id": "ready_out"
+          }
+        },
+        "gate_faulted": {
+          "id": "gate_faulted",
+          "title": "Gate Faulted",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+            "port_id": "value"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "gate_health": {
+          "id": "gate_health",
+          "title": "Gate Health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+              "port_id": "source_ok"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__motor_trip_1",
+              "port_id": "ready_out"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "gate_trace": {
+          "id": "gate_trace",
+          "title": "Gate Trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_1__pump_group_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__pressure_monitor_1",
+              "port_id": "alarm_active"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__fault_feedback_1",
+              "port_id": "value"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "package_protection_recovery": {
+    "pkgprotect_pump_skid_supervisor_1": {
+      "id": "pkgprotect_pump_skid_supervisor_1",
+      "package_instance_id": "pump_skid_supervisor_1",
+      "title": "Pump Skid Supervisor Pilot",
+      "trips": {
+        "motor_trip": {
+          "id": "motor_trip",
+          "qualified_id": "pkgprotect_pump_skid_supervisor_1.trip.motor_trip",
+          "title": "Motor Trip",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__motor_trip_1",
+              "port_id": "trip_out"
+            }
+          ],
+          "latching": false,
+          "summary": "Motor trip is currently clear.",
+          "reason_code": "motor_trip_active",
+          "diagnostic_ref": "diag_motor_trip"
+        }
+      },
+      "inhibits": {
+        "suction_blocked": {
+          "id": "suction_blocked",
+          "qualified_id": "pkgprotect_pump_skid_supervisor_1.inhibit.suction_blocked",
+          "title": "Suction Blocked",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__suction_guard_1",
+              "port_id": "blocked_out"
+            }
+          ],
+          "summary": "Suction path inhibit remains clear on the ready baseline.",
+          "reason_code": "suction_blocked",
+          "diagnostic_ref": "diag_suction_blocked"
+        }
+      },
+      "protection_summary": {
+        "id": "protection_summary",
+        "title": "Protection Summary",
+        "default_state": "ready",
+        "recovery_request_ids": [
+          "reset_motor_trip",
+          "request_recovery"
+        ],
+        "diagnostic_summaries": {
+          "ready_path": {
+            "id": "ready_path",
+            "title": "Ready Path",
+            "summary": "Protection baseline is clear and package is ready."
+          }
+        }
+      },
+      "recovery_requests": {
+        "reset_motor_trip": {
+          "id": "reset_motor_trip",
+          "title": "Reset Motor Trip",
+          "kind": "reset_latch",
+          "target_operation_id": "op_pump_skid_supervisor_1__motor_trip_1_reset_trip",
+          "target_owner_instance_id": "pump_skid_supervisor_1__motor_trip_1",
+          "confirmation_policy": "required",
+          "summary": "Reset the motor trip latch."
+        },
+        "request_recovery": {
+          "id": "request_recovery",
+          "title": "Request Recovery",
+          "kind": "reset",
+          "target_operation_id": "op_pump_skid_supervisor_1__motor_trip_1_request_recovery",
+          "target_owner_instance_id": "pump_skid_supervisor_1__motor_trip_1",
+          "summary": "Recovery request is available on the ready baseline."
+        }
+      },
+      "summary_outputs": {
+        "package_ready": {
+          "id": "package_ready",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__suction_guard_1",
+            "port_id": "ready_out"
+          }
+        },
+        "package_tripped": {
+          "id": "package_tripped",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__motor_trip_1",
+            "port_id": "trip_out"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "protection_health": {
+          "id": "protection_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__suction_guard_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__motor_trip_1",
+              "port_id": "trip_out"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "protection_trace": {
+          "id": "protection_trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_1__suction_guard_1",
+              "port_id": "blocked_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__motor_trip_1",
+              "port_id": "trip_out"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "package_arbitration": {
+    "pkgarb_pump_skid_supervisor_1": {
+      "id": "pkgarb_pump_skid_supervisor_1",
+      "package_instance_id": "pump_skid_supervisor_1",
+      "title": "Pump Skid Supervisor Pilot",
+      "ownership_lanes": {
+        "auto_owner": {
+          "id": "auto_owner",
+          "title": "Auto Owner",
+          "lane": "auto",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__auto_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Automatic ownership lane is active."
+        },
+        "manual_owner": {
+          "id": "manual_owner",
+          "title": "Manual Owner",
+          "lane": "manual",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__manual_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Manual ownership lane is available but not active."
+        },
+        "service_owner": {
+          "id": "service_owner",
+          "title": "Service Owner",
+          "lane": "service",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__service_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Service ownership lane is available for maintenance use."
+        },
+        "remote_owner": {
+          "id": "remote_owner",
+          "title": "Remote Owner",
+          "lane": "remote",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__remote_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Remote ownership lane is available but denied for reset."
+        }
+      },
+      "ownership_summary": {
+        "id": "ownership_summary",
+        "title": "Ownership Summary",
+        "active_lane_ids": [
+          "auto_owner"
+        ],
+        "summary": "Automatic ownership is currently active."
+      },
+      "command_lanes": {
+        "start_auto": {
+          "id": "start_auto",
+          "title": "Start In Auto",
+          "request_kind": "request_start",
+          "ownership_lane_id": "auto_owner",
+          "ownership_lane": "auto",
+          "target_instance_id": "pump_skid_supervisor_1__start_request_1",
+          "arbitration_result": "accepted",
+          "summary": "Automatic start request is accepted.",
+          "request_preview": "request_start -> start_request_1"
+        },
+        "stop_service": {
+          "id": "stop_service",
+          "title": "Stop In Service",
+          "request_kind": "request_stop",
+          "ownership_lane_id": "service_owner",
+          "ownership_lane": "service",
+          "target_instance_id": "pump_skid_supervisor_1__stop_request_1",
+          "arbitration_result": "blocked",
+          "summary": "Service stop is blocked until the maintenance window opens.",
+          "request_preview": "request_stop -> stop_request_1",
+          "blocked_reason": "service_window_closed"
+        },
+        "reset_remote": {
+          "id": "reset_remote",
+          "title": "Reset From Remote",
+          "request_kind": "request_reset",
+          "ownership_lane_id": "remote_owner",
+          "ownership_lane": "remote",
+          "target_instance_id": "pump_skid_supervisor_1__stop_request_1",
+          "arbitration_result": "denied",
+          "summary": "Remote reset is denied because automatic ownership has authority.",
+          "request_preview": "request_reset -> stop_request_1",
+          "denied_reason": "auto_owner_active"
+        },
+        "stop_manual": {
+          "id": "stop_manual",
+          "title": "Stop In Manual",
+          "request_kind": "request_stop",
+          "ownership_lane_id": "manual_owner",
+          "ownership_lane": "manual",
+          "target_instance_id": "pump_skid_supervisor_1__stop_request_1",
+          "arbitration_result": "superseded",
+          "summary": "Manual stop is superseded by the accepted auto start request.",
+          "request_preview": "request_stop -> stop_request_1",
+          "superseded_by_lane_id": "start_auto"
+        }
+      },
+      "command_summary": {
+        "id": "command_summary",
+        "title": "Command Summary",
+        "active_owner_lane_ids": [
+          "auto_owner"
+        ],
+        "accepted_lane_ids": [
+          "start_auto"
+        ],
+        "blocked_lane_ids": [
+          "stop_service"
+        ],
+        "denied_lane_ids": [
+          "reset_remote"
+        ],
+        "superseded_lane_ids": [
+          "stop_manual"
+        ],
+        "summary": "Automatic ownership remains active while blocked, denied, and superseded command outcomes stay explicit."
+      },
+      "summary_outputs": {
+        "command_ready": {
+          "id": "command_ready",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__start_request_1",
+            "port_id": "ready_out"
+          }
+        },
+        "command_blocked": {
+          "id": "command_blocked",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__stop_request_1",
+            "port_id": "blocked_out"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "arbitration_health": {
+          "id": "arbitration_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__auto_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__start_request_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__stop_request_1",
+              "port_id": "blocked_out"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "arbitration_trace": {
+          "id": "arbitration_trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_1__auto_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__stop_request_1",
+              "port_id": "blocked_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__stop_request_1",
+              "port_id": "denied_out"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "package_override_handover": {
+    "pkgho_pump_skid_supervisor_1": {
+      "id": "pkgho_pump_skid_supervisor_1",
+      "package_instance_id": "pump_skid_supervisor_1",
+      "title": "Pump Skid Supervisor Pilot",
+      "authority_holders": {
+        "auto_owner": {
+          "id": "auto_owner",
+          "title": "Auto Holder",
+          "lane": "auto",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__auto_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Automatic lane is currently active."
+        },
+        "manual_owner": {
+          "id": "manual_owner",
+          "title": "Manual Holder",
+          "lane": "manual",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__manual_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Manual holder can request local handover."
+        },
+        "service_owner": {
+          "id": "service_owner",
+          "title": "Service Holder",
+          "lane": "service",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__service_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Service holder is available for maintenance takeover."
+        },
+        "remote_owner": {
+          "id": "remote_owner",
+          "title": "Remote Holder",
+          "lane": "remote",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__remote_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Remote holder is visible but not currently requested."
+        }
+      },
+      "handover_summary": {
+        "id": "handover_summary",
+        "title": "Override Summary",
+        "current_holder_id": "auto_owner",
+        "current_lane": "auto",
+        "requested_holder_id": "manual_owner",
+        "accepted_request_ids": [
+          "manual_takeover",
+          "return_to_auto"
+        ],
+        "blocked_request_ids": [
+          "service_takeover"
+        ],
+        "denied_request_ids": [
+          "remote_release"
+        ],
+        "last_handover_reason": "returned_to_auto",
+        "summary": "Automatic authority is active while a manual takeover remains available."
+      },
+      "handover_requests": {
+        "manual_takeover": {
+          "id": "manual_takeover",
+          "title": "Manual Takeover",
+          "request_kind": "request_takeover",
+          "requested_holder_id": "manual_owner",
+          "requested_lane": "manual",
+          "state": "accepted",
+          "summary": "Local manual handover is available from the panel lane.",
+          "request_preview": "request_takeover -> manual_owner"
+        },
+        "service_takeover": {
+          "id": "service_takeover",
+          "title": "Service Takeover",
+          "request_kind": "request_takeover",
+          "requested_holder_id": "service_owner",
+          "requested_lane": "service",
+          "state": "blocked",
+          "summary": "Service takeover is blocked until the maintenance window is open.",
+          "request_preview": "request_takeover -> service_owner",
+          "blocked_reason": "not_available"
+        },
+        "return_to_auto": {
+          "id": "return_to_auto",
+          "title": "Return To Auto",
+          "request_kind": "request_return_to_auto",
+          "requested_holder_id": "auto_owner",
+          "requested_lane": "auto",
+          "state": "accepted",
+          "summary": "Return-to-auto stays available as the package-neutral fallback.",
+          "request_preview": "request_return_to_auto -> auto_owner"
+        },
+        "remote_release": {
+          "id": "remote_release",
+          "title": "Remote Release",
+          "request_kind": "request_release",
+          "requested_holder_id": "remote_owner",
+          "requested_lane": "remote",
+          "state": "denied",
+          "summary": "Remote release is denied because the automatic holder remains authoritative.",
+          "request_preview": "request_release -> remote_owner",
+          "denied_reason": "held_by_other_owner"
+        }
+      },
+      "summary_outputs": {
+        "override_ready": {
+          "id": "override_ready",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__start_request_1",
+            "port_id": "ready_out"
+          }
+        },
+        "override_denied": {
+          "id": "override_denied",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_1__stop_request_1",
+            "port_id": "denied_out"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "override_handover_health": {
+          "id": "override_handover_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_1__auto_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__start_request_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__stop_request_1",
+              "port_id": "denied_out"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "override_handover_trace": {
+          "id": "override_handover_trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_1__auto_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__start_request_1",
+              "port_id": "blocked_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_1__stop_request_1",
+              "port_id": "denied_out"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": false,
+    "cancel_supported": false,
+    "progress_supported": false,
+    "result_supported": false,
+    "audit_required": false
+  }
+}

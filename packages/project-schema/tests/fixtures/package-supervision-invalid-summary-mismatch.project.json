@@ -1,0 +1,42 @@
+{
+  "schema_version": "0.4.0",
+  "meta": { "project_id": "package_supervision_invalid_summary_mismatch", "title": "Package Supervision Invalid Summary Mismatch" },
+  "imports": { "libraries": ["std"], "packages": [] },
+  "definitions": {
+    "object_types": {
+      "run_hours_counter": {
+        "id": "run_hours_counter",
+        "kind": "object_type",
+        "meta": { "title": "Run Hours Counter", "origin": "project" },
+        "interface": { "ports": { "runtime_total": { "id": "runtime_total", "direction": "out", "channel_kind": "telemetry", "value_type": "float" } }, "params": {}, "alarms": {} },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "broken_supervisor": {
+        "id": "broken_supervisor",
+        "kind": "package_definition",
+        "meta": { "title": "Broken Supervisor", "origin": "project", "package_kind": "boiler_supervisor_v1", "safety_scope": "non_safety_skeleton" },
+        "members": {
+          "run_hours_1": { "id": "run_hours_1", "kind": "package_member", "type_ref": "run_hours_counter" }
+        },
+        "signals": {},
+        "supervision": {
+          "summary_outputs": {
+            "runtime_total": {
+              "id": "runtime_total",
+              "value_type": "bool",
+              "source": { "member_id": "run_hours_1", "port_id": "runtime_total" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": { "instances": {}, "signals": {}, "packages": { "broken_1": { "id": "broken_1", "kind": "package_instance", "package_ref": "broken_supervisor" } } },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

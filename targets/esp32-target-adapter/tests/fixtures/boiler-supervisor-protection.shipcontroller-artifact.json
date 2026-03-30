@@ -1,0 +1,207 @@
+{
+  "artifacts": {
+    "analog_inputs": [],
+    "digital_inputs": [],
+    "digital_outputs": [],
+    "event_counters": [],
+    "maintenance_counters": [],
+    "operations": [
+      {
+        "availability_mode": "always",
+        "confirmation_policy": "none",
+        "id": "op_boiler_supervisor_protection_1__feedwater_guard_1_request_recovery",
+        "kind": "reset",
+        "metadata_only": true,
+        "owner_instance_id": "boiler_supervisor_protection_1__feedwater_guard_1",
+        "progress_mode": "none",
+        "result_mode": "none",
+        "title": "Request Recovery"
+      },
+      {
+        "availability_mode": "always",
+        "confirmation_policy": "required",
+        "id": "op_boiler_supervisor_protection_1__feedwater_guard_1_reset_trip",
+        "kind": "reset_latch",
+        "metadata_only": true,
+        "owner_instance_id": "boiler_supervisor_protection_1__feedwater_guard_1",
+        "progress_mode": "none",
+        "result_mode": "none",
+        "title": "Reset Trip"
+      },
+      {
+        "availability_mode": "always",
+        "confirmation_policy": "none",
+        "id": "op_boiler_supervisor_protection_1__pressure_trip_1_request_recovery",
+        "kind": "reset",
+        "metadata_only": true,
+        "owner_instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+        "progress_mode": "none",
+        "result_mode": "none",
+        "title": "Request Recovery"
+      },
+      {
+        "availability_mode": "always",
+        "confirmation_policy": "required",
+        "id": "op_boiler_supervisor_protection_1__pressure_trip_1_reset_trip",
+        "kind": "reset_latch",
+        "metadata_only": true,
+        "owner_instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+        "progress_mode": "none",
+        "result_mode": "none",
+        "title": "Reset Trip"
+      }
+    ],
+    "package_protection_recovery": [
+      {
+        "aggregate_monitors": [
+          {
+            "id": "protection_health",
+            "kind": "boolean_health_rollup",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_protection_1__feedwater_guard_1",
+                "port_id": "ready_out"
+              },
+              {
+                "instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+                "port_id": "trip_out"
+              }
+            ]
+          }
+        ],
+        "id": "pkgprotect_boiler_supervisor_protection_1",
+        "inhibits": [
+          {
+            "diagnostic_ref": "diag_feedwater_blocked",
+            "id": "feedwater_blocked",
+            "qualified_id": "pkgprotect_boiler_supervisor_protection_1.inhibit.feedwater_blocked",
+            "reason_code": "feedwater_blocked",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_protection_1__feedwater_guard_1",
+                "port_id": "blocked_out"
+              }
+            ],
+            "summary": "Feedwater path is blocked.",
+            "title": "Feedwater Blocked"
+          }
+        ],
+        "package_instance_id": "boiler_supervisor_protection_1",
+        "protection_summary": {
+          "default_state": "tripped",
+          "diagnostic_summaries": [
+            {
+              "id": "active_reasons",
+              "inhibit_ids": [
+                "pkgprotect_boiler_supervisor_protection_1.inhibit.feedwater_blocked"
+              ],
+              "summary": "Recovery is blocked until the feedwater path is clear and the trip is reset.",
+              "title": "Active Reasons",
+              "trip_ids": [
+                "pkgprotect_boiler_supervisor_protection_1.trip.pressure_trip"
+              ]
+            }
+          ],
+          "id": "protection_summary",
+          "inhibit_ids": [
+            "pkgprotect_boiler_supervisor_protection_1.inhibit.feedwater_blocked"
+          ],
+          "recovery_request_ids": [
+            "reset_pressure_trip",
+            "request_recovery"
+          ],
+          "title": "Protection Summary",
+          "trip_ids": [
+            "pkgprotect_boiler_supervisor_protection_1.trip.pressure_trip"
+          ]
+        },
+        "recovery_requests": [
+          {
+            "blocked_by_inhibit_ids": [
+              "pkgprotect_boiler_supervisor_protection_1.inhibit.feedwater_blocked"
+            ],
+            "blocked_by_trip_ids": [],
+            "id": "request_recovery",
+            "kind": "reset",
+            "summary": "Recovery is available only when feedwater inhibit clears.",
+            "target_operation_id": "op_boiler_supervisor_protection_1__pressure_trip_1_request_recovery",
+            "target_owner_instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+            "title": "Request Recovery"
+          },
+          {
+            "blocked_by_inhibit_ids": [],
+            "blocked_by_trip_ids": [],
+            "confirmation_policy": "required",
+            "id": "reset_pressure_trip",
+            "kind": "reset_latch",
+            "summary": "Reset the latched pressure trip.",
+            "target_operation_id": "op_boiler_supervisor_protection_1__pressure_trip_1_reset_trip",
+            "target_owner_instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+            "title": "Reset Pressure Trip"
+          }
+        ],
+        "summary_outputs": [
+          {
+            "id": "package_ready",
+            "source": {
+              "instance_id": "boiler_supervisor_protection_1__feedwater_guard_1",
+              "port_id": "ready_out"
+            },
+            "value_type": "bool"
+          },
+          {
+            "id": "package_tripped",
+            "source": {
+              "instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+              "port_id": "trip_out"
+            },
+            "value_type": "bool"
+          }
+        ],
+        "title": "BoilerSupervisorProtection v1",
+        "trace_groups": [
+          {
+            "id": "protection_trace",
+            "signals": [
+              {
+                "instance_id": "boiler_supervisor_protection_1__feedwater_guard_1",
+                "port_id": "blocked_out"
+              },
+              {
+                "instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+                "port_id": "trip_out"
+              }
+            ]
+          }
+        ],
+        "trips": [
+          {
+            "diagnostic_ref": "diag_pressure_trip",
+            "id": "pressure_trip",
+            "latching": true,
+            "qualified_id": "pkgprotect_boiler_supervisor_protection_1.trip.pressure_trip",
+            "reason_code": "pressure_trip_active",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+                "port_id": "trip_out"
+              }
+            ],
+            "summary": "Package pressure trip is latched.",
+            "title": "Pressure Trip"
+          }
+        ]
+      }
+    ],
+    "pid_controllers": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "threshold_monitors": [],
+    "timed_relays": []
+  },
+  "capability_profile": "esp32-basic-io",
+  "diagnostics": [],
+  "schema_version": "0.1.0",
+  "source_pack_id": "boiler-supervisor-protection-demo-pack",
+  "target_kind": "esp32.shipcontroller.v1"
+}

@@ -1,0 +1,119 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "operations-pid-autotune-execution-pack",
+  "source": {
+    "project_id": "operations_pid_autotune_execution_demo",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {
+    "pid_1": {
+      "id": "pid_1",
+      "type_ref": "library:std/pid_controller",
+      "enabled": true,
+      "ports": {
+        "pv_in": {
+          "id": "pv_in",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "mode_out": {
+          "id": "mode_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "string"
+        },
+        "loop_ok": {
+          "id": "loop_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {
+    "op_pid_1_autotune": {
+      "id": "op_pid_1_autotune",
+      "owner_instance_id": "pid_1",
+      "kind": "pid_autotune",
+      "title": "PID Autotune",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "manual_mode"
+        ]
+      },
+      "cancel_mode": "while_running",
+      "progress_mode": "signal_based",
+      "progress_contract": {
+        "fields": [
+          {
+            "id": "phase",
+            "value_type": "string",
+            "title": "Autotune phase"
+          },
+          {
+            "id": "sample_count",
+            "value_type": "u32",
+            "title": "Collected samples"
+          }
+        ]
+      },
+      "result_contract": {
+        "mode": "recommendation",
+        "fields": [
+          {
+            "id": "recommended_kp",
+            "value_type": "float",
+            "title": "Recommended Kp"
+          },
+          {
+            "id": "recommended_ti",
+            "value_type": "float",
+            "title": "Recommended Ti"
+          },
+          {
+            "id": "recommended_td",
+            "value_type": "float",
+            "title": "Recommended Td"
+          },
+          {
+            "id": "summary",
+            "value_type": "string",
+            "title": "Recommendation summary"
+          }
+        ],
+        "failure_fields": [
+          {
+            "id": "reason_code",
+            "value_type": "string"
+          }
+        ],
+        "recommendation_lifecycle": {
+          "mode": "apply_reject",
+          "apply_confirmation_policy": "required",
+          "reject_confirmation_policy": "required"
+        }
+      }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": true,
+    "cancel_supported": true,
+    "progress_supported": true,
+    "result_supported": true,
+    "audit_required": true,
+    "recommendation_lifecycle_supported": true,
+    "progress_payload_supported": true
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

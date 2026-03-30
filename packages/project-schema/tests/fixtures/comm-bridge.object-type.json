@@ -1,0 +1,177 @@
+{
+  "id": "comm_bridge",
+  "kind": "object_type",
+  "meta": {
+    "title": "Comm Bridge",
+    "version": "1.0.0",
+    "origin": "library",
+    "library_id": "std",
+    "description": "Public object-first bridge contract for the Modbus RTU read-only baseline."
+  },
+  "interface": {
+    "ports": {
+      "bridge_ok": {
+        "id": "bridge_ok",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "stale": {
+        "id": "stale",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "error_code": {
+        "id": "error_code",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "string"
+      }
+    },
+    "params": {
+      "port_ref": {
+        "id": "port_ref",
+        "value_type": "string",
+        "group": "bus",
+        "ui_hint": "resource_ref"
+      },
+      "baud_rate": {
+        "id": "baud_rate",
+        "value_type": "u32",
+        "default": 9600,
+        "group": "bus",
+        "ui_hint": "enum"
+      },
+      "parity": {
+        "id": "parity",
+        "value_type": "string",
+        "default": "N",
+        "group": "bus",
+        "ui_hint": "enum"
+      },
+      "stop_bits": {
+        "id": "stop_bits",
+        "value_type": "u32",
+        "default": 1,
+        "group": "bus",
+        "ui_hint": "enum"
+      },
+      "slave_id": {
+        "id": "slave_id",
+        "value_type": "u32",
+        "default": 1,
+        "group": "device",
+        "ui_hint": "numeric"
+      },
+      "timeout_ms": {
+        "id": "timeout_ms",
+        "value_type": "u32",
+        "default": 500,
+        "group": "poll",
+        "ui_hint": "duration_ms"
+      },
+      "poll_period_ms": {
+        "id": "poll_period_ms",
+        "value_type": "u32",
+        "default": 1000,
+        "group": "poll",
+        "ui_hint": "duration_ms"
+      },
+      "startup_delay_ms": {
+        "id": "startup_delay_ms",
+        "value_type": "u32",
+        "default": 0,
+        "group": "poll",
+        "ui_hint": "duration_ms"
+      },
+      "stale_timeout_ms": {
+        "id": "stale_timeout_ms",
+        "value_type": "u32",
+        "default": 3000,
+        "group": "poll",
+        "ui_hint": "duration_ms"
+      }
+    },
+    "alarms": {}
+  },
+  "locals": {
+    "signals": {},
+    "vars": {}
+  },
+  "implementation": {
+    "native": {
+      "native_kind": "std.comm_bridge.v1"
+    },
+    "composition": null,
+    "state": null,
+    "flow": null
+  },
+  "facets": {
+    "frontends": {
+      "requirements": {
+        "bus_source": {
+          "id": "bus_source",
+          "kind": "bus_source",
+          "title": "Bus Source",
+          "binding_kind": "bus",
+          "required": true,
+          "config": {
+            "port_ref_param": "port_ref",
+            "bus_kind": "modbus_rtu",
+            "access_mode": "read_only"
+          }
+        }
+      }
+    },
+    "comms": {
+      "bus_kind": "modbus_rtu",
+      "access_mode": "read_only",
+      "support_contract_refs": [
+        "support.modbus_rtu_bus_frontend.v1",
+        "support.poll_schedule.v1"
+      ],
+      "scope": "single_point_read_baseline"
+    },
+    "monitoring": {
+      "monitors": {
+        "stale_source": {
+          "id": "stale_source",
+          "kind": "stale",
+          "source_ports": [
+            "bridge_ok"
+          ],
+          "severity": "warning",
+          "status_port_id": "stale"
+        },
+        "timeout": {
+          "id": "timeout",
+          "kind": "timeout",
+          "source_ports": [
+            "bridge_ok"
+          ],
+          "severity": "warning",
+          "status_port_id": "stale",
+          "config": {
+            "timeout_param": "stale_timeout_ms"
+          }
+        }
+      }
+    },
+    "debug": {
+      "trace_groups": {
+        "bridge": {
+          "title": "Bridge",
+          "signals": [
+            "bridge_ok",
+            "stale",
+            "error_code"
+          ],
+          "sample_hint_ms": 1000,
+          "chart_hint": "state"
+        }
+      }
+    }
+  },
+  "diagnostics": {}
+}

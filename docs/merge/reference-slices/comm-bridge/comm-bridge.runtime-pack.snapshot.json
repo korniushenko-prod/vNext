@@ -1,0 +1,295 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "comm-bridge-demo-pack",
+  "source": {
+    "project_id": "comm_bridge_demo",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-29T23:30:00Z"
+  },
+  "instances": {
+    "comm_bridge_1": {
+      "id": "comm_bridge_1",
+      "type_ref": "library:std/comm_bridge",
+      "title": "Comm Bridge #1",
+      "enabled": true,
+      "ports": {
+        "bridge_ok": {
+          "id": "bridge_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "stale": {
+          "id": "stale",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "error_code": {
+          "id": "error_code",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "string"
+        }
+      },
+      "params": {
+        "port_ref": {
+          "value": "rs485_1",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "bus",
+            "ui_hint": "resource_ref"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "port_ref",
+            "source_layer": "system"
+          }
+        },
+        "baud_rate": {
+          "value": 9600,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "bus",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "baud_rate",
+            "source_layer": "system"
+          }
+        },
+        "parity": {
+          "value": "N",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "bus",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "parity",
+            "source_layer": "system"
+          }
+        },
+        "stop_bits": {
+          "value": 1,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "bus",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "stop_bits",
+            "source_layer": "system"
+          }
+        },
+        "slave_id": {
+          "value": 3,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "device",
+            "ui_hint": "numeric"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "slave_id",
+            "source_layer": "system"
+          }
+        },
+        "timeout_ms": {
+          "value": 500,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "poll",
+            "ui_hint": "duration_ms"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "timeout_ms",
+            "source_layer": "system"
+          }
+        },
+        "poll_period_ms": {
+          "value": 1000,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "poll",
+            "ui_hint": "duration_ms"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "poll_period_ms",
+            "source_layer": "system"
+          }
+        },
+        "startup_delay_ms": {
+          "value": 0,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "poll",
+            "ui_hint": "duration_ms"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "startup_delay_ms",
+            "source_layer": "system"
+          }
+        },
+        "stale_timeout_ms": {
+          "value": 3000,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "poll",
+            "ui_hint": "duration_ms"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "stale_timeout_ms",
+            "source_layer": "system"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.comm_bridge.v1",
+        "config_template": {
+          "role": "comm_bridge",
+          "bus_kind": "modbus_rtu",
+          "access_mode": "read_only",
+          "support_contract_refs": [
+            "support.modbus_rtu_bus_frontend.v1",
+            "support.poll_schedule.v1"
+          ],
+          "port_ref_param": "port_ref"
+        },
+        "mode": "modbus_rtu",
+        "frontend_requirement_ids": [
+          "fe_comm_bridge_1_bus_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "comm_bridge_demo"
+      }
+    }
+  },
+  "connections": {},
+  "resources": {
+    "rs485_1": {
+      "id": "rs485_1",
+      "binding_kind": "bus",
+      "instance_id": "comm_bridge_1",
+      "config": {
+        "driver": "modbus_rtu",
+        "port": "uart2"
+      }
+    }
+  },
+  "operations": {},
+  "trace_groups": {
+    "tg_comm_bridge_1_bridge": {
+      "id": "tg_comm_bridge_1_bridge",
+      "owner_instance_id": "comm_bridge_1",
+      "title": "Bridge",
+      "signals": [
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "bridge_ok"
+        },
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "stale"
+        },
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "error_code"
+        }
+      ],
+      "sample_hint_ms": 1000,
+      "chart_hint": "state",
+      "provenance": {
+        "owner_instance_id": "comm_bridge_1",
+        "facet_kind": "trace_group",
+        "facet_id": "bridge",
+        "source_type_ref": "library:comm_bridge"
+      }
+    }
+  },
+  "monitors": {
+    "mon_comm_bridge_1_stale_source": {
+      "id": "mon_comm_bridge_1_stale_source",
+      "owner_instance_id": "comm_bridge_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "bridge_ok"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "stale",
+      "provenance": {
+        "owner_instance_id": "comm_bridge_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:comm_bridge"
+      }
+    },
+    "mon_comm_bridge_1_timeout": {
+      "id": "mon_comm_bridge_1_timeout",
+      "owner_instance_id": "comm_bridge_1",
+      "kind": "timeout",
+      "source_ports": [
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "bridge_ok"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "stale",
+      "config": {
+        "timeout_param": "stale_timeout_ms"
+      },
+      "provenance": {
+        "owner_instance_id": "comm_bridge_1",
+        "facet_kind": "monitor",
+        "facet_id": "timeout",
+        "source_type_ref": "library:comm_bridge"
+      }
+    }
+  },
+  "frontend_requirements": {
+    "fe_comm_bridge_1_bus_source": {
+      "id": "fe_comm_bridge_1_bus_source",
+      "owner_instance_id": "comm_bridge_1",
+      "kind": "bus_source",
+      "title": "Bus Source",
+      "source_ports": [],
+      "binding_kind": "bus",
+      "required": true,
+      "config": {
+        "port_ref_param": "port_ref",
+        "bus_kind": "modbus_rtu",
+        "access_mode": "read_only"
+      },
+      "provenance": {
+        "owner_instance_id": "comm_bridge_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "bus_source",
+        "source_type_ref": "library:comm_bridge"
+      }
+    }
+  },
+  "persistence_slots": {}
+}

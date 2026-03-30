@@ -1,0 +1,34 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "package-coordination-invalid-pack",
+  "source": {
+    "project_id": "package_coordination_invalid",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {},
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "package_coordination": {
+    "pkg_boiler_coordination_1": {
+      "id": "pkg_boiler_coordination_1",
+      "package_instance_id": "boiler_coordination_1",
+      "package_state": {
+        "id": "package_state",
+        "states": {
+          "ignite_sequence": {
+            "id": "ignite_sequence",
+            "state": "ignite_sequence",
+            "source_ports": [
+              { "instance_id": "boiler_coordination_1__pump_group_1", "port_id": "ready_out" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

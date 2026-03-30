@@ -1,0 +1,25 @@
+{
+  "target_id": "esp32.shipcontroller.v1",
+  "display_name": "ESP32 ShipController",
+  "supported_binding_kinds": ["digital_in", "digital_out", "analog_in", "bus", "service"],
+  "supported_channel_kinds": ["signal", "command", "state", "telemetry"],
+  "supported_value_types": ["bool", "u32", "float", "string"],
+  "supported_native_kinds": ["std.threshold_monitor.v1"],
+  "supported_operation_kinds": [],
+  "supports_trace": true,
+  "supports_operations": false,
+  "package_permissive_interlock_support": {
+    "enabled": true,
+    "gate_summary": true,
+    "reason_codes": true,
+    "diagnostics_refs": true,
+    "transition_guards": true
+  },
+  "supports_persistence": true,
+  "supports_simulation": false,
+  "limits": {
+    "max_instances": 128,
+    "max_connections": 256,
+    "max_resources": 128
+  }
+}

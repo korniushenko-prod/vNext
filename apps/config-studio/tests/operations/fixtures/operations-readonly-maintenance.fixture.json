@@ -1,0 +1,84 @@
+{
+  "id": "operations-readonly-maintenance",
+  "title": "MaintenanceCounter + service operations",
+  "description": "Two maintenance actions share the same read-only surface: failed acknowledge and completed reset interval.",
+  "subject_label": "Maintenance Counter #1",
+  "runtimePack": {
+    "pack_id": "operations-readonly-maintenance-pack",
+    "operations": {
+      "op_maintenance_counter_1_acknowledge_due": {
+        "id": "op_maintenance_counter_1_acknowledge_due",
+        "owner_instance_id": "maintenance_counter_1",
+        "kind": "acknowledge_due",
+        "title": "Acknowledge Due",
+        "confirmation_policy": "none",
+        "availability": {
+          "mode": "guarded",
+          "required_states": ["due_active"]
+        },
+        "progress_mode": "signal_based",
+        "result_contract": {
+          "mode": "applyable_result",
+          "fields": [
+            { "id": "completed", "value_type": "bool", "title": "Completed" },
+            { "id": "acknowledged", "value_type": "bool", "title": "Acknowledged" }
+          ]
+        }
+      },
+      "op_maintenance_counter_1_reset_interval": {
+        "id": "op_maintenance_counter_1_reset_interval",
+        "owner_instance_id": "maintenance_counter_1",
+        "kind": "reset_interval",
+        "title": "Reset Interval",
+        "confirmation_policy": "required",
+        "availability": {
+          "mode": "guarded",
+          "required_states": ["due_active", "overdue_active"]
+        },
+        "progress_mode": "signal_based",
+        "result_contract": {
+          "mode": "applyable_result",
+          "fields": [
+            { "id": "completed", "value_type": "bool", "title": "Completed" },
+            { "id": "remaining_out", "value_type": "float", "title": "Remaining" },
+            { "id": "progress_out", "value_type": "float", "title": "Progress" }
+          ]
+        }
+      }
+    },
+    "operation_runtime_contract": {
+      "invoke_supported": false,
+      "cancel_supported": false,
+      "progress_supported": true,
+      "result_supported": true,
+      "audit_required": false
+    }
+  },
+  "runtimeSnapshot": {
+    "operation_snapshots": {
+      "op_maintenance_counter_1_acknowledge_due": {
+        "operation_id": "op_maintenance_counter_1_acknowledge_due",
+        "state": "failed",
+        "message": "Acknowledge rejected because due signal already cleared."
+      },
+      "op_maintenance_counter_1_reset_interval": {
+        "operation_id": "op_maintenance_counter_1_reset_interval",
+        "state": "completed",
+        "message": "Maintenance interval reset captured in persistent storage.",
+        "result": {
+          "completed": true,
+          "remaining_out": 500,
+          "progress_out": 0
+        }
+      }
+    }
+  },
+  "operationsSupport": {
+    "enabled": true,
+    "invoke": false,
+    "cancel": false,
+    "progress": true,
+    "result_payload": true,
+    "confirmation": true
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "package_protection_recovery_invalid_ready_state",
+    "title": "Package Protection Recovery Invalid Ready State"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "package_protection_source": {
+        "id": "package_protection_source",
+        "kind": "object_type",
+        "meta": { "title": "Package Protection Source", "origin": "project" },
+        "interface": {
+          "ports": {
+            "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "blocked_out": { "id": "blocked_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "trip_out": { "id": "trip_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "recovering_out": { "id": "recovering_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "facets": {
+          "operations": {
+            "operations": {
+              "reset_trip": { "id": "reset_trip", "kind": "reset_latch", "title": "Reset Trip" },
+              "request_recovery": { "id": "request_recovery", "kind": "reset", "title": "Request Recovery" }
+            }
+          }
+        },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "pump_skid_supervisor_protection": {
+        "id": "pump_skid_supervisor_protection",
+        "kind": "package_definition",
+        "meta": {
+          "title": "PumpSkidSupervisorProtection v1",
+          "origin": "project",
+          "package_kind": "pump_skid_supervisor_protection_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "suction_guard_1": { "id": "suction_guard_1", "kind": "package_member", "type_ref": "project:package_protection_source" },
+          "motor_trip_1": { "id": "motor_trip_1", "kind": "package_member", "type_ref": "project:package_protection_source" }
+        },
+        "signals": {},
+        "protection_recovery": {
+          "trips": {
+            "motor_trip": {
+              "id": "motor_trip",
+              "source_ports": [{ "member_id": "motor_trip_1", "port_id": "trip_out" }]
+            }
+          },
+          "inhibits": {
+            "suction_blocked": {
+              "id": "suction_blocked",
+              "source_ports": [{ "member_id": "suction_guard_1", "port_id": "blocked_out" }]
+            }
+          },
+          "protection_summary": {
+            "id": "protection_summary",
+            "default_state": "ready",
+            "trip_refs": ["motor_trip"]
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "pump_skid_supervisor_protection_1": {
+        "id": "pump_skid_supervisor_protection_1",
+        "kind": "package_instance",
+        "package_ref": "pump_skid_supervisor_protection"
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

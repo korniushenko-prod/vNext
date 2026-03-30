@@ -1,0 +1,19 @@
+{
+  "request_id": "readback-001",
+  "target_id": "esp32.shipcontroller.v1",
+  "collected_at": "2026-03-29T20:00:00Z",
+  "signals": {},
+  "resources": {},
+  "operation_snapshots": {
+    "op_pid_1_autotune": {
+      "operation_id": "op_pid_1_autotune",
+      "state": "running",
+      "progress": 42,
+      "message": "Autotune in progress",
+      "result": {
+        "phase": "excitation"
+      }
+    }
+  },
+  "diagnostics": []
+}

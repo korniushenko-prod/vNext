@@ -1,0 +1,7 @@
+{
+  "operation_id": "op_pid_1_autotune",
+  "confirmation_token": "confirm-001",
+  "inputs": {
+    "tuning_mode": "guided"
+  }
+}

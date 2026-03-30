@@ -1,0 +1,35 @@
+{
+  "target_id": "esp32.shipcontroller.v1",
+  "display_name": "ESP32 ShipController",
+  "supported_binding_kinds": ["digital_in", "digital_out", "analog_in", "bus", "service"],
+  "supported_channel_kinds": ["signal", "command", "state", "telemetry"],
+  "supported_value_types": ["bool", "u32", "float", "string"],
+  "supported_native_kinds": ["std.timed_relay.v1", "std.pid_controller.v1"],
+  "supported_operation_kinds": ["reset_totalizer", "reset_hours", "reset_maintenance", "pid_autotune", "self_test"],
+  "supports_trace": true,
+  "supports_operations": true,
+  "operations_support": {
+    "enabled": true,
+    "invoke": true,
+    "cancel": true,
+    "progress": true,
+    "result_payload": true,
+    "confirmation": true
+  },
+  "supports_persistence": true,
+  "supports_simulation": false,
+  "supported_pulse_source_modes": ["hall_pulse"],
+  "pulse_source_constraints": [
+    {
+      "mode": "hall_pulse",
+      "required_binding_kind": "digital_in",
+      "required_value_types": ["bool"],
+      "notes": "Hall pulse sources must be digital inputs."
+    }
+  ],
+  "limits": {
+    "max_instances": 128,
+    "max_connections": 256,
+    "max_resources": 128
+  }
+}

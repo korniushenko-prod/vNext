@@ -28,7 +28,7 @@
   "resources": {
     "resource_b": {
       "id": "resource_b",
-      "binding_kind": "bus",
+      "binding_kind": "vendor_bus",
       "instance_id": "device_2",
       "config": {}
     }

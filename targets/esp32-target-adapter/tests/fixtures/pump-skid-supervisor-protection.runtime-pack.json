@@ -1,0 +1,312 @@
+{
+  "connections": {},
+  "frontend_requirements": {},
+  "instances": {
+    "pump_skid_supervisor_protection_1__motor_trip_1": {
+      "alarms": {},
+      "enabled": true,
+      "id": "pump_skid_supervisor_protection_1__motor_trip_1",
+      "params": {},
+      "ports": {
+        "blocked_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "blocked_out",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "ready_out",
+          "value_type": "bool"
+        },
+        "recovering_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "recovering_out",
+          "value_type": "bool"
+        },
+        "trip_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "trip_out",
+          "value_type": "bool"
+        }
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_protection_reference_e2e"
+      },
+      "title": "pump_skid_supervisor_protection_1 / Motor Trip",
+      "type_ref": "project:package_protection_source"
+    },
+    "pump_skid_supervisor_protection_1__suction_guard_1": {
+      "alarms": {},
+      "enabled": true,
+      "id": "pump_skid_supervisor_protection_1__suction_guard_1",
+      "params": {},
+      "ports": {
+        "blocked_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "blocked_out",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "ready_out",
+          "value_type": "bool"
+        },
+        "recovering_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "recovering_out",
+          "value_type": "bool"
+        },
+        "trip_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "trip_out",
+          "value_type": "bool"
+        }
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_protection_reference_e2e"
+      },
+      "title": "pump_skid_supervisor_protection_1 / Suction Guard",
+      "type_ref": "project:package_protection_source"
+    }
+  },
+  "monitors": {},
+  "operation_runtime_contract": {
+    "audit_required": false,
+    "cancel_supported": false,
+    "invoke_supported": false,
+    "progress_supported": false,
+    "result_supported": false
+  },
+  "operations": {
+    "op_pump_skid_supervisor_protection_1__motor_trip_1_request_recovery": {
+      "availability": {
+        "mode": "always"
+      },
+      "confirmation_policy": "none",
+      "id": "op_pump_skid_supervisor_protection_1__motor_trip_1_request_recovery",
+      "kind": "reset",
+      "owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+      "progress_mode": "none",
+      "provenance": {
+        "facet_id": "request_recovery",
+        "facet_kind": "operation",
+        "owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+        "source_type_ref": "project:package_protection_source"
+      },
+      "result_contract": {
+        "mode": "none"
+      },
+      "title": "Request Recovery"
+    },
+    "op_pump_skid_supervisor_protection_1__motor_trip_1_reset_trip": {
+      "availability": {
+        "mode": "always"
+      },
+      "confirmation_policy": "required",
+      "id": "op_pump_skid_supervisor_protection_1__motor_trip_1_reset_trip",
+      "kind": "reset_latch",
+      "owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+      "progress_mode": "none",
+      "provenance": {
+        "facet_id": "reset_trip",
+        "facet_kind": "operation",
+        "owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+        "source_type_ref": "project:package_protection_source"
+      },
+      "result_contract": {
+        "mode": "none"
+      },
+      "state_hint": {
+        "destructive": true
+      },
+      "title": "Reset Trip"
+    },
+    "op_pump_skid_supervisor_protection_1__suction_guard_1_request_recovery": {
+      "availability": {
+        "mode": "always"
+      },
+      "confirmation_policy": "none",
+      "id": "op_pump_skid_supervisor_protection_1__suction_guard_1_request_recovery",
+      "kind": "reset",
+      "owner_instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+      "progress_mode": "none",
+      "provenance": {
+        "facet_id": "request_recovery",
+        "facet_kind": "operation",
+        "owner_instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+        "source_type_ref": "project:package_protection_source"
+      },
+      "result_contract": {
+        "mode": "none"
+      },
+      "title": "Request Recovery"
+    },
+    "op_pump_skid_supervisor_protection_1__suction_guard_1_reset_trip": {
+      "availability": {
+        "mode": "always"
+      },
+      "confirmation_policy": "required",
+      "id": "op_pump_skid_supervisor_protection_1__suction_guard_1_reset_trip",
+      "kind": "reset_latch",
+      "owner_instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+      "progress_mode": "none",
+      "provenance": {
+        "facet_id": "reset_trip",
+        "facet_kind": "operation",
+        "owner_instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+        "source_type_ref": "project:package_protection_source"
+      },
+      "result_contract": {
+        "mode": "none"
+      },
+      "state_hint": {
+        "destructive": true
+      },
+      "title": "Reset Trip"
+    }
+  },
+  "pack_id": "pump-skid-supervisor-protection-demo-pack",
+  "package_protection_recovery": {
+    "pkgprotect_pump_skid_supervisor_protection_1": {
+      "aggregate_monitors": {
+        "protection_health": {
+          "id": "protection_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+              "port_id": "trip_out"
+            }
+          ]
+        }
+      },
+      "id": "pkgprotect_pump_skid_supervisor_protection_1",
+      "inhibits": {
+        "suction_blocked": {
+          "diagnostic_ref": "diag_suction_blocked",
+          "id": "suction_blocked",
+          "qualified_id": "pkgprotect_pump_skid_supervisor_protection_1.inhibit.suction_blocked",
+          "reason_code": "suction_blocked",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+              "port_id": "blocked_out"
+            }
+          ],
+          "summary": "Suction path inhibit remains clear on the ready baseline.",
+          "title": "Suction Blocked"
+        }
+      },
+      "package_instance_id": "pump_skid_supervisor_protection_1",
+      "protection_summary": {
+        "default_state": "ready",
+        "diagnostic_summaries": {
+          "ready_path": {
+            "id": "ready_path",
+            "summary": "Protection baseline is clear and package is ready.",
+            "title": "Ready Path"
+          }
+        },
+        "id": "protection_summary",
+        "recovery_request_ids": [
+          "reset_motor_trip",
+          "request_recovery"
+        ],
+        "title": "Protection Summary"
+      },
+      "recovery_requests": {
+        "request_recovery": {
+          "id": "request_recovery",
+          "kind": "reset",
+          "summary": "Recovery request is available on the ready baseline.",
+          "target_operation_id": "op_pump_skid_supervisor_protection_1__motor_trip_1_request_recovery",
+          "target_owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+          "title": "Request Recovery"
+        },
+        "reset_motor_trip": {
+          "confirmation_policy": "required",
+          "id": "reset_motor_trip",
+          "kind": "reset_latch",
+          "summary": "Reset the motor trip latch.",
+          "target_operation_id": "op_pump_skid_supervisor_protection_1__motor_trip_1_reset_trip",
+          "target_owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+          "title": "Reset Motor Trip"
+        }
+      },
+      "summary_outputs": {
+        "package_ready": {
+          "id": "package_ready",
+          "source": {
+            "instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+            "port_id": "ready_out"
+          },
+          "value_type": "bool"
+        },
+        "package_tripped": {
+          "id": "package_tripped",
+          "source": {
+            "instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+            "port_id": "trip_out"
+          },
+          "value_type": "bool"
+        }
+      },
+      "title": "PumpSkidSupervisorProtection v1",
+      "trace_groups": {
+        "protection_trace": {
+          "id": "protection_trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+              "port_id": "blocked_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+              "port_id": "trip_out"
+            }
+          ]
+        }
+      },
+      "trips": {
+        "motor_trip": {
+          "diagnostic_ref": "diag_motor_trip",
+          "id": "motor_trip",
+          "latching": false,
+          "qualified_id": "pkgprotect_pump_skid_supervisor_protection_1.trip.motor_trip",
+          "reason_code": "motor_trip_active",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+              "port_id": "trip_out"
+            }
+          ],
+          "summary": "Motor trip is currently clear.",
+          "title": "Motor Trip"
+        }
+      }
+    }
+  },
+  "persistence_slots": {},
+  "resources": {},
+  "schema_version": "0.1.0",
+  "source": {
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T23:45:00Z",
+    "project_id": "pump_skid_supervisor_protection_reference_e2e"
+  },
+  "trace_groups": {}
+}

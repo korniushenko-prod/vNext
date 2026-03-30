@@ -1,0 +1,244 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "demo_run_hours_counter_project",
+    "title": "Run Hours Counter Demo"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "digital_input": {
+        "id": "digital_input",
+        "kind": "object_type",
+        "meta": {
+          "title": "Digital Input",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std"
+        },
+        "interface": {
+          "ports": {
+            "value": {
+              "id": "value",
+              "direction": "out",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.digital_input.v1",
+            "target_kinds": ["esp32.shipcontroller.v1"],
+            "config_template": "shipcontroller.digital_input.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      },
+      "run_hours_counter": {
+        "id": "run_hours_counter",
+        "kind": "object_type",
+        "meta": {
+          "title": "Run Hours Counter",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std",
+          "description": "Accumulates machine runtime from a normalized active signal and exposes service-ready totals."
+        },
+        "interface": {
+          "ports": {
+            "active_in": { "id": "active_in", "direction": "in", "channel_kind": "signal", "value_type": "bool" },
+            "running_out": { "id": "running_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "total_hours": { "id": "total_hours", "direction": "out", "channel_kind": "telemetry", "value_type": "float" },
+            "total_seconds": { "id": "total_seconds", "direction": "out", "channel_kind": "telemetry", "value_type": "u32" },
+            "source_ok": { "id": "source_ok", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {
+            "persist_enabled": { "id": "persist_enabled", "value_type": "bool", "default": true, "group": "persistence", "ui_hint": "toggle", "access_role": "engineer", "live_edit_policy": "apply_on_restart", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "low" },
+            "persist_period_s": { "id": "persist_period_s", "value_type": "u32", "default": 60, "unit": "s", "min": 1, "max": 86400, "step": 1, "group": "persistence", "ui_hint": "duration_s", "access_role": "engineer", "live_edit_policy": "apply_on_restart", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "low" },
+            "rounding_mode": { "id": "rounding_mode", "value_type": "string", "default": "tenths", "group": "calculation", "ui_hint": "enum", "access_role": "engineer", "live_edit_policy": "immediate", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "low" },
+            "min_active_time_ms": { "id": "min_active_time_ms", "value_type": "u32", "default": 1000, "unit": "ms", "min": 0, "max": 60000, "step": 10, "group": "calculation", "ui_hint": "duration_ms", "access_role": "engineer", "live_edit_policy": "immediate", "persist_policy": "project", "recipe_scope": "instance", "danger_level": "low" }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.run_hours_counter.v1",
+            "target_kinds": ["esp32.shipcontroller.v1"],
+            "config_template": "shipcontroller.run_hours_counter.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {
+              "activity_source": {
+                "id": "activity_source",
+                "kind": "activity_input",
+                "source_ports": ["active_in"],
+                "binding_kind": "digital_in",
+                "channel_kind": "signal",
+                "value_type": "bool",
+                "required": true
+              }
+            }
+          },
+          "operations": {
+            "operations": {
+              "reset_counter": {
+                "id": "reset_counter",
+                "kind": "reset_counter",
+                "title": "Reset Counter",
+                "ui_hint": "danger",
+                "safe_when": ["stopped"],
+                "confirmation_policy": "required",
+                "progress_signals": ["source_ok"],
+                "result_fields": ["completed", "total_hours", "total_seconds"]
+              }
+            }
+          },
+          "monitoring": {
+            "monitors": {
+              "stale_source": {
+                "id": "stale_source",
+                "kind": "stale",
+                "source_ports": ["active_in"],
+                "severity": "warning",
+                "status_port_id": "source_ok"
+              },
+              "unexpected_toggle_rate": {
+                "id": "unexpected_toggle_rate",
+                "kind": "rate",
+                "source_ports": ["active_in"],
+                "severity": "info",
+                "status_port_id": "running_out"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "runtime": {
+                "title": "Runtime",
+                "signals": ["active_in", "running_out", "total_hours"],
+                "sample_hint_ms": 1000,
+                "chart_hint": "line"
+              }
+            }
+          },
+          "persistence": {
+            "slots": {
+              "total_runtime": {
+                "id": "total_runtime",
+                "slot_kind": "counter",
+                "nv_slot_hint": "nv.run_hours.total_runtime",
+                "flush_policy": "periodic"
+              }
+            }
+          },
+          "templates": {
+            "presets": {
+              "default_runtime_hours": {
+                "id": "default_runtime_hours",
+                "defaults": {
+                  "persist_enabled": true,
+                  "persist_period_s": 60,
+                  "rounding_mode": "tenths",
+                  "min_active_time_ms": 1000
+                }
+              },
+              "maintenance_runtime": {
+                "id": "maintenance_runtime",
+                "defaults": {
+                  "persist_enabled": true,
+                  "persist_period_s": 30,
+                  "rounding_mode": "whole_hours",
+                  "min_active_time_ms": 5000
+                }
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "motor_status_1": {
+        "id": "motor_status_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/digital_input",
+        "title": "Motor Status",
+        "enabled": true,
+        "param_values": {}
+      },
+      "run_hours_1": {
+        "id": "run_hours_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/run_hours_counter",
+        "title": "Run Hours Counter #1",
+        "enabled": true,
+        "param_values": {
+          "persist_enabled": { "kind": "literal", "value": true },
+          "persist_period_s": { "kind": "literal", "value": 60 },
+          "rounding_mode": { "kind": "literal", "value": "tenths" },
+          "min_active_time_ms": { "kind": "literal", "value": 1000 }
+        }
+      }
+    },
+    "signals": {
+      "sig_motor_status_to_run_hours": {
+        "id": "sig_motor_status_to_run_hours",
+        "title": "Motor Status -> Run Hours",
+        "source": {
+          "instance_id": "motor_status_1",
+          "port_id": "value"
+        },
+        "targets": {
+          "t1": {
+            "instance_id": "run_hours_1",
+            "port_id": "active_in"
+          }
+        }
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {
+      "hw_motor_status_1": {
+        "id": "hw_motor_status_1",
+        "instance_id": "motor_status_1",
+        "port_id": "value",
+        "binding_kind": "digital_in",
+        "config": {
+          "pin": 4
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

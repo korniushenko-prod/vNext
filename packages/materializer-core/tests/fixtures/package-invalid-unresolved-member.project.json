@@ -1,0 +1,72 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "package_invalid_unresolved_member",
+    "title": "Package Invalid Unresolved Member"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "templates": {
+      "run_hours_service_preset": {
+        "id": "run_hours_service_preset",
+        "kind": "object_template",
+        "base_type_ref": "library:std/run_hours_counter",
+        "origin": "library_template",
+        "meta": {
+          "title": "Run Hours Service Preset"
+        },
+        "defaults": {
+          "tags": {
+            "service_ready": "true"
+          }
+        }
+      }
+    },
+    "packages": {
+      "broken_package": {
+        "id": "broken_package",
+        "kind": "package_definition",
+        "meta": {
+          "title": "Broken Package",
+          "origin": "project",
+          "package_kind": "service_skeleton",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "missing_object": {
+            "id": "missing_object",
+            "kind": "package_member",
+            "type_ref": "project:missing_object_type",
+            "template_ref": "missing_template"
+          }
+        },
+        "signals": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "broken_pkg_1": {
+        "id": "broken_pkg_1",
+        "kind": "package_instance",
+        "package_ref": "broken_package"
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

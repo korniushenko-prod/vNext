@@ -1,0 +1,253 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "invalid_write_demo",
+    "title": "Invalid Write Command Demo"
+  },
+  "imports": {
+    "libraries": [
+      "std"
+    ],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "remote_point_frontend": {
+        "id": "remote_point_frontend",
+        "kind": "object_type",
+        "meta": {
+          "title": "Remote Point Frontend",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std",
+          "description": "Public read-only single-point remote value contract for the Modbus RTU baseline."
+        },
+        "interface": {
+          "ports": {
+            "value_out": {
+              "id": "value_out",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "source_ok": {
+              "id": "source_ok",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "stale": {
+              "id": "stale",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "bridge_ref": {
+              "id": "bridge_ref",
+              "value_type": "string",
+              "group": "bridge",
+              "ui_hint": "instance_ref"
+            },
+            "register_address": {
+              "id": "register_address",
+              "value_type": "u32",
+              "group": "register",
+              "ui_hint": "numeric"
+            },
+            "register_kind": {
+              "id": "register_kind",
+              "value_type": "string",
+              "default": "holding",
+              "group": "register",
+              "ui_hint": "enum"
+            },
+            "register_count": {
+              "id": "register_count",
+              "value_type": "u32",
+              "default": 2,
+              "group": "register",
+              "ui_hint": "numeric"
+            },
+            "byte_order": {
+              "id": "byte_order",
+              "value_type": "string",
+              "default": "big_endian",
+              "group": "decode",
+              "ui_hint": "enum"
+            },
+            "word_order": {
+              "id": "word_order",
+              "value_type": "string",
+              "default": "big_endian",
+              "group": "decode",
+              "ui_hint": "enum"
+            },
+            "value_decode": {
+              "id": "value_decode",
+              "value_type": "string",
+              "default": "float32",
+              "group": "decode",
+              "ui_hint": "enum"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.remote_point_frontend.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {
+              "remote_source": {
+                "id": "remote_source",
+                "kind": "remote_point",
+                "title": "Remote Source",
+                "source_ports": [
+                  "value_out"
+                ],
+                "binding_kind": "service",
+                "channel_kind": "telemetry",
+                "value_type": "float",
+                "required": true,
+                "config": {
+                  "bridge_ref_param": "bridge_ref",
+                  "bus_kind": "modbus_rtu",
+                  "access_mode": "read_only"
+                }
+              }
+            }
+          },
+          "comms": {
+            "bus_kind": "modbus_rtu",
+            "access_mode": "read_only",
+            "bridge_ref_param": "bridge_ref",
+            "support_contract_refs": [
+              "support.register_map.v1"
+            ],
+            "scope": "single_point_read_baseline"
+          },
+          "monitoring": {
+            "monitors": {
+              "source_ok": {
+                "id": "source_ok",
+                "kind": "quality",
+                "source_ports": [
+                  "value_out"
+                ],
+                "severity": "info",
+                "status_port_id": "source_ok"
+              },
+              "stale_source": {
+                "id": "stale_source",
+                "kind": "stale",
+                "source_ports": [
+                  "value_out"
+                ],
+                "severity": "warning",
+                "status_port_id": "stale"
+              },
+              "timeout": {
+                "id": "timeout",
+                "kind": "timeout",
+                "source_ports": [
+                  "value_out"
+                ],
+                "severity": "warning",
+                "status_port_id": "stale",
+                "config": {
+                  "bridge_ref_param": "bridge_ref"
+                }
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "value": {
+                "title": "Value",
+                "signals": [
+                  "value_out"
+                ],
+                "sample_hint_ms": 1000,
+                "chart_hint": "trend"
+              },
+              "quality": {
+                "title": "Quality",
+                "signals": [
+                  "source_ok",
+                  "stale"
+                ],
+                "sample_hint_ms": 1000,
+                "chart_hint": "state"
+              },
+              "source": {
+                "title": "Source",
+                "signals": [
+                  "value_out",
+                  "source_ok",
+                  "stale"
+                ],
+                "sample_hint_ms": 1000,
+                "chart_hint": "trend"
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "remote_point_1": {
+        "id": "remote_point_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/remote_point_frontend",
+        "enabled": true,
+        "param_values": {
+          "bridge_ref": {
+            "kind": "literal",
+            "value": "comm_bridge_1"
+          },
+          "register_address": {
+            "kind": "literal",
+            "value": 100
+          },
+          "register_kind": {
+            "kind": "literal",
+            "value": "holding"
+          },
+          "register_count": {
+            "kind": "literal",
+            "value": 2
+          },
+          "write_enabled": {
+            "kind": "literal",
+            "value": true
+          }
+        }
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

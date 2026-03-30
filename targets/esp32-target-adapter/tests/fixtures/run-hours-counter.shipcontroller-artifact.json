@@ -1,0 +1,71 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "run-hours-counter-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [
+      {
+        "id": "di_motor_status_1",
+        "instance_id": "motor_status_1",
+        "pin": 4
+      }
+    ],
+    "analog_inputs": [],
+    "digital_outputs": [],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [
+      {
+        "id": "run_hours_1",
+        "native_kind": "std.run_hours_counter.v1",
+        "persist_enabled": true,
+        "persist_period_s": 60,
+        "rounding_mode": "tenths",
+        "min_active_time_ms": 1000,
+        "persistence_slot_id": "ps_run_hours_1_total_runtime",
+        "frontend_requirement_ids": [
+          "fe_run_hours_1_activity_source"
+        ],
+        "source": {
+          "instance_id": "motor_status_1",
+          "port_id": "value",
+          "connection_id": "conn_sig_motor_status_to_run_hours_t1",
+          "resource_id": "hw_motor_status_1"
+        }
+      }
+    ],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "operations": [
+      {
+        "id": "op_run_hours_1_reset_counter",
+        "owner_instance_id": "run_hours_1",
+        "kind": "reset_counter",
+        "metadata_only": true,
+        "title": "Reset Counter",
+        "confirmation_policy": "required",
+        "availability_mode": "guarded",
+        "progress_mode": "signal_based",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "total_hours",
+            "value_type": "float"
+          },
+          {
+            "id": "total_seconds",
+            "value_type": "u32"
+          }
+        ]
+      }
+    ]
+  },
+  "diagnostics": []
+}

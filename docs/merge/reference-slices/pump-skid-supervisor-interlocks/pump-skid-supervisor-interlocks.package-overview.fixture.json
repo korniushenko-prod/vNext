@@ -1,0 +1,192 @@
+{
+  "id": "package-overview-pump-skid-supervisor-interlocks",
+  "title": "PumpSkidSupervisorInterlocks v1",
+  "description": "Read-only package permissive/interlock overview for the mandatory non-boiler Wave 15 reference domain.",
+  "package_instance_id": "pump_skid_supervisor_interlocks_1",
+  "package_definition": {
+    "package_id": "pump_skid_supervisor_interlocks",
+    "title": "PumpSkidSupervisorInterlocks v1",
+    "origin": "project",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Wave 15 package permissive/interlock remains generic across domains.",
+      "Pump-skid content is the mandatory second acceptance domain and carries no boiler-specific semantics."
+    ]
+  },
+  "members": [
+    {
+      "id": "suction_guard_1",
+      "title": "Suction Guard",
+      "role": "permissive_source",
+      "type_title": "Package Gate Source",
+      "type_ref": "project:package_gate_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "pump_skid_supervisor_interlocks_1__suction_guard_1",
+      "boundary_note": "Package gate metadata stays generic over child-owned source state.",
+      "related_surfaces": []
+    },
+    {
+      "id": "discharge_guard_1",
+      "title": "Discharge Path Guard",
+      "role": "permissive_source",
+      "type_title": "Package Gate Source",
+      "type_ref": "project:package_gate_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "pump_skid_supervisor_interlocks_1__discharge_guard_1",
+      "boundary_note": "Discharge gating remains a flattened child signal, not package runtime.",
+      "related_surfaces": []
+    },
+    {
+      "id": "motor_ready_1",
+      "title": "Motor Ready",
+      "role": "permissive_source",
+      "type_title": "Package Gate Source",
+      "type_ref": "project:package_gate_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "pump_skid_supervisor_interlocks_1__motor_ready_1",
+      "boundary_note": "Readiness remains child-owned and only summarized by the package gate surface.",
+      "related_surfaces": []
+    },
+    {
+      "id": "fault_latch_1",
+      "title": "Fault Latch",
+      "role": "interlock_source",
+      "type_title": "Package Gate Source",
+      "type_ref": "project:package_gate_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "pump_skid_supervisor_interlocks_1__fault_latch_1",
+      "boundary_note": "Fault indication stays read-only and generic at the package layer.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "pump_skid_supervisor_interlocks_1__suction_guard_1",
+      "title": "Suction Guard",
+      "type_title": "Package Gate Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_interlocks_1__discharge_guard_1",
+      "title": "Discharge Path Guard",
+      "type_title": "Package Gate Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_interlocks_1__motor_ready_1",
+      "title": "Motor Ready",
+      "type_title": "Package Gate Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_interlocks_1__fault_latch_1",
+      "title": "Fault Latch",
+      "type_title": "Package Gate Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ],
+  "package_permissive_interlock": {
+    "snapshot_state": "ready",
+    "gate_summary": {
+      "state": "ready",
+      "ready": true,
+      "blocked_reason_ids": [],
+      "held_reason_ids": [],
+      "faulted_reason_ids": [],
+      "transition_guard_ids": [
+        "allow_auto_run"
+      ]
+    },
+    "permissives": [
+      {
+        "id": "suction_ok",
+        "title": "Suction OK",
+        "state": "ready",
+        "reason_code": "",
+        "summary": "Suction permissive is clear."
+      },
+      {
+        "id": "discharge_path_ok",
+        "title": "Discharge Path OK",
+        "state": "ready",
+        "reason_code": "",
+        "summary": "Discharge path permissive is clear."
+      },
+      {
+        "id": "motor_ready",
+        "title": "Motor Ready",
+        "state": "ready",
+        "reason_code": "",
+        "summary": "Motor readiness permissive is clear."
+      }
+    ],
+    "interlocks": [
+      {
+        "id": "permissive_blocked",
+        "title": "Permissive Blocked",
+        "state": "ready",
+        "reason_code": "permissive_blocked",
+        "summary": "Hold path is inactive."
+      },
+      {
+        "id": "package_faulted",
+        "title": "Package Faulted",
+        "state": "ready",
+        "reason_code": "package_faulted",
+        "summary": "Fault path is inactive."
+      }
+    ],
+    "transition_guards": [
+      {
+        "id": "allow_auto_run",
+        "title": "Allow Auto Run",
+        "state": "clear",
+        "blocked_by_ids": [],
+        "target_label": "Mode Transition: Auto",
+        "summary": "Auto transition is clear when all permissives are ready and no interlock is active."
+      }
+    ],
+    "summary_outputs": [
+      {
+        "id": "package_ready",
+        "title": "Package Ready",
+        "value": "true",
+        "semantic_state": "ready"
+      },
+      {
+        "id": "package_faulted",
+        "title": "Package Faulted",
+        "value": "false",
+        "semantic_state": "informational"
+      }
+    ],
+    "aggregate_monitors": [
+      {
+        "id": "gate_health",
+        "title": "Gate Health",
+        "state": "ready",
+        "severity": "info",
+        "summary": "Package gate layer is clear across the non-boiler reference domain."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "gate_trace",
+        "title": "Package Gate Trace",
+        "signal_count": 2,
+        "summary": "suction_ok, package_faulted"
+      }
+    ]
+  }
+}

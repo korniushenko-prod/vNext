@@ -1,0 +1,2122 @@
+{
+  "connections": {
+    "conn_boiler_pkg_1__sig_maintenance_remaining_to_monitor_remaining_monitor": {
+      "channel_kind": "telemetry",
+      "id": "conn_boiler_pkg_1__sig_maintenance_remaining_to_monitor_remaining_monitor",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "boiler_package_skeleton_demo",
+        "signal_id": "boiler_pkg_1__sig_maintenance_remaining_to_monitor"
+      },
+      "source": {
+        "instance_id": "boiler_pkg_1__maintenance_counter_1",
+        "port_id": "remaining_out"
+      },
+      "target": {
+        "instance_id": "boiler_pkg_1__threshold_monitor_1",
+        "port_id": "value_in"
+      },
+      "value_type": "float"
+    },
+    "conn_boiler_pkg_1__sig_runtime_to_maintenance_maintenance_usage": {
+      "channel_kind": "telemetry",
+      "id": "conn_boiler_pkg_1__sig_runtime_to_maintenance_maintenance_usage",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "boiler_package_skeleton_demo",
+        "signal_id": "boiler_pkg_1__sig_runtime_to_maintenance"
+      },
+      "source": {
+        "instance_id": "boiler_pkg_1__run_hours_1",
+        "port_id": "total_seconds"
+      },
+      "target": {
+        "instance_id": "boiler_pkg_1__maintenance_counter_1",
+        "port_id": "usage_total_in"
+      },
+      "value_type": "u32"
+    }
+  },
+  "frontend_requirements": {
+    "fe_boiler_pkg_1__flowmeter_1_analog_threshold_source": {
+      "binding_kind": "analog_in",
+      "channel_kind": "telemetry",
+      "config": {
+        "activation_param": "sensor_mode",
+        "activation_value": "analog_threshold_pulse"
+      },
+      "id": "fe_boiler_pkg_1__flowmeter_1_analog_threshold_source",
+      "kind": "analog_threshold_input",
+      "mode": "analog_threshold_pulse",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "analog_threshold_source",
+        "facet_kind": "frontend_requirement",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "required": false,
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "analog_source"
+        }
+      ],
+      "value_type": "float"
+    },
+    "fe_boiler_pkg_1__flowmeter_1_hall_pulse_source": {
+      "binding_kind": "digital_in",
+      "channel_kind": "signal",
+      "config": {
+        "activation_param": "sensor_mode",
+        "activation_value": "hall_pulse"
+      },
+      "id": "fe_boiler_pkg_1__flowmeter_1_hall_pulse_source",
+      "kind": "pulse_input",
+      "mode": "hall_pulse",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "hall_pulse_source",
+        "facet_kind": "frontend_requirement",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "required": true,
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "pulse_in"
+        }
+      ],
+      "value_type": "bool"
+    },
+    "fe_boiler_pkg_1__flowmeter_1_remote_pulse_source": {
+      "binding_kind": "service",
+      "channel_kind": "signal",
+      "config": {
+        "activation_param": "sensor_mode",
+        "activation_value": "remote_pulse"
+      },
+      "id": "fe_boiler_pkg_1__flowmeter_1_remote_pulse_source",
+      "kind": "remote_point",
+      "mode": "remote_pulse",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "remote_pulse_source",
+        "facet_kind": "frontend_requirement",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "required": false,
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "remote_pulse"
+        }
+      ],
+      "value_type": "bool"
+    },
+    "fe_boiler_pkg_1__pid_1_mv_output": {
+      "binding_kind": "analog_out",
+      "channel_kind": "command",
+      "id": "fe_boiler_pkg_1__pid_1_mv_output",
+      "kind": "control_output",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "provenance": {
+        "facet_id": "mv_output",
+        "facet_kind": "frontend_requirement",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "required": true,
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "mv_out"
+        }
+      ],
+      "title": "MV Output",
+      "value_type": "float"
+    },
+    "fe_boiler_pkg_1__pid_1_pv_source": {
+      "binding_kind": "analog_in",
+      "channel_kind": "telemetry",
+      "id": "fe_boiler_pkg_1__pid_1_pv_source",
+      "kind": "process_value_input",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "provenance": {
+        "facet_id": "pv_source",
+        "facet_kind": "frontend_requirement",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "required": true,
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "pv"
+        }
+      ],
+      "title": "PV Source",
+      "value_type": "float"
+    },
+    "fe_boiler_pkg_1__run_hours_1_activity_source": {
+      "binding_kind": "digital_in",
+      "channel_kind": "signal",
+      "id": "fe_boiler_pkg_1__run_hours_1_activity_source",
+      "kind": "activity_input",
+      "owner_instance_id": "boiler_pkg_1__run_hours_1",
+      "provenance": {
+        "facet_id": "activity_source",
+        "facet_kind": "frontend_requirement",
+        "owner_instance_id": "boiler_pkg_1__run_hours_1",
+        "source_type_ref": "library:run_hours_counter"
+      },
+      "required": true,
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__run_hours_1",
+          "port_id": "active_in"
+        }
+      ],
+      "value_type": "bool"
+    },
+    "fe_boiler_pkg_1__threshold_monitor_1_value_source": {
+      "binding_kind": "analog_in",
+      "channel_kind": "telemetry",
+      "id": "fe_boiler_pkg_1__threshold_monitor_1_value_source",
+      "kind": "process_value_input",
+      "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+      "provenance": {
+        "facet_id": "value_source",
+        "facet_kind": "frontend_requirement",
+        "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+        "source_type_ref": "library:threshold_monitor"
+      },
+      "required": true,
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__threshold_monitor_1",
+          "port_id": "value_in"
+        }
+      ],
+      "value_type": "float"
+    }
+  },
+  "instances": {
+    "boiler_pkg_1__flowmeter_1": {
+      "alarms": {},
+      "enabled": true,
+      "id": "boiler_pkg_1__flowmeter_1",
+      "native_execution": {
+        "config_template": "shipcontroller.pulse_flowmeter.v1",
+        "frontend_requirement_ids": [
+          "fe_boiler_pkg_1__flowmeter_1_hall_pulse_source"
+        ],
+        "mode": "hall_pulse",
+        "native_kind": "std.pulse_flowmeter.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ]
+      },
+      "params": {
+        "engineering_unit": {
+          "source": "default",
+          "value": "l_min",
+          "value_type": "string"
+        },
+        "filter_window_ms": {
+          "metadata": {
+            "group": "calculation",
+            "unit": "ms"
+          },
+          "source": "default",
+          "value": 250,
+          "value_type": "u32"
+        },
+        "high_flow_limit": {
+          "source": "default",
+          "value": 1000,
+          "value_type": "float"
+        },
+        "k_factor": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "group": "calibration",
+            "live_edit_policy": "apply_on_restart",
+            "max": 1000000,
+            "min": 0.0001,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.0001,
+            "ui_hint": "numeric",
+            "unit": "pulses_per_unit"
+          },
+          "source": "default",
+          "value": 1,
+          "value_type": "float"
+        },
+        "low_flow_limit": {
+          "source": "default",
+          "value": 0,
+          "value_type": "float"
+        },
+        "persist_totalizer": {
+          "metadata": {
+            "group": "persistence"
+          },
+          "source": "default",
+          "value": true,
+          "value_type": "bool"
+        },
+        "sensor_mode": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "group": "source",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "ui_hint": "enum"
+          },
+          "source": "default",
+          "value": "hall_pulse",
+          "value_type": "string"
+        },
+        "stale_timeout_ms": {
+          "metadata": {
+            "group": "monitoring",
+            "unit": "ms"
+          },
+          "source": "default",
+          "value": 5000,
+          "value_type": "u32"
+        },
+        "threshold_off": {
+          "metadata": {
+            "unit": "source_units"
+          },
+          "source": "default",
+          "value": 1,
+          "value_type": "float"
+        },
+        "threshold_on": {
+          "metadata": {
+            "unit": "source_units"
+          },
+          "source": "default",
+          "value": 2,
+          "value_type": "float"
+        }
+      },
+      "ports": {
+        "analog_source": {
+          "channel_kind": "telemetry",
+          "direction": "in",
+          "id": "analog_source",
+          "value_type": "float"
+        },
+        "flow_rate": {
+          "channel_kind": "telemetry",
+          "direction": "out",
+          "id": "flow_rate",
+          "value_type": "float"
+        },
+        "pulse_in": {
+          "channel_kind": "signal",
+          "direction": "in",
+          "id": "pulse_in",
+          "value_type": "bool"
+        },
+        "pulse_seen": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "pulse_seen",
+          "value_type": "bool"
+        },
+        "remote_pulse": {
+          "channel_kind": "signal",
+          "direction": "in",
+          "id": "remote_pulse",
+          "value_type": "bool"
+        },
+        "source_ok": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "source_ok",
+          "value_type": "bool"
+        },
+        "total_volume": {
+          "channel_kind": "telemetry",
+          "direction": "out",
+          "id": "total_volume",
+          "value_type": "float"
+        }
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_package_skeleton_demo"
+      },
+      "title": "Boiler Supervisor #1 / Feedwater Flowmeter",
+      "type_ref": "library:std/pulse_flowmeter"
+    },
+    "boiler_pkg_1__maintenance_counter_1": {
+      "alarms": {},
+      "enabled": true,
+      "id": "boiler_pkg_1__maintenance_counter_1",
+      "native_execution": {
+        "config_template": "shipcontroller.maintenance_counter.v1",
+        "native_kind": "std.maintenance_counter.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ]
+      },
+      "params": {
+        "auto_rollover": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "group": "service",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "ui_hint": "toggle"
+          },
+          "source": "default",
+          "value": false,
+          "value_type": "bool"
+        },
+        "overdue_margin": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "service",
+            "live_edit_policy": "immediate",
+            "max": 1000000000,
+            "min": 0,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.1,
+            "ui_hint": "numeric",
+            "unit": "usage_units"
+          },
+          "provenance": {
+            "owner_id": "boiler_pkg_1__maintenance_counter_1",
+            "param_id": "overdue_margin",
+            "source_layer": "system"
+          },
+          "source": "instance_override",
+          "value": 10,
+          "value_type": "float"
+        },
+        "persist_enabled": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "persistence",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "ui_hint": "toggle"
+          },
+          "source": "default",
+          "value": true,
+          "value_type": "bool"
+        },
+        "service_interval": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "group": "service",
+            "live_edit_policy": "immediate",
+            "max": 1000000000,
+            "min": 0.0001,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.1,
+            "ui_hint": "numeric",
+            "unit": "usage_units"
+          },
+          "provenance": {
+            "owner_id": "boiler_pkg_1__maintenance_counter_1",
+            "param_id": "service_interval",
+            "source_layer": "system"
+          },
+          "source": "instance_override",
+          "value": 250,
+          "value_type": "float"
+        },
+        "warning_before": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "service",
+            "live_edit_policy": "immediate",
+            "max": 1000000000,
+            "min": 0,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.1,
+            "ui_hint": "numeric",
+            "unit": "usage_units"
+          },
+          "provenance": {
+            "owner_id": "boiler_pkg_1__maintenance_counter_1",
+            "param_id": "warning_before",
+            "source_layer": "system"
+          },
+          "source": "instance_override",
+          "value": 25,
+          "value_type": "float"
+        }
+      },
+      "ports": {
+        "due_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "due_out",
+          "value_type": "bool"
+        },
+        "overdue_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "overdue_out",
+          "value_type": "bool"
+        },
+        "progress_out": {
+          "channel_kind": "telemetry",
+          "direction": "out",
+          "id": "progress_out",
+          "value_type": "float"
+        },
+        "remaining_out": {
+          "channel_kind": "telemetry",
+          "direction": "out",
+          "id": "remaining_out",
+          "value_type": "float"
+        },
+        "source_ok": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "source_ok",
+          "value_type": "bool"
+        },
+        "usage_total_in": {
+          "channel_kind": "telemetry",
+          "direction": "in",
+          "id": "usage_total_in",
+          "value_type": "float"
+        }
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_package_skeleton_demo"
+      },
+      "title": "Boiler Supervisor #1 / Boiler Maintenance Counter",
+      "type_ref": "library:std/maintenance_counter"
+    },
+    "boiler_pkg_1__pid_1": {
+      "alarms": {},
+      "enabled": true,
+      "id": "boiler_pkg_1__pid_1",
+      "native_execution": {
+        "config_template": "shipcontroller.pid_controller.v1",
+        "frontend_requirement_ids": [
+          "fe_boiler_pkg_1__pid_1_mv_output",
+          "fe_boiler_pkg_1__pid_1_pv_source"
+        ],
+        "native_kind": "std.pid_controller.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ]
+      },
+      "params": {
+        "deadband": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "description": "Error deadband around setpoint.",
+            "group": "tuning",
+            "live_edit_policy": "immediate",
+            "max": 1000000,
+            "min": 0,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.001,
+            "title": "Deadband",
+            "ui_hint": "numeric",
+            "unit": "engineering_units"
+          },
+          "source": "default",
+          "value": 0,
+          "value_type": "float"
+        },
+        "direction": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "description": "Direct or reverse acting loop.",
+            "group": "tuning",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "title": "Control Direction",
+            "ui_hint": "enum"
+          },
+          "source": "default",
+          "value": "reverse",
+          "value_type": "string"
+        },
+        "kp": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "description": "Proportional gain for the control loop.",
+            "group": "tuning",
+            "live_edit_policy": "immediate",
+            "max": 1000000,
+            "min": 0,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.01,
+            "title": "Proportional Gain",
+            "ui_hint": "numeric"
+          },
+          "source": "default",
+          "value": 1,
+          "value_type": "float"
+        },
+        "output_max": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "description": "Maximum output clamp.",
+            "group": "limits",
+            "live_edit_policy": "immediate",
+            "max": 1000000,
+            "min": -1000000,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.01,
+            "title": "Output Maximum",
+            "ui_hint": "numeric",
+            "unit": "percent"
+          },
+          "source": "default",
+          "value": 100,
+          "value_type": "float"
+        },
+        "output_min": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "description": "Minimum output clamp.",
+            "group": "limits",
+            "live_edit_policy": "immediate",
+            "max": 1000000,
+            "min": -1000000,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.01,
+            "title": "Output Minimum",
+            "ui_hint": "numeric",
+            "unit": "percent"
+          },
+          "source": "default",
+          "value": 0,
+          "value_type": "float"
+        },
+        "pv_filter_tau_ms": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "description": "Optional first-order PV filter time constant.",
+            "group": "filtering",
+            "live_edit_policy": "immediate",
+            "max": 60000,
+            "min": 0,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 1,
+            "title": "PV Filter Tau",
+            "ui_hint": "duration_ms",
+            "unit": "ms"
+          },
+          "source": "default",
+          "value": 0,
+          "value_type": "u32"
+        },
+        "sample_time_ms": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "description": "Loop execution sample period.",
+            "group": "timing",
+            "live_edit_policy": "apply_on_restart",
+            "max": 60000,
+            "min": 1,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 1,
+            "title": "Sample Time",
+            "ui_hint": "duration_ms",
+            "unit": "ms"
+          },
+          "source": "default",
+          "value": 100,
+          "value_type": "u32"
+        },
+        "td": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "description": "Derivative time constant.",
+            "group": "tuning",
+            "live_edit_policy": "immediate",
+            "max": 1000000,
+            "min": 0,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.01,
+            "title": "Derivative Time",
+            "ui_hint": "numeric",
+            "unit": "s"
+          },
+          "source": "default",
+          "value": 0,
+          "value_type": "float"
+        },
+        "ti": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "description": "Integral time constant.",
+            "group": "tuning",
+            "live_edit_policy": "immediate",
+            "max": 1000000,
+            "min": 0,
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "step": 0.01,
+            "title": "Integral Time",
+            "ui_hint": "numeric",
+            "unit": "s"
+          },
+          "source": "default",
+          "value": 10,
+          "value_type": "float"
+        }
+      },
+      "ports": {
+        "enable_cmd": {
+          "channel_kind": "command",
+          "direction": "in",
+          "id": "enable_cmd",
+          "value_type": "bool"
+        },
+        "in_auto": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "in_auto",
+          "value_type": "bool"
+        },
+        "loop_ok": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "loop_ok",
+          "value_type": "bool"
+        },
+        "manual_mv": {
+          "channel_kind": "command",
+          "direction": "in",
+          "id": "manual_mv",
+          "value_type": "float"
+        },
+        "mode_cmd": {
+          "channel_kind": "command",
+          "direction": "in",
+          "id": "mode_cmd",
+          "value_type": "string"
+        },
+        "mv_out": {
+          "channel_kind": "command",
+          "direction": "out",
+          "id": "mv_out",
+          "value_type": "float"
+        },
+        "pv": {
+          "channel_kind": "telemetry",
+          "direction": "in",
+          "id": "pv",
+          "value_type": "float"
+        },
+        "saturated": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "saturated",
+          "value_type": "bool"
+        },
+        "sp": {
+          "channel_kind": "telemetry",
+          "direction": "in",
+          "id": "sp",
+          "value_type": "float"
+        }
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_package_skeleton_demo"
+      },
+      "title": "Boiler Supervisor #1 / Pressure Controller",
+      "type_ref": "library:std/pid_controller"
+    },
+    "boiler_pkg_1__run_hours_1": {
+      "alarms": {},
+      "enabled": true,
+      "id": "boiler_pkg_1__run_hours_1",
+      "native_execution": {
+        "config_template": "shipcontroller.run_hours_counter.v1",
+        "frontend_requirement_ids": [
+          "fe_boiler_pkg_1__run_hours_1_activity_source"
+        ],
+        "native_kind": "std.run_hours_counter.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ]
+      },
+      "params": {
+        "min_active_time_ms": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "calculation",
+            "live_edit_policy": "immediate",
+            "max": 60000,
+            "min": 0,
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "step": 10,
+            "ui_hint": "duration_ms",
+            "unit": "ms"
+          },
+          "source": "default",
+          "value": 1000,
+          "value_type": "u32"
+        },
+        "persist_enabled": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "persistence",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "ui_hint": "toggle"
+          },
+          "provenance": {
+            "owner_id": "boiler_pkg_1__run_hours_1",
+            "param_id": "persist_enabled",
+            "source_layer": "system"
+          },
+          "source": "instance_override",
+          "value": true,
+          "value_type": "bool"
+        },
+        "persist_period_s": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "persistence",
+            "live_edit_policy": "apply_on_restart",
+            "max": 86400,
+            "min": 1,
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "step": 1,
+            "ui_hint": "duration_s",
+            "unit": "s"
+          },
+          "provenance": {
+            "owner_id": "boiler_pkg_1__run_hours_1",
+            "param_id": "persist_period_s",
+            "source_layer": "system"
+          },
+          "source": "instance_override",
+          "value": 60,
+          "value_type": "u32"
+        },
+        "rounding_mode": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "calculation",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "boiler_pkg_1__run_hours_1",
+            "param_id": "rounding_mode",
+            "source_layer": "system"
+          },
+          "source": "instance_override",
+          "value": "tenths",
+          "value_type": "string"
+        }
+      },
+      "ports": {
+        "active_in": {
+          "channel_kind": "signal",
+          "direction": "in",
+          "id": "active_in",
+          "value_type": "bool"
+        },
+        "running_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "running_out",
+          "value_type": "bool"
+        },
+        "source_ok": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "source_ok",
+          "value_type": "bool"
+        },
+        "total_hours": {
+          "channel_kind": "telemetry",
+          "direction": "out",
+          "id": "total_hours",
+          "value_type": "float"
+        },
+        "total_seconds": {
+          "channel_kind": "telemetry",
+          "direction": "out",
+          "id": "total_seconds",
+          "value_type": "u32"
+        }
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_package_skeleton_demo"
+      },
+      "title": "Boiler Supervisor #1 / Boiler Runtime Hours",
+      "type_ref": "library:std/run_hours_counter"
+    },
+    "boiler_pkg_1__threshold_monitor_1": {
+      "alarms": {},
+      "enabled": true,
+      "id": "boiler_pkg_1__threshold_monitor_1",
+      "native_execution": {
+        "config_template": "shipcontroller.threshold_monitor.v1",
+        "frontend_requirement_ids": [
+          "fe_boiler_pkg_1__threshold_monitor_1_value_source"
+        ],
+        "native_kind": "std.threshold_monitor.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ]
+      },
+      "params": {
+        "hysteresis": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "thresholds",
+            "live_edit_policy": "immediate",
+            "max": 1000000,
+            "min": 0,
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "step": 0.01,
+            "ui_hint": "numeric",
+            "unit": "engineering_units"
+          },
+          "source": "default",
+          "value": 0.5,
+          "value_type": "float"
+        },
+        "latch_alarm": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "medium",
+            "group": "alarming",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "ui_hint": "toggle"
+          },
+          "source": "default",
+          "value": false,
+          "value_type": "bool"
+        },
+        "mode": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "thresholds",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "ui_hint": "enum"
+          },
+          "source": "default",
+          "value": "high",
+          "value_type": "string"
+        },
+        "threshold_a": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "thresholds",
+            "live_edit_policy": "immediate",
+            "max": 1000000,
+            "min": -1000000,
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "step": 0.01,
+            "ui_hint": "numeric",
+            "unit": "engineering_units"
+          },
+          "source": "default",
+          "value": 0,
+          "value_type": "float"
+        },
+        "threshold_b": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "thresholds",
+            "live_edit_policy": "immediate",
+            "max": 1000000,
+            "min": -1000000,
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "step": 0.01,
+            "ui_hint": "numeric",
+            "unit": "engineering_units"
+          },
+          "source": "default",
+          "value": 100,
+          "value_type": "float"
+        },
+        "timeout_ms": {
+          "metadata": {
+            "access_role": "engineer",
+            "danger_level": "low",
+            "group": "alarming",
+            "live_edit_policy": "immediate",
+            "max": 3600000,
+            "min": 0,
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "step": 100,
+            "ui_hint": "duration_ms",
+            "unit": "ms"
+          },
+          "source": "default",
+          "value": 5000,
+          "value_type": "u32"
+        }
+      },
+      "ports": {
+        "above_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "above_out",
+          "value_type": "bool"
+        },
+        "alarm_active": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "alarm_active",
+          "value_type": "bool"
+        },
+        "below_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "below_out",
+          "value_type": "bool"
+        },
+        "in_window_out": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "in_window_out",
+          "value_type": "bool"
+        },
+        "source_ok": {
+          "channel_kind": "state",
+          "direction": "out",
+          "id": "source_ok",
+          "value_type": "bool"
+        },
+        "value_in": {
+          "channel_kind": "telemetry",
+          "direction": "in",
+          "id": "value_in",
+          "value_type": "float"
+        }
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_package_skeleton_demo"
+      },
+      "title": "Boiler Supervisor #1 / Maintenance Due Monitor",
+      "type_ref": "library:std/threshold_monitor"
+    }
+  },
+  "monitors": {
+    "mon_boiler_pkg_1__flowmeter_1_high_flow": {
+      "id": "mon_boiler_pkg_1__flowmeter_1_high_flow",
+      "kind": "threshold",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "high_flow",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "severity": "warning",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "flow_rate"
+        }
+      ],
+      "status_port_id": "source_ok"
+    },
+    "mon_boiler_pkg_1__flowmeter_1_low_flow": {
+      "id": "mon_boiler_pkg_1__flowmeter_1_low_flow",
+      "kind": "threshold",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "low_flow",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "severity": "info",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "flow_rate"
+        }
+      ],
+      "status_port_id": "source_ok"
+    },
+    "mon_boiler_pkg_1__flowmeter_1_no_pulse_timeout": {
+      "config": {
+        "timeout_param": "stale_timeout_ms"
+      },
+      "id": "mon_boiler_pkg_1__flowmeter_1_no_pulse_timeout",
+      "kind": "timeout",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "no_pulse_timeout",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "severity": "warning",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "pulse_in"
+        },
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "analog_source"
+        },
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "remote_pulse"
+        }
+      ],
+      "status_port_id": "source_ok"
+    },
+    "mon_boiler_pkg_1__flowmeter_1_stale_source": {
+      "id": "mon_boiler_pkg_1__flowmeter_1_stale_source",
+      "kind": "stale",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "stale_source",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "severity": "warning",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "analog_source"
+        },
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "remote_pulse"
+        }
+      ],
+      "status_port_id": "source_ok"
+    },
+    "mon_boiler_pkg_1__maintenance_counter_1_interval_invalid": {
+      "id": "mon_boiler_pkg_1__maintenance_counter_1_interval_invalid",
+      "kind": "invalid",
+      "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+      "provenance": {
+        "facet_id": "interval_invalid",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+        "source_type_ref": "library:maintenance_counter"
+      },
+      "severity": "error",
+      "source_ports": [],
+      "status_port_id": "due_out"
+    },
+    "mon_boiler_pkg_1__maintenance_counter_1_stale_source": {
+      "id": "mon_boiler_pkg_1__maintenance_counter_1_stale_source",
+      "kind": "stale",
+      "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+      "provenance": {
+        "facet_id": "stale_source",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+        "source_type_ref": "library:maintenance_counter"
+      },
+      "severity": "warning",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__maintenance_counter_1",
+          "port_id": "usage_total_in"
+        }
+      ],
+      "status_port_id": "source_ok"
+    },
+    "mon_boiler_pkg_1__pid_1_manual_override_active": {
+      "id": "mon_boiler_pkg_1__pid_1_manual_override_active",
+      "kind": "state",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "provenance": {
+        "facet_id": "manual_override_active",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "severity": "info",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "in_auto"
+        }
+      ],
+      "status_port_id": "in_auto",
+      "title": "Manual Override Active"
+    },
+    "mon_boiler_pkg_1__pid_1_output_saturated": {
+      "id": "mon_boiler_pkg_1__pid_1_output_saturated",
+      "kind": "threshold",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "provenance": {
+        "facet_id": "output_saturated",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "severity": "info",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "mv_out"
+        }
+      ],
+      "status_port_id": "saturated",
+      "title": "Output Saturated"
+    },
+    "mon_boiler_pkg_1__pid_1_pv_stale": {
+      "id": "mon_boiler_pkg_1__pid_1_pv_stale",
+      "kind": "stale",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "provenance": {
+        "facet_id": "pv_stale",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "severity": "warning",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "pv"
+        }
+      ],
+      "status_port_id": "loop_ok",
+      "title": "PV Stale"
+    },
+    "mon_boiler_pkg_1__run_hours_1_stale_source": {
+      "id": "mon_boiler_pkg_1__run_hours_1_stale_source",
+      "kind": "stale",
+      "owner_instance_id": "boiler_pkg_1__run_hours_1",
+      "provenance": {
+        "facet_id": "stale_source",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__run_hours_1",
+        "source_type_ref": "library:run_hours_counter"
+      },
+      "severity": "warning",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__run_hours_1",
+          "port_id": "active_in"
+        }
+      ],
+      "status_port_id": "source_ok"
+    },
+    "mon_boiler_pkg_1__run_hours_1_unexpected_toggle_rate": {
+      "id": "mon_boiler_pkg_1__run_hours_1_unexpected_toggle_rate",
+      "kind": "rate",
+      "owner_instance_id": "boiler_pkg_1__run_hours_1",
+      "provenance": {
+        "facet_id": "unexpected_toggle_rate",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__run_hours_1",
+        "source_type_ref": "library:run_hours_counter"
+      },
+      "severity": "info",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__run_hours_1",
+          "port_id": "active_in"
+        }
+      ],
+      "status_port_id": "running_out"
+    },
+    "mon_boiler_pkg_1__threshold_monitor_1_stale_source": {
+      "id": "mon_boiler_pkg_1__threshold_monitor_1_stale_source",
+      "kind": "stale",
+      "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+      "provenance": {
+        "facet_id": "stale_source",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+        "source_type_ref": "library:threshold_monitor"
+      },
+      "severity": "warning",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__threshold_monitor_1",
+          "port_id": "value_in"
+        }
+      ],
+      "status_port_id": "source_ok"
+    },
+    "mon_boiler_pkg_1__threshold_monitor_1_value_missing": {
+      "id": "mon_boiler_pkg_1__threshold_monitor_1_value_missing",
+      "kind": "missing",
+      "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+      "provenance": {
+        "facet_id": "value_missing",
+        "facet_kind": "monitor",
+        "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+        "source_type_ref": "library:threshold_monitor"
+      },
+      "severity": "warning",
+      "source_ports": [
+        {
+          "instance_id": "boiler_pkg_1__threshold_monitor_1",
+          "port_id": "value_in"
+        }
+      ],
+      "status_port_id": "source_ok"
+    }
+  },
+  "operation_runtime_contract": {
+    "audit_required": false,
+    "cancel_supported": false,
+    "invoke_supported": false,
+    "progress_supported": false,
+    "result_supported": false
+  },
+  "operations": {
+    "op_boiler_pkg_1__flowmeter_1_reset_totalizer": {
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "stopped"
+        ]
+      },
+      "confirmation_policy": "required",
+      "id": "op_boiler_pkg_1__flowmeter_1_reset_totalizer",
+      "kind": "reset_totalizer",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "progress_mode": "signal_based",
+      "progress_signals": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "source_ok"
+        }
+      ],
+      "provenance": {
+        "facet_id": "reset_totalizer",
+        "facet_kind": "operation",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "result_contract": {
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "total_volume",
+            "value_type": "float"
+          }
+        ],
+        "mode": "applyable_result"
+      },
+      "result_fields": [
+        "completed",
+        "total_volume"
+      ],
+      "safe_when": [
+        "stopped"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "destructive": true,
+        "progress_style": "signals"
+      },
+      "title": "Reset Totalizer",
+      "ui_hint": "danger"
+    },
+    "op_boiler_pkg_1__maintenance_counter_1_acknowledge_due": {
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "due_active"
+        ]
+      },
+      "confirmation_policy": "none",
+      "id": "op_boiler_pkg_1__maintenance_counter_1_acknowledge_due",
+      "kind": "acknowledge_due",
+      "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+      "progress_mode": "signal_based",
+      "progress_signals": [
+        {
+          "instance_id": "boiler_pkg_1__maintenance_counter_1",
+          "port_id": "due_out"
+        },
+        {
+          "instance_id": "boiler_pkg_1__maintenance_counter_1",
+          "port_id": "overdue_out"
+        }
+      ],
+      "provenance": {
+        "facet_id": "acknowledge_due",
+        "facet_kind": "operation",
+        "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+        "source_type_ref": "library:maintenance_counter"
+      },
+      "result_contract": {
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "acknowledged",
+            "value_type": "bool"
+          }
+        ],
+        "mode": "applyable_result"
+      },
+      "result_fields": [
+        "completed",
+        "acknowledged"
+      ],
+      "safe_when": [
+        "due_active"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "title": "Acknowledge Due",
+      "ui_hint": "secondary"
+    },
+    "op_boiler_pkg_1__maintenance_counter_1_reset_interval": {
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "service_allowed"
+        ]
+      },
+      "confirmation_policy": "required",
+      "id": "op_boiler_pkg_1__maintenance_counter_1_reset_interval",
+      "kind": "reset_interval",
+      "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+      "progress_mode": "signal_based",
+      "progress_signals": [
+        {
+          "instance_id": "boiler_pkg_1__maintenance_counter_1",
+          "port_id": "remaining_out"
+        },
+        {
+          "instance_id": "boiler_pkg_1__maintenance_counter_1",
+          "port_id": "progress_out"
+        }
+      ],
+      "provenance": {
+        "facet_id": "reset_interval",
+        "facet_kind": "operation",
+        "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+        "source_type_ref": "library:maintenance_counter"
+      },
+      "result_contract": {
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "remaining_out",
+            "value_type": "float"
+          },
+          {
+            "id": "progress_out",
+            "value_type": "float"
+          }
+        ],
+        "mode": "applyable_result"
+      },
+      "result_fields": [
+        "completed",
+        "remaining_out",
+        "progress_out"
+      ],
+      "safe_when": [
+        "service_allowed"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "destructive": true,
+        "progress_style": "signals"
+      },
+      "title": "Reset Interval",
+      "ui_hint": "danger"
+    },
+    "op_boiler_pkg_1__pid_1_hold": {
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "enabled"
+        ]
+      },
+      "confirmation_policy": "none",
+      "id": "op_boiler_pkg_1__pid_1_hold",
+      "kind": "hold",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "progress_mode": "signal_based",
+      "progress_signals": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "in_auto"
+        }
+      ],
+      "provenance": {
+        "facet_id": "hold",
+        "facet_kind": "operation",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "result_contract": {
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ],
+        "mode": "applyable_result"
+      },
+      "result_fields": [
+        "completed"
+      ],
+      "safe_when": [
+        "enabled"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "title": "Hold Output",
+      "ui_hint": "secondary"
+    },
+    "op_boiler_pkg_1__pid_1_release": {
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "enabled"
+        ]
+      },
+      "confirmation_policy": "none",
+      "id": "op_boiler_pkg_1__pid_1_release",
+      "kind": "release",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "progress_mode": "signal_based",
+      "progress_signals": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "in_auto"
+        }
+      ],
+      "provenance": {
+        "facet_id": "release",
+        "facet_kind": "operation",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "result_contract": {
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ],
+        "mode": "applyable_result"
+      },
+      "result_fields": [
+        "completed"
+      ],
+      "safe_when": [
+        "enabled"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "title": "Release Hold",
+      "ui_hint": "primary"
+    },
+    "op_boiler_pkg_1__pid_1_reset_integral": {
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "enabled",
+          "manual_mode"
+        ]
+      },
+      "confirmation_policy": "none",
+      "id": "op_boiler_pkg_1__pid_1_reset_integral",
+      "kind": "reset_integral",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "progress_mode": "signal_based",
+      "progress_signals": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "loop_ok"
+        }
+      ],
+      "provenance": {
+        "facet_id": "reset_integral",
+        "facet_kind": "operation",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "result_contract": {
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ],
+        "mode": "applyable_result"
+      },
+      "result_fields": [
+        "completed"
+      ],
+      "safe_when": [
+        "enabled",
+        "manual_mode"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "title": "Reset Integral",
+      "ui_hint": "secondary"
+    },
+    "op_boiler_pkg_1__run_hours_1_reset_counter": {
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "stopped"
+        ]
+      },
+      "confirmation_policy": "required",
+      "id": "op_boiler_pkg_1__run_hours_1_reset_counter",
+      "kind": "reset_counter",
+      "owner_instance_id": "boiler_pkg_1__run_hours_1",
+      "progress_mode": "signal_based",
+      "progress_signals": [
+        {
+          "instance_id": "boiler_pkg_1__run_hours_1",
+          "port_id": "source_ok"
+        }
+      ],
+      "provenance": {
+        "facet_id": "reset_counter",
+        "facet_kind": "operation",
+        "owner_instance_id": "boiler_pkg_1__run_hours_1",
+        "source_type_ref": "library:run_hours_counter"
+      },
+      "result_contract": {
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "total_hours",
+            "value_type": "float"
+          },
+          {
+            "id": "total_seconds",
+            "value_type": "u32"
+          }
+        ],
+        "mode": "applyable_result"
+      },
+      "result_fields": [
+        "completed",
+        "total_hours",
+        "total_seconds"
+      ],
+      "safe_when": [
+        "stopped"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "destructive": true,
+        "progress_style": "signals"
+      },
+      "title": "Reset Counter",
+      "ui_hint": "danger"
+    },
+    "op_boiler_pkg_1__threshold_monitor_1_reset_latch": {
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "alarm_latched"
+        ]
+      },
+      "confirmation_policy": "none",
+      "id": "op_boiler_pkg_1__threshold_monitor_1_reset_latch",
+      "kind": "reset_latch",
+      "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+      "progress_mode": "signal_based",
+      "progress_signals": [
+        {
+          "instance_id": "boiler_pkg_1__threshold_monitor_1",
+          "port_id": "alarm_active"
+        }
+      ],
+      "provenance": {
+        "facet_id": "reset_latch",
+        "facet_kind": "operation",
+        "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+        "source_type_ref": "library:threshold_monitor"
+      },
+      "result_contract": {
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "alarm_active",
+            "value_type": "bool"
+          }
+        ],
+        "mode": "applyable_result"
+      },
+      "result_fields": [
+        "completed",
+        "alarm_active"
+      ],
+      "safe_when": [
+        "alarm_latched"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "title": "Reset Latch",
+      "ui_hint": "secondary"
+    }
+  },
+  "pack_id": "boiler-package-skeleton-demo-pack",
+  "persistence_slots": {
+    "ps_boiler_pkg_1__flowmeter_1_totalizer": {
+      "flush_policy": "periodic",
+      "id": "ps_boiler_pkg_1__flowmeter_1_totalizer",
+      "nv_slot_hint": "nv.totalizer",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "totalizer",
+        "facet_kind": "persistence_slot",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "slot_kind": "counter",
+      "title": "Totalizer"
+    },
+    "ps_boiler_pkg_1__maintenance_counter_1_acknowledge_state": {
+      "flush_policy": "on_change",
+      "id": "ps_boiler_pkg_1__maintenance_counter_1_acknowledge_state",
+      "nv_slot_hint": "nv.maintenance.acknowledge_state",
+      "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+      "provenance": {
+        "facet_id": "acknowledge_state",
+        "facet_kind": "persistence_slot",
+        "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+        "source_type_ref": "library:maintenance_counter"
+      },
+      "slot_kind": "state"
+    },
+    "ps_boiler_pkg_1__maintenance_counter_1_reset_baseline": {
+      "flush_policy": "on_change",
+      "id": "ps_boiler_pkg_1__maintenance_counter_1_reset_baseline",
+      "nv_slot_hint": "nv.maintenance.reset_baseline",
+      "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+      "provenance": {
+        "facet_id": "reset_baseline",
+        "facet_kind": "persistence_slot",
+        "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+        "source_type_ref": "library:maintenance_counter"
+      },
+      "slot_kind": "state"
+    },
+    "ps_boiler_pkg_1__pid_1_kp": {
+      "flush_policy": "on_change",
+      "id": "ps_boiler_pkg_1__pid_1_kp",
+      "nv_slot_hint": "nv.pid.kp",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "owner_param_id": "kp",
+      "provenance": {
+        "facet_id": "kp",
+        "facet_kind": "persistence_slot",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "slot_kind": "config",
+      "title": "Kp"
+    },
+    "ps_boiler_pkg_1__pid_1_td": {
+      "flush_policy": "on_change",
+      "id": "ps_boiler_pkg_1__pid_1_td",
+      "nv_slot_hint": "nv.pid.td",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "owner_param_id": "td",
+      "provenance": {
+        "facet_id": "td",
+        "facet_kind": "persistence_slot",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "slot_kind": "config",
+      "title": "Td"
+    },
+    "ps_boiler_pkg_1__pid_1_ti": {
+      "flush_policy": "on_change",
+      "id": "ps_boiler_pkg_1__pid_1_ti",
+      "nv_slot_hint": "nv.pid.ti",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "owner_param_id": "ti",
+      "provenance": {
+        "facet_id": "ti",
+        "facet_kind": "persistence_slot",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "slot_kind": "config",
+      "title": "Ti"
+    },
+    "ps_boiler_pkg_1__run_hours_1_total_runtime": {
+      "flush_policy": "periodic",
+      "id": "ps_boiler_pkg_1__run_hours_1_total_runtime",
+      "nv_slot_hint": "nv.run_hours.total_runtime",
+      "owner_instance_id": "boiler_pkg_1__run_hours_1",
+      "provenance": {
+        "facet_id": "total_runtime",
+        "facet_kind": "persistence_slot",
+        "owner_instance_id": "boiler_pkg_1__run_hours_1",
+        "source_type_ref": "library:run_hours_counter"
+      },
+      "slot_kind": "counter"
+    }
+  },
+  "resources": {
+    "hw_boiler_pkg_1_flowmeter_pulse": {
+      "binding_kind": "digital_in",
+      "config": {
+        "pin": 26
+      },
+      "id": "hw_boiler_pkg_1_flowmeter_pulse",
+      "instance_id": "boiler_pkg_1__flowmeter_1",
+      "port_id": "pulse_in"
+    },
+    "hw_boiler_pkg_1_pid_mv": {
+      "binding_kind": "analog_out",
+      "config": {
+        "pin": 25
+      },
+      "id": "hw_boiler_pkg_1_pid_mv",
+      "instance_id": "boiler_pkg_1__pid_1",
+      "port_id": "mv_out"
+    },
+    "hw_boiler_pkg_1_pid_pv": {
+      "binding_kind": "analog_in",
+      "config": {
+        "pin": 0
+      },
+      "id": "hw_boiler_pkg_1_pid_pv",
+      "instance_id": "boiler_pkg_1__pid_1",
+      "port_id": "pv"
+    },
+    "hw_boiler_pkg_1_runtime_active": {
+      "binding_kind": "digital_in",
+      "config": {
+        "pin": 27
+      },
+      "id": "hw_boiler_pkg_1_runtime_active",
+      "instance_id": "boiler_pkg_1__run_hours_1",
+      "port_id": "active_in"
+    },
+    "hw_boiler_pkg_1_threshold_value": {
+      "binding_kind": "analog_in",
+      "config": {
+        "pin": 32
+      },
+      "id": "hw_boiler_pkg_1_threshold_value",
+      "instance_id": "boiler_pkg_1__threshold_monitor_1",
+      "port_id": "value_in"
+    }
+  },
+  "schema_version": "0.1.0",
+  "source": {
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T21:00:00Z",
+    "project_id": "boiler_package_skeleton_demo"
+  },
+  "trace_groups": {
+    "tg_boiler_pkg_1__flowmeter_1_process": {
+      "chart_hint": "line",
+      "id": "tg_boiler_pkg_1__flowmeter_1_process",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "process",
+        "facet_kind": "trace_group",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "sample_hint_ms": 500,
+      "signals": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "flow_rate"
+        },
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "total_volume"
+        },
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "pulse_seen"
+        },
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "source_ok"
+        }
+      ],
+      "title": "Process"
+    },
+    "tg_boiler_pkg_1__flowmeter_1_source": {
+      "chart_hint": "timeline",
+      "id": "tg_boiler_pkg_1__flowmeter_1_source",
+      "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+      "provenance": {
+        "facet_id": "source",
+        "facet_kind": "trace_group",
+        "owner_instance_id": "boiler_pkg_1__flowmeter_1",
+        "source_type_ref": "library:pulse_flowmeter"
+      },
+      "sample_hint_ms": 100,
+      "signals": [
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "pulse_in"
+        },
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "analog_source"
+        },
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "remote_pulse"
+        },
+        {
+          "instance_id": "boiler_pkg_1__flowmeter_1",
+          "port_id": "pulse_seen"
+        }
+      ],
+      "title": "Source"
+    },
+    "tg_boiler_pkg_1__maintenance_counter_1_maintenance": {
+      "chart_hint": "line",
+      "id": "tg_boiler_pkg_1__maintenance_counter_1_maintenance",
+      "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+      "provenance": {
+        "facet_id": "maintenance",
+        "facet_kind": "trace_group",
+        "owner_instance_id": "boiler_pkg_1__maintenance_counter_1",
+        "source_type_ref": "library:maintenance_counter"
+      },
+      "sample_hint_ms": 1000,
+      "signals": [
+        {
+          "instance_id": "boiler_pkg_1__maintenance_counter_1",
+          "port_id": "usage_total_in"
+        },
+        {
+          "instance_id": "boiler_pkg_1__maintenance_counter_1",
+          "port_id": "remaining_out"
+        },
+        {
+          "instance_id": "boiler_pkg_1__maintenance_counter_1",
+          "port_id": "due_out"
+        },
+        {
+          "instance_id": "boiler_pkg_1__maintenance_counter_1",
+          "port_id": "overdue_out"
+        }
+      ],
+      "title": "Maintenance"
+    },
+    "tg_boiler_pkg_1__pid_1_control_loop": {
+      "chart_hint": "line",
+      "id": "tg_boiler_pkg_1__pid_1_control_loop",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "provenance": {
+        "facet_id": "control_loop",
+        "facet_kind": "trace_group",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "sample_hint_ms": 250,
+      "signals": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "pv"
+        },
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "sp"
+        },
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "mv_out"
+        },
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "error"
+        }
+      ],
+      "title": "Control Loop"
+    },
+    "tg_boiler_pkg_1__pid_1_mode": {
+      "chart_hint": "timeline",
+      "id": "tg_boiler_pkg_1__pid_1_mode",
+      "owner_instance_id": "boiler_pkg_1__pid_1",
+      "provenance": {
+        "facet_id": "mode",
+        "facet_kind": "trace_group",
+        "owner_instance_id": "boiler_pkg_1__pid_1",
+        "source_type_ref": "library:pid_controller"
+      },
+      "sample_hint_ms": 250,
+      "signals": [
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "enable_cmd"
+        },
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "in_auto"
+        },
+        {
+          "instance_id": "boiler_pkg_1__pid_1",
+          "port_id": "saturated"
+        }
+      ],
+      "title": "Mode"
+    },
+    "tg_boiler_pkg_1__run_hours_1_runtime": {
+      "chart_hint": "line",
+      "id": "tg_boiler_pkg_1__run_hours_1_runtime",
+      "owner_instance_id": "boiler_pkg_1__run_hours_1",
+      "provenance": {
+        "facet_id": "runtime",
+        "facet_kind": "trace_group",
+        "owner_instance_id": "boiler_pkg_1__run_hours_1",
+        "source_type_ref": "library:run_hours_counter"
+      },
+      "sample_hint_ms": 1000,
+      "signals": [
+        {
+          "instance_id": "boiler_pkg_1__run_hours_1",
+          "port_id": "active_in"
+        },
+        {
+          "instance_id": "boiler_pkg_1__run_hours_1",
+          "port_id": "running_out"
+        },
+        {
+          "instance_id": "boiler_pkg_1__run_hours_1",
+          "port_id": "total_hours"
+        }
+      ],
+      "title": "Runtime"
+    },
+    "tg_boiler_pkg_1__threshold_monitor_1_thresholds": {
+      "chart_hint": "line",
+      "id": "tg_boiler_pkg_1__threshold_monitor_1_thresholds",
+      "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+      "provenance": {
+        "facet_id": "thresholds",
+        "facet_kind": "trace_group",
+        "owner_instance_id": "boiler_pkg_1__threshold_monitor_1",
+        "source_type_ref": "library:threshold_monitor"
+      },
+      "sample_hint_ms": 500,
+      "signals": [
+        {
+          "instance_id": "boiler_pkg_1__threshold_monitor_1",
+          "port_id": "value_in"
+        },
+        {
+          "instance_id": "boiler_pkg_1__threshold_monitor_1",
+          "port_id": "above_out"
+        },
+        {
+          "instance_id": "boiler_pkg_1__threshold_monitor_1",
+          "port_id": "below_out"
+        },
+        {
+          "instance_id": "boiler_pkg_1__threshold_monitor_1",
+          "port_id": "alarm_active"
+        }
+      ],
+      "title": "Thresholds"
+    }
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "artifacts": {
+    "analog_inputs": [],
+    "digital_inputs": [],
+    "digital_outputs": [],
+    "event_counters": [],
+    "maintenance_counters": [],
+    "operations": [
+      {
+        "availability_mode": "always",
+        "confirmation_policy": "none",
+        "id": "op_pump_skid_supervisor_protection_1__motor_trip_1_request_recovery",
+        "kind": "reset",
+        "metadata_only": true,
+        "owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+        "progress_mode": "none",
+        "result_mode": "none",
+        "title": "Request Recovery"
+      },
+      {
+        "availability_mode": "always",
+        "confirmation_policy": "required",
+        "id": "op_pump_skid_supervisor_protection_1__motor_trip_1_reset_trip",
+        "kind": "reset_latch",
+        "metadata_only": true,
+        "owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+        "progress_mode": "none",
+        "result_mode": "none",
+        "title": "Reset Trip"
+      },
+      {
+        "availability_mode": "always",
+        "confirmation_policy": "none",
+        "id": "op_pump_skid_supervisor_protection_1__suction_guard_1_request_recovery",
+        "kind": "reset",
+        "metadata_only": true,
+        "owner_instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+        "progress_mode": "none",
+        "result_mode": "none",
+        "title": "Request Recovery"
+      },
+      {
+        "availability_mode": "always",
+        "confirmation_policy": "required",
+        "id": "op_pump_skid_supervisor_protection_1__suction_guard_1_reset_trip",
+        "kind": "reset_latch",
+        "metadata_only": true,
+        "owner_instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+        "progress_mode": "none",
+        "result_mode": "none",
+        "title": "Reset Trip"
+      }
+    ],
+    "package_protection_recovery": [
+      {
+        "aggregate_monitors": [
+          {
+            "id": "protection_health",
+            "kind": "boolean_health_rollup",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+                "port_id": "ready_out"
+              },
+              {
+                "instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+                "port_id": "trip_out"
+              }
+            ]
+          }
+        ],
+        "id": "pkgprotect_pump_skid_supervisor_protection_1",
+        "inhibits": [
+          {
+            "diagnostic_ref": "diag_suction_blocked",
+            "id": "suction_blocked",
+            "qualified_id": "pkgprotect_pump_skid_supervisor_protection_1.inhibit.suction_blocked",
+            "reason_code": "suction_blocked",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+                "port_id": "blocked_out"
+              }
+            ],
+            "summary": "Suction path inhibit remains clear on the ready baseline.",
+            "title": "Suction Blocked"
+          }
+        ],
+        "package_instance_id": "pump_skid_supervisor_protection_1",
+        "protection_summary": {
+          "default_state": "ready",
+          "diagnostic_summaries": [
+            {
+              "id": "ready_path",
+              "inhibit_ids": [],
+              "summary": "Protection baseline is clear and package is ready.",
+              "title": "Ready Path",
+              "trip_ids": []
+            }
+          ],
+          "id": "protection_summary",
+          "inhibit_ids": [],
+          "recovery_request_ids": [
+            "reset_motor_trip",
+            "request_recovery"
+          ],
+          "title": "Protection Summary",
+          "trip_ids": []
+        },
+        "recovery_requests": [
+          {
+            "blocked_by_inhibit_ids": [],
+            "blocked_by_trip_ids": [],
+            "id": "request_recovery",
+            "kind": "reset",
+            "summary": "Recovery request is available on the ready baseline.",
+            "target_operation_id": "op_pump_skid_supervisor_protection_1__motor_trip_1_request_recovery",
+            "target_owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+            "title": "Request Recovery"
+          },
+          {
+            "blocked_by_inhibit_ids": [],
+            "blocked_by_trip_ids": [],
+            "confirmation_policy": "required",
+            "id": "reset_motor_trip",
+            "kind": "reset_latch",
+            "summary": "Reset the motor trip latch.",
+            "target_operation_id": "op_pump_skid_supervisor_protection_1__motor_trip_1_reset_trip",
+            "target_owner_instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+            "title": "Reset Motor Trip"
+          }
+        ],
+        "summary_outputs": [
+          {
+            "id": "package_ready",
+            "source": {
+              "instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+              "port_id": "ready_out"
+            },
+            "value_type": "bool"
+          },
+          {
+            "id": "package_tripped",
+            "source": {
+              "instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+              "port_id": "trip_out"
+            },
+            "value_type": "bool"
+          }
+        ],
+        "title": "PumpSkidSupervisorProtection v1",
+        "trace_groups": [
+          {
+            "id": "protection_trace",
+            "signals": [
+              {
+                "instance_id": "pump_skid_supervisor_protection_1__suction_guard_1",
+                "port_id": "blocked_out"
+              },
+              {
+                "instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+                "port_id": "trip_out"
+              }
+            ]
+          }
+        ],
+        "trips": [
+          {
+            "diagnostic_ref": "diag_motor_trip",
+            "id": "motor_trip",
+            "latching": false,
+            "qualified_id": "pkgprotect_pump_skid_supervisor_protection_1.trip.motor_trip",
+            "reason_code": "motor_trip_active",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_protection_1__motor_trip_1",
+                "port_id": "trip_out"
+              }
+            ],
+            "summary": "Motor trip is currently clear.",
+            "title": "Motor Trip"
+          }
+        ]
+      }
+    ],
+    "pid_controllers": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "threshold_monitors": [],
+    "timed_relays": []
+  },
+  "capability_profile": "esp32-basic-io",
+  "diagnostics": [],
+  "schema_version": "0.1.0",
+  "source_pack_id": "pump-skid-supervisor-protection-demo-pack",
+  "target_kind": "esp32.shipcontroller.v1"
+}

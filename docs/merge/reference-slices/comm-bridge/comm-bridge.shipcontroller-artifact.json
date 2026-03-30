@@ -1,0 +1,46 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "comm-bridge-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [],
+    "analog_inputs": [],
+    "digital_outputs": [],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "modbus_rtu_buses": [
+      {
+        "id": "modbus_bus_comm_bridge_1",
+        "instance_id": "comm_bridge_1",
+        "resource_id": "rs485_1",
+        "driver": "modbus_rtu",
+        "port": "uart2",
+        "baud_rate": 9600,
+        "parity": "N",
+        "stop_bits": 1
+      }
+    ],
+    "comm_bridges": [
+      {
+        "id": "comm_bridge_1",
+        "native_kind": "std.comm_bridge.v1",
+        "bus_ref": "rs485_1",
+        "slave_id": 3,
+        "timeout_ms": 500,
+        "poll_period_ms": 1000,
+        "startup_delay_ms": 0,
+        "stale_timeout_ms": 3000,
+        "frontend_requirement_ids": [
+          "fe_comm_bridge_1_bus_source"
+        ]
+      }
+    ]
+  },
+  "diagnostics": []
+}

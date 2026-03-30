@@ -116,8 +116,10 @@ export function validateActiveFrontendBindings(
     const directPorts = (requirement.source_ports ?? [])
       .map((port) => runtimePack.instances[port.instance_id]?.ports?.[port.port_id])
       .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined);
+    const remoteBridgeBinding = resolveRemoteBridgeBinding(runtimePack, requirement, diagnostics, phase);
+    const hasResolvedRemoteBridge = remoteBridgeBinding !== null;
 
-    if (matchingConnections.length === 0 && directResources.length === 0) {
+    if (matchingConnections.length === 0 && directResources.length === 0 && !hasResolvedRemoteBridge) {
       diagnostics.push(error(
         phase,
         "frontend.connection.missing",
@@ -160,7 +162,10 @@ export function validateActiveFrontendBindings(
           resource.port_id === connection.source.port_id &&
           resource.binding_kind === requirement.binding_kind
         ))
-      )) || directResources.some((resource) => resource.binding_kind === requirement.binding_kind);
+      )) || directResources.some((resource) => resource.binding_kind === requirement.binding_kind) || (
+        remoteBridgeBinding?.binding_kind === "bus" &&
+        requirement.binding_kind === "service"
+      );
 
       if (!resourceMatch) {
         diagnostics.push(error(
@@ -172,6 +177,61 @@ export function validateActiveFrontendBindings(
       }
     }
   }
+}
+
+function resolveRemoteBridgeBinding(
+  runtimePack: RuntimePack,
+  requirement: RuntimeFrontendRequirement,
+  diagnostics: MaterializerDiagnostic[],
+  phase: MaterializerPhase
+): RuntimePack["resources"][string] | null {
+  const bridgeRefParam = typeof requirement.config?.bridge_ref_param === "string"
+    ? requirement.config.bridge_ref_param
+    : undefined;
+
+  if (!bridgeRefParam) {
+    return null;
+  }
+
+  const ownerInstance = runtimePack.instances[requirement.owner_instance_id];
+  const bridgeRefValue = ownerInstance?.params?.[bridgeRefParam]?.value;
+  if (typeof bridgeRefValue !== "string" || bridgeRefValue.trim().length === 0) {
+    diagnostics.push(error(
+      phase,
+      "frontend.bridge_ref.missing",
+      `$.instances.${requirement.owner_instance_id}.params.${bridgeRefParam}`,
+      `Active frontend requirement \`${requirement.id}\` requires a bridge_ref literal.`
+    ));
+    return null;
+  }
+
+  const bridgeInstance = runtimePack.instances[bridgeRefValue];
+  if (!bridgeInstance) {
+    diagnostics.push(error(
+      phase,
+      "frontend.bridge_ref.unresolved",
+      `$.instances.${requirement.owner_instance_id}.params.${bridgeRefParam}`,
+      `Active frontend requirement \`${requirement.id}\` references unknown bridge instance \`${bridgeRefValue}\`.`
+    ));
+    return null;
+  }
+
+  const busResource = Object.values(runtimePack.resources ?? {}).find((resource) => (
+    resource.instance_id === bridgeInstance.id &&
+    resource.binding_kind === "bus"
+  ));
+
+  if (!busResource) {
+    diagnostics.push(error(
+      phase,
+      "frontend.resource.missing",
+      `$.frontend_requirements.${requirement.id}.binding_kind`,
+      `Active frontend requirement \`${requirement.id}\` has no compatible bus resource binding via bridge \`${bridgeInstance.id}\`.`
+    ));
+    return null;
+  }
+
+  return busResource ?? null;
 }
 
 function resolveFrontendRequirementActive(
@@ -217,6 +277,10 @@ function resourceMatchesRequirement(
 
   if (!requirement.source_ports || requirement.source_ports.length === 0) {
     return true;
+  }
+
+  if (resource.port_id === undefined) {
+    return requirement.source_ports.some((port) => port.instance_id === resource.instance_id);
   }
 
   return requirement.source_ports.some((port) => (

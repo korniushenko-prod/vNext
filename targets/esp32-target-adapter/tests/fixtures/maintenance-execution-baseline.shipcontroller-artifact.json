@@ -1,0 +1,97 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "maintenance-counter-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [],
+    "analog_inputs": [
+      {
+        "id": "ai_usage_source_1",
+        "instance_id": "usage_source_1",
+        "pin": 0
+      }
+    ],
+    "digital_outputs": [],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [
+      {
+        "id": "maintenance_counter_1",
+        "native_kind": "std.maintenance_counter.v1",
+        "service_interval": 500,
+        "warning_before": 50,
+        "overdue_margin": 0,
+        "auto_rollover": false,
+        "persist_enabled": true,
+        "persistence_slot_ids": [
+          "ps_maintenance_counter_1_acknowledge_state",
+          "ps_maintenance_counter_1_reset_baseline"
+        ],
+        "frontend_requirement_ids": [],
+        "usage_source": {
+          "instance_id": "usage_source_1",
+          "port_id": "value",
+          "connection_id": "conn_sig_usage_source_to_maintenance_counter_t1",
+          "resource_id": "hw_usage_source_1"
+        }
+      }
+    ],
+    "pid_controllers": [],
+    "operations": [
+      {
+        "id": "op_maintenance_counter_1_acknowledge_due",
+        "owner_instance_id": "maintenance_counter_1",
+        "kind": "acknowledge_due",
+        "metadata_only": true,
+        "title": "Acknowledge Due",
+        "confirmation_policy": "none",
+        "availability_mode": "guarded",
+        "progress_mode": "signal_based",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "acknowledged",
+            "value_type": "bool"
+          }
+        ]
+      },
+      {
+        "id": "op_maintenance_counter_1_reset_interval",
+        "owner_instance_id": "maintenance_counter_1",
+        "kind": "reset_interval",
+        "execution_baseline": true,
+        "title": "Reset Interval",
+        "confirmation_policy": "required",
+        "confirmation_token_validation": "when_required",
+        "availability_mode": "guarded",
+        "cancel_mode": "not_cancellable",
+        "progress_mode": "none",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "remaining_out",
+            "value_type": "float"
+          },
+          {
+            "id": "progress_out",
+            "value_type": "float"
+          }
+        ],
+        "audit_hook_mode": "operation_events"
+      }
+    ]
+  },
+  "diagnostics": []
+}

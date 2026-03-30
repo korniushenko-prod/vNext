@@ -1,0 +1,26 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "operations-invalid-missing-owner-pack",
+  "source": {
+    "project_id": "operations_invalid_missing_owner",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {},
+  "connections": {},
+  "resources": {},
+  "operations": {
+    "op_reset_1": {
+      "id": "op_reset_1",
+      "kind": "reset_totalizer",
+      "confirmation_policy": "required",
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      }
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

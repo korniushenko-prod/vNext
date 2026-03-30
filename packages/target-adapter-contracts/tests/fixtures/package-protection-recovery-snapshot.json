@@ -1,0 +1,51 @@
+{
+  "request_id": "readback-016",
+  "target_id": "esp32.shipcontroller.v1",
+  "collected_at": "2026-03-30T12:00:00Z",
+  "signals": {},
+  "resources": {},
+  "package_protection_recovery_snapshots": {
+    "boiler_supervisor_protection_1": {
+      "package_instance_id": "boiler_supervisor_protection_1",
+      "state": "tripped",
+      "protection_summary": {
+        "state": "tripped",
+        "ready": false,
+        "trip_reason_ids": ["pressure_trip"],
+        "inhibit_reason_ids": ["feedwater_blocked"],
+        "recovery_request_ids": ["reset_pressure_trip", "request_recovery"],
+        "diagnostic_summary_ids": ["active_reasons"]
+      },
+      "trip_states": {
+        "pressure_trip": {
+          "state": "tripped",
+          "latching": true,
+          "reason_code": "pressure_trip_active",
+          "diagnostic_ref": "diag_pressure_trip",
+          "summary": "Package pressure trip is latched."
+        }
+      },
+      "inhibit_states": {
+        "feedwater_blocked": {
+          "state": "blocked",
+          "reason_code": "feedwater_blocked",
+          "diagnostic_ref": "diag_feedwater_blocked",
+          "summary": "Feedwater path is blocked."
+        }
+      },
+      "recovery_request_states": {
+        "reset_pressure_trip": {
+          "availability_state": "available",
+          "target_operation_id": "op_boiler_supervisor_protection_1__pressure_trip_1_reset_trip",
+          "summary": "Reset the pressure trip latch."
+        },
+        "request_recovery": {
+          "availability_state": "unavailable",
+          "target_operation_id": "op_boiler_supervisor_protection_1__pressure_trip_1_request_recovery",
+          "summary": "Recovery remains blocked until feedwater path is clear."
+        }
+      }
+    }
+  },
+  "diagnostics": []
+}

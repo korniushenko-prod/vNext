@@ -1,0 +1,34 @@
+{
+  "id": "pulse_flowmeter_hall_preset",
+  "kind": "object_template",
+  "base_type_ref": "library:std/pulse_flowmeter",
+  "origin": "library_template",
+  "meta": {
+    "title": "Pulse Flowmeter Hall Preset",
+    "version": "1.0.0",
+    "description": "Reusable configured preset for the hall-pulse flowmeter baseline."
+  },
+  "defaults": {
+    "param_values": {
+      "k_factor": {
+        "kind": "literal",
+        "value": 450
+      },
+      "filter_window_ms": {
+        "kind": "literal",
+        "value": 250
+      },
+      "stale_timeout_ms": {
+        "kind": "literal",
+        "value": 3000
+      }
+    },
+    "tags": {
+      "sensor_mode": "hall_pulse",
+      "category": "flowmeter"
+    },
+    "facet_defaults": {
+      "debug_preset": "hall_flowmeter"
+    }
+  }
+}

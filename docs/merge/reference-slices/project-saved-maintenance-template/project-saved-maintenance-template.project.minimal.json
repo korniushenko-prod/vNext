@@ -1,0 +1,78 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "project_saved_maintenance_template_demo",
+    "title": "Project Saved Maintenance Template Demo"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "templates": {
+      "maintenance_service_saved": {
+        "id": "maintenance_service_saved",
+        "kind": "object_template",
+        "base_type_ref": "library:std/maintenance_counter",
+        "origin": "project_saved",
+        "meta": {
+          "title": "Saved Maintenance Service Preset",
+          "version": "1.0.0",
+          "description": "Project-saved configured maintenance preset sharing the same template contract."
+        },
+        "defaults": {
+          "param_values": {
+            "service_interval": {
+              "kind": "literal",
+              "value": 250
+            },
+            "warning_before": {
+              "kind": "literal",
+              "value": 25
+            },
+            "overdue_margin": {
+              "kind": "literal",
+              "value": 10
+            }
+          },
+          "tags": {
+            "origin": "project_saved",
+            "category": "maintenance"
+          },
+          "facet_defaults": {
+            "monitor_preset": "maintenance_due"
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "maintenance_1": {
+        "id": "maintenance_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/maintenance_counter",
+        "template_ref": "maintenance_service_saved",
+        "enabled": true,
+        "param_values": {
+          "auto_rollover": {
+            "kind": "literal",
+            "value": false
+          }
+        }
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

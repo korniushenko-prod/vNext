@@ -1,0 +1,54 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "template_invalid_missing_template_ref",
+    "title": "Template Invalid Missing Template Ref"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "templates": {
+      "timed_relay_service_preset": {
+        "id": "timed_relay_service_preset",
+        "kind": "object_template",
+        "base_type_ref": "library:std/timed_relay",
+        "origin": "library_template",
+        "meta": {
+          "title": "Timed Relay Service Preset"
+        },
+        "defaults": {
+          "param_values": {
+            "pulse_time_ms": {
+              "kind": "literal",
+              "value": 7500
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "relay_1": {
+        "id": "relay_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/timed_relay",
+        "template_ref": "unknown_template"
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

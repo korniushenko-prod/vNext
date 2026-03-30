@@ -1,0 +1,204 @@
+{
+  "id": "package-overview-boiler-supervisor-interlocks",
+  "title": "BoilerSupervisorInterlocks v1",
+  "description": "Read-only package permissive/interlock overview for the boiler-like Wave 15 reference domain.",
+  "package_instance_id": "boiler_supervisor_interlocks_1",
+  "package_definition": {
+    "package_id": "boiler_supervisor_interlocks",
+    "title": "BoilerSupervisorInterlocks v1",
+    "origin": "project",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Wave 15 package permissive/interlock remains a generic, package-neutral gating layer.",
+      "Boiler-like content is reference-only and does not introduce safety semantics."
+    ]
+  },
+  "members": [
+    {
+      "id": "feedwater_guard_1",
+      "title": "Feedwater Guard",
+      "role": "permissive_source",
+      "type_title": "Package Gate Source",
+      "type_ref": "project:package_gate_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_interlocks_1__feedwater_guard_1",
+      "boundary_note": "Child-owned source only. Package gate metadata remains read-only over flattened member outputs.",
+      "related_surfaces": []
+    },
+    {
+      "id": "circulation_guard_1",
+      "title": "Circulation Guard",
+      "role": "permissive_source",
+      "type_title": "Package Gate Source",
+      "type_ref": "project:package_gate_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_interlocks_1__circulation_guard_1",
+      "boundary_note": "Package gating derives from child state and does not become package execution.",
+      "related_surfaces": []
+    },
+    {
+      "id": "demand_guard_1",
+      "title": "Demand Guard",
+      "role": "permissive_source",
+      "type_title": "Package Gate Source",
+      "type_ref": "project:package_gate_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_interlocks_1__demand_guard_1",
+      "boundary_note": "Demand is still a child condition only and is summarized upward by the package gate surface.",
+      "related_surfaces": []
+    },
+    {
+      "id": "fault_latch_1",
+      "title": "Fault Latch",
+      "role": "interlock_source",
+      "type_title": "Package Gate Source",
+      "type_ref": "project:package_gate_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_interlocks_1__fault_latch_1",
+      "boundary_note": "Interlock indication remains metadata-only and does not introduce safety workflow or reset handling.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "boiler_supervisor_interlocks_1__feedwater_guard_1",
+      "title": "Feedwater Guard",
+      "type_title": "Package Gate Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_interlocks_1__circulation_guard_1",
+      "title": "Circulation Guard",
+      "type_title": "Package Gate Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_interlocks_1__demand_guard_1",
+      "title": "Demand Guard",
+      "type_title": "Package Gate Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_interlocks_1__fault_latch_1",
+      "title": "Fault Latch",
+      "type_title": "Package Gate Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ],
+  "package_permissive_interlock": {
+    "snapshot_state": "blocked",
+    "gate_summary": {
+      "state": "blocked",
+      "ready": false,
+      "blocked_reason_ids": [
+        "feedwater_ok",
+        "demand_present"
+      ],
+      "held_reason_ids": [
+        "permissive_blocked"
+      ],
+      "faulted_reason_ids": [
+        "package_faulted"
+      ],
+      "transition_guard_ids": [
+        "allow_auto_run"
+      ]
+    },
+    "permissives": [
+      {
+        "id": "feedwater_ok",
+        "title": "Feedwater OK",
+        "state": "blocked",
+        "reason_code": "feedwater_missing",
+        "summary": "Feedwater permissive is not satisfied."
+      },
+      {
+        "id": "circulation_ok",
+        "title": "Circulation OK",
+        "state": "ready",
+        "reason_code": "",
+        "summary": "Circulation permissive is clear."
+      },
+      {
+        "id": "demand_present",
+        "title": "Demand Present",
+        "state": "blocked",
+        "reason_code": "demand_missing",
+        "summary": "Demand permissive is missing."
+      }
+    ],
+    "interlocks": [
+      {
+        "id": "permissive_blocked",
+        "title": "Permissive Blocked",
+        "state": "held",
+        "reason_code": "permissive_blocked",
+        "summary": "Package remains held until blocked permissives clear."
+      },
+      {
+        "id": "package_faulted",
+        "title": "Package Faulted",
+        "state": "faulted",
+        "reason_code": "package_faulted",
+        "summary": "Fault indication is latched by the package gate layer."
+      }
+    ],
+    "transition_guards": [
+      {
+        "id": "allow_auto_run",
+        "title": "Allow Auto Run",
+        "state": "blocked",
+        "blocked_by_ids": [
+          "feedwater_ok",
+          "demand_present",
+          "permissive_blocked",
+          "package_faulted"
+        ],
+        "target_label": "Mode Transition: Auto",
+        "summary": "Auto transition stays blocked until all permissives are clear and no interlock remains active."
+      }
+    ],
+    "summary_outputs": [
+      {
+        "id": "package_ready",
+        "title": "Package Ready",
+        "value": "false",
+        "semantic_state": "blocked"
+      },
+      {
+        "id": "package_faulted",
+        "title": "Package Faulted",
+        "value": "true",
+        "semantic_state": "faulted"
+      }
+    ],
+    "aggregate_monitors": [
+      {
+        "id": "gate_health",
+        "title": "Gate Health",
+        "state": "blocked",
+        "severity": "warning",
+        "summary": "Package gate layer reports blocked permissives and active interlocks."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "gate_trace",
+        "title": "Package Gate Trace",
+        "signal_count": 2,
+        "summary": "feedwater_ok, package_faulted"
+      }
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "timed_relay_template_demo",
+    "title": "Timed Relay Template Demo"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "templates": {
+      "timed_relay_service_preset": {
+        "id": "timed_relay_service_preset",
+        "kind": "object_template",
+        "base_type_ref": "library:std/timed_relay",
+        "origin": "library_template",
+        "meta": {
+          "title": "Timed Relay Service Preset",
+          "version": "1.0.0",
+          "description": "Reusable configured preset for a standard service timed relay."
+        },
+        "defaults": {
+          "param_values": {
+            "pulse_time_ms": {
+              "kind": "literal",
+              "value": 7500
+            },
+            "retriggerable": {
+              "kind": "literal",
+              "value": true
+            },
+            "require_enable": {
+              "kind": "literal",
+              "value": false
+            }
+          },
+          "tags": {
+            "preset_family": "service",
+            "category": "timed_relay"
+          },
+          "facet_defaults": {
+            "debug_preset": "service_timed_relay"
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "relay_1": {
+        "id": "relay_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/timed_relay",
+        "template_ref": "timed_relay_service_preset",
+        "enabled": true,
+        "param_values": {
+          "output_inverted": {
+            "kind": "literal",
+            "value": false
+          }
+        }
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

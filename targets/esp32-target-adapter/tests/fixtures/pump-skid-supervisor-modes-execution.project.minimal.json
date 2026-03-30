@@ -1,0 +1,105 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "pump_skid_supervisor_modes_execution_reference_minimal",
+    "title": "Pump Skid Supervisor Modes Execution Reference Minimal"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "pump_group": {
+        "id": "pump_group",
+        "kind": "object_type",
+        "meta": { "title": "Pump Group", "origin": "project" },
+        "interface": {
+          "ports": {
+            "off_out": { "id": "off_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "auto_out": { "id": "auto_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "service_out": { "id": "service_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "prime_out": { "id": "prime_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "run_out": { "id": "run_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "flush_out": { "id": "flush_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "templates": {},
+    "packages": {
+      "pump_skid_supervisor_modes_execution": {
+        "id": "pump_skid_supervisor_modes_execution",
+        "kind": "package_definition",
+        "meta": {
+          "title": "PumpSkidSupervisorModesExecution v1",
+          "origin": "project",
+          "description": "Non-boiler reference package for bounded Wave 14 package mode transition execution.",
+          "domain": "pump_skid",
+          "package_kind": "pump_skid_supervisor_modes_execution_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "pump_group_1": { "id": "pump_group_1", "kind": "package_member", "type_ref": "project:pump_group", "title": "Pump Group" }
+        },
+        "signals": {},
+        "mode_phase": {
+          "modes": {
+            "off": { "id": "off", "title": "Off", "phase_refs": ["idle"] },
+            "auto": { "id": "auto", "title": "Auto", "phase_refs": ["prime", "run"] },
+            "service": { "id": "service", "title": "Service", "phase_refs": ["flush"] }
+          },
+          "phases": {
+            "idle": { "id": "idle", "title": "Idle", "source_ports": [{ "member_id": "pump_group_1", "port_id": "off_out" }] },
+            "prime": { "id": "prime", "title": "Prime", "source_ports": [{ "member_id": "pump_group_1", "port_id": "prime_out" }] },
+            "run": { "id": "run", "title": "Run", "source_ports": [{ "member_id": "pump_group_1", "port_id": "run_out" }] },
+            "flush": { "id": "flush", "title": "Flush", "source_ports": [{ "member_id": "pump_group_1", "port_id": "flush_out" }] }
+          },
+          "mode_summary": {
+            "id": "mode_summary",
+            "entries": {
+              "auto_summary": { "id": "auto_summary", "mode_ref": "auto", "source_ports": [{ "member_id": "pump_group_1", "port_id": "auto_out" }] }
+            }
+          },
+          "phase_summary": {
+            "id": "phase_summary",
+            "entries": {
+              "prime_summary": { "id": "prime_summary", "phase_ref": "prime", "source_ports": [{ "member_id": "pump_group_1", "port_id": "prime_out" }] }
+            }
+          },
+          "active_mode_ref": "auto",
+          "active_phase_ref": "prime",
+          "allowed_mode_transitions": {
+            "to_service": { "id": "to_service", "intent": "request_mode_change", "from_mode_ref": "auto", "to_mode_ref": "service" }
+          },
+          "allowed_phase_transitions": {
+            "start_run": { "id": "start_run", "intent": "request_phase_start", "phase_ref": "run", "allowed_mode_refs": ["auto"] },
+            "abort_flush": { "id": "abort_flush", "intent": "request_phase_abort", "phase_ref": "flush", "allowed_mode_refs": ["service"], "guard_notes": ["service_window_only"] }
+          }
+        },
+        "boundary_notes": [
+          "PumpSkidSupervisorModesExecution v1 is the mandatory non-boiler acceptance slice for Wave 14."
+        ]
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "pump_skid_supervisor_modes_execution_1": {
+        "id": "pump_skid_supervisor_modes_execution_1",
+        "kind": "package_instance",
+        "package_ref": "pump_skid_supervisor_modes_execution"
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

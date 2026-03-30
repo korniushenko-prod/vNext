@@ -1,0 +1,14 @@
+{
+  "request_id": "pkg-coordination-readback-invalid",
+  "target_id": "esp32-basic-io",
+  "collected_at": "2026-03-30T23:05:00Z",
+  "signals": {},
+  "resources": {},
+  "package_coordination_snapshots": {
+    "boiler_coordination_1": {
+      "package_instance_id": "boiler_coordination_1",
+      "state": "ignite_sequence"
+    }
+  },
+  "diagnostics": []
+}

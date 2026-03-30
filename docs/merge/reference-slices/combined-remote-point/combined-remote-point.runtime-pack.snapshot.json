@@ -1,0 +1,635 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "combined-remote-point-demo-pack",
+  "source": {
+    "project_id": "combined_remote_point_demo",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-29T23:30:00Z"
+  },
+  "instances": {
+    "comm_bridge_1": {
+      "id": "comm_bridge_1",
+      "type_ref": "library:std/comm_bridge",
+      "title": "Comm Bridge #1",
+      "enabled": true,
+      "ports": {
+        "bridge_ok": {
+          "id": "bridge_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "stale": {
+          "id": "stale",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "error_code": {
+          "id": "error_code",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "string"
+        }
+      },
+      "params": {
+        "port_ref": {
+          "value": "rs485_1",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "bus",
+            "ui_hint": "resource_ref"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "port_ref",
+            "source_layer": "system"
+          }
+        },
+        "baud_rate": {
+          "value": 19200,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "bus",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "baud_rate",
+            "source_layer": "system"
+          }
+        },
+        "parity": {
+          "value": "N",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "bus",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "parity",
+            "source_layer": "system"
+          }
+        },
+        "stop_bits": {
+          "value": 1,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "bus",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "stop_bits",
+            "source_layer": "system"
+          }
+        },
+        "slave_id": {
+          "value": 7,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "device",
+            "ui_hint": "numeric"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "slave_id",
+            "source_layer": "system"
+          }
+        },
+        "timeout_ms": {
+          "value": 500,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "poll",
+            "ui_hint": "duration_ms"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "timeout_ms",
+            "source_layer": "system"
+          }
+        },
+        "poll_period_ms": {
+          "value": 1000,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "poll",
+            "ui_hint": "duration_ms"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "poll_period_ms",
+            "source_layer": "system"
+          }
+        },
+        "startup_delay_ms": {
+          "value": 0,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "poll",
+            "ui_hint": "duration_ms"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "startup_delay_ms",
+            "source_layer": "system"
+          }
+        },
+        "stale_timeout_ms": {
+          "value": 3000,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "poll",
+            "ui_hint": "duration_ms"
+          },
+          "provenance": {
+            "owner_id": "comm_bridge_1",
+            "param_id": "stale_timeout_ms",
+            "source_layer": "system"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.comm_bridge.v1",
+        "config_template": {
+          "role": "comm_bridge",
+          "bus_kind": "modbus_rtu",
+          "access_mode": "read_only",
+          "support_contract_refs": [
+            "support.modbus_rtu_bus_frontend.v1",
+            "support.poll_schedule.v1"
+          ],
+          "port_ref_param": "port_ref"
+        },
+        "mode": "modbus_rtu",
+        "frontend_requirement_ids": [
+          "fe_comm_bridge_1_bus_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "combined_remote_point_demo"
+      }
+    },
+    "remote_point_1": {
+      "id": "remote_point_1",
+      "type_ref": "library:std/remote_point_frontend",
+      "enabled": true,
+      "ports": {
+        "value_out": {
+          "id": "value_out",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "stale": {
+          "id": "stale",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "bridge_ref": {
+          "value": "comm_bridge_1",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "bridge",
+            "ui_hint": "instance_ref"
+          },
+          "provenance": {
+            "owner_id": "remote_point_1",
+            "param_id": "bridge_ref",
+            "source_layer": "system"
+          }
+        },
+        "register_address": {
+          "value": 300,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "register",
+            "ui_hint": "numeric"
+          },
+          "provenance": {
+            "owner_id": "remote_point_1",
+            "param_id": "register_address",
+            "source_layer": "system"
+          }
+        },
+        "register_kind": {
+          "value": "input",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "register",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "remote_point_1",
+            "param_id": "register_kind",
+            "source_layer": "system"
+          }
+        },
+        "register_count": {
+          "value": 2,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "group": "register",
+            "ui_hint": "numeric"
+          },
+          "provenance": {
+            "owner_id": "remote_point_1",
+            "param_id": "register_count",
+            "source_layer": "system"
+          }
+        },
+        "byte_order": {
+          "value": "big_endian",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "decode",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "remote_point_1",
+            "param_id": "byte_order",
+            "source_layer": "system"
+          }
+        },
+        "word_order": {
+          "value": "big_endian",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "decode",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "remote_point_1",
+            "param_id": "word_order",
+            "source_layer": "system"
+          }
+        },
+        "value_decode": {
+          "value": "float32",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "decode",
+            "ui_hint": "enum"
+          },
+          "provenance": {
+            "owner_id": "remote_point_1",
+            "param_id": "value_decode",
+            "source_layer": "system"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.remote_point_frontend.v1",
+        "config_template": {
+          "role": "remote_point_frontend",
+          "bus_kind": "modbus_rtu",
+          "access_mode": "read_only",
+          "support_contract_refs": [
+            "support.register_map.v1"
+          ],
+          "bridge_ref_param": "bridge_ref"
+        },
+        "mode": "modbus_rtu",
+        "frontend_requirement_ids": [
+          "fe_remote_point_1_remote_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "combined_remote_point_demo"
+      }
+    },
+    "display_1": {
+      "id": "display_1",
+      "type_ref": "project:telemetry_consumer",
+      "enabled": true,
+      "ports": {
+        "value_in": {
+          "id": "value_in",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "combined_remote_point_demo"
+      }
+    }
+  },
+  "connections": {
+    "conn_sig_remote_point_to_display_t1": {
+      "id": "conn_sig_remote_point_to_display_t1",
+      "source": {
+        "instance_id": "remote_point_1",
+        "port_id": "value_out"
+      },
+      "target": {
+        "instance_id": "display_1",
+        "port_id": "value_in"
+      },
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "combined_remote_point_demo",
+        "signal_id": "sig_remote_point_to_display"
+      }
+    }
+  },
+  "resources": {
+    "rs485_1": {
+      "id": "rs485_1",
+      "binding_kind": "bus",
+      "instance_id": "comm_bridge_1",
+      "config": {
+        "driver": "modbus_rtu",
+        "port": "uart2"
+      }
+    }
+  },
+  "operations": {},
+  "trace_groups": {
+    "tg_comm_bridge_1_bridge": {
+      "id": "tg_comm_bridge_1_bridge",
+      "owner_instance_id": "comm_bridge_1",
+      "title": "Bridge",
+      "signals": [
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "bridge_ok"
+        },
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "stale"
+        },
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "error_code"
+        }
+      ],
+      "sample_hint_ms": 1000,
+      "chart_hint": "state",
+      "provenance": {
+        "owner_instance_id": "comm_bridge_1",
+        "facet_kind": "trace_group",
+        "facet_id": "bridge",
+        "source_type_ref": "library:comm_bridge"
+      }
+    },
+    "tg_remote_point_1_value": {
+      "id": "tg_remote_point_1_value",
+      "owner_instance_id": "remote_point_1",
+      "title": "Value",
+      "signals": [
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "value_out"
+        }
+      ],
+      "sample_hint_ms": 1000,
+      "chart_hint": "trend",
+      "provenance": {
+        "owner_instance_id": "remote_point_1",
+        "facet_kind": "trace_group",
+        "facet_id": "value",
+        "source_type_ref": "library:remote_point_frontend"
+      }
+    },
+    "tg_remote_point_1_quality": {
+      "id": "tg_remote_point_1_quality",
+      "owner_instance_id": "remote_point_1",
+      "title": "Quality",
+      "signals": [
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "source_ok"
+        },
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "stale"
+        }
+      ],
+      "sample_hint_ms": 1000,
+      "chart_hint": "state",
+      "provenance": {
+        "owner_instance_id": "remote_point_1",
+        "facet_kind": "trace_group",
+        "facet_id": "quality",
+        "source_type_ref": "library:remote_point_frontend"
+      }
+    },
+    "tg_remote_point_1_source": {
+      "id": "tg_remote_point_1_source",
+      "owner_instance_id": "remote_point_1",
+      "title": "Source",
+      "signals": [
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "value_out"
+        },
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "source_ok"
+        },
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "stale"
+        }
+      ],
+      "sample_hint_ms": 1000,
+      "chart_hint": "trend",
+      "provenance": {
+        "owner_instance_id": "remote_point_1",
+        "facet_kind": "trace_group",
+        "facet_id": "source",
+        "source_type_ref": "library:remote_point_frontend"
+      }
+    }
+  },
+  "monitors": {
+    "mon_comm_bridge_1_stale_source": {
+      "id": "mon_comm_bridge_1_stale_source",
+      "owner_instance_id": "comm_bridge_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "bridge_ok"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "stale",
+      "provenance": {
+        "owner_instance_id": "comm_bridge_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:comm_bridge"
+      }
+    },
+    "mon_comm_bridge_1_timeout": {
+      "id": "mon_comm_bridge_1_timeout",
+      "owner_instance_id": "comm_bridge_1",
+      "kind": "timeout",
+      "source_ports": [
+        {
+          "instance_id": "comm_bridge_1",
+          "port_id": "bridge_ok"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "stale",
+      "config": {
+        "timeout_param": "stale_timeout_ms"
+      },
+      "provenance": {
+        "owner_instance_id": "comm_bridge_1",
+        "facet_kind": "monitor",
+        "facet_id": "timeout",
+        "source_type_ref": "library:comm_bridge"
+      }
+    },
+    "mon_remote_point_1_source_ok": {
+      "id": "mon_remote_point_1_source_ok",
+      "owner_instance_id": "remote_point_1",
+      "kind": "quality",
+      "source_ports": [
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "value_out"
+        }
+      ],
+      "severity": "info",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "remote_point_1",
+        "facet_kind": "monitor",
+        "facet_id": "source_ok",
+        "source_type_ref": "library:remote_point_frontend"
+      }
+    },
+    "mon_remote_point_1_stale_source": {
+      "id": "mon_remote_point_1_stale_source",
+      "owner_instance_id": "remote_point_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "value_out"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "stale",
+      "provenance": {
+        "owner_instance_id": "remote_point_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:remote_point_frontend"
+      }
+    },
+    "mon_remote_point_1_timeout": {
+      "id": "mon_remote_point_1_timeout",
+      "owner_instance_id": "remote_point_1",
+      "kind": "timeout",
+      "source_ports": [
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "value_out"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "stale",
+      "config": {
+        "bridge_ref_param": "bridge_ref"
+      },
+      "provenance": {
+        "owner_instance_id": "remote_point_1",
+        "facet_kind": "monitor",
+        "facet_id": "timeout",
+        "source_type_ref": "library:remote_point_frontend"
+      }
+    }
+  },
+  "frontend_requirements": {
+    "fe_comm_bridge_1_bus_source": {
+      "id": "fe_comm_bridge_1_bus_source",
+      "owner_instance_id": "comm_bridge_1",
+      "kind": "bus_source",
+      "title": "Bus Source",
+      "source_ports": [],
+      "binding_kind": "bus",
+      "required": true,
+      "config": {
+        "port_ref_param": "port_ref",
+        "bus_kind": "modbus_rtu",
+        "access_mode": "read_only"
+      },
+      "provenance": {
+        "owner_instance_id": "comm_bridge_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "bus_source",
+        "source_type_ref": "library:comm_bridge"
+      }
+    },
+    "fe_remote_point_1_remote_source": {
+      "id": "fe_remote_point_1_remote_source",
+      "owner_instance_id": "remote_point_1",
+      "kind": "remote_point",
+      "title": "Remote Source",
+      "source_ports": [
+        {
+          "instance_id": "remote_point_1",
+          "port_id": "value_out"
+        }
+      ],
+      "binding_kind": "service",
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "required": true,
+      "config": {
+        "bridge_ref_param": "bridge_ref",
+        "bus_kind": "modbus_rtu",
+        "access_mode": "read_only"
+      },
+      "provenance": {
+        "owner_instance_id": "remote_point_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "remote_source",
+        "source_type_ref": "library:remote_point_frontend"
+      }
+    }
+  },
+  "persistence_slots": {}
+}

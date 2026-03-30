@@ -1,0 +1,210 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "pump-skid-supervisor-arbitration-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [],
+    "analog_inputs": [],
+    "digital_outputs": [],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "package_arbitration": [
+      {
+        "id": "pkgarb_pump_skid_supervisor_arbitration_1",
+        "package_instance_id": "pump_skid_supervisor_arbitration_1",
+        "title": "PumpSkidSupervisorArbitration v1",
+        "ownership_lanes": [
+          {
+            "id": "auto_owner",
+            "title": "Auto Owner",
+            "lane": "auto",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__auto_owner_1",
+                "port_id": "authority_out"
+              }
+            ],
+            "summary": "Automatic ownership lane is active."
+          },
+          {
+            "id": "manual_owner",
+            "title": "Manual Owner",
+            "lane": "manual",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__manual_owner_1",
+                "port_id": "authority_out"
+              }
+            ],
+            "summary": "Manual ownership lane is available but not active."
+          },
+          {
+            "id": "remote_owner",
+            "title": "Remote Owner",
+            "lane": "remote",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__remote_owner_1",
+                "port_id": "authority_out"
+              }
+            ],
+            "summary": "Remote ownership lane is available but denied for reset."
+          },
+          {
+            "id": "service_owner",
+            "title": "Service Owner",
+            "lane": "service",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__service_owner_1",
+                "port_id": "authority_out"
+              }
+            ],
+            "summary": "Service ownership lane is available for maintenance use."
+          }
+        ],
+        "ownership_summary": {
+          "id": "ownership_summary",
+          "title": "Ownership Summary",
+          "active_lane_ids": [
+            "auto_owner"
+          ],
+          "summary": "Automatic ownership is currently active."
+        },
+        "command_lanes": [
+          {
+            "id": "disable_service",
+            "title": "Disable In Service",
+            "request_kind": "request_disable",
+            "ownership_lane_id": "service_owner",
+            "ownership_lane": "service",
+            "target_instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+            "arbitration_result": "blocked",
+            "summary": "Service disable is blocked until the maintenance window opens.",
+            "request_preview": "request_disable -> disable_request_1",
+            "blocked_reason": "service_window_closed"
+          },
+          {
+            "id": "reset_remote",
+            "title": "Reset From Remote",
+            "request_kind": "request_reset",
+            "ownership_lane_id": "remote_owner",
+            "ownership_lane": "remote",
+            "target_instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+            "arbitration_result": "denied",
+            "summary": "Remote reset is denied because automatic ownership has authority.",
+            "request_preview": "request_reset -> disable_request_1",
+            "denied_reason": "auto_owner_active"
+          },
+          {
+            "id": "start_auto",
+            "title": "Start In Auto",
+            "request_kind": "request_start",
+            "ownership_lane_id": "auto_owner",
+            "ownership_lane": "auto",
+            "target_instance_id": "pump_skid_supervisor_arbitration_1__start_request_1",
+            "arbitration_result": "accepted",
+            "summary": "Automatic start request is accepted.",
+            "request_preview": "request_start -> start_request_1"
+          },
+          {
+            "id": "stop_manual",
+            "title": "Stop In Manual",
+            "request_kind": "request_stop",
+            "ownership_lane_id": "manual_owner",
+            "ownership_lane": "manual",
+            "target_instance_id": "pump_skid_supervisor_arbitration_1__start_request_1",
+            "arbitration_result": "superseded",
+            "summary": "Manual stop is superseded by the accepted auto start request.",
+            "request_preview": "request_stop -> start_request_1",
+            "superseded_by_lane_id": "start_auto"
+          }
+        ],
+        "command_summary": {
+          "id": "command_summary",
+          "title": "Command Summary",
+          "active_owner_lane_ids": [
+            "auto_owner"
+          ],
+          "accepted_lane_ids": [
+            "start_auto"
+          ],
+          "blocked_lane_ids": [
+            "disable_service"
+          ],
+          "denied_lane_ids": [
+            "reset_remote"
+          ],
+          "superseded_lane_ids": [
+            "stop_manual"
+          ],
+          "summary": "Automatic ownership remains active while blocked, denied, and superseded command outcomes stay explicit."
+        },
+        "summary_outputs": [
+          {
+            "id": "command_blocked",
+            "value_type": "bool",
+            "source": {
+              "instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+              "port_id": "blocked_out"
+            }
+          },
+          {
+            "id": "command_ready",
+            "value_type": "bool",
+            "source": {
+              "instance_id": "pump_skid_supervisor_arbitration_1__start_request_1",
+              "port_id": "ready_out"
+            }
+          }
+        ],
+        "aggregate_monitors": [
+          {
+            "id": "arbitration_health",
+            "kind": "boolean_health_rollup",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__auto_owner_1",
+                "port_id": "authority_out"
+              },
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__start_request_1",
+                "port_id": "ready_out"
+              },
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+                "port_id": "blocked_out"
+              }
+            ]
+          }
+        ],
+        "trace_groups": [
+          {
+            "id": "arbitration_trace",
+            "signals": [
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__auto_owner_1",
+                "port_id": "authority_out"
+              },
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+                "port_id": "blocked_out"
+              },
+              {
+                "instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+                "port_id": "denied_out"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "diagnostics": []
+}

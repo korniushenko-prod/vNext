@@ -1,0 +1,230 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "package_supervision_valid",
+    "title": "Package Supervision Valid"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "pid_controller": {
+        "id": "pid_controller",
+        "kind": "object_type",
+        "meta": { "title": "PID Controller", "origin": "project" },
+        "interface": {
+          "ports": {
+            "loop_in_auto": { "id": "loop_in_auto", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "package_ok": { "id": "package_ok", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "facets": {
+          "operations": {
+            "operations": {
+              "autotune": { "id": "autotune", "kind": "autotune", "title": "PID Autotune" }
+            }
+          }
+        },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      },
+      "pulse_flowmeter": {
+        "id": "pulse_flowmeter",
+        "kind": "object_type",
+        "meta": { "title": "Pulse Flowmeter", "origin": "project" },
+        "interface": {
+          "ports": {
+            "flow_ok": { "id": "flow_ok", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "facets": {
+          "operations": {
+            "operations": {
+              "reset_totalizer": { "id": "reset_totalizer", "kind": "reset_totalizer", "title": "Reset Totalizer" }
+            }
+          }
+        },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      },
+      "run_hours_counter": {
+        "id": "run_hours_counter",
+        "kind": "object_type",
+        "meta": { "title": "Run Hours Counter", "origin": "project" },
+        "interface": {
+          "ports": {
+            "runtime_total": { "id": "runtime_total", "direction": "out", "channel_kind": "telemetry", "value_type": "float" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "facets": {
+          "operations": {
+            "operations": {
+              "reset_counter": { "id": "reset_counter", "kind": "reset_counter", "title": "Reset Counter" }
+            }
+          }
+        },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      },
+      "maintenance_counter": {
+        "id": "maintenance_counter",
+        "kind": "object_type",
+        "meta": { "title": "Maintenance Counter", "origin": "project" },
+        "interface": {
+          "ports": {
+            "maintenance_due": { "id": "maintenance_due", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "alarm_present": { "id": "alarm_present", "direction": "out", "channel_kind": "alarm", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "facets": {
+          "operations": {
+            "operations": {
+              "reset_interval": { "id": "reset_interval", "kind": "reset_interval", "title": "Reset Interval" }
+            }
+          }
+        },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      },
+      "threshold_monitor": {
+        "id": "threshold_monitor",
+        "kind": "object_type",
+        "meta": { "title": "Threshold Monitor", "origin": "project" },
+        "interface": {
+          "ports": {
+            "package_ok": { "id": "package_ok", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "boiler_supervisor": {
+        "id": "boiler_supervisor",
+        "kind": "package_definition",
+        "meta": {
+          "title": "Boiler Supervisor",
+          "origin": "project",
+          "package_kind": "boiler_supervisor_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "pid_1": { "id": "pid_1", "kind": "package_member", "type_ref": "pid_controller" },
+          "flowmeter_1": { "id": "flowmeter_1", "kind": "package_member", "type_ref": "pulse_flowmeter" },
+          "run_hours_1": { "id": "run_hours_1", "kind": "package_member", "type_ref": "run_hours_counter" },
+          "maintenance_counter_1": { "id": "maintenance_counter_1", "kind": "package_member", "type_ref": "maintenance_counter" },
+          "threshold_monitor_1": { "id": "threshold_monitor_1", "kind": "package_member", "type_ref": "threshold_monitor" }
+        },
+        "signals": {},
+        "supervision": {
+          "summary_outputs": {
+            "package_ok": {
+              "id": "package_ok",
+              "value_type": "bool",
+              "source": { "member_id": "threshold_monitor_1", "port_id": "package_ok" }
+            },
+            "alarm_present": {
+              "id": "alarm_present",
+              "value_type": "bool",
+              "source": { "member_id": "maintenance_counter_1", "port_id": "alarm_present" }
+            },
+            "maintenance_due": {
+              "id": "maintenance_due",
+              "value_type": "bool",
+              "source": { "member_id": "maintenance_counter_1", "port_id": "maintenance_due" }
+            },
+            "loop_in_auto": {
+              "id": "loop_in_auto",
+              "value_type": "bool",
+              "source": { "member_id": "pid_1", "port_id": "loop_in_auto" }
+            },
+            "flow_ok": {
+              "id": "flow_ok",
+              "value_type": "bool",
+              "source": { "member_id": "flowmeter_1", "port_id": "flow_ok" }
+            },
+            "runtime_total": {
+              "id": "runtime_total",
+              "value_type": "float",
+              "source": { "member_id": "run_hours_1", "port_id": "runtime_total" }
+            }
+          },
+          "aggregate_monitors": {
+            "health_rollup": {
+              "id": "health_rollup",
+              "kind": "boolean_health_rollup",
+              "source_ports": [
+                { "member_id": "threshold_monitor_1", "port_id": "package_ok" },
+                { "member_id": "flowmeter_1", "port_id": "flow_ok" }
+              ]
+            }
+          },
+          "aggregate_alarms": {
+            "alarm_rollup": {
+              "id": "alarm_rollup",
+              "severity": "warning",
+              "source_ports": [
+                { "member_id": "maintenance_counter_1", "port_id": "alarm_present" }
+              ]
+            }
+          },
+          "trace_groups": {
+            "process_summary": {
+              "id": "process_summary",
+              "signals": [
+                { "member_id": "run_hours_1", "port_id": "runtime_total" },
+                { "member_id": "flowmeter_1", "port_id": "flow_ok" }
+              ]
+            }
+          },
+          "operation_proxies": {
+            "reset_runtime_counter": {
+              "id": "reset_runtime_counter",
+              "target_member_id": "run_hours_1",
+              "target_operation_id": "reset_counter",
+              "child_operation_kind": "reset_counter"
+            },
+            "pid_autotune": {
+              "id": "pid_autotune",
+              "target_member_id": "pid_1",
+              "target_operation_id": "autotune",
+              "child_operation_kind": "autotune"
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_supervisor_1": {
+        "id": "boiler_supervisor_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor"
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

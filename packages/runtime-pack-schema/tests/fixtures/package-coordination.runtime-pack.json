@@ -1,0 +1,90 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "package-coordination-pack",
+  "source": {
+    "project_id": "package_coordination_valid",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {},
+  "connections": {},
+  "resources": {},
+  "operations": {
+    "op_boiler_coordination_1__pump_group_1_start_supervision": {
+      "id": "op_boiler_coordination_1__pump_group_1_start_supervision",
+      "owner_instance_id": "boiler_coordination_1__pump_group_1",
+      "kind": "start_supervision"
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": true,
+    "cancel_supported": true,
+    "progress_supported": true,
+    "result_supported": true,
+    "audit_required": true
+  },
+  "package_coordination": {
+    "pkg_boiler_coordination_1": {
+      "id": "pkg_boiler_coordination_1",
+      "package_instance_id": "boiler_coordination_1",
+      "title": "Boiler Supervisor Coordination",
+      "package_state": {
+        "id": "package_state",
+        "title": "Package State",
+        "default_state": "standby",
+        "states": {
+          "standby": {
+            "id": "standby",
+            "state": "standby",
+            "source_ports": [
+              { "instance_id": "boiler_coordination_1__pid_1", "port_id": "in_auto" }
+            ]
+          },
+          "ready": {
+            "id": "ready",
+            "state": "ready",
+            "source_ports": [
+              { "instance_id": "boiler_coordination_1__pump_group_1", "port_id": "ready_out" }
+            ]
+          }
+        }
+      },
+      "summary_outputs": {
+        "ready_summary": {
+          "id": "ready_summary",
+          "value_type": "bool",
+          "source": { "instance_id": "boiler_coordination_1__pump_group_1", "port_id": "ready_out" }
+        }
+      },
+      "aggregate_monitors": {
+        "coordination_health": {
+          "id": "coordination_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            { "instance_id": "boiler_coordination_1__pump_group_1", "port_id": "ready_out" }
+          ]
+        }
+      },
+      "trace_groups": {
+        "coordination_trace": {
+          "id": "coordination_trace",
+          "signals": [
+            { "instance_id": "boiler_coordination_1__pump_group_1", "port_id": "ready_out" }
+          ]
+        }
+      },
+      "operation_proxies": {
+        "start_supervision": {
+          "id": "start_supervision",
+          "kind": "start_supervision",
+          "target_operation_id": "op_boiler_coordination_1__pump_group_1_start_supervision",
+          "target_owner_instance_id": "boiler_coordination_1__pump_group_1",
+          "child_operation_kind": "start_supervision"
+        }
+      }
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

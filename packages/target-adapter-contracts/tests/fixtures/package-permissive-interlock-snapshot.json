@@ -1,0 +1,40 @@
+{
+  "request_id": "readback-002",
+  "target_id": "esp32.shipcontroller.v1",
+  "collected_at": "2026-03-30T12:00:00Z",
+  "signals": {},
+  "resources": {},
+  "package_permissive_interlock_snapshots": {
+    "boiler_supervisor_interlocks_1": {
+      "package_instance_id": "boiler_supervisor_interlocks_1",
+      "state": "blocked",
+      "gate_summary": {
+        "state": "blocked",
+        "ready": false,
+        "blocked_reason_ids": ["feedwater_ok"],
+        "transition_guard_ids": ["allow_auto_run"]
+      },
+      "permissive_states": {
+        "feedwater_ok": {
+          "state": "blocked",
+          "reason_code": "feedwater_missing",
+          "summary": "Feedwater permissive is currently false."
+        }
+      },
+      "interlock_states": {
+        "package_faulted": {
+          "state": "ready",
+          "reason_code": "package_faulted"
+        }
+      },
+      "transition_guard_states": {
+        "allow_auto_run": {
+          "state": "blocked",
+          "blocked_by_ids": ["feedwater_ok"],
+          "summary": "Auto run transition is blocked by feedwater permissive."
+        }
+      }
+    }
+  },
+  "diagnostics": []
+}

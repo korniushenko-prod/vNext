@@ -1,0 +1,21 @@
+{
+  "request_id": "readback-009",
+  "target_id": "esp32.shipcontroller.v1",
+  "collected_at": "2026-03-30T12:00:00Z",
+  "signals": {},
+  "resources": {},
+  "operation_snapshots": {
+    "op_pid_1_autotune": {
+      "operation_id": "op_pid_1_autotune",
+      "state": "running",
+      "progress": 57,
+      "progress_payload": {
+        "phase": "relay_identification",
+        "sample_count": 21
+      },
+      "recommendation_state": "pending_apply",
+      "message": "Autotune is collecting the final relay response segment."
+    }
+  },
+  "diagnostics": []
+}

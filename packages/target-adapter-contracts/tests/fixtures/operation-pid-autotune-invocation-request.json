@@ -1,0 +1,8 @@
+{
+  "operation_id": "op_pid_1_autotune",
+  "action": "apply_recommendation",
+  "confirmation_token": "confirm-apply-001",
+  "inputs": {
+    "recommendation_id": "rec-001"
+  }
+}

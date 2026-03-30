@@ -307,6 +307,16 @@
           "confirmation_policy": "optional",
           "progress_signals": ["in_auto"],
           "result_fields": ["completed"]
+        },
+        "autotune": {
+          "id": "autotune",
+          "kind": "autotune",
+          "title": "Autotune",
+          "ui_hint": "primary",
+          "safe_when": ["enabled", "manual_mode"],
+          "confirmation_policy": "required",
+          "progress_signals": ["loop_ok", "in_auto", "saturated"],
+          "result_fields": ["completed", "recommended_kp", "recommended_ti", "recommended_td", "summary"]
         }
       }
     },

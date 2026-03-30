@@ -1,0 +1,59 @@
+{
+  "request_id": "readback_pkg_arbitration_1",
+  "target_id": "esp32-demo-1",
+  "collected_at": "2026-03-30T23:58:00Z",
+  "signals": {},
+  "resources": {},
+  "package_arbitration_snapshots": {
+    "boiler_supervisor_arbitration_1": {
+      "package_instance_id": "boiler_supervisor_arbitration_1",
+      "state": "blocked",
+      "ownership_summary": {
+        "active_lane_ids": ["manual_owner"],
+        "summary": "Manual ownership remains active."
+      },
+      "command_summary": {
+        "active_owner_lane_ids": ["manual_owner"],
+        "accepted_lane_ids": ["enable_auto"],
+        "blocked_lane_ids": ["reset_service"],
+        "denied_lane_ids": ["disable_remote"],
+        "superseded_lane_ids": ["start_service"],
+        "summary": "Accepted, blocked, denied, and superseded command lanes remain explicit."
+      },
+      "command_lane_states": {
+        "enable_auto": {
+          "request_kind": "request_enable",
+          "ownership_lane": "auto",
+          "arbitration_result": "accepted",
+          "request_preview": "request_enable -> enable_request_1",
+          "summary": "Enable request is accepted for the automatic lane."
+        },
+        "reset_service": {
+          "request_kind": "request_reset",
+          "ownership_lane": "service",
+          "arbitration_result": "blocked",
+          "blocked_reason": "service_lockout",
+          "request_preview": "request_reset -> reset_request_1",
+          "summary": "Reset request is blocked while manual ownership stays active."
+        },
+        "disable_remote": {
+          "request_kind": "request_disable",
+          "ownership_lane": "remote",
+          "arbitration_result": "denied",
+          "denied_reason": "manual_owner_active",
+          "request_preview": "request_disable -> enable_request_1",
+          "summary": "Remote disable is denied because manual ownership has authority."
+        },
+        "start_service": {
+          "request_kind": "request_start",
+          "ownership_lane": "service",
+          "arbitration_result": "superseded",
+          "superseded_by_lane_id": "enable_auto",
+          "request_preview": "request_start -> enable_request_1",
+          "summary": "Service start is superseded by the accepted auto enable request."
+        }
+      }
+    }
+  },
+  "diagnostics": []
+}

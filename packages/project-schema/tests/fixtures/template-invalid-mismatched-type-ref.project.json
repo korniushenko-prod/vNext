@@ -1,0 +1,54 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "template_invalid_mismatched_type_ref",
+    "title": "Template Invalid Mismatched Type Ref"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "templates": {
+      "timed_relay_service_preset": {
+        "id": "timed_relay_service_preset",
+        "kind": "object_template",
+        "base_type_ref": "library:std/timed_relay",
+        "origin": "library_template",
+        "meta": {
+          "title": "Timed Relay Service Preset"
+        },
+        "defaults": {
+          "param_values": {
+            "pulse_time_ms": {
+              "kind": "literal",
+              "value": 7500
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "flowmeter_1": {
+        "id": "flowmeter_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/pulse_flowmeter",
+        "template_ref": "timed_relay_service_preset"
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

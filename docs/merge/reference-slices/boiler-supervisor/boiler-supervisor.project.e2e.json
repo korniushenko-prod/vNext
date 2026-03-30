@@ -1,0 +1,2006 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_package_skeleton_demo",
+    "title": "Boiler Package Skeleton Demo"
+  },
+  "imports": {
+    "libraries": [
+      "std"
+    ],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "pid_controller": {
+        "id": "pid_controller",
+        "kind": "object_type",
+        "meta": {
+          "title": "PID Controller",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std",
+          "description": "Canonical PID v1 control loop with manual/auto modes, bounded output, monitors, traces and maintenance operations."
+        },
+        "interface": {
+          "ports": {
+            "pv": {
+              "id": "pv",
+              "title": "Process Value",
+              "direction": "in",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "sp": {
+              "id": "sp",
+              "title": "Setpoint",
+              "direction": "in",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "enable_cmd": {
+              "id": "enable_cmd",
+              "title": "Enable Command",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "bool"
+            },
+            "mode_cmd": {
+              "id": "mode_cmd",
+              "title": "Mode Command",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "string"
+            },
+            "manual_mv": {
+              "id": "manual_mv",
+              "title": "Manual Output",
+              "direction": "in",
+              "channel_kind": "command",
+              "value_type": "float"
+            },
+            "mv_out": {
+              "id": "mv_out",
+              "title": "Manipulated Variable Output",
+              "direction": "out",
+              "channel_kind": "command",
+              "value_type": "float"
+            },
+            "loop_ok": {
+              "id": "loop_ok",
+              "title": "Loop OK",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "in_auto": {
+              "id": "in_auto",
+              "title": "In Auto",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "saturated": {
+              "id": "saturated",
+              "title": "Output Saturated",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "kp": {
+              "id": "kp",
+              "title": "Proportional Gain",
+              "description": "Proportional gain for the control loop.",
+              "value_type": "float",
+              "default": 1,
+              "min": 0,
+              "max": 1000000,
+              "step": 0.01,
+              "group": "tuning",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "ti": {
+              "id": "ti",
+              "title": "Integral Time",
+              "description": "Integral time constant.",
+              "value_type": "float",
+              "default": 10,
+              "unit": "s",
+              "min": 0,
+              "max": 1000000,
+              "step": 0.01,
+              "group": "tuning",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "td": {
+              "id": "td",
+              "title": "Derivative Time",
+              "description": "Derivative time constant.",
+              "value_type": "float",
+              "default": 0,
+              "unit": "s",
+              "min": 0,
+              "max": 1000000,
+              "step": 0.01,
+              "group": "tuning",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "sample_time_ms": {
+              "id": "sample_time_ms",
+              "title": "Sample Time",
+              "description": "Loop execution sample period.",
+              "value_type": "u32",
+              "default": 100,
+              "unit": "ms",
+              "min": 1,
+              "max": 60000,
+              "step": 1,
+              "group": "timing",
+              "ui_hint": "duration_ms",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "output_min": {
+              "id": "output_min",
+              "title": "Output Minimum",
+              "description": "Minimum output clamp.",
+              "value_type": "float",
+              "default": 0,
+              "unit": "percent",
+              "min": -1000000,
+              "max": 1000000,
+              "step": 0.01,
+              "group": "limits",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "output_max": {
+              "id": "output_max",
+              "title": "Output Maximum",
+              "description": "Maximum output clamp.",
+              "value_type": "float",
+              "default": 100,
+              "unit": "percent",
+              "min": -1000000,
+              "max": 1000000,
+              "step": 0.01,
+              "group": "limits",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "direction": {
+              "id": "direction",
+              "title": "Control Direction",
+              "description": "Direct or reverse acting loop.",
+              "value_type": "string",
+              "default": "reverse",
+              "group": "tuning",
+              "ui_hint": "enum",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "pv_filter_tau_ms": {
+              "id": "pv_filter_tau_ms",
+              "title": "PV Filter Tau",
+              "description": "Optional first-order PV filter time constant.",
+              "value_type": "u32",
+              "default": 0,
+              "unit": "ms",
+              "min": 0,
+              "max": 60000,
+              "step": 1,
+              "group": "filtering",
+              "ui_hint": "duration_ms",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "deadband": {
+              "id": "deadband",
+              "title": "Deadband",
+              "description": "Error deadband around setpoint.",
+              "value_type": "float",
+              "default": 0,
+              "unit": "engineering_units",
+              "min": 0,
+              "max": 1000000,
+              "step": 0.001,
+              "group": "tuning",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.pid_controller.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.pid_controller.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {
+              "pv_source": {
+                "id": "pv_source",
+                "kind": "process_value_input",
+                "title": "PV Source",
+                "source_ports": [
+                  "pv"
+                ],
+                "binding_kind": "analog_in",
+                "channel_kind": "telemetry",
+                "value_type": "float",
+                "required": true
+              },
+              "mv_output": {
+                "id": "mv_output",
+                "kind": "control_output",
+                "title": "MV Output",
+                "source_ports": [
+                  "mv_out"
+                ],
+                "binding_kind": "analog_out",
+                "channel_kind": "command",
+                "value_type": "float",
+                "required": true
+              }
+            }
+          },
+          "operations": {
+            "operations": {
+              "reset_integral": {
+                "id": "reset_integral",
+                "kind": "reset_integral",
+                "title": "Reset Integral",
+                "ui_hint": "secondary",
+                "safe_when": [
+                  "enabled",
+                  "manual_mode"
+                ],
+                "confirmation_policy": "optional",
+                "progress_signals": [
+                  "loop_ok"
+                ],
+                "result_fields": [
+                  "completed"
+                ]
+              },
+              "hold": {
+                "id": "hold",
+                "kind": "hold",
+                "title": "Hold Output",
+                "ui_hint": "secondary",
+                "safe_when": [
+                  "enabled"
+                ],
+                "confirmation_policy": "optional",
+                "progress_signals": [
+                  "in_auto"
+                ],
+                "result_fields": [
+                  "completed"
+                ]
+              },
+              "release": {
+                "id": "release",
+                "kind": "release",
+                "title": "Release Hold",
+                "ui_hint": "primary",
+                "safe_when": [
+                  "enabled"
+                ],
+                "confirmation_policy": "optional",
+                "progress_signals": [
+                  "in_auto"
+                ],
+                "result_fields": [
+                  "completed"
+                ]
+              },
+              "autotune": {
+                "id": "autotune",
+                "kind": "autotune",
+                "title": "Autotune",
+                "ui_hint": "primary",
+                "safe_when": [
+                  "enabled",
+                  "manual_mode"
+                ],
+                "confirmation_policy": "required",
+                "progress_signals": [
+                  "loop_ok",
+                  "in_auto",
+                  "saturated"
+                ],
+                "result_fields": [
+                  "completed",
+                  "recommended_kp",
+                  "recommended_ti",
+                  "recommended_td",
+                  "summary"
+                ]
+              }
+            }
+          },
+          "monitoring": {
+            "monitors": {
+              "pv_stale": {
+                "id": "pv_stale",
+                "kind": "stale",
+                "title": "PV Stale",
+                "source_ports": [
+                  "pv"
+                ],
+                "severity": "warning",
+                "status_port_id": "loop_ok"
+              },
+              "output_saturated": {
+                "id": "output_saturated",
+                "kind": "threshold",
+                "title": "Output Saturated",
+                "source_ports": [
+                  "mv_out"
+                ],
+                "severity": "info",
+                "status_port_id": "saturated"
+              },
+              "manual_override_active": {
+                "id": "manual_override_active",
+                "kind": "state",
+                "title": "Manual Override Active",
+                "source_ports": [
+                  "in_auto"
+                ],
+                "severity": "info",
+                "status_port_id": "in_auto"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "control_loop": {
+                "title": "Control Loop",
+                "signals": [
+                  "pv",
+                  "sp",
+                  "mv_out",
+                  "error"
+                ],
+                "sample_hint_ms": 250,
+                "chart_hint": "line"
+              },
+              "mode": {
+                "title": "Mode",
+                "signals": [
+                  "enable_cmd",
+                  "in_auto",
+                  "saturated"
+                ],
+                "sample_hint_ms": 250,
+                "chart_hint": "timeline"
+              }
+            }
+          },
+          "persistence": {
+            "slots": {
+              "kp": {
+                "id": "kp",
+                "slot_kind": "config",
+                "title": "Kp",
+                "owner_param_id": "kp",
+                "nv_slot_hint": "nv.pid.kp",
+                "flush_policy": "on_change"
+              },
+              "ti": {
+                "id": "ti",
+                "slot_kind": "config",
+                "title": "Ti",
+                "owner_param_id": "ti",
+                "nv_slot_hint": "nv.pid.ti",
+                "flush_policy": "on_change"
+              },
+              "td": {
+                "id": "td",
+                "slot_kind": "config",
+                "title": "Td",
+                "owner_param_id": "td",
+                "nv_slot_hint": "nv.pid.td",
+                "flush_policy": "on_change"
+              }
+            }
+          },
+          "templates": {
+            "presets": {
+              "fast_loop": {
+                "id": "fast_loop",
+                "title": "Fast Loop",
+                "description": "Preset for responsive low-lag processes.",
+                "defaults": {
+                  "kp": 2,
+                  "ti": 2.5,
+                  "td": 0.1,
+                  "sample_time_ms": 50,
+                  "pv_filter_tau_ms": 25
+                }
+              },
+              "slow_process": {
+                "id": "slow_process",
+                "title": "Slow Process",
+                "description": "Preset for lag-dominant loops.",
+                "defaults": {
+                  "kp": 0.8,
+                  "ti": 30,
+                  "td": 0,
+                  "sample_time_ms": 500,
+                  "pv_filter_tau_ms": 250
+                }
+              },
+              "temperature_loop": {
+                "id": "temperature_loop",
+                "title": "Temperature Loop",
+                "description": "Preset for thermal processes with moderate inertia.",
+                "defaults": {
+                  "kp": 1.2,
+                  "ti": 20,
+                  "td": 2,
+                  "sample_time_ms": 250,
+                  "pv_filter_tau_ms": 500
+                }
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      },
+      "pulse_flowmeter": {
+        "id": "pulse_flowmeter",
+        "kind": "object_type",
+        "meta": {
+          "title": "Pulse Flowmeter",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std",
+          "description": "Universal pulse-driven flowmeter with hall, analog-threshold, and remote pulse modes."
+        },
+        "interface": {
+          "ports": {
+            "pulse_in": {
+              "id": "pulse_in",
+              "direction": "in",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            },
+            "analog_source": {
+              "id": "analog_source",
+              "direction": "in",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "remote_pulse": {
+              "id": "remote_pulse",
+              "direction": "in",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            },
+            "flow_rate": {
+              "id": "flow_rate",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "total_volume": {
+              "id": "total_volume",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "source_ok": {
+              "id": "source_ok",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "pulse_seen": {
+              "id": "pulse_seen",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "sensor_mode": {
+              "id": "sensor_mode",
+              "value_type": "string",
+              "default": "hall_pulse",
+              "group": "source",
+              "ui_hint": "enum",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "k_factor": {
+              "id": "k_factor",
+              "value_type": "float",
+              "default": 1,
+              "unit": "pulses_per_unit",
+              "min": 0.0001,
+              "max": 1000000,
+              "step": 0.0001,
+              "group": "calibration",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.pulse_flowmeter.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.pulse_flowmeter.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {
+              "hall_pulse_source": {
+                "id": "hall_pulse_source",
+                "kind": "pulse_input",
+                "mode": "hall_pulse",
+                "source_ports": [
+                  "pulse_in"
+                ],
+                "binding_kind": "digital_in",
+                "channel_kind": "signal",
+                "value_type": "bool",
+                "required": false
+              },
+              "analog_threshold_source": {
+                "id": "analog_threshold_source",
+                "kind": "analog_threshold_input",
+                "mode": "analog_threshold_pulse",
+                "source_ports": [
+                  "analog_source"
+                ],
+                "binding_kind": "analog_in",
+                "channel_kind": "telemetry",
+                "value_type": "float",
+                "required": false
+              },
+              "remote_pulse_source": {
+                "id": "remote_pulse_source",
+                "kind": "remote_point",
+                "mode": "remote_pulse",
+                "source_ports": [
+                  "remote_pulse"
+                ],
+                "binding_kind": "service",
+                "channel_kind": "signal",
+                "value_type": "bool",
+                "required": false
+              }
+            }
+          },
+          "operations": {
+            "operations": {
+              "reset_totalizer": {
+                "id": "reset_totalizer",
+                "kind": "reset_totalizer",
+                "title": "Reset Totalizer",
+                "ui_hint": "danger",
+                "safe_when": [
+                  "stopped"
+                ],
+                "confirmation_policy": "required",
+                "progress_signals": [
+                  "source_ok"
+                ],
+                "result_fields": [
+                  "completed",
+                  "total_volume"
+                ]
+              }
+            }
+          },
+          "monitoring": {
+            "monitors": {
+              "no_pulse_timeout": {
+                "id": "no_pulse_timeout",
+                "kind": "timeout",
+                "source_ports": [
+                  "pulse_in",
+                  "analog_source",
+                  "remote_pulse"
+                ],
+                "severity": "warning",
+                "status_port_id": "source_ok"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "process": {
+                "title": "Process",
+                "signals": [
+                  "flow_rate",
+                  "total_volume",
+                  "pulse_seen",
+                  "source_ok"
+                ],
+                "sample_hint_ms": 500,
+                "chart_hint": "line"
+              }
+            }
+          },
+          "persistence": {
+            "slots": {
+              "totalizer": {
+                "id": "totalizer",
+                "slot_kind": "counter",
+                "nv_slot_hint": "nv.totalizer",
+                "flush_policy": "periodic"
+              }
+            }
+          },
+          "templates": {
+            "presets": {
+              "hall_sensor_preset": {
+                "id": "hall_sensor_preset",
+                "defaults": {
+                  "sensor_mode": "hall_pulse"
+                }
+              },
+              "analog_threshold_preset": {
+                "id": "analog_threshold_preset",
+                "defaults": {
+                  "sensor_mode": "analog_threshold_pulse"
+                }
+              },
+              "remote_pulse_preset": {
+                "id": "remote_pulse_preset",
+                "defaults": {
+                  "sensor_mode": "remote_pulse"
+                }
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      },
+      "run_hours_counter": {
+        "id": "run_hours_counter",
+        "kind": "object_type",
+        "meta": {
+          "title": "Run Hours Counter",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std",
+          "description": "Accumulates machine runtime from a normalized active signal and exposes service-ready totals."
+        },
+        "interface": {
+          "ports": {
+            "active_in": {
+              "id": "active_in",
+              "title": "Active Input",
+              "direction": "in",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            },
+            "running_out": {
+              "id": "running_out",
+              "title": "Running",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "total_hours": {
+              "id": "total_hours",
+              "title": "Total Hours",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "total_seconds": {
+              "id": "total_seconds",
+              "title": "Total Seconds",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "u32"
+            },
+            "source_ok": {
+              "id": "source_ok",
+              "title": "Source OK",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "persist_enabled": {
+              "id": "persist_enabled",
+              "title": "Persist Enabled",
+              "description": "Stores accumulated runtime in non-volatile storage.",
+              "value_type": "bool",
+              "default": true,
+              "group": "persistence",
+              "ui_hint": "toggle",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "persist_period_s": {
+              "id": "persist_period_s",
+              "title": "Persist Period",
+              "description": "How often accumulated runtime is flushed when persistence is enabled.",
+              "value_type": "u32",
+              "default": 60,
+              "unit": "s",
+              "min": 1,
+              "max": 86400,
+              "step": 1,
+              "group": "persistence",
+              "ui_hint": "duration_s",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "rounding_mode": {
+              "id": "rounding_mode",
+              "title": "Rounding Mode",
+              "description": "Controls how service-facing hour totals are rounded.",
+              "value_type": "string",
+              "default": "tenths",
+              "group": "calculation",
+              "ui_hint": "enum",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "min_active_time_ms": {
+              "id": "min_active_time_ms",
+              "title": "Min Active Time",
+              "description": "Shorter active pulses are ignored as noise.",
+              "value_type": "u32",
+              "default": 1000,
+              "unit": "ms",
+              "min": 0,
+              "max": 60000,
+              "step": 10,
+              "group": "calculation",
+              "ui_hint": "duration_ms",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.run_hours_counter.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.run_hours_counter.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {
+              "activity_source": {
+                "id": "activity_source",
+                "kind": "activity_input",
+                "title": "Activity Source",
+                "source_ports": [
+                  "active_in"
+                ],
+                "binding_kind": "digital_in",
+                "channel_kind": "signal",
+                "value_type": "bool",
+                "required": true
+              }
+            }
+          },
+          "operations": {
+            "operations": {
+              "reset_counter": {
+                "id": "reset_counter",
+                "kind": "reset_counter",
+                "title": "Reset Counter",
+                "ui_hint": "danger",
+                "safe_when": [
+                  "stopped"
+                ],
+                "confirmation_policy": "required",
+                "progress_signals": [
+                  "source_ok"
+                ],
+                "result_fields": [
+                  "completed",
+                  "total_hours",
+                  "total_seconds"
+                ]
+              }
+            }
+          },
+          "monitoring": {
+            "monitors": {
+              "stale_source": {
+                "id": "stale_source",
+                "kind": "stale",
+                "title": "Stale Source",
+                "source_ports": [
+                  "active_in"
+                ],
+                "severity": "warning",
+                "status_port_id": "source_ok"
+              },
+              "unexpected_toggle_rate": {
+                "id": "unexpected_toggle_rate",
+                "kind": "rate",
+                "title": "Unexpected Toggle Rate",
+                "source_ports": [
+                  "active_in"
+                ],
+                "severity": "info",
+                "status_port_id": "running_out"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "runtime": {
+                "title": "Runtime",
+                "signals": [
+                  "active_in",
+                  "running_out",
+                  "total_hours"
+                ],
+                "sample_hint_ms": 1000,
+                "chart_hint": "line"
+              }
+            }
+          },
+          "persistence": {
+            "slots": {
+              "total_runtime": {
+                "id": "total_runtime",
+                "slot_kind": "counter",
+                "title": "Total Runtime",
+                "nv_slot_hint": "nv.run_hours.total_runtime",
+                "flush_policy": "periodic"
+              }
+            }
+          },
+          "templates": {
+            "presets": {
+              "default_runtime_hours": {
+                "id": "default_runtime_hours",
+                "title": "Default Runtime Hours",
+                "defaults": {
+                  "persist_enabled": true,
+                  "persist_period_s": 60,
+                  "rounding_mode": "tenths",
+                  "min_active_time_ms": 1000
+                }
+              },
+              "maintenance_runtime": {
+                "id": "maintenance_runtime",
+                "title": "Maintenance Runtime",
+                "defaults": {
+                  "persist_enabled": true,
+                  "persist_period_s": 30,
+                  "rounding_mode": "whole_hours",
+                  "min_active_time_ms": 5000
+                }
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      },
+      "maintenance_counter": {
+        "id": "maintenance_counter",
+        "kind": "object_type",
+        "meta": {
+          "title": "Maintenance Counter",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std",
+          "description": "Evaluates accumulated usage against a service interval and exposes due and overdue maintenance states."
+        },
+        "interface": {
+          "ports": {
+            "usage_total_in": {
+              "id": "usage_total_in",
+              "title": "Usage Total Input",
+              "direction": "in",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "remaining_out": {
+              "id": "remaining_out",
+              "title": "Remaining Usage",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "due_out": {
+              "id": "due_out",
+              "title": "Due",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "overdue_out": {
+              "id": "overdue_out",
+              "title": "Overdue",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "progress_out": {
+              "id": "progress_out",
+              "title": "Progress",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "source_ok": {
+              "id": "source_ok",
+              "title": "Source OK",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "service_interval": {
+              "id": "service_interval",
+              "title": "Service Interval",
+              "description": "Usage amount between maintenance resets.",
+              "value_type": "float",
+              "default": 1000,
+              "unit": "usage_units",
+              "min": 0.0001,
+              "max": 1000000000,
+              "step": 0.1,
+              "group": "service",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "warning_before": {
+              "id": "warning_before",
+              "title": "Warning Before",
+              "description": "How much usage remains when the warning state becomes active.",
+              "value_type": "float",
+              "default": 100,
+              "unit": "usage_units",
+              "min": 0,
+              "max": 1000000000,
+              "step": 0.1,
+              "group": "service",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "overdue_margin": {
+              "id": "overdue_margin",
+              "title": "Overdue Margin",
+              "description": "Extra usage beyond the service interval before overdue becomes active.",
+              "value_type": "float",
+              "default": 0,
+              "unit": "usage_units",
+              "min": 0,
+              "max": 1000000000,
+              "step": 0.1,
+              "group": "service",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "persistent",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "auto_rollover": {
+              "id": "auto_rollover",
+              "title": "Auto Rollover",
+              "description": "Automatically starts the next interval after reset or completion.",
+              "value_type": "bool",
+              "default": false,
+              "group": "service",
+              "ui_hint": "toggle",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "persist_enabled": {
+              "id": "persist_enabled",
+              "title": "Persist Enabled",
+              "description": "Stores reset baseline and acknowledge state.",
+              "value_type": "bool",
+              "default": true,
+              "group": "persistence",
+              "ui_hint": "toggle",
+              "access_role": "engineer",
+              "live_edit_policy": "apply_on_restart",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.maintenance_counter.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.maintenance_counter.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {}
+          },
+          "operations": {
+            "operations": {
+              "acknowledge_due": {
+                "id": "acknowledge_due",
+                "kind": "acknowledge_due",
+                "title": "Acknowledge Due",
+                "ui_hint": "secondary",
+                "safe_when": [
+                  "due_active"
+                ],
+                "confirmation_policy": "optional",
+                "progress_signals": [
+                  "due_out",
+                  "overdue_out"
+                ],
+                "result_fields": [
+                  "completed",
+                  "acknowledged"
+                ]
+              },
+              "reset_interval": {
+                "id": "reset_interval",
+                "kind": "reset_interval",
+                "title": "Reset Interval",
+                "ui_hint": "danger",
+                "safe_when": [
+                  "service_allowed"
+                ],
+                "confirmation_policy": "required",
+                "progress_signals": [
+                  "remaining_out",
+                  "progress_out"
+                ],
+                "result_fields": [
+                  "completed",
+                  "remaining_out",
+                  "progress_out"
+                ]
+              }
+            }
+          },
+          "monitoring": {
+            "monitors": {
+              "stale_source": {
+                "id": "stale_source",
+                "kind": "stale",
+                "title": "Stale Source",
+                "source_ports": [
+                  "usage_total_in"
+                ],
+                "severity": "warning",
+                "status_port_id": "source_ok"
+              },
+              "interval_invalid": {
+                "id": "interval_invalid",
+                "kind": "invalid",
+                "title": "Interval Invalid",
+                "severity": "error",
+                "status_port_id": "due_out"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "maintenance": {
+                "title": "Maintenance",
+                "signals": [
+                  "usage_total_in",
+                  "remaining_out",
+                  "due_out",
+                  "overdue_out"
+                ],
+                "sample_hint_ms": 1000,
+                "chart_hint": "line"
+              }
+            }
+          },
+          "persistence": {
+            "slots": {
+              "reset_baseline": {
+                "id": "reset_baseline",
+                "slot_kind": "state",
+                "title": "Reset Baseline",
+                "nv_slot_hint": "nv.maintenance.reset_baseline",
+                "flush_policy": "on_change"
+              },
+              "acknowledge_state": {
+                "id": "acknowledge_state",
+                "slot_kind": "state",
+                "title": "Acknowledge State",
+                "nv_slot_hint": "nv.maintenance.acknowledge_state",
+                "flush_policy": "on_change"
+              }
+            }
+          },
+          "templates": {
+            "presets": {
+              "hours_based_service": {
+                "id": "hours_based_service",
+                "title": "Hours Based Service",
+                "defaults": {
+                  "service_interval": 500,
+                  "warning_before": 50,
+                  "overdue_margin": 0,
+                  "auto_rollover": false,
+                  "persist_enabled": true
+                }
+              },
+              "cycles_based_service": {
+                "id": "cycles_based_service",
+                "title": "Cycles Based Service",
+                "defaults": {
+                  "service_interval": 10000,
+                  "warning_before": 500,
+                  "overdue_margin": 0,
+                  "auto_rollover": false,
+                  "persist_enabled": true
+                }
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      },
+      "threshold_monitor": {
+        "id": "threshold_monitor",
+        "kind": "object_type",
+        "meta": {
+          "title": "Threshold Monitor",
+          "version": "1.0.0",
+          "origin": "library",
+          "library_id": "std",
+          "description": "Monitors a numeric value against high, low, or window limits with hysteresis and source timeout handling."
+        },
+        "interface": {
+          "ports": {
+            "value_in": {
+              "id": "value_in",
+              "title": "Value Input",
+              "direction": "in",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            },
+            "above_out": {
+              "id": "above_out",
+              "title": "Above Limit",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "below_out": {
+              "id": "below_out",
+              "title": "Below Limit",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "in_window_out": {
+              "id": "in_window_out",
+              "title": "In Window",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "alarm_active": {
+              "id": "alarm_active",
+              "title": "Alarm Active",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            },
+            "source_ok": {
+              "id": "source_ok",
+              "title": "Source OK",
+              "direction": "out",
+              "channel_kind": "state",
+              "value_type": "bool"
+            }
+          },
+          "params": {
+            "mode": {
+              "id": "mode",
+              "title": "Mode",
+              "description": "Selects high, low, or window evaluation.",
+              "value_type": "string",
+              "default": "high",
+              "group": "thresholds",
+              "ui_hint": "enum",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "threshold_a": {
+              "id": "threshold_a",
+              "title": "Threshold A",
+              "description": "Primary threshold or lower window edge.",
+              "value_type": "float",
+              "default": 0,
+              "unit": "engineering_units",
+              "min": -1000000,
+              "max": 1000000,
+              "step": 0.01,
+              "group": "thresholds",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "threshold_b": {
+              "id": "threshold_b",
+              "title": "Threshold B",
+              "description": "Secondary threshold or upper window edge.",
+              "value_type": "float",
+              "default": 100,
+              "unit": "engineering_units",
+              "min": -1000000,
+              "max": 1000000,
+              "step": 0.01,
+              "group": "thresholds",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "hysteresis": {
+              "id": "hysteresis",
+              "title": "Hysteresis",
+              "description": "Deadband applied around threshold transitions.",
+              "value_type": "float",
+              "default": 0.5,
+              "unit": "engineering_units",
+              "min": 0,
+              "max": 1000000,
+              "step": 0.01,
+              "group": "thresholds",
+              "ui_hint": "numeric",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            },
+            "latch_alarm": {
+              "id": "latch_alarm",
+              "title": "Latch Alarm",
+              "description": "Keeps alarm active until the latch is reset.",
+              "value_type": "bool",
+              "default": false,
+              "group": "alarming",
+              "ui_hint": "toggle",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "medium"
+            },
+            "timeout_ms": {
+              "id": "timeout_ms",
+              "title": "Source Timeout",
+              "description": "Timeout before source quality is considered stale.",
+              "value_type": "u32",
+              "default": 5000,
+              "unit": "ms",
+              "min": 0,
+              "max": 3600000,
+              "step": 100,
+              "group": "alarming",
+              "ui_hint": "duration_ms",
+              "access_role": "engineer",
+              "live_edit_policy": "immediate",
+              "persist_policy": "project",
+              "recipe_scope": "instance",
+              "danger_level": "low"
+            }
+          },
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "std.threshold_monitor.v1",
+            "target_kinds": [
+              "esp32.shipcontroller.v1"
+            ],
+            "config_template": "shipcontroller.threshold_monitor.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "facets": {
+          "frontends": {
+            "requirements": {
+              "value_source": {
+                "id": "value_source",
+                "kind": "process_value_input",
+                "title": "Value Source",
+                "source_ports": [
+                  "value_in"
+                ],
+                "binding_kind": "analog_in",
+                "channel_kind": "telemetry",
+                "value_type": "float",
+                "required": true
+              }
+            }
+          },
+          "operations": {
+            "operations": {
+              "reset_latch": {
+                "id": "reset_latch",
+                "kind": "reset_latch",
+                "title": "Reset Latch",
+                "ui_hint": "secondary",
+                "safe_when": [
+                  "alarm_latched"
+                ],
+                "confirmation_policy": "optional",
+                "progress_signals": [
+                  "alarm_active"
+                ],
+                "result_fields": [
+                  "completed",
+                  "alarm_active"
+                ]
+              }
+            }
+          },
+          "monitoring": {
+            "monitors": {
+              "stale_source": {
+                "id": "stale_source",
+                "kind": "stale",
+                "title": "Stale Source",
+                "source_ports": [
+                  "value_in"
+                ],
+                "severity": "warning",
+                "status_port_id": "source_ok"
+              },
+              "value_missing": {
+                "id": "value_missing",
+                "kind": "missing",
+                "title": "Value Missing",
+                "source_ports": [
+                  "value_in"
+                ],
+                "severity": "warning",
+                "status_port_id": "source_ok"
+              }
+            }
+          },
+          "debug": {
+            "trace_groups": {
+              "thresholds": {
+                "title": "Thresholds",
+                "signals": [
+                  "value_in",
+                  "above_out",
+                  "below_out",
+                  "alarm_active"
+                ],
+                "sample_hint_ms": 500,
+                "chart_hint": "line"
+              }
+            }
+          },
+          "templates": {
+            "presets": {
+              "high_limit": {
+                "id": "high_limit",
+                "title": "High Limit",
+                "defaults": {
+                  "mode": "high",
+                  "threshold_a": 100,
+                  "threshold_b": 100,
+                  "hysteresis": 1,
+                  "latch_alarm": false,
+                  "timeout_ms": 5000
+                }
+              },
+              "low_limit": {
+                "id": "low_limit",
+                "title": "Low Limit",
+                "defaults": {
+                  "mode": "low",
+                  "threshold_a": 20,
+                  "threshold_b": 20,
+                  "hysteresis": 1,
+                  "latch_alarm": false,
+                  "timeout_ms": 5000
+                }
+              },
+              "window_limit": {
+                "id": "window_limit",
+                "title": "Window Limit",
+                "defaults": {
+                  "mode": "window",
+                  "threshold_a": 20,
+                  "threshold_b": 80,
+                  "hysteresis": 1,
+                  "latch_alarm": false,
+                  "timeout_ms": 5000
+                }
+              }
+            }
+          }
+        },
+        "diagnostics": {}
+      }
+    },
+    "templates": {
+      "run_hours_service_preset": {
+        "id": "run_hours_service_preset",
+        "kind": "object_template",
+        "base_type_ref": "library:std/run_hours_counter",
+        "origin": "library_template",
+        "meta": {
+          "title": "Run Hours Service Preset",
+          "version": "1.0.0",
+          "description": "Reusable configured preset for a persisted run-hours counter."
+        },
+        "defaults": {
+          "param_values": {
+            "persist_enabled": {
+              "kind": "literal",
+              "value": true
+            },
+            "persist_period_s": {
+              "kind": "literal",
+              "value": 60
+            },
+            "rounding_mode": {
+              "kind": "literal",
+              "value": "tenths"
+            }
+          },
+          "tags": {
+            "service_ready": "true",
+            "category": "runtime_counter"
+          },
+          "facet_defaults": {
+            "monitor_preset": "service_runtime"
+          }
+        }
+      },
+      "maintenance_service_saved": {
+        "id": "maintenance_service_saved",
+        "kind": "object_template",
+        "base_type_ref": "library:std/maintenance_counter",
+        "origin": "project_saved",
+        "meta": {
+          "title": "Saved Maintenance Service Preset",
+          "version": "1.0.0",
+          "description": "Project-saved configured maintenance preset sharing the same template contract."
+        },
+        "defaults": {
+          "param_values": {
+            "service_interval": {
+              "kind": "literal",
+              "value": 250
+            },
+            "warning_before": {
+              "kind": "literal",
+              "value": 25
+            },
+            "overdue_margin": {
+              "kind": "literal",
+              "value": 10
+            }
+          },
+          "tags": {
+            "origin": "project_saved",
+            "category": "maintenance"
+          },
+          "facet_defaults": {
+            "monitor_preset": "maintenance_due"
+          }
+        }
+      }
+    },
+    "packages": {
+      "boiler_supervisor": {
+        "id": "boiler_supervisor",
+        "kind": "package_definition",
+        "meta": {
+          "title": "Boiler Supervisor Skeleton",
+          "version": "1.0.0",
+          "origin": "project",
+          "description": "Boiler PLC-part skeleton assembled from frozen library objects, templates, and monitoring primitives.",
+          "domain": "boiler",
+          "package_kind": "boiler_supervisor_skeleton_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "pid_1": {
+            "id": "pid_1",
+            "kind": "package_member",
+            "type_ref": "library:std/pid_controller",
+            "title": "Pressure Controller"
+          },
+          "flowmeter_1": {
+            "id": "flowmeter_1",
+            "kind": "package_member",
+            "type_ref": "library:std/pulse_flowmeter",
+            "title": "Feedwater Flowmeter"
+          },
+          "run_hours_1": {
+            "id": "run_hours_1",
+            "kind": "package_member",
+            "type_ref": "library:std/run_hours_counter",
+            "template_ref": "run_hours_service_preset",
+            "title": "Boiler Runtime Hours"
+          },
+          "maintenance_counter_1": {
+            "id": "maintenance_counter_1",
+            "kind": "package_member",
+            "type_ref": "library:std/maintenance_counter",
+            "template_ref": "maintenance_service_saved",
+            "title": "Boiler Maintenance Counter"
+          },
+          "threshold_monitor_1": {
+            "id": "threshold_monitor_1",
+            "kind": "package_member",
+            "type_ref": "library:std/threshold_monitor",
+            "title": "Maintenance Due Monitor"
+          }
+        },
+        "signals": {
+          "sig_runtime_to_maintenance": {
+            "id": "sig_runtime_to_maintenance",
+            "title": "Runtime To Maintenance",
+            "source": {
+              "instance_id": "run_hours_1",
+              "port_id": "total_seconds"
+            },
+            "targets": {
+              "maintenance_usage": {
+                "instance_id": "maintenance_counter_1",
+                "port_id": "usage_total_in"
+              }
+            }
+          },
+          "sig_maintenance_remaining_to_monitor": {
+            "id": "sig_maintenance_remaining_to_monitor",
+            "title": "Remaining To Threshold Monitor",
+            "source": {
+              "instance_id": "maintenance_counter_1",
+              "port_id": "remaining_out"
+            },
+            "targets": {
+              "remaining_monitor": {
+                "instance_id": "threshold_monitor_1",
+                "port_id": "value_in"
+              }
+            }
+          }
+        },
+        "bindings": {
+          "pressure_pv_source": {
+            "id": "pressure_pv_source",
+            "kind": "member_port",
+            "member_id": "pid_1",
+            "member_port_id": "pv",
+            "binding_role": "telemetry_input",
+            "required": true,
+            "title": "Pressure PV Source"
+          },
+          "pressure_mv_output": {
+            "id": "pressure_mv_output",
+            "kind": "member_port",
+            "member_id": "pid_1",
+            "member_port_id": "mv_out",
+            "binding_role": "control_output",
+            "required": true,
+            "title": "Pressure MV Output"
+          },
+          "runtime_active_source": {
+            "id": "runtime_active_source",
+            "kind": "member_port",
+            "member_id": "run_hours_1",
+            "member_port_id": "active_in",
+            "binding_role": "state_input",
+            "required": true,
+            "title": "Runtime Active Source"
+          },
+          "flowmeter_pulse_source": {
+            "id": "flowmeter_pulse_source",
+            "kind": "member_port",
+            "member_id": "flowmeter_1",
+            "member_port_id": "pulse_in",
+            "binding_role": "telemetry_input",
+            "required": true,
+            "title": "Flowmeter Pulse Source"
+          }
+        },
+        "presets": {
+          "demo_defaults": {
+            "id": "demo_defaults",
+            "title": "Demo Defaults",
+            "description": "Small package-level preset for overview and flattening checks.",
+            "member_defaults": {
+              "pid_1": {
+                "tags": {
+                  "zone": "boiler_loop"
+                }
+              },
+              "threshold_monitor_1": {
+                "tags": {
+                  "importance": "warning"
+                }
+              }
+            }
+          }
+        },
+        "boundary_notes": [
+          "This skeleton remains non-safety and excludes burner permissives, flame supervision, and shutdown logic.",
+          "Package is authoring-only and must flatten into ordinary effective instances, connections, monitors, and operations."
+        ],
+        "supervision": {
+          "summary_outputs": {
+            "package_ok": {
+              "id": "package_ok",
+              "title": "Package OK",
+              "value_type": "bool",
+              "source": {
+                "member_id": "threshold_monitor_1",
+                "port_id": "source_ok"
+              }
+            },
+            "alarm_present": {
+              "id": "alarm_present",
+              "title": "Alarm Present",
+              "value_type": "bool",
+              "source": {
+                "member_id": "threshold_monitor_1",
+                "port_id": "alarm_active"
+              }
+            },
+            "maintenance_due": {
+              "id": "maintenance_due",
+              "title": "Maintenance Due",
+              "value_type": "bool",
+              "source": {
+                "member_id": "maintenance_counter_1",
+                "port_id": "due_out"
+              }
+            },
+            "loop_in_auto": {
+              "id": "loop_in_auto",
+              "title": "Loop In Auto",
+              "value_type": "bool",
+              "source": {
+                "member_id": "pid_1",
+                "port_id": "in_auto"
+              }
+            },
+            "flow_ok": {
+              "id": "flow_ok",
+              "title": "Flow OK",
+              "value_type": "bool",
+              "source": {
+                "member_id": "flowmeter_1",
+                "port_id": "source_ok"
+              }
+            },
+            "runtime_total": {
+              "id": "runtime_total",
+              "title": "Runtime Total",
+              "value_type": "float",
+              "source": {
+                "member_id": "run_hours_1",
+                "port_id": "total_hours"
+              }
+            }
+          },
+          "aggregate_monitors": {
+            "health_rollup": {
+              "id": "health_rollup",
+              "title": "Health Rollup",
+              "kind": "boolean_health_rollup",
+              "source_ports": [
+                {
+                  "member_id": "threshold_monitor_1",
+                  "port_id": "source_ok"
+                },
+                {
+                  "member_id": "flowmeter_1",
+                  "port_id": "source_ok"
+                },
+                {
+                  "member_id": "maintenance_counter_1",
+                  "port_id": "source_ok"
+                }
+              ],
+              "severity": "warning"
+            }
+          },
+          "aggregate_alarms": {
+            "alarm_rollup": {
+              "id": "alarm_rollup",
+              "title": "Alarm Rollup",
+              "severity": "warning",
+              "source_ports": [
+                {
+                  "member_id": "threshold_monitor_1",
+                  "port_id": "alarm_active"
+                },
+                {
+                  "member_id": "maintenance_counter_1",
+                  "port_id": "due_out"
+                }
+              ]
+            }
+          },
+          "trace_groups": {
+            "process_summary": {
+              "id": "process_summary",
+              "title": "Process Summary",
+              "signals": [
+                {
+                  "member_id": "run_hours_1",
+                  "port_id": "total_hours"
+                },
+                {
+                  "member_id": "flowmeter_1",
+                  "port_id": "flow_rate"
+                },
+                {
+                  "member_id": "pid_1",
+                  "port_id": "mv_out"
+                }
+              ]
+            },
+            "health_summary": {
+              "id": "health_summary",
+              "title": "Health Summary",
+              "signals": [
+                {
+                  "member_id": "threshold_monitor_1",
+                  "port_id": "alarm_active"
+                },
+                {
+                  "member_id": "maintenance_counter_1",
+                  "port_id": "due_out"
+                },
+                {
+                  "member_id": "pid_1",
+                  "port_id": "loop_ok"
+                }
+              ]
+            }
+          },
+          "operation_proxies": {
+            "reset_flow_totalizer": {
+              "id": "reset_flow_totalizer",
+              "title": "Reset Flow Totalizer",
+              "target_member_id": "flowmeter_1",
+              "target_operation_id": "reset_totalizer",
+              "child_operation_kind": "reset_totalizer"
+            },
+            "reset_runtime_counter": {
+              "id": "reset_runtime_counter",
+              "title": "Reset Runtime Counter",
+              "target_member_id": "run_hours_1",
+              "target_operation_id": "reset_counter",
+              "child_operation_kind": "reset_counter"
+            },
+            "reset_maintenance_interval": {
+              "id": "reset_maintenance_interval",
+              "title": "Reset Maintenance Interval",
+              "target_member_id": "maintenance_counter_1",
+              "target_operation_id": "reset_interval",
+              "child_operation_kind": "reset_interval"
+            },
+            "pid_autotune": {
+              "id": "pid_autotune",
+              "title": "PID Autotune",
+              "target_member_id": "pid_1",
+              "target_operation_id": "autotune",
+              "child_operation_kind": "autotune"
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_pkg_1": {
+        "id": "boiler_pkg_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor",
+        "title": "Boiler Supervisor #1",
+        "preset_ref": "demo_defaults"
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {
+      "hw_boiler_pkg_1_pid_pv": {
+        "id": "hw_boiler_pkg_1_pid_pv",
+        "binding_kind": "analog_in",
+        "instance_id": "boiler_pkg_1__pid_1",
+        "port_id": "pv",
+        "config": {
+          "pin": 0
+        }
+      },
+      "hw_boiler_pkg_1_pid_mv": {
+        "id": "hw_boiler_pkg_1_pid_mv",
+        "binding_kind": "analog_out",
+        "instance_id": "boiler_pkg_1__pid_1",
+        "port_id": "mv_out",
+        "config": {
+          "pin": 25
+        }
+      },
+      "hw_boiler_pkg_1_flowmeter_pulse": {
+        "id": "hw_boiler_pkg_1_flowmeter_pulse",
+        "binding_kind": "digital_in",
+        "instance_id": "boiler_pkg_1__flowmeter_1",
+        "port_id": "pulse_in",
+        "config": {
+          "pin": 26
+        }
+      },
+      "hw_boiler_pkg_1_runtime_active": {
+        "id": "hw_boiler_pkg_1_runtime_active",
+        "binding_kind": "digital_in",
+        "instance_id": "boiler_pkg_1__run_hours_1",
+        "port_id": "active_in",
+        "config": {
+          "pin": 27
+        }
+      },
+      "hw_boiler_pkg_1_threshold_value": {
+        "id": "hw_boiler_pkg_1_threshold_value",
+        "binding_kind": "analog_in",
+        "instance_id": "boiler_pkg_1__threshold_monitor_1",
+        "port_id": "value_in",
+        "config": {
+          "pin": 32
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

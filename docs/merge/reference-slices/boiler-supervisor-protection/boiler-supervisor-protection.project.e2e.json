@@ -1,0 +1,196 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_supervisor_protection_reference_e2e",
+    "title": "BoilerSupervisorProtection Reference E2E"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "package_protection_source": {
+        "id": "package_protection_source",
+        "kind": "object_type",
+        "meta": {
+          "title": "Package Protection Source",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "blocked_out": { "id": "blocked_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "trip_out": { "id": "trip_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "recovering_out": { "id": "recovering_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "facets": {
+          "operations": {
+            "operations": {
+              "reset_trip": {
+                "id": "reset_trip",
+                "kind": "reset_latch",
+                "title": "Reset Trip",
+                "confirmation_policy": "required"
+              },
+              "request_recovery": {
+                "id": "request_recovery",
+                "kind": "reset",
+                "title": "Request Recovery"
+              }
+            }
+          }
+        },
+        "implementation": {
+          "native": null,
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "boiler_supervisor_protection": {
+        "id": "boiler_supervisor_protection",
+        "kind": "package_definition",
+        "meta": {
+          "title": "BoilerSupervisorProtection v1",
+          "origin": "project",
+          "description": "Boiler-like reference package for generic package protection and recovery baseline.",
+          "domain": "boiler",
+          "package_kind": "boiler_supervisor_protection_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "feedwater_guard_1": { "id": "feedwater_guard_1", "kind": "package_member", "type_ref": "project:package_protection_source", "title": "Feedwater Guard" },
+          "pressure_trip_1": { "id": "pressure_trip_1", "kind": "package_member", "type_ref": "project:package_protection_source", "title": "Pressure Trip" }
+        },
+        "signals": {},
+        "protection_recovery": {
+          "trips": {
+            "pressure_trip": {
+              "id": "pressure_trip",
+              "title": "Pressure Trip",
+              "source_ports": [{ "member_id": "pressure_trip_1", "port_id": "trip_out" }],
+              "latching": true,
+              "summary": "Package pressure trip is latched.",
+              "reason_code": "pressure_trip_active",
+              "diagnostic_ref": "diag_pressure_trip"
+            }
+          },
+          "inhibits": {
+            "feedwater_blocked": {
+              "id": "feedwater_blocked",
+              "title": "Feedwater Blocked",
+              "source_ports": [{ "member_id": "feedwater_guard_1", "port_id": "blocked_out" }],
+              "summary": "Feedwater path is blocked.",
+              "reason_code": "feedwater_blocked",
+              "diagnostic_ref": "diag_feedwater_blocked"
+            }
+          },
+          "protection_summary": {
+            "id": "protection_summary",
+            "title": "Protection Summary",
+            "default_state": "tripped",
+            "trip_refs": ["pressure_trip"],
+            "inhibit_refs": ["feedwater_blocked"],
+            "recovery_request_refs": ["reset_pressure_trip", "request_recovery"],
+            "diagnostic_summaries": {
+              "active_reasons": {
+                "id": "active_reasons",
+                "title": "Active Reasons",
+                "trip_refs": ["pressure_trip"],
+                "inhibit_refs": ["feedwater_blocked"],
+                "summary": "Recovery is blocked until the feedwater path is clear and the trip is reset."
+              }
+            }
+          },
+          "recovery_requests": {
+            "reset_pressure_trip": {
+              "id": "reset_pressure_trip",
+              "title": "Reset Pressure Trip",
+              "kind": "reset_latch",
+              "target_member_id": "pressure_trip_1",
+              "target_operation_id": "reset_trip",
+              "confirmation_policy": "required",
+              "summary": "Reset the latched pressure trip."
+            },
+            "request_recovery": {
+              "id": "request_recovery",
+              "title": "Request Recovery",
+              "kind": "reset",
+              "target_member_id": "pressure_trip_1",
+              "target_operation_id": "request_recovery",
+              "blocked_by_inhibit_refs": ["feedwater_blocked"],
+              "summary": "Recovery is available only when feedwater inhibit clears."
+            }
+          },
+          "summary_outputs": {
+            "package_ready": {
+              "id": "package_ready",
+              "value_type": "bool",
+              "source": { "member_id": "feedwater_guard_1", "port_id": "ready_out" }
+            },
+            "package_tripped": {
+              "id": "package_tripped",
+              "value_type": "bool",
+              "source": { "member_id": "pressure_trip_1", "port_id": "trip_out" }
+            }
+          },
+          "aggregate_monitors": {
+            "protection_health": {
+              "id": "protection_health",
+              "kind": "boolean_health_rollup",
+              "source_ports": [
+                { "member_id": "feedwater_guard_1", "port_id": "ready_out" },
+                { "member_id": "pressure_trip_1", "port_id": "trip_out" }
+              ]
+            }
+          },
+          "trace_groups": {
+            "protection_trace": {
+              "id": "protection_trace",
+              "signals": [
+                { "member_id": "feedwater_guard_1", "port_id": "blocked_out" },
+                { "member_id": "pressure_trip_1", "port_id": "trip_out" }
+              ]
+            }
+          }
+        },
+        "boundary_notes": [
+          "Wave 16 package protection/recovery baseline remains package-neutral and non-safety.",
+          "Boiler-like content is reference-only and does not introduce safety-certified semantics."
+        ]
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_supervisor_protection_1": {
+        "id": "boiler_supervisor_protection_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor_protection"
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

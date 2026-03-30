@@ -1,0 +1,107 @@
+{
+  "id": "pump_skid_supervisor_protection",
+  "kind": "package_definition",
+  "meta": {
+    "title": "PumpSkidSupervisorProtection v1",
+    "origin": "project",
+    "description": "Pump-skid reference package for generic package protection and recovery baseline.",
+    "domain": "pump_skid",
+    "package_kind": "pump_skid_supervisor_protection_v1",
+    "safety_scope": "non_safety_skeleton"
+  },
+  "members": {
+    "suction_guard_1": { "id": "suction_guard_1", "kind": "package_member", "type_ref": "project:package_protection_source", "title": "Suction Guard" },
+    "motor_trip_1": { "id": "motor_trip_1", "kind": "package_member", "type_ref": "project:package_protection_source", "title": "Motor Trip" }
+  },
+  "signals": {},
+  "protection_recovery": {
+    "trips": {
+      "motor_trip": {
+        "id": "motor_trip",
+        "title": "Motor Trip",
+        "source_ports": [{ "member_id": "motor_trip_1", "port_id": "trip_out" }],
+        "latching": false,
+        "summary": "Motor trip is currently clear.",
+        "reason_code": "motor_trip_active",
+        "diagnostic_ref": "diag_motor_trip"
+      }
+    },
+    "inhibits": {
+      "suction_blocked": {
+        "id": "suction_blocked",
+        "title": "Suction Blocked",
+        "source_ports": [{ "member_id": "suction_guard_1", "port_id": "blocked_out" }],
+        "summary": "Suction path inhibit remains clear on the ready baseline.",
+        "reason_code": "suction_blocked",
+        "diagnostic_ref": "diag_suction_blocked"
+      }
+    },
+    "protection_summary": {
+      "id": "protection_summary",
+      "title": "Protection Summary",
+      "default_state": "ready",
+      "recovery_request_refs": ["reset_motor_trip", "request_recovery"],
+      "diagnostic_summaries": {
+        "ready_path": {
+          "id": "ready_path",
+          "title": "Ready Path",
+          "summary": "Protection baseline is clear and package is ready."
+        }
+      }
+    },
+    "recovery_requests": {
+      "reset_motor_trip": {
+        "id": "reset_motor_trip",
+        "title": "Reset Motor Trip",
+        "kind": "reset_latch",
+        "target_member_id": "motor_trip_1",
+        "target_operation_id": "reset_trip",
+        "confirmation_policy": "required",
+        "summary": "Reset the motor trip latch."
+      },
+      "request_recovery": {
+        "id": "request_recovery",
+        "title": "Request Recovery",
+        "kind": "reset",
+        "target_member_id": "motor_trip_1",
+        "target_operation_id": "request_recovery",
+        "summary": "Recovery request is available on the ready baseline."
+      }
+    },
+    "summary_outputs": {
+      "package_ready": {
+        "id": "package_ready",
+        "value_type": "bool",
+        "source": { "member_id": "suction_guard_1", "port_id": "ready_out" }
+      },
+      "package_tripped": {
+        "id": "package_tripped",
+        "value_type": "bool",
+        "source": { "member_id": "motor_trip_1", "port_id": "trip_out" }
+      }
+    },
+    "aggregate_monitors": {
+      "protection_health": {
+        "id": "protection_health",
+        "kind": "boolean_health_rollup",
+        "source_ports": [
+          { "member_id": "suction_guard_1", "port_id": "ready_out" },
+          { "member_id": "motor_trip_1", "port_id": "trip_out" }
+        ]
+      }
+    },
+    "trace_groups": {
+      "protection_trace": {
+        "id": "protection_trace",
+        "signals": [
+          { "member_id": "suction_guard_1", "port_id": "blocked_out" },
+          { "member_id": "motor_trip_1", "port_id": "trip_out" }
+        ]
+      }
+    }
+  },
+  "boundary_notes": [
+    "Wave 16 package protection/recovery baseline remains package-neutral and non-safety.",
+    "Pump-skid content is the mandatory second reference domain."
+  ]
+}

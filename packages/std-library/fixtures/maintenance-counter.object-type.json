@@ -1,0 +1,261 @@
+{
+  "id": "maintenance_counter",
+  "kind": "object_type",
+  "meta": {
+    "title": "Maintenance Counter",
+    "version": "1.0.0",
+    "origin": "library",
+    "library_id": "std",
+    "description": "Evaluates accumulated usage against a service interval and exposes due and overdue maintenance states."
+  },
+  "interface": {
+    "ports": {
+      "usage_total_in": {
+        "id": "usage_total_in",
+        "title": "Usage Total Input",
+        "direction": "in",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "remaining_out": {
+        "id": "remaining_out",
+        "title": "Remaining Usage",
+        "direction": "out",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "due_out": {
+        "id": "due_out",
+        "title": "Due",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "overdue_out": {
+        "id": "overdue_out",
+        "title": "Overdue",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "progress_out": {
+        "id": "progress_out",
+        "title": "Progress",
+        "direction": "out",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "source_ok": {
+        "id": "source_ok",
+        "title": "Source OK",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      }
+    },
+    "params": {
+      "service_interval": {
+        "id": "service_interval",
+        "title": "Service Interval",
+        "description": "Usage amount between maintenance resets.",
+        "value_type": "float",
+        "default": 1000.0,
+        "unit": "usage_units",
+        "min": 0.0001,
+        "max": 1000000000,
+        "step": 0.1,
+        "group": "service",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "warning_before": {
+        "id": "warning_before",
+        "title": "Warning Before",
+        "description": "How much usage remains when the warning state becomes active.",
+        "value_type": "float",
+        "default": 100.0,
+        "unit": "usage_units",
+        "min": 0,
+        "max": 1000000000,
+        "step": 0.1,
+        "group": "service",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "overdue_margin": {
+        "id": "overdue_margin",
+        "title": "Overdue Margin",
+        "description": "Extra usage beyond the service interval before overdue becomes active.",
+        "value_type": "float",
+        "default": 0.0,
+        "unit": "usage_units",
+        "min": 0,
+        "max": 1000000000,
+        "step": 0.1,
+        "group": "service",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "persistent",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "auto_rollover": {
+        "id": "auto_rollover",
+        "title": "Auto Rollover",
+        "description": "Automatically starts the next interval after reset or completion.",
+        "value_type": "bool",
+        "default": false,
+        "group": "service",
+        "ui_hint": "toggle",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "persist_enabled": {
+        "id": "persist_enabled",
+        "title": "Persist Enabled",
+        "description": "Stores reset baseline and acknowledge state.",
+        "value_type": "bool",
+        "default": true,
+        "group": "persistence",
+        "ui_hint": "toggle",
+        "access_role": "engineer",
+        "live_edit_policy": "apply_on_restart",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      }
+    },
+    "alarms": {}
+  },
+  "locals": {
+    "signals": {},
+    "vars": {}
+  },
+  "implementation": {
+    "native": {
+      "native_kind": "std.maintenance_counter.v1",
+      "target_kinds": [
+        "esp32.shipcontroller.v1"
+      ],
+      "config_template": "shipcontroller.maintenance_counter.v1"
+    },
+    "composition": null,
+    "state": null,
+    "flow": null
+  },
+  "facets": {
+    "frontends": {
+      "requirements": {}
+    },
+    "operations": {
+      "operations": {
+        "acknowledge_due": {
+          "id": "acknowledge_due",
+          "kind": "acknowledge_due",
+          "title": "Acknowledge Due",
+          "ui_hint": "secondary",
+          "safe_when": ["due_active"],
+          "confirmation_policy": "optional",
+          "progress_signals": ["due_out", "overdue_out"],
+          "result_fields": ["completed", "acknowledged"]
+        },
+        "reset_interval": {
+          "id": "reset_interval",
+          "kind": "reset_interval",
+          "title": "Reset Interval",
+          "ui_hint": "danger",
+          "safe_when": ["service_allowed"],
+          "confirmation_policy": "required",
+          "progress_signals": ["remaining_out", "progress_out"],
+          "result_fields": ["completed", "remaining_out", "progress_out"]
+        }
+      }
+    },
+    "monitoring": {
+      "monitors": {
+        "stale_source": {
+          "id": "stale_source",
+          "kind": "stale",
+          "title": "Stale Source",
+          "source_ports": ["usage_total_in"],
+          "severity": "warning",
+          "status_port_id": "source_ok"
+        },
+        "interval_invalid": {
+          "id": "interval_invalid",
+          "kind": "invalid",
+          "title": "Interval Invalid",
+          "severity": "error",
+          "status_port_id": "due_out"
+        }
+      }
+    },
+    "debug": {
+      "trace_groups": {
+        "maintenance": {
+          "title": "Maintenance",
+          "signals": ["usage_total_in", "remaining_out", "due_out", "overdue_out"],
+          "sample_hint_ms": 1000,
+          "chart_hint": "line"
+        }
+      }
+    },
+    "persistence": {
+      "slots": {
+        "reset_baseline": {
+          "id": "reset_baseline",
+          "slot_kind": "state",
+          "title": "Reset Baseline",
+          "nv_slot_hint": "nv.maintenance.reset_baseline",
+          "flush_policy": "on_change"
+        },
+        "acknowledge_state": {
+          "id": "acknowledge_state",
+          "slot_kind": "state",
+          "title": "Acknowledge State",
+          "nv_slot_hint": "nv.maintenance.acknowledge_state",
+          "flush_policy": "on_change"
+        }
+      }
+    },
+    "templates": {
+      "presets": {
+        "hours_based_service": {
+          "id": "hours_based_service",
+          "title": "Hours Based Service",
+          "defaults": {
+            "service_interval": 500.0,
+            "warning_before": 50.0,
+            "overdue_margin": 0.0,
+            "auto_rollover": false,
+            "persist_enabled": true
+          }
+        },
+        "cycles_based_service": {
+          "id": "cycles_based_service",
+          "title": "Cycles Based Service",
+          "defaults": {
+            "service_interval": 10000.0,
+            "warning_before": 500.0,
+            "overdue_margin": 0.0,
+            "auto_rollover": false,
+            "persist_enabled": true
+          }
+        }
+      }
+    }
+  },
+  "diagnostics": {}
+}

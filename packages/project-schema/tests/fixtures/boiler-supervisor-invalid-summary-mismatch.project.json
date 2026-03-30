@@ -1,0 +1,103 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_supervisor_invalid_summary_mismatch",
+    "title": "Boiler Supervisor Invalid Summary Mismatch"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "run_hours_counter": {
+        "id": "run_hours_counter",
+        "kind": "object_type",
+        "meta": {
+          "title": "Run Hours Counter",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "total_hours": {
+              "id": "total_hours",
+              "direction": "out",
+              "channel_kind": "telemetry",
+              "value_type": "float"
+            }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "facets": {
+          "operations": {
+            "operations": {
+              "reset_counter": {
+                "id": "reset_counter",
+                "kind": "reset_counter",
+                "title": "Reset Counter"
+              }
+            }
+          }
+        },
+        "implementation": {
+          "native": null,
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "boiler_supervisor": {
+        "id": "boiler_supervisor",
+        "kind": "package_definition",
+        "meta": {
+          "title": "Boiler Supervisor",
+          "origin": "project",
+          "package_kind": "boiler_supervisor_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "run_hours_1": {
+            "id": "run_hours_1",
+            "kind": "package_member",
+            "type_ref": "run_hours_counter"
+          }
+        },
+        "signals": {},
+        "supervision": {
+          "summary_outputs": {
+            "runtime_total": {
+              "id": "runtime_total",
+              "value_type": "bool",
+              "source": {
+                "member_id": "run_hours_1",
+                "port_id": "total_hours"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_supervisor_1": {
+        "id": "boiler_supervisor_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor"
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

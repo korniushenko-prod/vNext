@@ -1,0 +1,62 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_supervisor_invalid_missing_monitor_source",
+    "title": "Boiler Supervisor Invalid Missing Monitor Source"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "packages": {
+      "boiler_supervisor": {
+        "id": "boiler_supervisor",
+        "kind": "package_definition",
+        "meta": {
+          "title": "Boiler Supervisor",
+          "origin": "project",
+          "package_kind": "boiler_supervisor_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "threshold_monitor_1": {
+            "id": "threshold_monitor_1",
+            "kind": "package_member",
+            "type_ref": "library:std/threshold_monitor"
+          }
+        },
+        "signals": {},
+        "supervision": {
+          "aggregate_monitors": {
+            "health_rollup": {
+              "id": "health_rollup",
+              "kind": "boolean_health_rollup",
+              "source_ports": [
+                {
+                  "member_id": "missing_member",
+                  "port_id": "source_ok"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_supervisor_1": {
+        "id": "boiler_supervisor_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor"
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

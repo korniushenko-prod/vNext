@@ -1,0 +1,377 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "boiler-supervisor-modes-execution-pack",
+  "source": {
+    "project_id": "boiler_supervisor_modes_execution_reference_minimal",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T12:00:00Z"
+  },
+  "instances": {
+    "boiler_supervisor_modes_execution_1__boiler_core_1": {
+      "id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+      "type_ref": "project:boiler_mode_core",
+      "title": "boiler_supervisor_modes_execution_1 / Boiler Mode Core",
+      "enabled": true,
+      "ports": {
+        "off_out": {
+          "id": "off_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "auto_out": {
+          "id": "auto_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "service_out": {
+          "id": "service_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "idle_out": {
+          "id": "idle_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "precheck_out": {
+          "id": "precheck_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "run_out": {
+          "id": "run_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "shutdown_out": {
+          "id": "shutdown_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_modes_execution_reference_minimal"
+      }
+    },
+    "boiler_supervisor_modes_execution_1__flow_guard_1": {
+      "id": "boiler_supervisor_modes_execution_1__flow_guard_1",
+      "type_ref": "project:flow_guard",
+      "title": "boiler_supervisor_modes_execution_1 / Flow Guard",
+      "enabled": true,
+      "ports": {
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_modes_execution_reference_minimal"
+      }
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "package_mode_runtime_contract": {
+    "package_mode_execution_supported": true,
+    "phase_transition_execution_supported": true,
+    "transition_guard_diagnostics_supported": true,
+    "supported_intents": [
+      "request_mode_change",
+      "request_phase_start",
+      "request_phase_abort"
+    ]
+  },
+  "package_mode_phase": {
+    "pkgmode_boiler_supervisor_modes_execution_1": {
+      "id": "pkgmode_boiler_supervisor_modes_execution_1",
+      "package_instance_id": "boiler_supervisor_modes_execution_1",
+      "title": "BoilerSupervisorModesExecution v1",
+      "modes": {
+        "off": {
+          "id": "off",
+          "qualified_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.off",
+          "title": "Off",
+          "summary": "Package is parked.",
+          "phase_ids": [
+            "pkgmode_boiler_supervisor_modes_execution_1.phase.idle"
+          ]
+        },
+        "auto": {
+          "id": "auto",
+          "qualified_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.auto",
+          "title": "Auto",
+          "summary": "Package is available for bounded run sequencing.",
+          "phase_ids": [
+            "pkgmode_boiler_supervisor_modes_execution_1.phase.idle",
+            "pkgmode_boiler_supervisor_modes_execution_1.phase.precheck",
+            "pkgmode_boiler_supervisor_modes_execution_1.phase.run"
+          ]
+        },
+        "service": {
+          "id": "service",
+          "qualified_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.service",
+          "title": "Service",
+          "summary": "Package is under bounded service handling.",
+          "phase_ids": [
+            "pkgmode_boiler_supervisor_modes_execution_1.phase.shutdown"
+          ]
+        }
+      },
+      "phases": {
+        "idle": {
+          "id": "idle",
+          "qualified_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.idle",
+          "title": "Idle",
+          "summary": "Boiler lane is idle.",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+              "port_id": "idle_out"
+            }
+          ]
+        },
+        "precheck": {
+          "id": "precheck",
+          "qualified_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.precheck",
+          "title": "Precheck",
+          "summary": "Boiler prerequisites are checked.",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+              "port_id": "precheck_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_modes_execution_1__flow_guard_1",
+              "port_id": "source_ok"
+            }
+          ]
+        },
+        "run": {
+          "id": "run",
+          "qualified_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.run",
+          "title": "Run",
+          "summary": "Bounded run lane is active.",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+              "port_id": "run_out"
+            }
+          ]
+        },
+        "shutdown": {
+          "id": "shutdown",
+          "qualified_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.shutdown",
+          "title": "Shutdown",
+          "summary": "Service shutdown lane is active.",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+              "port_id": "shutdown_out"
+            }
+          ]
+        }
+      },
+      "mode_summary": {
+        "id": "mode_summary",
+        "title": "Mode Summary",
+        "default_mode_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.auto",
+        "entries": {
+          "off_summary": {
+            "id": "off_summary",
+            "mode_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.off",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+                "port_id": "off_out"
+              }
+            ],
+            "summary": "Off remains inactive."
+          },
+          "auto_summary": {
+            "id": "auto_summary",
+            "mode_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.auto",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+                "port_id": "auto_out"
+              }
+            ],
+            "summary": "Auto is the active bounded execution mode."
+          },
+          "service_summary": {
+            "id": "service_summary",
+            "mode_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.service",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+                "port_id": "service_out"
+              }
+            ],
+            "summary": "Service is reserved for bounded shutdown handling."
+          }
+        }
+      },
+      "phase_summary": {
+        "id": "phase_summary",
+        "title": "Phase Summary",
+        "default_phase_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.precheck",
+        "entries": {
+          "idle_summary": {
+            "id": "idle_summary",
+            "phase_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.idle",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+                "port_id": "idle_out"
+              }
+            ],
+            "summary": "Idle lane is inactive."
+          },
+          "precheck_summary": {
+            "id": "precheck_summary",
+            "phase_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.precheck",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+                "port_id": "precheck_out"
+              }
+            ],
+            "summary": "Precheck is the current active phase."
+          },
+          "run_summary": {
+            "id": "run_summary",
+            "phase_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.run",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+                "port_id": "run_out"
+              }
+            ],
+            "summary": "Run starts only after bounded guards pass."
+          },
+          "shutdown_summary": {
+            "id": "shutdown_summary",
+            "phase_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.shutdown",
+            "source_ports": [
+              {
+                "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+                "port_id": "shutdown_out"
+              }
+            ],
+            "summary": "Shutdown is a bounded service lane."
+          }
+        }
+      },
+      "active_mode_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.auto",
+      "active_phase_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.precheck",
+      "allowed_mode_transitions": {
+        "to_off": {
+          "id": "to_off",
+          "intent": "request_mode_change",
+          "from_mode_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.auto",
+          "to_mode_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.off",
+          "guard_state": "clear",
+          "guard_notes": [
+            "bounded_operator_request"
+          ]
+        },
+        "to_service": {
+          "id": "to_service",
+          "intent": "request_mode_change",
+          "from_mode_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.auto",
+          "to_mode_id": "pkgmode_boiler_supervisor_modes_execution_1.mode.service",
+          "guard_state": "clear",
+          "guard_notes": [
+            "shutdown_window_required"
+          ]
+        }
+      },
+      "allowed_phase_transitions": {
+        "start_run": {
+          "id": "start_run",
+          "intent": "request_phase_start",
+          "phase_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.run",
+          "allowed_mode_ids": [
+            "pkgmode_boiler_supervisor_modes_execution_1.mode.auto"
+          ],
+          "phase_state": "ready",
+          "transition_state": "idle",
+          "guard_state": "clear",
+          "guard_notes": [
+            "precheck_must_be_clear"
+          ]
+        },
+        "abort_shutdown": {
+          "id": "abort_shutdown",
+          "intent": "request_phase_abort",
+          "phase_id": "pkgmode_boiler_supervisor_modes_execution_1.phase.shutdown",
+          "allowed_mode_ids": [
+            "pkgmode_boiler_supervisor_modes_execution_1.mode.service"
+          ],
+          "phase_state": "running",
+          "transition_state": "running",
+          "guard_state": "blocked",
+          "guard_notes": [
+            "service_operator_confirmation"
+          ]
+        }
+      },
+      "package_mode_groups": {
+        "availability_modes": {
+          "id": "availability_modes",
+          "title": "Availability Modes",
+          "mode_ids": [
+            "pkgmode_boiler_supervisor_modes_execution_1.mode.off",
+            "pkgmode_boiler_supervisor_modes_execution_1.mode.auto"
+          ]
+        }
+      },
+      "package_phase_groups": {
+        "active_phases": {
+          "id": "active_phases",
+          "title": "Active Phases",
+          "phase_ids": [
+            "pkgmode_boiler_supervisor_modes_execution_1.phase.run",
+            "pkgmode_boiler_supervisor_modes_execution_1.phase.shutdown"
+          ]
+        }
+      },
+      "trace_groups": {
+        "mode_phase_trace": {
+          "id": "mode_phase_trace",
+          "title": "Mode / Phase Trace",
+          "signals": [
+            {
+              "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+              "port_id": "auto_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_modes_execution_1__boiler_core_1",
+              "port_id": "run_out"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

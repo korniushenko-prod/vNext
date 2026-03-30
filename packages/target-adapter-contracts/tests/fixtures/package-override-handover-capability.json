@@ -1,0 +1,97 @@
+{
+  "target_id": "esp32.shipcontroller.v1",
+  "display_name": "ESP32 ShipController Offline Adapter",
+  "supported_binding_kinds": [
+    "digital_in",
+    "digital_out",
+    "analog_in",
+    "analog_out",
+    "service",
+    "bus"
+  ],
+  "supported_channel_kinds": [
+    "signal",
+    "command",
+    "state",
+    "event",
+    "alarm",
+    "telemetry"
+  ],
+  "supported_value_types": [
+    "bool",
+    "int",
+    "float",
+    "duration",
+    "string",
+    "u32"
+  ],
+  "supported_native_kinds": [
+    "std.digital_input.v1",
+    "std.analog_input.v1",
+    "std.digital_output.v1",
+    "std.timed_relay.v1",
+    "std.pulse_flowmeter.v1",
+    "std.pid_controller.v1",
+    "std.run_hours_counter.v1",
+    "std.event_counter.v1",
+    "std.threshold_monitor.v1",
+    "std.maintenance_counter.v1",
+    "std.comm_bridge.v1",
+    "std.remote_point_frontend.v1"
+  ],
+  "supported_operation_kinds": [
+    "offline_validate",
+    "offline_plan",
+    "reset_totalizer",
+    "reset",
+    "test_pulse",
+    "reset_integral",
+    "hold",
+    "release",
+    "autotune",
+    "pid_autotune",
+    "reset_counter",
+    "reset_hours",
+    "reset_latch",
+    "acknowledge_due",
+    "reset_interval",
+    "reset_maintenance",
+    "start_supervision",
+    "stop_supervision",
+    "acknowledge_faults",
+    "reset_package_counters",
+    "pid_autotune_proxy"
+  ],
+  "supports_trace": true,
+  "supports_operations": true,
+  "package_override_handover_support": {
+    "enabled": true,
+    "holder_visibility": true,
+    "request_visibility": true,
+    "reason_codes": true,
+    "last_handover_reason": true,
+    "supported_holder_lanes": [
+      "auto",
+      "manual",
+      "service",
+      "remote"
+    ],
+    "supported_request_kinds": [
+      "request_takeover",
+      "request_release",
+      "request_return_to_auto"
+    ],
+    "supported_denial_reasons": [
+      "blocked_by_policy",
+      "held_by_other_owner",
+      "not_available"
+    ]
+  },
+  "supports_persistence": true,
+  "supports_simulation": false,
+  "limits": {
+    "max_instances": 512,
+    "max_connections": 2048,
+    "max_resources": 1024
+  }
+}

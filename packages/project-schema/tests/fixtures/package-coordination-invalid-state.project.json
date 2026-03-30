@@ -1,0 +1,52 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "package_coordination_invalid_state",
+    "title": "Package Coordination Invalid State"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "pump_group": {
+        "id": "pump_group",
+        "kind": "object_type",
+        "meta": { "title": "Pump Group", "origin": "project" },
+        "interface": { "ports": { "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" } }, "params": {}, "alarms": {} },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "templates": {},
+    "packages": {
+      "coordination_pkg": {
+        "id": "coordination_pkg",
+        "kind": "package_definition",
+        "meta": { "title": "Coordination Package", "origin": "project" },
+        "members": {
+          "pump_group_1": { "id": "pump_group_1", "kind": "package_member", "type_ref": "project:pump_group" }
+        },
+        "signals": {},
+        "coordination": {
+          "package_state": {
+            "id": "package_state",
+            "states": {
+              "ignite_sequence": {
+                "id": "ignite_sequence",
+                "state": "ignite_sequence",
+                "source_ports": [{ "member_id": "pump_group_1", "port_id": "ready_out" }]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "system": { "instances": {}, "signals": {}, "packages": {} },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

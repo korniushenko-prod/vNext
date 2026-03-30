@@ -1,0 +1,20 @@
+{
+  "request_id": "readback-002",
+  "target_id": "esp32-basic-io",
+  "collected_at": "2026-03-30T22:10:00Z",
+  "signals": {},
+  "resources": {},
+  "package_snapshots": {
+    "boiler_supervisor_1": {
+      "package_instance_id": "wrong_id",
+      "state": "mystery",
+      "operation_proxy_states": {
+        "op_proxy_reset_runtime_counter": {
+          "operation_id": "op_proxy_reset_runtime_counter",
+          "state": "bogus"
+        }
+      }
+    }
+  },
+  "diagnostics": []
+}

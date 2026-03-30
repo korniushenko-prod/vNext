@@ -1,13 +1,343 @@
 {
+  "schema_version": "0.1.0",
+  "pack_id": "pid-controller-demo-pack",
+  "source": {
+    "project_id": "demo_pid_controller_project",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-29T12:00:00Z"
+  },
+  "instances": {
+    "pv_sensor_1": {
+      "id": "pv_sensor_1",
+      "type_ref": "library:std/analog_input",
+      "title": "PV Sensor",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.analog_input.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.analog_input.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_pid_controller_project"
+      }
+    },
+    "pid_1": {
+      "id": "pid_1",
+      "type_ref": "library:std/pid_controller",
+      "title": "PID Controller #1",
+      "enabled": true,
+      "ports": {
+        "pv": {
+          "id": "pv",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "sp": {
+          "id": "sp",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "enable_cmd": {
+          "id": "enable_cmd",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "bool"
+        },
+        "mode_cmd": {
+          "id": "mode_cmd",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "string"
+        },
+        "manual_mv": {
+          "id": "manual_mv",
+          "direction": "in",
+          "channel_kind": "command",
+          "value_type": "float"
+        },
+        "mv_out": {
+          "id": "mv_out",
+          "direction": "out",
+          "channel_kind": "command",
+          "value_type": "float"
+        },
+        "loop_ok": {
+          "id": "loop_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "in_auto": {
+          "id": "in_auto",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "saturated": {
+          "id": "saturated",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "kp": {
+          "value": 1.5,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "title": "Proportional Gain",
+            "min": 0,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "tuning",
+            "ui_hint": "numeric",
+            "description": "Proportional gain for the control loop.",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "pid_1",
+            "param_id": "kp",
+            "source_layer": "system"
+          }
+        },
+        "ti": {
+          "value": 12,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "title": "Integral Time",
+            "unit": "s",
+            "min": 0,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "tuning",
+            "ui_hint": "numeric",
+            "description": "Integral time constant.",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "pid_1",
+            "param_id": "ti",
+            "source_layer": "system"
+          }
+        },
+        "td": {
+          "value": 0.25,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "title": "Derivative Time",
+            "unit": "s",
+            "min": 0,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "tuning",
+            "ui_hint": "numeric",
+            "description": "Derivative time constant.",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "pid_1",
+            "param_id": "td",
+            "source_layer": "system"
+          }
+        },
+        "sample_time_ms": {
+          "value": 100,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "title": "Sample Time",
+            "unit": "ms",
+            "min": 1,
+            "max": 60000,
+            "step": 1,
+            "group": "timing",
+            "ui_hint": "duration_ms",
+            "description": "Loop execution sample period.",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pid_1",
+            "param_id": "sample_time_ms",
+            "source_layer": "system"
+          }
+        },
+        "output_min": {
+          "value": 0,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "title": "Output Minimum",
+            "unit": "percent",
+            "min": -1000000,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "limits",
+            "ui_hint": "numeric",
+            "description": "Minimum output clamp.",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "pid_1",
+            "param_id": "output_min",
+            "source_layer": "system"
+          }
+        },
+        "output_max": {
+          "value": 100,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "title": "Output Maximum",
+            "unit": "percent",
+            "min": -1000000,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "limits",
+            "ui_hint": "numeric",
+            "description": "Maximum output clamp.",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "pid_1",
+            "param_id": "output_max",
+            "source_layer": "system"
+          }
+        },
+        "direction": {
+          "value": "reverse",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "title": "Control Direction",
+            "group": "tuning",
+            "ui_hint": "enum",
+            "description": "Direct or reverse acting loop.",
+            "access_role": "engineer",
+            "live_edit_policy": "apply_on_restart",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "pid_1",
+            "param_id": "direction",
+            "source_layer": "system"
+          }
+        },
+        "pv_filter_tau_ms": {
+          "value": 250,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "title": "PV Filter Tau",
+            "unit": "ms",
+            "min": 0,
+            "max": 60000,
+            "step": 1,
+            "group": "filtering",
+            "ui_hint": "duration_ms",
+            "description": "Optional first-order PV filter time constant.",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pid_1",
+            "param_id": "pv_filter_tau_ms",
+            "source_layer": "system"
+          }
+        },
+        "deadband": {
+          "value": 0.05,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "title": "Deadband",
+            "unit": "engineering_units",
+            "min": 0,
+            "max": 1000000,
+            "step": 0.001,
+            "group": "tuning",
+            "ui_hint": "numeric",
+            "description": "Error deadband around setpoint.",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "persistent",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "pid_1",
+            "param_id": "deadband",
+            "source_layer": "system"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.pid_controller.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.pid_controller.v1",
+        "frontend_requirement_ids": [
+          "fe_pid_1_mv_output",
+          "fe_pid_1_pv_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_pid_controller_project"
+      }
+    }
+  },
   "connections": {
     "conn_sig_pv_sensor_to_pid_t1": {
-      "channel_kind": "telemetry",
       "id": "conn_sig_pv_sensor_to_pid_t1",
-      "origin": {
-        "origin_layer": "system",
-        "owner_id": "demo_pid_controller_project",
-        "signal_id": "sig_pv_sensor_to_pid"
-      },
       "source": {
         "instance_id": "pv_sensor_1",
         "port_id": "value"
@@ -16,625 +346,182 @@
         "instance_id": "pid_1",
         "port_id": "pv"
       },
-      "value_type": "float"
-    }
-  },
-  "frontend_requirements": {
-    "fe_pid_1_mv_output": {
-      "binding_kind": "analog_out",
-      "channel_kind": "command",
-      "id": "fe_pid_1_mv_output",
-      "kind": "control_output",
-      "owner_instance_id": "pid_1",
-      "provenance": {
-        "facet_id": "mv_output",
-        "facet_kind": "frontend_requirement",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
-      "required": true,
-      "source_ports": [
-        {
-          "instance_id": "pid_1",
-          "port_id": "mv_out"
-        }
-      ],
-      "title": "MV Output",
-      "value_type": "float"
-    },
-    "fe_pid_1_pv_source": {
-      "binding_kind": "analog_in",
       "channel_kind": "telemetry",
-      "id": "fe_pid_1_pv_source",
-      "kind": "process_value_input",
-      "owner_instance_id": "pid_1",
-      "provenance": {
-        "facet_id": "pv_source",
-        "facet_kind": "frontend_requirement",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
-      "required": true,
-      "source_ports": [
-        {
-          "instance_id": "pid_1",
-          "port_id": "pv"
-        }
-      ],
-      "title": "PV Source",
-      "value_type": "float"
+      "value_type": "float",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "demo_pid_controller_project",
+        "signal_id": "sig_pv_sensor_to_pid"
+      }
     }
   },
-  "instances": {
-    "pid_1": {
-      "alarms": {},
-      "enabled": true,
-      "id": "pid_1",
-      "native_execution": {
-        "config_template": "shipcontroller.pid_controller.v1",
-        "frontend_requirement_ids": [
-          "fe_pid_1_mv_output",
-          "fe_pid_1_pv_source"
-        ],
-        "native_kind": "std.pid_controller.v1",
-        "target_kinds": [
-          "esp32.shipcontroller.v1"
-        ]
-      },
-      "params": {
-        "deadband": {
-          "metadata": {
-            "access_role": "engineer",
-            "danger_level": "low",
-            "description": "Error deadband around setpoint.",
-            "group": "tuning",
-            "live_edit_policy": "immediate",
-            "max": 1000000,
-            "min": 0,
-            "persist_policy": "persistent",
-            "recipe_scope": "instance",
-            "step": 0.001,
-            "title": "Deadband",
-            "ui_hint": "numeric",
-            "unit": "engineering_units"
-          },
-          "provenance": {
-            "owner_id": "pid_1",
-            "param_id": "deadband",
-            "source_layer": "system"
-          },
-          "source": "instance_override",
-          "value": 0.05,
-          "value_type": "float"
-        },
-        "direction": {
-          "metadata": {
-            "access_role": "engineer",
-            "danger_level": "medium",
-            "description": "Direct or reverse acting loop.",
-            "group": "tuning",
-            "live_edit_policy": "apply_on_restart",
-            "persist_policy": "persistent",
-            "recipe_scope": "instance",
-            "title": "Control Direction",
-            "ui_hint": "enum"
-          },
-          "provenance": {
-            "owner_id": "pid_1",
-            "param_id": "direction",
-            "source_layer": "system"
-          },
-          "source": "instance_override",
-          "value": "reverse",
-          "value_type": "string"
-        },
-        "kp": {
-          "metadata": {
-            "access_role": "engineer",
-            "danger_level": "medium",
-            "description": "Proportional gain for the control loop.",
-            "group": "tuning",
-            "live_edit_policy": "immediate",
-            "max": 1000000,
-            "min": 0,
-            "persist_policy": "persistent",
-            "recipe_scope": "instance",
-            "step": 0.01,
-            "title": "Proportional Gain",
-            "ui_hint": "numeric"
-          },
-          "provenance": {
-            "owner_id": "pid_1",
-            "param_id": "kp",
-            "source_layer": "system"
-          },
-          "source": "instance_override",
-          "value": 1.5,
-          "value_type": "float"
-        },
-        "output_max": {
-          "metadata": {
-            "access_role": "engineer",
-            "danger_level": "medium",
-            "description": "Maximum output clamp.",
-            "group": "limits",
-            "live_edit_policy": "immediate",
-            "max": 1000000,
-            "min": -1000000,
-            "persist_policy": "persistent",
-            "recipe_scope": "instance",
-            "step": 0.01,
-            "title": "Output Maximum",
-            "ui_hint": "numeric",
-            "unit": "percent"
-          },
-          "provenance": {
-            "owner_id": "pid_1",
-            "param_id": "output_max",
-            "source_layer": "system"
-          },
-          "source": "instance_override",
-          "value": 100,
-          "value_type": "float"
-        },
-        "output_min": {
-          "metadata": {
-            "access_role": "engineer",
-            "danger_level": "medium",
-            "description": "Minimum output clamp.",
-            "group": "limits",
-            "live_edit_policy": "immediate",
-            "max": 1000000,
-            "min": -1000000,
-            "persist_policy": "persistent",
-            "recipe_scope": "instance",
-            "step": 0.01,
-            "title": "Output Minimum",
-            "ui_hint": "numeric",
-            "unit": "percent"
-          },
-          "provenance": {
-            "owner_id": "pid_1",
-            "param_id": "output_min",
-            "source_layer": "system"
-          },
-          "source": "instance_override",
-          "value": 0,
-          "value_type": "float"
-        },
-        "pv_filter_tau_ms": {
-          "metadata": {
-            "access_role": "engineer",
-            "danger_level": "low",
-            "description": "Optional first-order PV filter time constant.",
-            "group": "filtering",
-            "live_edit_policy": "immediate",
-            "max": 60000,
-            "min": 0,
-            "persist_policy": "persistent",
-            "recipe_scope": "instance",
-            "step": 1,
-            "title": "PV Filter Tau",
-            "ui_hint": "duration_ms",
-            "unit": "ms"
-          },
-          "provenance": {
-            "owner_id": "pid_1",
-            "param_id": "pv_filter_tau_ms",
-            "source_layer": "system"
-          },
-          "source": "instance_override",
-          "value": 250,
-          "value_type": "u32"
-        },
-        "sample_time_ms": {
-          "metadata": {
-            "access_role": "engineer",
-            "danger_level": "low",
-            "description": "Loop execution sample period.",
-            "group": "timing",
-            "live_edit_policy": "apply_on_restart",
-            "max": 60000,
-            "min": 1,
-            "persist_policy": "persistent",
-            "recipe_scope": "instance",
-            "step": 1,
-            "title": "Sample Time",
-            "ui_hint": "duration_ms",
-            "unit": "ms"
-          },
-          "provenance": {
-            "owner_id": "pid_1",
-            "param_id": "sample_time_ms",
-            "source_layer": "system"
-          },
-          "source": "instance_override",
-          "value": 100,
-          "value_type": "u32"
-        },
-        "td": {
-          "metadata": {
-            "access_role": "engineer",
-            "danger_level": "medium",
-            "description": "Derivative time constant.",
-            "group": "tuning",
-            "live_edit_policy": "immediate",
-            "max": 1000000,
-            "min": 0,
-            "persist_policy": "persistent",
-            "recipe_scope": "instance",
-            "step": 0.01,
-            "title": "Derivative Time",
-            "ui_hint": "numeric",
-            "unit": "s"
-          },
-          "provenance": {
-            "owner_id": "pid_1",
-            "param_id": "td",
-            "source_layer": "system"
-          },
-          "source": "instance_override",
-          "value": 0.25,
-          "value_type": "float"
-        },
-        "ti": {
-          "metadata": {
-            "access_role": "engineer",
-            "danger_level": "medium",
-            "description": "Integral time constant.",
-            "group": "tuning",
-            "live_edit_policy": "immediate",
-            "max": 1000000,
-            "min": 0,
-            "persist_policy": "persistent",
-            "recipe_scope": "instance",
-            "step": 0.01,
-            "title": "Integral Time",
-            "ui_hint": "numeric",
-            "unit": "s"
-          },
-          "provenance": {
-            "owner_id": "pid_1",
-            "param_id": "ti",
-            "source_layer": "system"
-          },
-          "source": "instance_override",
-          "value": 12,
-          "value_type": "float"
-        }
-      },
-      "ports": {
-        "enable_cmd": {
-          "channel_kind": "command",
-          "direction": "in",
-          "id": "enable_cmd",
-          "value_type": "bool"
-        },
-        "in_auto": {
-          "channel_kind": "state",
-          "direction": "out",
-          "id": "in_auto",
-          "value_type": "bool"
-        },
-        "loop_ok": {
-          "channel_kind": "state",
-          "direction": "out",
-          "id": "loop_ok",
-          "value_type": "bool"
-        },
-        "manual_mv": {
-          "channel_kind": "command",
-          "direction": "in",
-          "id": "manual_mv",
-          "value_type": "float"
-        },
-        "mode_cmd": {
-          "channel_kind": "command",
-          "direction": "in",
-          "id": "mode_cmd",
-          "value_type": "string"
-        },
-        "mv_out": {
-          "channel_kind": "command",
-          "direction": "out",
-          "id": "mv_out",
-          "value_type": "float"
-        },
-        "pv": {
-          "channel_kind": "telemetry",
-          "direction": "in",
-          "id": "pv",
-          "value_type": "float"
-        },
-        "saturated": {
-          "channel_kind": "state",
-          "direction": "out",
-          "id": "saturated",
-          "value_type": "bool"
-        },
-        "sp": {
-          "channel_kind": "telemetry",
-          "direction": "in",
-          "id": "sp",
-          "value_type": "float"
-        }
-      },
-      "source_scope": {
-        "kind": "system",
-        "owner_id": "demo_pid_controller_project"
-      },
-      "title": "PID Controller #1",
-      "type_ref": "library:std/pid_controller"
+  "resources": {
+    "hw_pv_sensor_1": {
+      "id": "hw_pv_sensor_1",
+      "binding_kind": "analog_in",
+      "instance_id": "pv_sensor_1",
+      "port_id": "value",
+      "config": {
+        "channel": 0
+      }
     },
-    "pv_sensor_1": {
-      "alarms": {},
-      "enabled": true,
-      "id": "pv_sensor_1",
-      "native_execution": {
-        "config_template": "shipcontroller.analog_input.v1",
-        "native_kind": "std.analog_input.v1",
-        "target_kinds": [
-          "esp32.shipcontroller.v1"
-        ]
-      },
-      "params": {},
-      "ports": {
-        "value": {
-          "channel_kind": "telemetry",
-          "direction": "out",
-          "id": "value",
-          "value_type": "float"
-        }
-      },
-      "source_scope": {
-        "kind": "system",
-        "owner_id": "demo_pid_controller_project"
-      },
-      "title": "PV Sensor",
-      "type_ref": "library:std/analog_input"
-    }
-  },
-  "monitors": {
-    "mon_pid_1_manual_override_active": {
-      "id": "mon_pid_1_manual_override_active",
-      "kind": "state",
-      "owner_instance_id": "pid_1",
-      "provenance": {
-        "facet_id": "manual_override_active",
-        "facet_kind": "monitor",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
-      "severity": "info",
-      "source_ports": [
-        {
-          "instance_id": "pid_1",
-          "port_id": "in_auto"
-        }
-      ],
-      "status_port_id": "in_auto",
-      "title": "Manual Override Active"
-    },
-    "mon_pid_1_output_saturated": {
-      "id": "mon_pid_1_output_saturated",
-      "kind": "threshold",
-      "owner_instance_id": "pid_1",
-      "provenance": {
-        "facet_id": "output_saturated",
-        "facet_kind": "monitor",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
-      "severity": "info",
-      "source_ports": [
-        {
-          "instance_id": "pid_1",
-          "port_id": "mv_out"
-        }
-      ],
-      "status_port_id": "saturated",
-      "title": "Output Saturated"
-    },
-    "mon_pid_1_pv_stale": {
-      "id": "mon_pid_1_pv_stale",
-      "kind": "stale",
-      "owner_instance_id": "pid_1",
-      "provenance": {
-        "facet_id": "pv_stale",
-        "facet_kind": "monitor",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
-      "severity": "warning",
-      "source_ports": [
-        {
-          "instance_id": "pid_1",
-          "port_id": "pv"
-        }
-      ],
-      "status_port_id": "loop_ok",
-      "title": "PV Stale"
+    "hw_pid_1_mv_out": {
+      "id": "hw_pid_1_mv_out",
+      "binding_kind": "analog_out",
+      "instance_id": "pid_1",
+      "port_id": "mv_out",
+      "config": {
+        "channel": 1
+      }
     }
   },
   "operations": {
-    "op_pid_1_hold": {
-      "confirmation_policy": "optional",
-      "id": "op_pid_1_hold",
-      "kind": "hold",
-      "owner_instance_id": "pid_1",
-      "progress_signals": [
-        {
-          "instance_id": "pid_1",
-          "port_id": "in_auto"
-        }
-      ],
-      "provenance": {
-        "facet_id": "hold",
-        "facet_kind": "operation",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
-      "result_fields": [
-        "completed"
-      ],
-      "safe_when": [
-        "enabled"
-      ],
-      "state_hint": {
-        "availability": "guarded",
-        "progress_style": "signals"
-      },
-      "title": "Hold Output",
-      "ui_hint": "secondary"
-    },
-    "op_pid_1_release": {
-      "confirmation_policy": "optional",
-      "id": "op_pid_1_release",
-      "kind": "release",
-      "owner_instance_id": "pid_1",
-      "progress_signals": [
-        {
-          "instance_id": "pid_1",
-          "port_id": "in_auto"
-        }
-      ],
-      "provenance": {
-        "facet_id": "release",
-        "facet_kind": "operation",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
-      "result_fields": [
-        "completed"
-      ],
-      "safe_when": [
-        "enabled"
-      ],
-      "state_hint": {
-        "availability": "guarded",
-        "progress_style": "signals"
-      },
-      "title": "Release Hold",
-      "ui_hint": "primary"
-    },
     "op_pid_1_reset_integral": {
-      "confirmation_policy": "optional",
       "id": "op_pid_1_reset_integral",
-      "kind": "reset_integral",
       "owner_instance_id": "pid_1",
+      "kind": "reset_integral",
+      "title": "Reset Integral",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "enabled",
+          "manual_mode"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ]
+      },
+      "ui_hint": "secondary",
+      "safe_when": [
+        "enabled",
+        "manual_mode"
+      ],
       "progress_signals": [
         {
           "instance_id": "pid_1",
           "port_id": "loop_ok"
         }
       ],
-      "provenance": {
-        "facet_id": "reset_integral",
-        "facet_kind": "operation",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
       "result_fields": [
         "completed"
-      ],
-      "safe_when": [
-        "enabled",
-        "manual_mode"
       ],
       "state_hint": {
         "availability": "guarded",
         "progress_style": "signals"
       },
-      "title": "Reset Integral",
-      "ui_hint": "secondary"
-    }
-  },
-  "pack_id": "pid-controller-demo-pack",
-  "persistence_slots": {
-    "ps_pid_1_kp": {
-      "flush_policy": "on_change",
-      "id": "ps_pid_1_kp",
-      "nv_slot_hint": "nv.pid.kp",
-      "owner_instance_id": "pid_1",
-      "owner_param_id": "kp",
       "provenance": {
-        "facet_id": "kp",
-        "facet_kind": "persistence_slot",
         "owner_instance_id": "pid_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_integral",
         "source_type_ref": "library:pid_controller"
-      },
-      "slot_kind": "config",
-      "title": "Kp"
+      }
     },
-    "ps_pid_1_td": {
-      "flush_policy": "on_change",
-      "id": "ps_pid_1_td",
-      "nv_slot_hint": "nv.pid.td",
+    "op_pid_1_hold": {
+      "id": "op_pid_1_hold",
       "owner_instance_id": "pid_1",
-      "owner_param_id": "td",
-      "provenance": {
-        "facet_id": "td",
-        "facet_kind": "persistence_slot",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
+      "kind": "hold",
+      "title": "Hold Output",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "enabled"
+        ]
       },
-      "slot_kind": "config",
-      "title": "Td"
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ]
+      },
+      "ui_hint": "secondary",
+      "safe_when": [
+        "enabled"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "pid_1",
+          "port_id": "in_auto"
+        }
+      ],
+      "result_fields": [
+        "completed"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "operation",
+        "facet_id": "hold",
+        "source_type_ref": "library:pid_controller"
+      }
     },
-    "ps_pid_1_ti": {
-      "flush_policy": "on_change",
-      "id": "ps_pid_1_ti",
-      "nv_slot_hint": "nv.pid.ti",
+    "op_pid_1_release": {
+      "id": "op_pid_1_release",
       "owner_instance_id": "pid_1",
-      "owner_param_id": "ti",
+      "kind": "release",
+      "title": "Release Hold",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "enabled"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ]
+      },
+      "ui_hint": "primary",
+      "safe_when": [
+        "enabled"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "pid_1",
+          "port_id": "in_auto"
+        }
+      ],
+      "result_fields": [
+        "completed"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
       "provenance": {
-        "facet_id": "ti",
-        "facet_kind": "persistence_slot",
         "owner_instance_id": "pid_1",
+        "facet_kind": "operation",
+        "facet_id": "release",
         "source_type_ref": "library:pid_controller"
-      },
-      "slot_kind": "config",
-      "title": "Ti"
+      }
     }
-  },
-  "resources": {
-    "hw_pid_1_mv_out": {
-      "binding_kind": "analog_out",
-      "config": {
-        "channel": 1
-      },
-      "id": "hw_pid_1_mv_out",
-      "instance_id": "pid_1",
-      "port_id": "mv_out"
-    },
-    "hw_pv_sensor_1": {
-      "binding_kind": "analog_in",
-      "config": {
-        "channel": 0
-      },
-      "id": "hw_pv_sensor_1",
-      "instance_id": "pv_sensor_1",
-      "port_id": "value"
-    }
-  },
-  "schema_version": "0.1.0",
-  "source": {
-    "authoring_schema_version": "0.4.0",
-    "generated_at": "2026-03-29T12:00:00Z",
-    "project_id": "demo_pid_controller_project"
   },
   "trace_groups": {
     "tg_pid_1_control_loop": {
-      "chart_hint": "line",
       "id": "tg_pid_1_control_loop",
       "owner_instance_id": "pid_1",
-      "provenance": {
-        "facet_id": "control_loop",
-        "facet_kind": "trace_group",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
-      "sample_hint_ms": 250,
+      "title": "Control Loop",
       "signals": [
         {
           "instance_id": "pid_1",
@@ -653,19 +540,19 @@
           "port_id": "error"
         }
       ],
-      "title": "Control Loop"
+      "sample_hint_ms": 250,
+      "chart_hint": "line",
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "trace_group",
+        "facet_id": "control_loop",
+        "source_type_ref": "library:pid_controller"
+      }
     },
     "tg_pid_1_mode": {
-      "chart_hint": "timeline",
       "id": "tg_pid_1_mode",
       "owner_instance_id": "pid_1",
-      "provenance": {
-        "facet_id": "mode",
-        "facet_kind": "trace_group",
-        "owner_instance_id": "pid_1",
-        "source_type_ref": "library:pid_controller"
-      },
-      "sample_hint_ms": 250,
+      "title": "Mode",
       "signals": [
         {
           "instance_id": "pid_1",
@@ -680,7 +567,176 @@
           "port_id": "saturated"
         }
       ],
-      "title": "Mode"
+      "sample_hint_ms": 250,
+      "chart_hint": "timeline",
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "trace_group",
+        "facet_id": "mode",
+        "source_type_ref": "library:pid_controller"
+      }
     }
+  },
+  "monitors": {
+    "mon_pid_1_pv_stale": {
+      "id": "mon_pid_1_pv_stale",
+      "owner_instance_id": "pid_1",
+      "kind": "stale",
+      "title": "PV Stale",
+      "source_ports": [
+        {
+          "instance_id": "pid_1",
+          "port_id": "pv"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "loop_ok",
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "monitor",
+        "facet_id": "pv_stale",
+        "source_type_ref": "library:pid_controller"
+      }
+    },
+    "mon_pid_1_output_saturated": {
+      "id": "mon_pid_1_output_saturated",
+      "owner_instance_id": "pid_1",
+      "kind": "threshold",
+      "title": "Output Saturated",
+      "source_ports": [
+        {
+          "instance_id": "pid_1",
+          "port_id": "mv_out"
+        }
+      ],
+      "severity": "info",
+      "status_port_id": "saturated",
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "monitor",
+        "facet_id": "output_saturated",
+        "source_type_ref": "library:pid_controller"
+      }
+    },
+    "mon_pid_1_manual_override_active": {
+      "id": "mon_pid_1_manual_override_active",
+      "owner_instance_id": "pid_1",
+      "kind": "state",
+      "title": "Manual Override Active",
+      "source_ports": [
+        {
+          "instance_id": "pid_1",
+          "port_id": "in_auto"
+        }
+      ],
+      "severity": "info",
+      "status_port_id": "in_auto",
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "monitor",
+        "facet_id": "manual_override_active",
+        "source_type_ref": "library:pid_controller"
+      }
+    }
+  },
+  "frontend_requirements": {
+    "fe_pid_1_pv_source": {
+      "id": "fe_pid_1_pv_source",
+      "owner_instance_id": "pid_1",
+      "kind": "process_value_input",
+      "title": "PV Source",
+      "source_ports": [
+        {
+          "instance_id": "pid_1",
+          "port_id": "pv"
+        }
+      ],
+      "binding_kind": "analog_in",
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "required": true,
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "pv_source",
+        "source_type_ref": "library:pid_controller"
+      }
+    },
+    "fe_pid_1_mv_output": {
+      "id": "fe_pid_1_mv_output",
+      "owner_instance_id": "pid_1",
+      "kind": "control_output",
+      "title": "MV Output",
+      "source_ports": [
+        {
+          "instance_id": "pid_1",
+          "port_id": "mv_out"
+        }
+      ],
+      "binding_kind": "analog_out",
+      "channel_kind": "command",
+      "value_type": "float",
+      "required": true,
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "mv_output",
+        "source_type_ref": "library:pid_controller"
+      }
+    }
+  },
+  "persistence_slots": {
+    "ps_pid_1_kp": {
+      "id": "ps_pid_1_kp",
+      "owner_instance_id": "pid_1",
+      "slot_kind": "config",
+      "title": "Kp",
+      "owner_param_id": "kp",
+      "nv_slot_hint": "nv.pid.kp",
+      "flush_policy": "on_change",
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "kp",
+        "source_type_ref": "library:pid_controller"
+      }
+    },
+    "ps_pid_1_ti": {
+      "id": "ps_pid_1_ti",
+      "owner_instance_id": "pid_1",
+      "slot_kind": "config",
+      "title": "Ti",
+      "owner_param_id": "ti",
+      "nv_slot_hint": "nv.pid.ti",
+      "flush_policy": "on_change",
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "ti",
+        "source_type_ref": "library:pid_controller"
+      }
+    },
+    "ps_pid_1_td": {
+      "id": "ps_pid_1_td",
+      "owner_instance_id": "pid_1",
+      "slot_kind": "config",
+      "title": "Td",
+      "owner_param_id": "td",
+      "nv_slot_hint": "nv.pid.td",
+      "flush_policy": "on_change",
+      "provenance": {
+        "owner_instance_id": "pid_1",
+        "facet_kind": "persistence_slot",
+        "facet_id": "td",
+        "source_type_ref": "library:pid_controller"
+      }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": false,
+    "cancel_supported": false,
+    "progress_supported": false,
+    "result_supported": false,
+    "audit_required": false
   }
 }

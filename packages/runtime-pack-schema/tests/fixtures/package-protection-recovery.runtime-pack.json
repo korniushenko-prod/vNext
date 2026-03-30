@@ -1,0 +1,173 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "package-protection-recovery-valid-pack",
+  "source": {
+    "project_id": "package_protection_recovery_valid",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {
+    "boiler_pkg_1__feedwater_guard_1": {
+      "id": "boiler_pkg_1__feedwater_guard_1",
+      "type_ref": "project:package_protection_source",
+      "enabled": true,
+      "ports": {
+        "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "blocked_out": { "id": "blocked_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "trip_out": { "id": "trip_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "recovering_out": { "id": "recovering_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+      },
+      "params": {},
+      "alarms": {}
+    },
+    "boiler_pkg_1__pressure_trip_1": {
+      "id": "boiler_pkg_1__pressure_trip_1",
+      "type_ref": "project:package_protection_source",
+      "enabled": true,
+      "ports": {
+        "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "blocked_out": { "id": "blocked_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "trip_out": { "id": "trip_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+        "recovering_out": { "id": "recovering_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+      },
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {
+    "op_boiler_pkg_1__pressure_trip_1_reset_trip": {
+      "id": "op_boiler_pkg_1__pressure_trip_1_reset_trip",
+      "owner_instance_id": "boiler_pkg_1__pressure_trip_1",
+      "kind": "reset_latch",
+      "title": "Reset Trip",
+      "availability": {
+        "mode": "always"
+      },
+      "confirmation_policy": "required",
+      "progress_mode": "none",
+      "result_contract": { "mode": "none" }
+    },
+    "op_boiler_pkg_1__pressure_trip_1_request_recovery": {
+      "id": "op_boiler_pkg_1__pressure_trip_1_request_recovery",
+      "owner_instance_id": "boiler_pkg_1__pressure_trip_1",
+      "kind": "reset",
+      "title": "Request Recovery",
+      "availability": {
+        "mode": "always"
+      },
+      "confirmation_policy": "none",
+      "progress_mode": "none",
+      "result_contract": { "mode": "none" }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": true,
+    "cancel_supported": true,
+    "progress_supported": true,
+    "result_supported": true,
+    "audit_required": true
+  },
+  "package_protection_recovery": {
+    "pkgprotect_boiler_pkg_1": {
+      "id": "pkgprotect_boiler_pkg_1",
+      "package_instance_id": "boiler_pkg_1",
+      "title": "BoilerSupervisorProtection v1",
+      "trips": {
+        "pressure_trip": {
+          "id": "pressure_trip",
+          "qualified_id": "pkgprotect_boiler_pkg_1.trip.pressure_trip",
+          "title": "Pressure Trip",
+          "source_ports": [{ "instance_id": "boiler_pkg_1__pressure_trip_1", "port_id": "trip_out" }],
+          "latching": true,
+          "summary": "Package pressure trip is latched.",
+          "reason_code": "pressure_trip_active",
+          "diagnostic_ref": "diag_pressure_trip"
+        }
+      },
+      "inhibits": {
+        "feedwater_blocked": {
+          "id": "feedwater_blocked",
+          "qualified_id": "pkgprotect_boiler_pkg_1.inhibit.feedwater_blocked",
+          "title": "Feedwater Blocked",
+          "source_ports": [{ "instance_id": "boiler_pkg_1__feedwater_guard_1", "port_id": "blocked_out" }],
+          "summary": "Feedwater path is blocked.",
+          "reason_code": "feedwater_blocked",
+          "diagnostic_ref": "diag_feedwater_blocked"
+        }
+      },
+      "protection_summary": {
+        "id": "protection_summary",
+        "title": "Protection Summary",
+        "default_state": "tripped",
+        "trip_ids": ["pkgprotect_boiler_pkg_1.trip.pressure_trip"],
+        "inhibit_ids": ["pkgprotect_boiler_pkg_1.inhibit.feedwater_blocked"],
+        "recovery_request_ids": ["reset_pressure_trip", "request_recovery"],
+        "diagnostic_summaries": {
+          "active_reasons": {
+            "id": "active_reasons",
+            "title": "Active Reasons",
+            "trip_ids": ["pkgprotect_boiler_pkg_1.trip.pressure_trip"],
+            "inhibit_ids": ["pkgprotect_boiler_pkg_1.inhibit.feedwater_blocked"],
+            "summary": "Recovery is blocked until the feedwater path is clear and the trip is reset."
+          }
+        }
+      },
+      "recovery_requests": {
+        "reset_pressure_trip": {
+          "id": "reset_pressure_trip",
+          "title": "Reset Pressure Trip",
+          "kind": "reset_latch",
+          "target_operation_id": "op_boiler_pkg_1__pressure_trip_1_reset_trip",
+          "target_owner_instance_id": "boiler_pkg_1__pressure_trip_1",
+          "confirmation_policy": "required",
+          "summary": "Reset the latched pressure trip."
+        },
+        "request_recovery": {
+          "id": "request_recovery",
+          "title": "Request Recovery",
+          "kind": "reset",
+          "target_operation_id": "op_boiler_pkg_1__pressure_trip_1_request_recovery",
+          "target_owner_instance_id": "boiler_pkg_1__pressure_trip_1",
+          "blocked_by_inhibit_ids": ["pkgprotect_boiler_pkg_1.inhibit.feedwater_blocked"],
+          "summary": "Recovery is available only when feedwater inhibit clears."
+        }
+      },
+      "summary_outputs": {
+        "package_ready": {
+          "id": "package_ready",
+          "value_type": "bool",
+          "source": { "instance_id": "boiler_pkg_1__feedwater_guard_1", "port_id": "ready_out" }
+        },
+        "package_tripped": {
+          "id": "package_tripped",
+          "value_type": "bool",
+          "source": { "instance_id": "boiler_pkg_1__pressure_trip_1", "port_id": "trip_out" }
+        }
+      },
+      "aggregate_monitors": {
+        "protection_health": {
+          "id": "protection_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            { "instance_id": "boiler_pkg_1__feedwater_guard_1", "port_id": "ready_out" },
+            { "instance_id": "boiler_pkg_1__pressure_trip_1", "port_id": "trip_out" }
+          ]
+        }
+      },
+      "trace_groups": {
+        "protection_trace": {
+          "id": "protection_trace",
+          "signals": [
+            { "instance_id": "boiler_pkg_1__feedwater_guard_1", "port_id": "blocked_out" },
+            { "instance_id": "boiler_pkg_1__pressure_trip_1", "port_id": "trip_out" }
+          ]
+        }
+      }
+    }
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

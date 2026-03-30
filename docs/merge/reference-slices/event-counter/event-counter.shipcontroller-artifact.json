@@ -1,0 +1,68 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "event-counter-demo-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [
+      {
+        "id": "di_pulse_source_1",
+        "instance_id": "pulse_source_1",
+        "pin": 5
+      }
+    ],
+    "analog_inputs": [],
+    "digital_outputs": [],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "event_counters": [
+      {
+        "id": "event_counter_1",
+        "native_kind": "std.event_counter.v1",
+        "edge_mode": "rising",
+        "debounce_ms": 20,
+        "persist_enabled": true,
+        "persist_period_s": 60,
+        "increment_step": 1,
+        "persistence_slot_id": "ps_event_counter_1_total_count",
+        "frontend_requirement_ids": [
+          "fe_event_counter_1_event_source"
+        ],
+        "source": {
+          "instance_id": "pulse_source_1",
+          "port_id": "value",
+          "connection_id": "conn_sig_pulse_source_to_event_counter_t1",
+          "resource_id": "hw_pulse_source_1"
+        }
+      }
+    ],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "operations": [
+      {
+        "id": "op_event_counter_1_reset_counter",
+        "owner_instance_id": "event_counter_1",
+        "kind": "reset_counter",
+        "metadata_only": true,
+        "title": "Reset Counter",
+        "confirmation_policy": "required",
+        "availability_mode": "guarded",
+        "progress_mode": "signal_based",
+        "result_mode": "applyable_result",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "count_out",
+            "value_type": "u32"
+          }
+        ]
+      }
+    ]
+  },
+  "diagnostics": []
+}

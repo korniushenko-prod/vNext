@@ -1,0 +1,473 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "boiler-supervisor-arbitration-demo-pack",
+  "source": {
+    "project_id": "boiler_supervisor_arbitration_reference_e2e",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T23:55:00Z"
+  },
+  "instances": {
+    "boiler_supervisor_arbitration_1__auto_owner_1": {
+      "id": "boiler_supervisor_arbitration_1__auto_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_arbitration_1 / Auto Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "boiler_supervisor_arbitration_1__manual_owner_1": {
+      "id": "boiler_supervisor_arbitration_1__manual_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_arbitration_1 / Manual Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "boiler_supervisor_arbitration_1__service_owner_1": {
+      "id": "boiler_supervisor_arbitration_1__service_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_arbitration_1 / Service Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "boiler_supervisor_arbitration_1__remote_owner_1": {
+      "id": "boiler_supervisor_arbitration_1__remote_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_arbitration_1 / Remote Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "boiler_supervisor_arbitration_1__enable_request_1": {
+      "id": "boiler_supervisor_arbitration_1__enable_request_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_arbitration_1 / Enable Request Target",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "boiler_supervisor_arbitration_1__reset_request_1": {
+      "id": "boiler_supervisor_arbitration_1__reset_request_1",
+      "type_ref": "project:package_command_source",
+      "title": "boiler_supervisor_arbitration_1 / Reset Request Target",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "boiler_supervisor_arbitration_reference_e2e"
+      }
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "package_arbitration": {
+    "pkgarb_boiler_supervisor_arbitration_1": {
+      "id": "pkgarb_boiler_supervisor_arbitration_1",
+      "package_instance_id": "boiler_supervisor_arbitration_1",
+      "title": "BoilerSupervisorArbitration v1",
+      "ownership_lanes": {
+        "auto_owner": {
+          "id": "auto_owner",
+          "title": "Auto Owner",
+          "lane": "auto",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__auto_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Automatic ownership lane is available."
+        },
+        "manual_owner": {
+          "id": "manual_owner",
+          "title": "Manual Owner",
+          "lane": "manual",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__manual_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Manual ownership lane is active."
+        },
+        "service_owner": {
+          "id": "service_owner",
+          "title": "Service Owner",
+          "lane": "service",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__service_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Service ownership lane is available for maintenance use."
+        },
+        "remote_owner": {
+          "id": "remote_owner",
+          "title": "Remote Owner",
+          "lane": "remote",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__remote_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Remote ownership lane is available but not active."
+        }
+      },
+      "ownership_summary": {
+        "id": "ownership_summary",
+        "title": "Ownership Summary",
+        "active_lane_ids": [
+          "manual_owner"
+        ],
+        "summary": "Manual ownership is currently active."
+      },
+      "command_lanes": {
+        "enable_auto": {
+          "id": "enable_auto",
+          "title": "Enable In Auto",
+          "request_kind": "request_enable",
+          "ownership_lane_id": "auto_owner",
+          "ownership_lane": "auto",
+          "target_instance_id": "boiler_supervisor_arbitration_1__enable_request_1",
+          "arbitration_result": "accepted",
+          "summary": "Enable request is accepted for the automatic lane.",
+          "request_preview": "request_enable -> enable_request_1"
+        },
+        "reset_service": {
+          "id": "reset_service",
+          "title": "Reset In Service",
+          "request_kind": "request_reset",
+          "ownership_lane_id": "service_owner",
+          "ownership_lane": "service",
+          "target_instance_id": "boiler_supervisor_arbitration_1__reset_request_1",
+          "arbitration_result": "blocked",
+          "summary": "Reset request is blocked while manual ownership stays active.",
+          "request_preview": "request_reset -> reset_request_1",
+          "blocked_reason": "service_lockout"
+        },
+        "disable_remote": {
+          "id": "disable_remote",
+          "title": "Disable From Remote",
+          "request_kind": "request_disable",
+          "ownership_lane_id": "remote_owner",
+          "ownership_lane": "remote",
+          "target_instance_id": "boiler_supervisor_arbitration_1__enable_request_1",
+          "arbitration_result": "denied",
+          "summary": "Remote disable is denied because manual ownership has authority.",
+          "request_preview": "request_disable -> enable_request_1",
+          "denied_reason": "manual_owner_active"
+        },
+        "start_service": {
+          "id": "start_service",
+          "title": "Start In Service",
+          "request_kind": "request_start",
+          "ownership_lane_id": "service_owner",
+          "ownership_lane": "service",
+          "target_instance_id": "boiler_supervisor_arbitration_1__enable_request_1",
+          "arbitration_result": "superseded",
+          "summary": "Service start is superseded by the accepted auto enable request.",
+          "request_preview": "request_start -> enable_request_1",
+          "superseded_by_lane_id": "enable_auto"
+        }
+      },
+      "command_summary": {
+        "id": "command_summary",
+        "title": "Command Summary",
+        "active_owner_lane_ids": [
+          "manual_owner"
+        ],
+        "accepted_lane_ids": [
+          "enable_auto"
+        ],
+        "blocked_lane_ids": [
+          "reset_service"
+        ],
+        "denied_lane_ids": [
+          "disable_remote"
+        ],
+        "superseded_lane_ids": [
+          "start_service"
+        ],
+        "summary": "One accepted lane remains active while blocked, denied, and superseded outcomes stay explicit."
+      },
+      "summary_outputs": {
+        "command_ready": {
+          "id": "command_ready",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "boiler_supervisor_arbitration_1__enable_request_1",
+            "port_id": "ready_out"
+          }
+        },
+        "command_denied": {
+          "id": "command_denied",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "boiler_supervisor_arbitration_1__enable_request_1",
+            "port_id": "denied_out"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "arbitration_health": {
+          "id": "arbitration_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__auto_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__manual_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__enable_request_1",
+              "port_id": "ready_out"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "arbitration_trace": {
+          "id": "arbitration_trace",
+          "signals": [
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__manual_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__reset_request_1",
+              "port_id": "blocked_out"
+            },
+            {
+              "instance_id": "boiler_supervisor_arbitration_1__enable_request_1",
+              "port_id": "denied_out"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

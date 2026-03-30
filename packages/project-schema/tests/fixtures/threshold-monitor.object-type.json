@@ -1,0 +1,277 @@
+{
+  "id": "threshold_monitor",
+  "kind": "object_type",
+  "meta": {
+    "title": "Threshold Monitor",
+    "version": "1.0.0",
+    "origin": "library",
+    "library_id": "std",
+    "description": "Monitors a numeric value against high, low, or window limits with hysteresis and source timeout handling."
+  },
+  "interface": {
+    "ports": {
+      "value_in": {
+        "id": "value_in",
+        "title": "Value Input",
+        "direction": "in",
+        "channel_kind": "telemetry",
+        "value_type": "float"
+      },
+      "above_out": {
+        "id": "above_out",
+        "title": "Above Limit",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "below_out": {
+        "id": "below_out",
+        "title": "Below Limit",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "in_window_out": {
+        "id": "in_window_out",
+        "title": "In Window",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "alarm_active": {
+        "id": "alarm_active",
+        "title": "Alarm Active",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      },
+      "source_ok": {
+        "id": "source_ok",
+        "title": "Source OK",
+        "direction": "out",
+        "channel_kind": "state",
+        "value_type": "bool"
+      }
+    },
+    "params": {
+      "mode": {
+        "id": "mode",
+        "title": "Mode",
+        "description": "Selects high, low, or window evaluation.",
+        "value_type": "string",
+        "default": "high",
+        "group": "thresholds",
+        "ui_hint": "enum",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "threshold_a": {
+        "id": "threshold_a",
+        "title": "Threshold A",
+        "description": "Primary threshold or lower window edge.",
+        "value_type": "float",
+        "default": 0.0,
+        "unit": "engineering_units",
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "thresholds",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "threshold_b": {
+        "id": "threshold_b",
+        "title": "Threshold B",
+        "description": "Secondary threshold or upper window edge.",
+        "value_type": "float",
+        "default": 100.0,
+        "unit": "engineering_units",
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "thresholds",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "hysteresis": {
+        "id": "hysteresis",
+        "title": "Hysteresis",
+        "description": "Deadband applied around threshold transitions.",
+        "value_type": "float",
+        "default": 0.5,
+        "unit": "engineering_units",
+        "min": 0,
+        "max": 1000000,
+        "step": 0.01,
+        "group": "thresholds",
+        "ui_hint": "numeric",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      },
+      "latch_alarm": {
+        "id": "latch_alarm",
+        "title": "Latch Alarm",
+        "description": "Keeps alarm active until the latch is reset.",
+        "value_type": "bool",
+        "default": false,
+        "group": "alarming",
+        "ui_hint": "toggle",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "medium"
+      },
+      "timeout_ms": {
+        "id": "timeout_ms",
+        "title": "Source Timeout",
+        "description": "Timeout before source quality is considered stale.",
+        "value_type": "u32",
+        "default": 5000,
+        "unit": "ms",
+        "min": 0,
+        "max": 3600000,
+        "step": 100,
+        "group": "alarming",
+        "ui_hint": "duration_ms",
+        "access_role": "engineer",
+        "live_edit_policy": "immediate",
+        "persist_policy": "project",
+        "recipe_scope": "instance",
+        "danger_level": "low"
+      }
+    },
+    "alarms": {}
+  },
+  "locals": {
+    "signals": {},
+    "vars": {}
+  },
+  "implementation": {
+    "native": {
+      "native_kind": "std.threshold_monitor.v1",
+      "target_kinds": [
+        "esp32.shipcontroller.v1"
+      ],
+      "config_template": "shipcontroller.threshold_monitor.v1"
+    },
+    "composition": null,
+    "state": null,
+    "flow": null
+  },
+  "facets": {
+    "frontends": {
+      "requirements": {
+        "value_source": {
+          "id": "value_source",
+          "kind": "process_value_input",
+          "title": "Value Source",
+          "source_ports": ["value_in"],
+          "binding_kind": "analog_in",
+          "channel_kind": "telemetry",
+          "value_type": "float",
+          "required": true
+        }
+      }
+    },
+    "operations": {
+      "operations": {
+        "reset_latch": {
+          "id": "reset_latch",
+          "kind": "reset_latch",
+          "title": "Reset Latch",
+          "ui_hint": "secondary",
+          "safe_when": ["alarm_latched"],
+          "confirmation_policy": "optional",
+          "progress_signals": ["alarm_active"],
+          "result_fields": ["completed", "alarm_active"]
+        }
+      }
+    },
+    "monitoring": {
+      "monitors": {
+        "stale_source": {
+          "id": "stale_source",
+          "kind": "stale",
+          "title": "Stale Source",
+          "source_ports": ["value_in"],
+          "severity": "warning",
+          "status_port_id": "source_ok"
+        },
+        "value_missing": {
+          "id": "value_missing",
+          "kind": "missing",
+          "title": "Value Missing",
+          "source_ports": ["value_in"],
+          "severity": "warning",
+          "status_port_id": "source_ok"
+        }
+      }
+    },
+    "debug": {
+      "trace_groups": {
+        "thresholds": {
+          "title": "Thresholds",
+          "signals": ["value_in", "above_out", "below_out", "alarm_active"],
+          "sample_hint_ms": 500,
+          "chart_hint": "line"
+        }
+      }
+    },
+    "templates": {
+      "presets": {
+        "high_limit": {
+          "id": "high_limit",
+          "title": "High Limit",
+          "defaults": {
+            "mode": "high",
+            "threshold_a": 100.0,
+            "threshold_b": 100.0,
+            "hysteresis": 1.0,
+            "latch_alarm": false,
+            "timeout_ms": 5000
+          }
+        },
+        "low_limit": {
+          "id": "low_limit",
+          "title": "Low Limit",
+          "defaults": {
+            "mode": "low",
+            "threshold_a": 20.0,
+            "threshold_b": 20.0,
+            "hysteresis": 1.0,
+            "latch_alarm": false,
+            "timeout_ms": 5000
+          }
+        },
+        "window_limit": {
+          "id": "window_limit",
+          "title": "Window Limit",
+          "defaults": {
+            "mode": "window",
+            "threshold_a": 20.0,
+            "threshold_b": 80.0,
+            "hysteresis": 1.0,
+            "latch_alarm": false,
+            "timeout_ms": 5000
+          }
+        }
+      }
+    }
+  },
+  "diagnostics": {}
+}

@@ -1,0 +1,19 @@
+{
+  "request_id": "req_package_mode_execution_invalid",
+  "target_id": "esp32.shipcontroller.v1",
+  "collected_at": "2026-03-31T01:05:00Z",
+  "signals": {},
+  "resources": {},
+  "package_mode_phase_snapshots": {
+    "pump_pkg_1": {
+      "package_instance_id": "pump_pkg_1",
+      "state": "mode_phase_available",
+      "active_transition_intent": "request_sequence_jump",
+      "transition_state": "warming_up",
+      "phase_states": {
+        "pkgmode_pump_pkg_1.phase.prime": "warming_up"
+      }
+    }
+  },
+  "diagnostics": []
+}

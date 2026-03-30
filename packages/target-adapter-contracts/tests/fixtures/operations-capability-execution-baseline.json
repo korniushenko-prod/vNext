@@ -1,0 +1,30 @@
+{
+  "target_id": "esp32.shipcontroller.v1",
+  "display_name": "ESP32 ShipController",
+  "supported_binding_kinds": ["digital_in", "digital_out", "analog_in", "bus", "service"],
+  "supported_channel_kinds": ["signal", "command", "state", "telemetry"],
+  "supported_value_types": ["bool", "u32", "float", "string"],
+  "supported_native_kinds": ["std.pulse_flowmeter.v1", "std.run_hours_counter.v1", "std.maintenance_counter.v1"],
+  "supported_operation_kinds": ["reset_totalizer", "reset_counter", "reset_interval"],
+  "supports_trace": true,
+  "supports_operations": true,
+  "operations_support": {
+    "enabled": true,
+    "invoke": true,
+    "cancel": false,
+    "progress": true,
+    "result_payload": true,
+    "confirmation": true,
+    "execution_baseline_kinds": ["reset_totalizer", "reset_counter", "reset_interval"],
+    "confirmation_token_validation": "when_required",
+    "failure_payload": true,
+    "audit_hooks": true
+  },
+  "supports_persistence": true,
+  "supports_simulation": false,
+  "limits": {
+    "max_instances": 128,
+    "max_connections": 256,
+    "max_resources": 128
+  }
+}

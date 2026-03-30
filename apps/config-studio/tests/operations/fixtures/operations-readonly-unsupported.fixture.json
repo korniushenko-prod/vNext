@@ -1,0 +1,45 @@
+{
+  "id": "operations-readonly-unsupported",
+  "title": "Unsupported target / degraded read-only state",
+  "description": "The surface must stay visible even when the target reports operations as unsupported.",
+  "subject_label": "Remote Point Frontend #1",
+  "runtimePack": {
+    "pack_id": "operations-readonly-unsupported-pack",
+    "operations": {
+      "op_remote_point_1_self_test": {
+        "id": "op_remote_point_1_self_test",
+        "owner_instance_id": "remote_point_1",
+        "kind": "self_test",
+        "title": "Self Test",
+        "confirmation_policy": "none",
+        "availability": {
+          "mode": "always",
+          "required_states": []
+        },
+        "progress_mode": "state_based",
+        "result_contract": {
+          "mode": "none",
+          "fields": []
+        }
+      }
+    },
+    "operation_runtime_contract": {
+      "invoke_supported": false,
+      "cancel_supported": false,
+      "progress_supported": false,
+      "result_supported": false,
+      "audit_required": false
+    }
+  },
+  "runtimeSnapshot": {
+    "operation_snapshots": {}
+  },
+  "operationsSupport": {
+    "enabled": false,
+    "invoke": false,
+    "cancel": false,
+    "progress": false,
+    "result_payload": false,
+    "confirmation": false
+  }
+}

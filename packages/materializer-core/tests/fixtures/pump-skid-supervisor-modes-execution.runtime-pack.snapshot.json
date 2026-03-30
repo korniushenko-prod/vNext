@@ -1,0 +1,226 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "pump-skid-supervisor-modes-execution-pack",
+  "source": {
+    "project_id": "pump_skid_supervisor_modes_execution_reference_minimal",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T12:05:00Z"
+  },
+  "instances": {
+    "pump_skid_supervisor_modes_execution_1__pump_group_1": {
+      "id": "pump_skid_supervisor_modes_execution_1__pump_group_1",
+      "type_ref": "project:pump_group",
+      "title": "pump_skid_supervisor_modes_execution_1 / Pump Group",
+      "enabled": true,
+      "ports": {
+        "off_out": {
+          "id": "off_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "auto_out": {
+          "id": "auto_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "service_out": {
+          "id": "service_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "prime_out": {
+          "id": "prime_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "run_out": {
+          "id": "run_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "flush_out": {
+          "id": "flush_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_modes_execution_reference_minimal"
+      }
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "package_mode_runtime_contract": {
+    "package_mode_execution_supported": true,
+    "phase_transition_execution_supported": true,
+    "transition_guard_diagnostics_supported": true,
+    "supported_intents": [
+      "request_mode_change",
+      "request_phase_start",
+      "request_phase_abort"
+    ]
+  },
+  "package_mode_phase": {
+    "pkgmode_pump_skid_supervisor_modes_execution_1": {
+      "id": "pkgmode_pump_skid_supervisor_modes_execution_1",
+      "package_instance_id": "pump_skid_supervisor_modes_execution_1",
+      "title": "PumpSkidSupervisorModesExecution v1",
+      "modes": {
+        "off": {
+          "id": "off",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_execution_1.mode.off",
+          "title": "Off",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_modes_execution_1.phase.idle"
+          ]
+        },
+        "auto": {
+          "id": "auto",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_execution_1.mode.auto",
+          "title": "Auto",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_modes_execution_1.phase.prime",
+            "pkgmode_pump_skid_supervisor_modes_execution_1.phase.run"
+          ]
+        },
+        "service": {
+          "id": "service",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_execution_1.mode.service",
+          "title": "Service",
+          "phase_ids": [
+            "pkgmode_pump_skid_supervisor_modes_execution_1.phase.flush"
+          ]
+        }
+      },
+      "phases": {
+        "idle": {
+          "id": "idle",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_execution_1.phase.idle",
+          "title": "Idle",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_modes_execution_1__pump_group_1",
+              "port_id": "off_out"
+            }
+          ]
+        },
+        "prime": {
+          "id": "prime",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_execution_1.phase.prime",
+          "title": "Prime",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_modes_execution_1__pump_group_1",
+              "port_id": "prime_out"
+            }
+          ]
+        },
+        "run": {
+          "id": "run",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_execution_1.phase.run",
+          "title": "Run",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_modes_execution_1__pump_group_1",
+              "port_id": "run_out"
+            }
+          ]
+        },
+        "flush": {
+          "id": "flush",
+          "qualified_id": "pkgmode_pump_skid_supervisor_modes_execution_1.phase.flush",
+          "title": "Flush",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_modes_execution_1__pump_group_1",
+              "port_id": "flush_out"
+            }
+          ]
+        }
+      },
+      "mode_summary": {
+        "id": "mode_summary",
+        "entries": {
+          "auto_summary": {
+            "id": "auto_summary",
+            "mode_id": "pkgmode_pump_skid_supervisor_modes_execution_1.mode.auto",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_modes_execution_1__pump_group_1",
+                "port_id": "auto_out"
+              }
+            ]
+          }
+        }
+      },
+      "phase_summary": {
+        "id": "phase_summary",
+        "entries": {
+          "prime_summary": {
+            "id": "prime_summary",
+            "phase_id": "pkgmode_pump_skid_supervisor_modes_execution_1.phase.prime",
+            "source_ports": [
+              {
+                "instance_id": "pump_skid_supervisor_modes_execution_1__pump_group_1",
+                "port_id": "prime_out"
+              }
+            ]
+          }
+        }
+      },
+      "active_mode_id": "pkgmode_pump_skid_supervisor_modes_execution_1.mode.auto",
+      "active_phase_id": "pkgmode_pump_skid_supervisor_modes_execution_1.phase.prime",
+      "allowed_mode_transitions": {
+        "to_service": {
+          "id": "to_service",
+          "intent": "request_mode_change",
+          "from_mode_id": "pkgmode_pump_skid_supervisor_modes_execution_1.mode.auto",
+          "to_mode_id": "pkgmode_pump_skid_supervisor_modes_execution_1.mode.service",
+          "guard_state": "clear"
+        }
+      },
+      "allowed_phase_transitions": {
+        "start_run": {
+          "id": "start_run",
+          "intent": "request_phase_start",
+          "phase_id": "pkgmode_pump_skid_supervisor_modes_execution_1.phase.run",
+          "allowed_mode_ids": [
+            "pkgmode_pump_skid_supervisor_modes_execution_1.mode.auto"
+          ],
+          "phase_state": "ready",
+          "transition_state": "idle",
+          "guard_state": "clear"
+        },
+        "abort_flush": {
+          "id": "abort_flush",
+          "intent": "request_phase_abort",
+          "phase_id": "pkgmode_pump_skid_supervisor_modes_execution_1.phase.flush",
+          "allowed_mode_ids": [
+            "pkgmode_pump_skid_supervisor_modes_execution_1.mode.service"
+          ],
+          "phase_state": "running",
+          "transition_state": "running",
+          "guard_state": "blocked",
+          "guard_notes": [
+            "service_window_only"
+          ]
+        }
+      }
+    }
+  }
+}

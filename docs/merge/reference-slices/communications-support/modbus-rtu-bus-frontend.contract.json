@@ -1,0 +1,14 @@
+{
+  "id": "support.modbus_rtu_bus_frontend.v1",
+  "kind": "support_contract",
+  "title": "ModbusRtuBusFrontend",
+  "params": [
+    "port_ref",
+    "baud_rate",
+    "parity",
+    "stop_bits",
+    "slave_id",
+    "timeout_ms"
+  ],
+  "scope": "read_only_baseline"
+}

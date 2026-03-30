@@ -1,0 +1,55 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_package_invalid_safety_scope",
+    "title": "Boiler Package Invalid Safety Scope"
+  },
+  "imports": {
+    "libraries": ["std"],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {},
+    "packages": {
+      "boiler_supervisor": {
+        "id": "boiler_supervisor",
+        "kind": "package_definition",
+        "meta": {
+          "title": "Boiler Supervisor Skeleton",
+          "origin": "project",
+          "package_kind": "boiler_supervisor_skeleton_v1",
+          "safety_scope": "includes_safety_logic"
+        },
+        "members": {
+          "pid_1": {
+            "id": "pid_1",
+            "kind": "package_member",
+            "type_ref": "library:std/pid_controller"
+          }
+        },
+        "signals": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_pkg_1": {
+        "id": "boiler_pkg_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor"
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

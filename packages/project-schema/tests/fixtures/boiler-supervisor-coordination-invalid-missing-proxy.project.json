@@ -1,0 +1,49 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_supervisor_coordination_invalid_missing_proxy",
+    "title": "Boiler Supervisor Coordination Invalid Missing Proxy"
+  },
+  "imports": { "libraries": [], "packages": [] },
+  "definitions": {
+    "object_types": {
+      "pump_group": {
+        "id": "pump_group",
+        "kind": "object_type",
+        "meta": { "title": "Pump Group", "origin": "project" },
+        "interface": { "ports": { "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" } }, "params": {}, "alarms": {} },
+        "locals": { "signals": {}, "vars": {} },
+        "facets": { "operations": { "operations": { "start_supervision": { "id": "start_supervision" } } } },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "templates": {},
+    "packages": {
+      "boiler_supervisor_coordination": {
+        "id": "boiler_supervisor_coordination",
+        "kind": "package_definition",
+        "meta": { "title": "Boiler Supervisor Coordination v1", "origin": "project" },
+        "members": {
+          "pump_group_1": { "id": "pump_group_1", "kind": "package_member", "type_ref": "project:pump_group" }
+        },
+        "signals": {},
+        "coordination": {
+          "package_state": {
+            "id": "package_state",
+            "states": {
+              "ready": { "id": "ready", "state": "ready", "source_ports": [{ "member_id": "pump_group_1", "port_id": "ready_out" }] }
+            }
+          },
+          "operation_proxies": {
+            "start_supervision": { "id": "start_supervision", "kind": "start_supervision", "target_member_id": "pump_group_1", "target_operation_id": "missing_proxy_target" }
+          }
+        }
+      }
+    }
+  },
+  "system": { "instances": {}, "signals": {}, "packages": {} },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

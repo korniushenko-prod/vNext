@@ -1,0 +1,73 @@
+{
+  "id": "package-overview-boiler-supervisor-coordination",
+  "title": "BoilerSupervisorCoordination v1",
+  "description": "Read-only package coordination overview over frozen child execution lanes and package-level proxy operations.",
+  "package_instance_id": "boiler_supervisor_coordination_1",
+  "package_definition": {
+    "package_id": "std.boiler_supervisor_coordination.v1",
+    "title": "Boiler Supervisor Coordination v1",
+    "origin": "std_library",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Package coordination is authoring-level orchestration only.",
+      "BoilerSupervisorCoordination v1 is supervisory only and does not imply burner safety."
+    ]
+  },
+  "members": [
+    {
+      "id": "pump_group_1",
+      "title": "Pump Group",
+      "role": "circulation",
+      "type_title": "PumpGroup v1",
+      "type_ref": "std:pump_group_v1",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_coordination_1__pump_group_1",
+      "boundary_note": "Circulation remains a child execution lane; package only coordinates and proxies it.",
+      "related_surfaces": []
+    },
+    {
+      "id": "pid_1",
+      "title": "PID Controller",
+      "role": "control_core",
+      "type_title": "PID Controller v1",
+      "type_ref": "std:pid_controller_v1",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_coordination_1__pid_1",
+      "boundary_note": "PID autotune remains the existing Wave 9 child execution path behind the package proxy.",
+      "related_surfaces": [
+        { "title": "PID + hold/release/autotune", "section": "Operations Overview", "fixture_id": "operations-readonly-pid" }
+      ]
+    }
+  ],
+  "effective_objects": [
+    { "id": "boiler_supervisor_coordination_1__pump_group_1", "title": "Pump Group", "type_title": "PumpGroup v1", "execution_boundary": "ordinary_runtime_object", "package_neutral": true },
+    { "id": "boiler_supervisor_coordination_1__pid_1", "title": "PID Controller", "type_title": "PID Controller v1", "execution_boundary": "ordinary_runtime_object", "package_neutral": true }
+  ],
+  "package_coordination": {
+    "snapshot_state": "control_active",
+    "summary_outputs": [
+      { "id": "ready_summary", "title": "Ready Summary", "value": "true", "semantic_state": "ready" },
+      { "id": "fault_summary", "title": "Fault Summary", "value": "false", "semantic_state": "standby" },
+      { "id": "circulation_summary", "title": "Circulation Summary", "value": "true", "semantic_state": "circulation_active" },
+      { "id": "control_summary", "title": "Control Summary", "value": "true", "semantic_state": "control_active" }
+    ],
+    "aggregate_monitors": [
+      { "id": "coordination_health", "title": "Coordination Health", "state": "ready", "severity": "warning", "summary": "Child surfaces are aligned and package coordination is active." }
+    ],
+    "trace_groups": [
+      { "id": "coordination_trace", "title": "Coordination Trace", "signal_count": 3, "summary": "circulation_active, loop_ok, remaining_out" }
+    ],
+    "operation_proxies": [
+      { "id": "start_supervision", "title": "Start Supervision", "kind": "start_supervision", "state": "completed", "summary": "Package start proxy completed through the child pump group lane." },
+      { "id": "stop_supervision", "title": "Stop Supervision", "kind": "stop_supervision", "state": "available", "summary": "Ready to stop supervisory circulation." },
+      { "id": "acknowledge_faults", "title": "Acknowledge Faults", "kind": "acknowledge_faults", "state": "blocked", "summary": "Blocked until an active fault is latched." },
+      { "id": "reset_package_counters", "title": "Reset Package Counters", "kind": "reset_package_counters", "state": "running", "summary": "Reset proxy is currently using the frozen child reset lane." },
+      { "id": "pid_autotune_proxy", "title": "PID Autotune Proxy", "kind": "pid_autotune_proxy", "state": "available", "summary": "Delegates to the existing Wave 9 PID autotune child path." }
+    ]
+  }
+}

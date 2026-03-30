@@ -1,0 +1,11 @@
+{
+  "accepted": true,
+  "package_instance_id": "pump_pkg_1",
+  "intent": "request_phase_abort",
+  "transition_state": "completed",
+  "active_mode_id": "pkgmode_pump_pkg_1.mode.service",
+  "active_phase_id": "pkgmode_pump_pkg_1.phase.flush",
+  "target_phase_state": "aborted",
+  "guard_state": "clear",
+  "message": "Synthetic package phase abort accepted."
+}

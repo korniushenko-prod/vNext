@@ -1,0 +1,163 @@
+{
+  "artifacts": {
+    "analog_inputs": [
+      {
+        "id": "ai_pv_sensor_1",
+        "instance_id": "pv_sensor_1",
+        "pin": 0
+      }
+    ],
+    "digital_inputs": [],
+    "digital_outputs": [],
+    "event_counters": [],
+    "maintenance_counters": [],
+    "operations": [
+      {
+        "audit_hook_mode": "operation_events",
+        "availability_mode": "guarded",
+        "confirmation_policy": "required",
+        "confirmation_token_validation": "when_required",
+        "id": "op_pid_1_autotune",
+        "kind": "autotune",
+        "owner_instance_id": "pid_1",
+        "progress_fields": [
+          {
+            "id": "phase",
+            "title": "Autotune phase",
+            "value_type": "string"
+          },
+          {
+            "id": "sample_count",
+            "title": "Collected samples",
+            "value_type": "u32"
+          }
+        ],
+        "progress_mode": "signal_based",
+        "progress_payload_supported": true,
+        "recommendation_apply_confirmation_policy": "required",
+        "recommendation_lifecycle_mode": "apply_reject",
+        "recommendation_reject_confirmation_policy": "required",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "recommended_kp",
+            "value_type": "float"
+          },
+          {
+            "id": "recommended_ti",
+            "value_type": "float"
+          },
+          {
+            "id": "recommended_td",
+            "value_type": "float"
+          },
+          {
+            "id": "summary",
+            "value_type": "string"
+          }
+        ],
+        "result_mode": "recommendation",
+        "specialized_execution": "pid_autotune",
+        "title": "Autotune"
+      },
+      {
+        "availability_mode": "guarded",
+        "confirmation_policy": "none",
+        "id": "op_pid_1_hold",
+        "kind": "hold",
+        "metadata_only": true,
+        "owner_instance_id": "pid_1",
+        "progress_mode": "signal_based",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ],
+        "result_mode": "applyable_result",
+        "title": "Hold Output"
+      },
+      {
+        "availability_mode": "guarded",
+        "confirmation_policy": "none",
+        "id": "op_pid_1_release",
+        "kind": "release",
+        "metadata_only": true,
+        "owner_instance_id": "pid_1",
+        "progress_mode": "signal_based",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ],
+        "result_mode": "applyable_result",
+        "title": "Release Hold"
+      },
+      {
+        "availability_mode": "guarded",
+        "confirmation_policy": "none",
+        "id": "op_pid_1_reset_integral",
+        "kind": "reset_integral",
+        "metadata_only": true,
+        "owner_instance_id": "pid_1",
+        "progress_mode": "signal_based",
+        "result_fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          }
+        ],
+        "result_mode": "applyable_result",
+        "title": "Reset Integral"
+      }
+    ],
+    "pid_controllers": [
+      {
+        "deadband": 0.05,
+        "direction": "reverse",
+        "frontend_requirement_ids": [
+          "fe_pid_1_mv_output",
+          "fe_pid_1_pv_source"
+        ],
+        "id": "pid_1",
+        "kp": 1.5,
+        "mv_output": {
+          "instance_id": "pid_1",
+          "port_id": "mv_out",
+          "resource_id": "hw_pid_1_mv_out"
+        },
+        "native_kind": "std.pid_controller.v1",
+        "output_max": 100,
+        "output_min": 0,
+        "persistence_slot_ids": [
+          "ps_pid_1_kp",
+          "ps_pid_1_td",
+          "ps_pid_1_ti"
+        ],
+        "pv_filter_tau_ms": 250,
+        "pv_source": {
+          "connection_id": "conn_sig_pv_sensor_to_pid_t1",
+          "instance_id": "pv_sensor_1",
+          "port_id": "value",
+          "resource_id": "hw_pv_sensor_1"
+        },
+        "sample_time_ms": 100,
+        "td": 0.25,
+        "ti": 12
+      }
+    ],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "threshold_monitors": [],
+    "timed_relays": []
+  },
+  "capability_profile": "esp32-basic-io",
+  "diagnostics": [],
+  "schema_version": "0.1.0",
+  "source_pack_id": "pid-controller-autotune-demo-pack",
+  "target_kind": "esp32.shipcontroller.v1"
+}

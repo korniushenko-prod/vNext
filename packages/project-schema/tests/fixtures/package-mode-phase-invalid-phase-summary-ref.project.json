@@ -1,0 +1,79 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "package_mode_phase_invalid_phase_summary_ref",
+    "title": "Package Mode Phase Invalid Phase Summary Ref"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "pump_group": {
+        "id": "pump_group",
+        "kind": "object_type",
+        "meta": { "title": "Pump Group", "origin": "project" },
+        "interface": {
+          "ports": {
+            "off_out": { "id": "off_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "templates": {},
+    "packages": {
+      "pump_skid_supervisor_modes": {
+        "id": "pump_skid_supervisor_modes",
+        "kind": "package_definition",
+        "meta": { "title": "PumpSkidSupervisorModes v1", "origin": "project", "package_kind": "pump_skid_supervisor_modes_v1", "safety_scope": "non_safety_skeleton" },
+        "members": {
+          "pump_group_1": { "id": "pump_group_1", "kind": "package_member", "type_ref": "project:pump_group" }
+        },
+        "signals": {},
+        "mode_phase": {
+          "modes": {
+            "off": { "id": "off", "phase_refs": ["idle"] }
+          },
+          "phases": {
+            "idle": { "id": "idle", "source_ports": [{ "member_id": "pump_group_1", "port_id": "off_out" }] }
+          },
+          "mode_summary": {
+            "id": "mode_summary",
+            "entries": {
+              "off_summary": { "id": "off_summary", "mode_ref": "off", "source_ports": [{ "member_id": "pump_group_1", "port_id": "off_out" }] }
+            }
+          },
+          "phase_summary": {
+            "id": "phase_summary",
+            "entries": {
+              "idle_summary": { "id": "idle_summary", "phase_ref": "missing_phase", "source_ports": [{ "member_id": "pump_group_1", "port_id": "off_out" }] }
+            }
+          },
+          "active_mode_ref": "off",
+          "active_phase_ref": "idle"
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "pump_skid_supervisor_modes_1": {
+        "id": "pump_skid_supervisor_modes_1",
+        "kind": "package_instance",
+        "package_ref": "pump_skid_supervisor_modes"
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

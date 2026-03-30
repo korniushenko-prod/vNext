@@ -1,0 +1,213 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "pump_skid_supervisor_interlocks_reference_minimal",
+    "title": "PumpSkidSupervisorInterlocks Reference Minimal"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "package_gate_source": {
+        "id": "package_gate_source",
+        "kind": "object_type",
+        "meta": {
+          "title": "Package Gate Source",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "state_out": { "id": "state_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "blocked_out": { "id": "blocked_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": null,
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "pump_skid_supervisor_interlocks": {
+        "id": "pump_skid_supervisor_interlocks",
+        "kind": "package_definition",
+        "meta": {
+          "title": "PumpSkidSupervisorInterlocks v1",
+          "origin": "project",
+          "description": "Pump-skid reference package for package-neutral permissive/interlock gating.",
+          "domain": "pump_skid",
+          "package_kind": "pump_skid_supervisor_interlocks_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "suction_guard_1": { "id": "suction_guard_1", "kind": "package_member", "type_ref": "project:package_gate_source", "title": "Suction Guard" },
+          "discharge_guard_1": { "id": "discharge_guard_1", "kind": "package_member", "type_ref": "project:package_gate_source", "title": "Discharge Path Guard" },
+          "motor_ready_1": { "id": "motor_ready_1", "kind": "package_member", "type_ref": "project:package_gate_source", "title": "Motor Ready" },
+          "fault_latch_1": { "id": "fault_latch_1", "kind": "package_member", "type_ref": "project:package_gate_source", "title": "Fault Latch" }
+        },
+        "signals": {},
+        "mode_phase": {
+          "modes": {
+            "off": { "id": "off", "title": "Off", "phase_refs": ["idle"] },
+            "auto": { "id": "auto", "title": "Auto", "phase_refs": ["idle", "run"] },
+            "service": { "id": "service", "title": "Service", "phase_refs": ["flush"] }
+          },
+          "phases": {
+            "idle": { "id": "idle", "title": "Idle", "source_ports": [{ "member_id": "motor_ready_1", "port_id": "state_out" }] },
+            "run": { "id": "run", "title": "Run", "source_ports": [{ "member_id": "discharge_guard_1", "port_id": "state_out" }] },
+            "flush": { "id": "flush", "title": "Flush", "source_ports": [{ "member_id": "fault_latch_1", "port_id": "blocked_out" }] }
+          },
+          "mode_summary": {
+            "id": "mode_summary",
+            "entries": {
+              "off_summary": { "id": "off_summary", "mode_ref": "off", "source_ports": [{ "member_id": "fault_latch_1", "port_id": "state_out" }] },
+              "auto_summary": { "id": "auto_summary", "mode_ref": "auto", "source_ports": [{ "member_id": "motor_ready_1", "port_id": "state_out" }] },
+              "service_summary": { "id": "service_summary", "mode_ref": "service", "source_ports": [{ "member_id": "fault_latch_1", "port_id": "blocked_out" }] }
+            }
+          },
+          "phase_summary": {
+            "id": "phase_summary",
+            "entries": {
+              "idle_summary": { "id": "idle_summary", "phase_ref": "idle", "source_ports": [{ "member_id": "motor_ready_1", "port_id": "state_out" }] },
+              "run_summary": { "id": "run_summary", "phase_ref": "run", "source_ports": [{ "member_id": "discharge_guard_1", "port_id": "state_out" }] },
+              "flush_summary": { "id": "flush_summary", "phase_ref": "flush", "source_ports": [{ "member_id": "fault_latch_1", "port_id": "blocked_out" }] }
+            }
+          },
+          "active_mode_ref": "auto",
+          "active_phase_ref": "idle",
+          "allowed_mode_transitions": {
+            "to_auto": { "id": "to_auto", "intent": "request_mode_change", "from_mode_ref": "off", "to_mode_ref": "auto", "guard_notes": ["package_gate_clear"] }
+          },
+          "allowed_phase_transitions": {
+            "abort_flush": { "id": "abort_flush", "intent": "request_phase_abort", "phase_ref": "flush", "allowed_mode_refs": ["service"], "guard_notes": ["operator_confirmation"] }
+          }
+        },
+        "permissive_interlock": {
+          "permissives": {
+            "suction_ok": {
+              "id": "suction_ok",
+              "title": "Suction OK",
+              "source_ports": [{ "member_id": "suction_guard_1", "port_id": "state_out" }],
+              "blocked_reason_code": "suction_missing"
+            },
+            "discharge_path_ok": {
+              "id": "discharge_path_ok",
+              "title": "Discharge Path OK",
+              "source_ports": [{ "member_id": "discharge_guard_1", "port_id": "state_out" }],
+              "blocked_reason_code": "discharge_path_missing"
+            },
+            "motor_ready": {
+              "id": "motor_ready",
+              "title": "Motor Ready",
+              "source_ports": [{ "member_id": "motor_ready_1", "port_id": "state_out" }],
+              "blocked_reason_code": "motor_not_ready"
+            }
+          },
+          "interlocks": {
+            "permissive_blocked": {
+              "id": "permissive_blocked",
+              "title": "Permissive Blocked",
+              "source_ports": [{ "member_id": "suction_guard_1", "port_id": "blocked_out" }],
+              "active_state": "held",
+              "reason_code": "permissive_blocked",
+              "diagnostic_ref": "diag_permissive_blocked"
+            },
+            "package_faulted": {
+              "id": "package_faulted",
+              "title": "Package Faulted",
+              "source_ports": [{ "member_id": "fault_latch_1", "port_id": "state_out" }],
+              "active_state": "faulted",
+              "reason_code": "package_faulted",
+              "diagnostic_ref": "diag_package_faulted"
+            }
+          },
+          "gate_summary": {
+            "id": "gate_summary",
+            "title": "Gate Summary",
+            "default_state": "ready",
+            "permissive_refs": ["suction_ok", "discharge_path_ok", "motor_ready"],
+            "interlock_refs": ["permissive_blocked", "package_faulted"],
+            "transition_guards": {
+              "allow_auto_run": {
+                "id": "allow_auto_run",
+                "title": "Allow Auto Run",
+                "mode_transition_ref": "to_auto",
+                "permissive_refs": ["suction_ok", "discharge_path_ok", "motor_ready"],
+                "interlock_refs": ["permissive_blocked", "package_faulted"],
+                "summary": "Auto run is allowed only when pump-skid permissives are clear and no interlock is active."
+              }
+            }
+          },
+          "summary_outputs": {
+            "package_ready": {
+              "id": "package_ready",
+              "value_type": "bool",
+              "source": { "member_id": "motor_ready_1", "port_id": "state_out" }
+            },
+            "package_faulted": {
+              "id": "package_faulted",
+              "value_type": "bool",
+              "source": { "member_id": "fault_latch_1", "port_id": "state_out" }
+            }
+          },
+          "aggregate_monitors": {
+            "gate_health": {
+              "id": "gate_health",
+              "kind": "boolean_health_rollup",
+              "source_ports": [
+                { "member_id": "suction_guard_1", "port_id": "state_out" },
+                { "member_id": "discharge_guard_1", "port_id": "state_out" },
+                { "member_id": "motor_ready_1", "port_id": "state_out" }
+              ]
+            }
+          },
+          "trace_groups": {
+            "gate_trace": {
+              "id": "gate_trace",
+              "signals": [
+                { "member_id": "suction_guard_1", "port_id": "state_out" },
+                { "member_id": "fault_latch_1", "port_id": "state_out" }
+              ]
+            }
+          }
+        },
+        "boundary_notes": [
+          "Wave 15 permissive/interlock baseline remains package-neutral.",
+          "Pump-skid content is a mandatory second reference domain."
+        ]
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "pump_skid_supervisor_interlocks_1": {
+        "id": "pump_skid_supervisor_interlocks_1",
+        "kind": "package_instance",
+        "package_ref": "pump_skid_supervisor_interlocks"
+      }
+    }
+  },
+  "hardware": {
+    "bindings": {}
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

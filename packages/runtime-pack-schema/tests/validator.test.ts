@@ -2,8 +2,20 @@ import { strict as assert } from "node:assert";
 import test from "node:test";
 
 import minimalRuntimePack from "./fixtures/minimal-runtime-pack.json" with { type: "json" };
+import operationsBadConfirmationPolicyPack from "./fixtures/operations-invalid-bad-confirmation-policy.runtime-pack.json" with { type: "json" };
+import operationsExecutionBaselinePack from "./fixtures/operations-execution-baseline.runtime-pack.json" with { type: "json" };
+import operationsInvalidRecommendationLifecyclePack from "./fixtures/operations-invalid-recommendation-lifecycle.runtime-pack.json" with { type: "json" };
+import operationsMissingOwnerPack from "./fixtures/operations-invalid-missing-owner.runtime-pack.json" with { type: "json" };
+import operationsMinimalPack from "./fixtures/operations-minimal.runtime-pack.json" with { type: "json" };
+import operationsPidAutotuneExecutionPack from "./fixtures/operations-pid-autotune-execution.runtime-pack.json" with { type: "json" };
+import operationsRecommendationPack from "./fixtures/operations-recommendation.runtime-pack.json" with { type: "json" };
 import invalidRuntimePack from "./fixtures/runtime-signals-invalid.json" with { type: "json" };
-import { RUNTIME_PACK_SCHEMA_VERSION, validateRuntimePack } from "../src/index.js";
+import {
+  RUNTIME_PACK_SCHEMA_VERSION,
+  WAVE8_EXECUTION_BASELINE_OPERATION_KINDS,
+  validateRuntimeOperationSnapshot,
+  validateRuntimePack
+} from "../src/index.js";
 
 test("validateRuntimePack accepts canonical minimal runtime pack", () => {
   const result = validateRuntimePack(minimalRuntimePack);
@@ -124,4 +136,90 @@ test("validateRuntimePack accepts capability hardening metadata blocks", () => {
 
   const result = validateRuntimePack(mutated);
   assert.equal(result.ok, true);
+});
+
+test("validateRuntimePack accepts the generic operations runtime spine minimal shape", () => {
+  const result = validateRuntimePack(operationsMinimalPack);
+  assert.equal(result.ok, true);
+  assert.equal(result.diagnostics.length, 0);
+});
+
+test("validateRuntimePack accepts recommendation-style operation result contracts", () => {
+  const result = validateRuntimePack(operationsRecommendationPack);
+  assert.equal(result.ok, true);
+  assert.equal(result.diagnostics.length, 0);
+});
+
+test("validateRuntimePack accepts additive execution baseline vocabulary for generic reset operations", () => {
+  const result = validateRuntimePack(operationsExecutionBaselinePack);
+  assert.equal(result.ok, true);
+  assert.deepEqual(
+    operationsExecutionBaselinePack.operation_runtime_contract.execution_baseline_kinds,
+    [...WAVE8_EXECUTION_BASELINE_OPERATION_KINDS]
+  );
+});
+
+test("validateRuntimePack accepts additive PID autotune execution contract vocabulary", () => {
+  const result = validateRuntimePack(operationsPidAutotuneExecutionPack);
+  assert.equal(result.ok, true);
+  assert.equal(
+    operationsPidAutotuneExecutionPack.operation_runtime_contract.recommendation_lifecycle_supported,
+    true
+  );
+  assert.equal(
+    operationsPidAutotuneExecutionPack.operations.op_pid_1_autotune.result_contract.recommendation_lifecycle.mode,
+    "apply_reject"
+  );
+});
+
+test("validateRuntimePack rejects operations without owner_instance_id", () => {
+  const result = validateRuntimePack(operationsMissingOwnerPack);
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some((entry) => entry.path === "$.operations.op_reset_1.owner_instance_id"));
+});
+
+test("validateRuntimePack rejects unknown operation confirmation_policy values", () => {
+  const result = validateRuntimePack(operationsBadConfirmationPolicyPack);
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some((entry) => entry.path === "$.operations.op_counter_1_reset.confirmation_policy"));
+});
+
+test("validateRuntimePack rejects recommendation lifecycle on non-recommendation result contracts", () => {
+  const result = validateRuntimePack(operationsInvalidRecommendationLifecyclePack);
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some((entry) => (
+    entry.path === "$.operations.op_pid_1_autotune.result_contract.recommendation_lifecycle" &&
+    entry.code === "runtime_operation.result_contract.recommendation_lifecycle.invalid"
+  )));
+});
+
+test("validateRuntimeOperationSnapshot accepts additive failure payload and audit hook fields", () => {
+  const result = validateRuntimeOperationSnapshot({
+    operation_id: "op_run_hours_1_reset_counter",
+    state: "failed",
+    message: "Execution failed.",
+    failure: {
+      reason_code: "source_unavailable"
+    },
+    audit_record_id: "audit-001"
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.diagnostics.length, 0);
+});
+
+test("validateRuntimeOperationSnapshot accepts additive PID autotune progress payload and recommendation state fields", () => {
+  const result = validateRuntimeOperationSnapshot({
+    operation_id: "op_pid_1_autotune",
+    state: "running",
+    progress: 64,
+    progress_payload: {
+      phase: "relay_identification",
+      sample_count: 18
+    },
+    recommendation_state: "pending_apply"
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.diagnostics.length, 0);
 });

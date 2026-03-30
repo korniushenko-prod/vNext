@@ -1,0 +1,86 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "comm_bridge_demo",
+    "title": "Comm Bridge Demo"
+  },
+  "imports": {
+    "libraries": [
+      "std"
+    ],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {
+      "comm_bridge_1": {
+        "id": "comm_bridge_1",
+        "kind": "object_instance",
+        "type_ref": "library:std/comm_bridge",
+        "title": "Comm Bridge #1",
+        "enabled": true,
+        "param_values": {
+          "port_ref": {
+            "kind": "literal",
+            "value": "rs485_1"
+          },
+          "baud_rate": {
+            "kind": "literal",
+            "value": 9600
+          },
+          "parity": {
+            "kind": "literal",
+            "value": "N"
+          },
+          "stop_bits": {
+            "kind": "literal",
+            "value": 1
+          },
+          "slave_id": {
+            "kind": "literal",
+            "value": 3
+          },
+          "timeout_ms": {
+            "kind": "literal",
+            "value": 500
+          },
+          "poll_period_ms": {
+            "kind": "literal",
+            "value": 1000
+          },
+          "startup_delay_ms": {
+            "kind": "literal",
+            "value": 0
+          },
+          "stale_timeout_ms": {
+            "kind": "literal",
+            "value": 3000
+          }
+        }
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {
+      "rs485_1": {
+        "id": "rs485_1",
+        "instance_id": "comm_bridge_1",
+        "binding_kind": "bus",
+        "config": {
+          "driver": "modbus_rtu",
+          "port": "uart2"
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

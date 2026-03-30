@@ -1,0 +1,86 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "package_protection_recovery_invalid_trip",
+    "title": "Package Protection Recovery Invalid Trip"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "package_protection_source": {
+        "id": "package_protection_source",
+        "kind": "object_type",
+        "meta": { "title": "Package Protection Source", "origin": "project" },
+        "interface": {
+          "ports": {
+            "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "blocked_out": { "id": "blocked_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "trip_out": { "id": "trip_out", "direction": "out", "channel_kind": "state", "value_type": "bool" },
+            "recovering_out": { "id": "recovering_out", "direction": "out", "channel_kind": "state", "value_type": "bool" }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": { "signals": {}, "vars": {} },
+        "facets": {
+          "operations": {
+            "operations": {
+              "reset_trip": { "id": "reset_trip", "kind": "reset_latch", "title": "Reset Trip" },
+              "request_recovery": { "id": "request_recovery", "kind": "reset", "title": "Request Recovery" }
+            }
+          }
+        },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "packages": {
+      "boiler_supervisor_protection": {
+        "id": "boiler_supervisor_protection",
+        "kind": "package_definition",
+        "meta": {
+          "title": "BoilerSupervisorProtection v1",
+          "origin": "project",
+          "package_kind": "boiler_supervisor_protection_v1",
+          "safety_scope": "non_safety_skeleton"
+        },
+        "members": {
+          "feedwater_guard_1": { "id": "feedwater_guard_1", "kind": "package_member", "type_ref": "project:package_protection_source" },
+          "pressure_trip_1": { "id": "pressure_trip_1", "kind": "package_member", "type_ref": "project:package_protection_source" }
+        },
+        "signals": {},
+        "protection_recovery": {
+          "trips": {
+            "pressure_trip": {
+              "id": "pressure_trip",
+              "source_ports": [{ "member_id": "pressure_trip_1", "port_id": "trip_out" }]
+            }
+          },
+          "inhibits": {},
+          "protection_summary": {
+            "id": "protection_summary",
+            "default_state": "tripped",
+            "trip_refs": ["missing_trip"]
+          }
+        }
+      }
+    }
+  },
+  "system": {
+    "instances": {},
+    "signals": {},
+    "packages": {
+      "boiler_supervisor_protection_1": {
+        "id": "boiler_supervisor_protection_1",
+        "kind": "package_instance",
+        "package_ref": "boiler_supervisor_protection"
+      }
+    }
+  },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

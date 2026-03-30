@@ -1,0 +1,39 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "package-supervision-invalid-pack",
+  "source": {
+    "project_id": "boiler_supervision_demo",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {},
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "package_supervision": {
+    "pkg_boiler_supervisor_1": {
+      "id": "pkg_boiler_supervisor_1",
+      "package_instance_id": "boiler_supervisor_1",
+      "summary_outputs": {
+        "runtime_total": {
+          "id": "runtime_total",
+          "value_type": "float",
+          "source": {
+            "instance_id": "missing_child",
+            "port_id": "runtime_total"
+          }
+        }
+      },
+      "operation_proxies": {
+        "reset_runtime_counter": {
+          "id": "reset_runtime_counter",
+          "target_operation_id": 42,
+          "target_owner_instance_id": "missing_child"
+        }
+      }
+    }
+  }
+}

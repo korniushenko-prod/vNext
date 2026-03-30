@@ -1,0 +1,54 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "operations-minimal-pack",
+  "source": {
+    "project_id": "operations_demo",
+    "authoring_schema_version": "0.4.0"
+  },
+  "instances": {
+    "relay_1": {
+      "id": "relay_1",
+      "type_ref": "library:std/timed_relay",
+      "enabled": true,
+      "ports": {
+        "active_fb": {
+          "id": "active_fb",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {}
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {
+    "op_relay_1_self_test": {
+      "id": "op_relay_1_self_test",
+      "owner_instance_id": "relay_1",
+      "kind": "self_test",
+      "title": "Self Test",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "always"
+      },
+      "progress_mode": "none",
+      "result_contract": {
+        "mode": "none"
+      }
+    }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": true,
+    "cancel_supported": true,
+    "progress_supported": true,
+    "result_supported": true,
+    "audit_required": true
+  },
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {}
+}

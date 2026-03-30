@@ -11,7 +11,7 @@
   "resources": {
     "modbus_1": {
       "id": "modbus_1",
-      "binding_kind": "bus",
+      "binding_kind": "vendor_bus",
       "instance_id": "device_1",
       "config": {}
     }

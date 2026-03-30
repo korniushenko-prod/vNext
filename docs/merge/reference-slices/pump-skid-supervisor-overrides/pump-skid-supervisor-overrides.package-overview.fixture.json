@@ -1,0 +1,220 @@
+{
+  "id": "package-overview-pump-skid-supervisor-overrides",
+  "title": "PumpSkidSupervisorOverrides v1",
+  "description": "Read-only package override / handover surface over current automatic holder, manual/service takeover requests, and bounded return-to-auto.",
+  "package_instance_id": "pump_skid_supervisor_overrides_1",
+  "package_definition": {
+    "package_id": "pump_skid_supervisor_overrides",
+    "title": "Pump Skid Supervisor Overrides",
+    "origin": "project",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Package override / handover remains generic, package-neutral, and non-safety.",
+      "Pump-skid content is the mandatory second acceptance domain and does not inherit boiler-specific semantics."
+    ]
+  },
+  "members": [
+    {
+      "id": "auto_owner_1",
+      "title": "Auto Owner",
+      "type_title": "Package Command Source",
+      "role": "holder",
+      "effective_object_id": "pump_skid_supervisor_overrides_1__auto_owner_1",
+      "boundary_note": "Auto holder remains a flattened child object.",
+      "related_surfaces": []
+    },
+    {
+      "id": "manual_owner_1",
+      "title": "Manual Owner",
+      "type_title": "Package Command Source",
+      "role": "holder",
+      "effective_object_id": "pump_skid_supervisor_overrides_1__manual_owner_1",
+      "boundary_note": "Manual holder remains a flattened child object.",
+      "related_surfaces": []
+    },
+    {
+      "id": "service_owner_1",
+      "title": "Service Owner",
+      "type_title": "Package Command Source",
+      "role": "holder",
+      "effective_object_id": "pump_skid_supervisor_overrides_1__service_owner_1",
+      "boundary_note": "Service holder remains a flattened child object.",
+      "related_surfaces": []
+    },
+    {
+      "id": "handover_request_1",
+      "title": "Handover Request Surface",
+      "type_title": "Package Command Source",
+      "role": "request_surface",
+      "effective_object_id": "pump_skid_supervisor_overrides_1__handover_request_1",
+      "boundary_note": "Handover request surfaces remain flattened child objects.",
+      "related_surfaces": []
+    },
+    {
+      "id": "return_auto_request_1",
+      "title": "Return To Auto Surface",
+      "type_title": "Package Command Source",
+      "role": "request_surface",
+      "effective_object_id": "pump_skid_supervisor_overrides_1__return_auto_request_1",
+      "boundary_note": "Handover request surfaces remain flattened child objects.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "pump_skid_supervisor_overrides_1__auto_owner_1",
+      "package_neutral": true
+    },
+    {
+      "id": "pump_skid_supervisor_overrides_1__handover_request_1",
+      "package_neutral": true
+    }
+  ],
+  "package_override_handover": {
+    "snapshot_state": "accepted",
+    "authority_holders": [
+      {
+        "id": "auto_owner",
+        "title": "Auto Holder",
+        "lane": "auto",
+        "source_ports": [
+          {
+            "instance_id": "pump_skid_supervisor_overrides_1__auto_owner_1",
+            "port_id": "authority_out"
+          }
+        ],
+        "summary": "Automatic lane is currently active."
+      },
+      {
+        "id": "manual_owner",
+        "title": "Manual Holder",
+        "lane": "manual",
+        "source_ports": [
+          {
+            "instance_id": "pump_skid_supervisor_overrides_1__manual_owner_1",
+            "port_id": "authority_out"
+          }
+        ],
+        "summary": "Manual holder can request local handover."
+      },
+      {
+        "id": "service_owner",
+        "title": "Service Holder",
+        "lane": "service",
+        "source_ports": [
+          {
+            "instance_id": "pump_skid_supervisor_overrides_1__service_owner_1",
+            "port_id": "authority_out"
+          }
+        ],
+        "summary": "Service holder is available for maintenance takeover."
+      },
+      {
+        "id": "remote_owner",
+        "title": "Remote Holder",
+        "lane": "remote",
+        "source_ports": [
+          {
+            "instance_id": "pump_skid_supervisor_overrides_1__remote_owner_1",
+            "port_id": "authority_out"
+          }
+        ],
+        "summary": "Remote holder is visible but not currently requested."
+      }
+    ],
+    "handover_summary": {
+      "id": "handover_summary",
+      "current_holder_id": "auto_owner",
+      "current_lane": "auto",
+      "requested_holder_id": "manual_owner",
+      "accepted_request_ids": [
+        "manual_takeover",
+        "return_to_auto"
+      ],
+      "blocked_request_ids": [
+        "service_takeover"
+      ],
+      "denied_request_ids": [
+        "remote_release"
+      ],
+      "last_handover_reason": "returned_to_auto",
+      "summary": "Automatic authority is active while a manual takeover remains available."
+    },
+    "handover_requests": [
+      {
+        "id": "manual_takeover",
+        "title": "Manual Takeover",
+        "request_kind": "request_takeover",
+        "requested_holder_id": "manual_owner",
+        "requested_lane": "manual",
+        "state": "accepted",
+        "request_preview": "request_takeover -> manual_owner",
+        "summary": "Local manual handover is available from the panel lane."
+      },
+      {
+        "id": "service_takeover",
+        "title": "Service Takeover",
+        "request_kind": "request_takeover",
+        "requested_holder_id": "service_owner",
+        "requested_lane": "service",
+        "state": "blocked",
+        "blocked_reason": "not_available",
+        "request_preview": "request_takeover -> service_owner",
+        "summary": "Service takeover is blocked until the maintenance window is open."
+      },
+      {
+        "id": "return_to_auto",
+        "title": "Return To Auto",
+        "request_kind": "request_return_to_auto",
+        "requested_holder_id": "auto_owner",
+        "requested_lane": "auto",
+        "state": "accepted",
+        "request_preview": "request_return_to_auto -> auto_owner",
+        "summary": "Return-to-auto stays available as the package-neutral fallback."
+      },
+      {
+        "id": "remote_release",
+        "title": "Remote Release",
+        "request_kind": "request_release",
+        "requested_holder_id": "remote_owner",
+        "requested_lane": "remote",
+        "state": "denied",
+        "denied_reason": "held_by_other_owner",
+        "request_preview": "request_release -> remote_owner",
+        "summary": "Remote release is denied because the automatic holder remains authoritative."
+      }
+    ],
+    "summary_outputs": [
+      {
+        "id": "override_ready",
+        "semantic_state": "informational",
+        "value": "true",
+        "summary": "Manual takeover is ready."
+      },
+      {
+        "id": "override_denied",
+        "semantic_state": "informational",
+        "value": "true",
+        "summary": "Remote release denial remains visible."
+      }
+    ],
+    "aggregate_monitors": [
+      {
+        "id": "override_handover_health",
+        "state": "accepted",
+        "severity": "info",
+        "summary": "Override / handover monitor stays healthy."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "override_handover_trace",
+        "signal_count": 3,
+        "summary": "Holder and request traces stay visible."
+      }
+    ]
+  }
+}

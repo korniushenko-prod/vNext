@@ -1,0 +1,473 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "pump-skid-supervisor-arbitration-demo-pack",
+  "source": {
+    "project_id": "pump_skid_supervisor_arbitration_reference_e2e",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-30T23:56:00Z"
+  },
+  "instances": {
+    "pump_skid_supervisor_arbitration_1__auto_owner_1": {
+      "id": "pump_skid_supervisor_arbitration_1__auto_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "pump_skid_supervisor_arbitration_1 / Auto Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_arbitration_1__manual_owner_1": {
+      "id": "pump_skid_supervisor_arbitration_1__manual_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "pump_skid_supervisor_arbitration_1 / Manual Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_arbitration_1__service_owner_1": {
+      "id": "pump_skid_supervisor_arbitration_1__service_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "pump_skid_supervisor_arbitration_1 / Service Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_arbitration_1__remote_owner_1": {
+      "id": "pump_skid_supervisor_arbitration_1__remote_owner_1",
+      "type_ref": "project:package_command_source",
+      "title": "pump_skid_supervisor_arbitration_1 / Remote Owner",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_arbitration_1__start_request_1": {
+      "id": "pump_skid_supervisor_arbitration_1__start_request_1",
+      "type_ref": "project:package_command_source",
+      "title": "pump_skid_supervisor_arbitration_1 / Start Request Target",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_arbitration_reference_e2e"
+      }
+    },
+    "pump_skid_supervisor_arbitration_1__disable_request_1": {
+      "id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+      "type_ref": "project:package_command_source",
+      "title": "pump_skid_supervisor_arbitration_1 / Disable Request Target",
+      "enabled": true,
+      "ports": {
+        "authority_out": {
+          "id": "authority_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "ready_out": {
+          "id": "ready_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "blocked_out": {
+          "id": "blocked_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "denied_out": {
+          "id": "denied_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "superseded_out": {
+          "id": "superseded_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "pump_skid_supervisor_arbitration_reference_e2e"
+      }
+    }
+  },
+  "connections": {},
+  "resources": {},
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "package_arbitration": {
+    "pkgarb_pump_skid_supervisor_arbitration_1": {
+      "id": "pkgarb_pump_skid_supervisor_arbitration_1",
+      "package_instance_id": "pump_skid_supervisor_arbitration_1",
+      "title": "PumpSkidSupervisorArbitration v1",
+      "ownership_lanes": {
+        "auto_owner": {
+          "id": "auto_owner",
+          "title": "Auto Owner",
+          "lane": "auto",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__auto_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Automatic ownership lane is active."
+        },
+        "manual_owner": {
+          "id": "manual_owner",
+          "title": "Manual Owner",
+          "lane": "manual",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__manual_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Manual ownership lane is available but not active."
+        },
+        "service_owner": {
+          "id": "service_owner",
+          "title": "Service Owner",
+          "lane": "service",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__service_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Service ownership lane is available for maintenance use."
+        },
+        "remote_owner": {
+          "id": "remote_owner",
+          "title": "Remote Owner",
+          "lane": "remote",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__remote_owner_1",
+              "port_id": "authority_out"
+            }
+          ],
+          "summary": "Remote ownership lane is available but denied for reset."
+        }
+      },
+      "ownership_summary": {
+        "id": "ownership_summary",
+        "title": "Ownership Summary",
+        "active_lane_ids": [
+          "auto_owner"
+        ],
+        "summary": "Automatic ownership is currently active."
+      },
+      "command_lanes": {
+        "start_auto": {
+          "id": "start_auto",
+          "title": "Start In Auto",
+          "request_kind": "request_start",
+          "ownership_lane_id": "auto_owner",
+          "ownership_lane": "auto",
+          "target_instance_id": "pump_skid_supervisor_arbitration_1__start_request_1",
+          "arbitration_result": "accepted",
+          "summary": "Automatic start request is accepted.",
+          "request_preview": "request_start -> start_request_1"
+        },
+        "disable_service": {
+          "id": "disable_service",
+          "title": "Disable In Service",
+          "request_kind": "request_disable",
+          "ownership_lane_id": "service_owner",
+          "ownership_lane": "service",
+          "target_instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+          "arbitration_result": "blocked",
+          "summary": "Service disable is blocked until the maintenance window opens.",
+          "request_preview": "request_disable -> disable_request_1",
+          "blocked_reason": "service_window_closed"
+        },
+        "reset_remote": {
+          "id": "reset_remote",
+          "title": "Reset From Remote",
+          "request_kind": "request_reset",
+          "ownership_lane_id": "remote_owner",
+          "ownership_lane": "remote",
+          "target_instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+          "arbitration_result": "denied",
+          "summary": "Remote reset is denied because automatic ownership has authority.",
+          "request_preview": "request_reset -> disable_request_1",
+          "denied_reason": "auto_owner_active"
+        },
+        "stop_manual": {
+          "id": "stop_manual",
+          "title": "Stop In Manual",
+          "request_kind": "request_stop",
+          "ownership_lane_id": "manual_owner",
+          "ownership_lane": "manual",
+          "target_instance_id": "pump_skid_supervisor_arbitration_1__start_request_1",
+          "arbitration_result": "superseded",
+          "summary": "Manual stop is superseded by the accepted auto start request.",
+          "request_preview": "request_stop -> start_request_1",
+          "superseded_by_lane_id": "start_auto"
+        }
+      },
+      "command_summary": {
+        "id": "command_summary",
+        "title": "Command Summary",
+        "active_owner_lane_ids": [
+          "auto_owner"
+        ],
+        "accepted_lane_ids": [
+          "start_auto"
+        ],
+        "blocked_lane_ids": [
+          "disable_service"
+        ],
+        "denied_lane_ids": [
+          "reset_remote"
+        ],
+        "superseded_lane_ids": [
+          "stop_manual"
+        ],
+        "summary": "Automatic ownership remains active while blocked, denied, and superseded command outcomes stay explicit."
+      },
+      "summary_outputs": {
+        "command_ready": {
+          "id": "command_ready",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_arbitration_1__start_request_1",
+            "port_id": "ready_out"
+          }
+        },
+        "command_blocked": {
+          "id": "command_blocked",
+          "value_type": "bool",
+          "source": {
+            "instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+            "port_id": "blocked_out"
+          }
+        }
+      },
+      "aggregate_monitors": {
+        "arbitration_health": {
+          "id": "arbitration_health",
+          "kind": "boolean_health_rollup",
+          "source_ports": [
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__auto_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__start_request_1",
+              "port_id": "ready_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+              "port_id": "blocked_out"
+            }
+          ]
+        }
+      },
+      "trace_groups": {
+        "arbitration_trace": {
+          "id": "arbitration_trace",
+          "signals": [
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__auto_owner_1",
+              "port_id": "authority_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+              "port_id": "blocked_out"
+            },
+            {
+              "instance_id": "pump_skid_supervisor_arbitration_1__disable_request_1",
+              "port_id": "denied_out"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

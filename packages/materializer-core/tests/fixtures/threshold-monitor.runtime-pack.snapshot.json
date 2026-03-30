@@ -1,0 +1,417 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "threshold-monitor-demo-pack",
+  "source": {
+    "project_id": "demo_threshold_monitor_project",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-29T18:20:00Z"
+  },
+  "instances": {
+    "process_value_1": {
+      "id": "process_value_1",
+      "type_ref": "library:std/analog_input",
+      "title": "Process Value",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.analog_input.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.analog_input.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_threshold_monitor_project"
+      }
+    },
+    "threshold_monitor_1": {
+      "id": "threshold_monitor_1",
+      "type_ref": "library:std/threshold_monitor",
+      "title": "Threshold Monitor #1",
+      "enabled": true,
+      "ports": {
+        "value_in": {
+          "id": "value_in",
+          "direction": "in",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        },
+        "above_out": {
+          "id": "above_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "below_out": {
+          "id": "below_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "in_window_out": {
+          "id": "in_window_out",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "alarm_active": {
+          "id": "alarm_active",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        },
+        "source_ok": {
+          "id": "source_ok",
+          "direction": "out",
+          "channel_kind": "state",
+          "value_type": "bool"
+        }
+      },
+      "params": {
+        "mode": {
+          "value": "high",
+          "value_type": "string",
+          "source": "instance_override",
+          "metadata": {
+            "group": "thresholds",
+            "ui_hint": "enum",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "threshold_monitor_1",
+            "param_id": "mode",
+            "source_layer": "system"
+          }
+        },
+        "threshold_a": {
+          "value": 90,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "engineering_units",
+            "min": -1000000,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "thresholds",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "threshold_monitor_1",
+            "param_id": "threshold_a",
+            "source_layer": "system"
+          }
+        },
+        "threshold_b": {
+          "value": 90,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "engineering_units",
+            "min": -1000000,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "thresholds",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "threshold_monitor_1",
+            "param_id": "threshold_b",
+            "source_layer": "system"
+          }
+        },
+        "hysteresis": {
+          "value": 2,
+          "value_type": "float",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "engineering_units",
+            "min": 0,
+            "max": 1000000,
+            "step": 0.01,
+            "group": "thresholds",
+            "ui_hint": "numeric",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "threshold_monitor_1",
+            "param_id": "hysteresis",
+            "source_layer": "system"
+          }
+        },
+        "latch_alarm": {
+          "value": true,
+          "value_type": "bool",
+          "source": "instance_override",
+          "metadata": {
+            "group": "alarming",
+            "ui_hint": "toggle",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "medium"
+          },
+          "provenance": {
+            "owner_id": "threshold_monitor_1",
+            "param_id": "latch_alarm",
+            "source_layer": "system"
+          }
+        },
+        "timeout_ms": {
+          "value": 5000,
+          "value_type": "u32",
+          "source": "instance_override",
+          "metadata": {
+            "unit": "ms",
+            "min": 0,
+            "max": 3600000,
+            "step": 100,
+            "group": "alarming",
+            "ui_hint": "duration_ms",
+            "access_role": "engineer",
+            "live_edit_policy": "immediate",
+            "persist_policy": "project",
+            "recipe_scope": "instance",
+            "danger_level": "low"
+          },
+          "provenance": {
+            "owner_id": "threshold_monitor_1",
+            "param_id": "timeout_ms",
+            "source_layer": "system"
+          }
+        }
+      },
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "std.threshold_monitor.v1",
+        "target_kinds": [
+          "esp32.shipcontroller.v1"
+        ],
+        "config_template": "shipcontroller.threshold_monitor.v1",
+        "frontend_requirement_ids": [
+          "fe_threshold_monitor_1_value_source"
+        ]
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "demo_threshold_monitor_project"
+      }
+    }
+  },
+  "connections": {
+    "conn_sig_process_value_to_threshold_monitor_t1": {
+      "id": "conn_sig_process_value_to_threshold_monitor_t1",
+      "source": {
+        "instance_id": "process_value_1",
+        "port_id": "value"
+      },
+      "target": {
+        "instance_id": "threshold_monitor_1",
+        "port_id": "value_in"
+      },
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "origin": {
+        "origin_layer": "system",
+        "owner_id": "demo_threshold_monitor_project",
+        "signal_id": "sig_process_value_to_threshold_monitor"
+      }
+    }
+  },
+  "resources": {
+    "hw_process_value_1": {
+      "id": "hw_process_value_1",
+      "binding_kind": "analog_in",
+      "instance_id": "process_value_1",
+      "port_id": "value",
+      "config": {
+        "channel": 0
+      }
+    }
+  },
+  "operations": {
+    "op_threshold_monitor_1_reset_latch": {
+      "id": "op_threshold_monitor_1_reset_latch",
+      "owner_instance_id": "threshold_monitor_1",
+      "kind": "reset_latch",
+      "title": "Reset Latch",
+      "confirmation_policy": "none",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "alarm_latched"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "alarm_active",
+            "value_type": "bool"
+          }
+        ]
+      },
+      "ui_hint": "secondary",
+      "safe_when": [
+        "alarm_latched"
+      ],
+      "progress_signals": [
+        {
+          "instance_id": "threshold_monitor_1",
+          "port_id": "alarm_active"
+        }
+      ],
+      "result_fields": [
+        "completed",
+        "alarm_active"
+      ],
+      "state_hint": {
+        "availability": "guarded",
+        "progress_style": "signals"
+      },
+      "provenance": {
+        "owner_instance_id": "threshold_monitor_1",
+        "facet_kind": "operation",
+        "facet_id": "reset_latch",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    }
+  },
+  "trace_groups": {
+    "tg_threshold_monitor_1_thresholds": {
+      "id": "tg_threshold_monitor_1_thresholds",
+      "owner_instance_id": "threshold_monitor_1",
+      "title": "Thresholds",
+      "signals": [
+        {
+          "instance_id": "threshold_monitor_1",
+          "port_id": "value_in"
+        },
+        {
+          "instance_id": "threshold_monitor_1",
+          "port_id": "above_out"
+        },
+        {
+          "instance_id": "threshold_monitor_1",
+          "port_id": "below_out"
+        },
+        {
+          "instance_id": "threshold_monitor_1",
+          "port_id": "alarm_active"
+        }
+      ],
+      "sample_hint_ms": 500,
+      "chart_hint": "line",
+      "provenance": {
+        "owner_instance_id": "threshold_monitor_1",
+        "facet_kind": "trace_group",
+        "facet_id": "thresholds",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    }
+  },
+  "monitors": {
+    "mon_threshold_monitor_1_stale_source": {
+      "id": "mon_threshold_monitor_1_stale_source",
+      "owner_instance_id": "threshold_monitor_1",
+      "kind": "stale",
+      "source_ports": [
+        {
+          "instance_id": "threshold_monitor_1",
+          "port_id": "value_in"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "threshold_monitor_1",
+        "facet_kind": "monitor",
+        "facet_id": "stale_source",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    },
+    "mon_threshold_monitor_1_value_missing": {
+      "id": "mon_threshold_monitor_1_value_missing",
+      "owner_instance_id": "threshold_monitor_1",
+      "kind": "missing",
+      "source_ports": [
+        {
+          "instance_id": "threshold_monitor_1",
+          "port_id": "value_in"
+        }
+      ],
+      "severity": "warning",
+      "status_port_id": "source_ok",
+      "provenance": {
+        "owner_instance_id": "threshold_monitor_1",
+        "facet_kind": "monitor",
+        "facet_id": "value_missing",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    }
+  },
+  "frontend_requirements": {
+    "fe_threshold_monitor_1_value_source": {
+      "id": "fe_threshold_monitor_1_value_source",
+      "owner_instance_id": "threshold_monitor_1",
+      "kind": "process_value_input",
+      "source_ports": [
+        {
+          "instance_id": "threshold_monitor_1",
+          "port_id": "value_in"
+        }
+      ],
+      "binding_kind": "analog_in",
+      "channel_kind": "telemetry",
+      "value_type": "float",
+      "required": true,
+      "provenance": {
+        "owner_instance_id": "threshold_monitor_1",
+        "facet_kind": "frontend_requirement",
+        "facet_id": "value_source",
+        "source_type_ref": "library:threshold_monitor"
+      }
+    }
+  },
+  "persistence_slots": {},
+  "operation_runtime_contract": {
+    "invoke_supported": false,
+    "cancel_supported": false,
+    "progress_supported": false,
+    "result_supported": false,
+    "audit_required": false
+  }
+}

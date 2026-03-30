@@ -1,0 +1,205 @@
+{
+  "id": "pump_skid_supervisor_modes",
+  "kind": "package_definition",
+  "meta": {
+    "title": "PumpSkidSupervisorModes v1",
+    "origin": "project",
+    "description": "Generic non-boiler reference package for Wave 13 package mode/phase metadata.",
+    "domain": "pump_skid",
+    "package_kind": "pump_skid_supervisor_modes_v1",
+    "safety_scope": "non_safety_skeleton"
+  },
+  "members": {
+    "pump_group_1": { "id": "pump_group_1", "kind": "package_member", "type_ref": "project:pump_group", "title": "Pump Group" },
+    "run_hours_1": { "id": "run_hours_1", "kind": "package_member", "type_ref": "project:run_hours_counter", "title": "Pump Runtime Counter" },
+    "maintenance_counter_1": { "id": "maintenance_counter_1", "kind": "package_member", "type_ref": "project:maintenance_counter", "title": "Pump Maintenance Counter" },
+    "threshold_monitor_1": { "id": "threshold_monitor_1", "kind": "package_member", "type_ref": "project:threshold_monitor", "title": "Pump Remaining Monitor" }
+  },
+  "signals": {
+    "sig_pumping_to_run_hours": {
+      "id": "sig_pumping_to_run_hours",
+      "title": "Pumping To Runtime Counter",
+      "source": { "instance_id": "pump_group_1", "port_id": "pumping_out" },
+      "targets": {
+        "runtime_active": { "instance_id": "run_hours_1", "port_id": "active_in" }
+      }
+    },
+    "sig_runtime_to_maintenance": {
+      "id": "sig_runtime_to_maintenance",
+      "title": "Runtime To Maintenance",
+      "source": { "instance_id": "run_hours_1", "port_id": "total_hours" },
+      "targets": {
+        "maintenance_usage": { "instance_id": "maintenance_counter_1", "port_id": "usage_total_in" }
+      }
+    },
+    "sig_remaining_to_monitor": {
+      "id": "sig_remaining_to_monitor",
+      "title": "Remaining To Threshold Monitor",
+      "source": { "instance_id": "maintenance_counter_1", "port_id": "remaining_out" },
+      "targets": {
+        "remaining_monitor": { "instance_id": "threshold_monitor_1", "port_id": "value_in" }
+      }
+    }
+  },
+  "mode_phase": {
+    "modes": {
+      "off": {
+        "id": "off",
+        "title": "Off",
+        "summary": "Pump skid is parked and not pumping.",
+        "phase_refs": ["idle"]
+      },
+      "auto": {
+        "id": "auto",
+        "title": "Auto",
+        "summary": "Pump skid is ready for automatic demand handling.",
+        "phase_refs": ["idle", "ready", "pumping"]
+      },
+      "service": {
+        "id": "service",
+        "title": "Service",
+        "summary": "Pump skid is under service supervision without automatic demand.",
+        "phase_refs": ["ready"]
+      }
+    },
+    "phases": {
+      "idle": {
+        "id": "idle",
+        "title": "Idle",
+        "summary": "No pumping demand is active.",
+        "source_ports": [
+          { "member_id": "pump_group_1", "port_id": "off_out" }
+        ]
+      },
+      "ready": {
+        "id": "ready",
+        "title": "Ready",
+        "summary": "Skid prerequisites are met and the group is ready.",
+        "source_ports": [
+          { "member_id": "pump_group_1", "port_id": "ready_out" }
+        ]
+      },
+      "pumping": {
+        "id": "pumping",
+        "title": "Pumping",
+        "summary": "Pump skid is actively pumping.",
+        "source_ports": [
+          { "member_id": "pump_group_1", "port_id": "pumping_out" }
+        ]
+      }
+    },
+    "mode_summary": {
+      "id": "mode_summary",
+      "title": "Package Mode Summary",
+      "default_mode_ref": "auto",
+      "entries": {
+        "off_summary": {
+          "id": "off_summary",
+          "title": "Off Summary",
+          "mode_ref": "off",
+          "source_ports": [
+            { "member_id": "pump_group_1", "port_id": "off_out" }
+          ],
+          "summary": "Off mode is exposed from the pump group child lane."
+        },
+        "auto_summary": {
+          "id": "auto_summary",
+          "title": "Auto Summary",
+          "mode_ref": "auto",
+          "source_ports": [
+            { "member_id": "pump_group_1", "port_id": "auto_out" }
+          ],
+          "summary": "Auto mode remains child-state driven."
+        },
+        "service_summary": {
+          "id": "service_summary",
+          "title": "Service Summary",
+          "mode_ref": "service",
+          "source_ports": [
+            { "member_id": "pump_group_1", "port_id": "service_out" }
+          ],
+          "summary": "Service mode is a supervisory metadata lane only."
+        }
+      }
+    },
+    "phase_summary": {
+      "id": "phase_summary",
+      "title": "Package Phase Summary",
+      "default_phase_ref": "ready",
+      "entries": {
+        "idle_summary": {
+          "id": "idle_summary",
+          "title": "Idle Summary",
+          "phase_ref": "idle",
+          "source_ports": [
+            { "member_id": "pump_group_1", "port_id": "off_out" }
+          ],
+          "summary": "Idle phase is derived from the pump group off-state."
+        },
+        "ready_summary": {
+          "id": "ready_summary",
+          "title": "Ready Summary",
+          "phase_ref": "ready",
+          "source_ports": [
+            { "member_id": "pump_group_1", "port_id": "ready_out" }
+          ],
+          "summary": "Ready phase remains child-group driven."
+        },
+        "pumping_summary": {
+          "id": "pumping_summary",
+          "title": "Pumping Summary",
+          "phase_ref": "pumping",
+          "source_ports": [
+            { "member_id": "pump_group_1", "port_id": "pumping_out" }
+          ],
+          "summary": "Pumping phase remains child-group driven."
+        }
+      }
+    },
+    "active_mode_ref": "auto",
+    "active_phase_ref": "ready",
+    "package_mode_groups": {
+      "availability_modes": {
+        "id": "availability_modes",
+        "title": "Availability Modes",
+        "mode_refs": ["off", "auto"],
+        "summary": "Normal operating availability modes."
+      },
+      "service_modes": {
+        "id": "service_modes",
+        "title": "Service Modes",
+        "mode_refs": ["service"],
+        "summary": "Service-only supervisory mode."
+      }
+    },
+    "package_phase_groups": {
+      "preparation_phases": {
+        "id": "preparation_phases",
+        "title": "Preparation Phases",
+        "phase_refs": ["idle", "ready"],
+        "summary": "Pre-pumping phases."
+      },
+      "active_phases": {
+        "id": "active_phases",
+        "title": "Active Phases",
+        "phase_refs": ["pumping"],
+        "summary": "Active pumping phases."
+      }
+    },
+    "trace_groups": {
+      "mode_phase_trace": {
+        "id": "mode_phase_trace",
+        "title": "Mode / Phase Trace",
+        "signals": [
+          { "member_id": "pump_group_1", "port_id": "ready_out" },
+          { "member_id": "pump_group_1", "port_id": "pumping_out" },
+          { "member_id": "maintenance_counter_1", "port_id": "remaining_out" }
+        ]
+      }
+    }
+  },
+  "boundary_notes": [
+    "PumpSkidSupervisorModes v1 is the mandatory non-boiler acceptance slice for Wave 13.",
+    "Package mode/phase metadata remains authoring-level orchestration only and must not become a hidden sequence executor."
+  ]
+}

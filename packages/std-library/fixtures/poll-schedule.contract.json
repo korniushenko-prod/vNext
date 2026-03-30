@@ -1,0 +1,11 @@
+{
+  "id": "support.poll_schedule.v1",
+  "kind": "support_contract",
+  "title": "PollSchedule",
+  "fields": [
+    "poll_period_ms",
+    "startup_delay_ms",
+    "stale_timeout_ms"
+  ],
+  "scope": "read_only_baseline"
+}

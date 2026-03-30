@@ -111,16 +111,36 @@
       "owner_instance_id": "meter_1",
       "kind": "reset_totalizer",
       "title": "Reset Totalizer",
-      "ui_hint": "danger",
-      "safe_when": ["stopped"],
       "confirmation_policy": "required",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "stopped"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "done",
+            "value_type": "string"
+          }
+        ]
+      },
+      "ui_hint": "danger",
+      "safe_when": [
+        "stopped"
+      ],
       "progress_signals": [
         {
           "instance_id": "meter_1",
           "port_id": "source_ok"
         }
       ],
-      "result_fields": ["done"],
+      "result_fields": [
+        "done"
+      ],
       "state_hint": {
         "availability": "guarded",
         "progress_style": "signals",
@@ -232,5 +252,12 @@
         "source_type_ref": "project:capability_meter"
       }
     }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": false,
+    "cancel_supported": false,
+    "progress_supported": false,
+    "result_supported": false,
+    "audit_required": false
   }
 }

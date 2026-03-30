@@ -1,0 +1,28 @@
+{
+  "request_id": "readback-pid-autotune-001",
+  "target_id": "esp32.shipcontroller.v1",
+  "collected_at": "2026-03-30T12:30:00Z",
+  "signals": {},
+  "resources": {},
+  "operation_snapshots": {
+    "op_pid_1_autotune": {
+      "operation_id": "op_pid_1_autotune",
+      "state": "completed",
+      "progress": 100,
+      "progress_payload": {
+        "phase": "settle",
+        "sample_count": 128
+      },
+      "recommendation_state": "available",
+      "message": "Autotune completed. Review recommendation before apply.",
+      "result": {
+        "completed": true,
+        "recommended_kp": 1.9,
+        "recommended_ti": 10.5,
+        "recommended_td": 0.2,
+        "summary": "Stable relay test complete."
+      }
+    }
+  },
+  "diagnostics": []
+}

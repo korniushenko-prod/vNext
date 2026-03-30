@@ -1,0 +1,138 @@
+{
+  "id": "boiler_supervisor",
+  "kind": "package_definition",
+  "meta": {
+    "title": "Boiler Supervisor Skeleton",
+    "version": "1.0.0",
+    "origin": "project",
+    "description": "Boiler PLC-part skeleton assembled from frozen library objects, templates, and monitoring primitives.",
+    "domain": "boiler",
+    "package_kind": "boiler_supervisor_skeleton_v1",
+    "safety_scope": "non_safety_skeleton"
+  },
+  "members": {
+    "pid_1": {
+      "id": "pid_1",
+      "kind": "package_member",
+      "type_ref": "library:std/pid_controller",
+      "title": "Pressure Controller"
+    },
+    "flowmeter_1": {
+      "id": "flowmeter_1",
+      "kind": "package_member",
+      "type_ref": "library:std/pulse_flowmeter",
+      "title": "Feedwater Flowmeter"
+    },
+    "run_hours_1": {
+      "id": "run_hours_1",
+      "kind": "package_member",
+      "type_ref": "library:std/run_hours_counter",
+      "template_ref": "run_hours_service_preset",
+      "title": "Boiler Runtime Hours"
+    },
+    "maintenance_counter_1": {
+      "id": "maintenance_counter_1",
+      "kind": "package_member",
+      "type_ref": "library:std/maintenance_counter",
+      "template_ref": "maintenance_service_saved",
+      "title": "Boiler Maintenance Counter"
+    },
+    "threshold_monitor_1": {
+      "id": "threshold_monitor_1",
+      "kind": "package_member",
+      "type_ref": "library:std/threshold_monitor",
+      "title": "Maintenance Due Monitor"
+    }
+  },
+  "signals": {
+    "sig_runtime_to_maintenance": {
+      "id": "sig_runtime_to_maintenance",
+      "title": "Runtime To Maintenance",
+      "source": {
+        "instance_id": "run_hours_1",
+        "port_id": "total_seconds"
+      },
+      "targets": {
+        "maintenance_usage": {
+          "instance_id": "maintenance_counter_1",
+          "port_id": "usage_total_in"
+        }
+      }
+    },
+    "sig_maintenance_remaining_to_monitor": {
+      "id": "sig_maintenance_remaining_to_monitor",
+      "title": "Remaining To Threshold Monitor",
+      "source": {
+        "instance_id": "maintenance_counter_1",
+        "port_id": "remaining_out"
+      },
+      "targets": {
+        "remaining_monitor": {
+          "instance_id": "threshold_monitor_1",
+          "port_id": "value_in"
+        }
+      }
+    }
+  },
+  "bindings": {
+    "pressure_pv_source": {
+      "id": "pressure_pv_source",
+      "kind": "member_port",
+      "member_id": "pid_1",
+      "member_port_id": "pv",
+      "binding_role": "telemetry_input",
+      "required": true,
+      "title": "Pressure PV Source"
+    },
+    "pressure_mv_output": {
+      "id": "pressure_mv_output",
+      "kind": "member_port",
+      "member_id": "pid_1",
+      "member_port_id": "mv_out",
+      "binding_role": "control_output",
+      "required": true,
+      "title": "Pressure MV Output"
+    },
+    "runtime_active_source": {
+      "id": "runtime_active_source",
+      "kind": "member_port",
+      "member_id": "run_hours_1",
+      "member_port_id": "active_in",
+      "binding_role": "state_input",
+      "required": true,
+      "title": "Runtime Active Source"
+    },
+    "flowmeter_pulse_source": {
+      "id": "flowmeter_pulse_source",
+      "kind": "member_port",
+      "member_id": "flowmeter_1",
+      "member_port_id": "pulse_in",
+      "binding_role": "telemetry_input",
+      "required": true,
+      "title": "Flowmeter Pulse Source"
+    }
+  },
+  "presets": {
+    "demo_defaults": {
+      "id": "demo_defaults",
+      "title": "Demo Defaults",
+      "description": "Small package-level preset for overview and flattening checks.",
+      "member_defaults": {
+        "pid_1": {
+          "tags": {
+            "zone": "boiler_loop"
+          }
+        },
+        "threshold_monitor_1": {
+          "tags": {
+            "importance": "warning"
+          }
+        }
+      }
+    }
+  },
+  "boundary_notes": [
+    "This skeleton remains non-safety and excludes burner permissives, flame supervision, and shutdown logic.",
+    "Package is authoring-only and must flatten into ordinary effective instances, connections, monitors, and operations."
+  ]
+}

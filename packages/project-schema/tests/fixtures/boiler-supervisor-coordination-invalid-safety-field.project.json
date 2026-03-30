@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "boiler_supervisor_coordination_invalid_safety_field",
+    "title": "Boiler Supervisor Coordination Invalid Safety Field"
+  },
+  "imports": { "libraries": [], "packages": [] },
+  "definitions": {
+    "object_types": {
+      "pump_group": {
+        "id": "pump_group",
+        "kind": "object_type",
+        "meta": { "title": "Pump Group", "origin": "project" },
+        "interface": { "ports": { "ready_out": { "id": "ready_out", "direction": "out", "channel_kind": "state", "value_type": "bool" } }, "params": {}, "alarms": {} },
+        "locals": { "signals": {}, "vars": {} },
+        "implementation": { "native": null, "composition": null, "state": null, "flow": null },
+        "diagnostics": {}
+      }
+    },
+    "templates": {},
+    "packages": {
+      "boiler_supervisor_coordination": {
+        "id": "boiler_supervisor_coordination",
+        "kind": "package_definition",
+        "meta": { "title": "Boiler Supervisor Coordination v1", "origin": "project" },
+        "members": {
+          "pump_group_1": { "id": "pump_group_1", "kind": "package_member", "type_ref": "project:pump_group" }
+        },
+        "signals": {},
+        "coordination": {
+          "package_state": {
+            "id": "package_state",
+            "states": {
+              "ready": { "id": "ready", "state": "ready", "source_ports": [{ "member_id": "pump_group_1", "port_id": "ready_out" }] }
+            }
+          },
+          "burner_sequence": {
+            "stage": "ignite"
+          }
+        }
+      }
+    }
+  },
+  "system": { "instances": {}, "signals": {}, "packages": {} },
+  "hardware": { "bindings": {} },
+  "views": { "screens": {} },
+  "layouts": { "system": {}, "definitions": {} }
+}

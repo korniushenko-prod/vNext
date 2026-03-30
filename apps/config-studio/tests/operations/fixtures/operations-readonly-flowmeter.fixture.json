@@ -1,0 +1,58 @@
+{
+  "id": "operations-readonly-flowmeter",
+  "title": "PulseFlowmeter + reset_totalizer",
+  "description": "Read-only baseline for a totalizer reset with completed snapshot and result payload.",
+  "subject_label": "Pulse Flowmeter #1",
+  "runtimePack": {
+    "pack_id": "operations-readonly-flowmeter-pack",
+    "operations": {
+      "op_flowmeter_1_reset_totalizer": {
+        "id": "op_flowmeter_1_reset_totalizer",
+        "owner_instance_id": "flowmeter_1",
+        "kind": "reset_totalizer",
+        "title": "Reset Totalizer",
+        "confirmation_policy": "required",
+        "availability": {
+          "mode": "always",
+          "required_states": []
+        },
+        "progress_mode": "signal_based",
+        "result_contract": {
+          "mode": "applyable_result",
+          "fields": [
+            { "id": "completed", "value_type": "bool", "title": "Completed" },
+            { "id": "total_volume", "value_type": "float", "title": "Total Volume" }
+          ]
+        }
+      }
+    },
+    "operation_runtime_contract": {
+      "invoke_supported": false,
+      "cancel_supported": false,
+      "progress_supported": true,
+      "result_supported": true,
+      "audit_required": false
+    }
+  },
+  "runtimeSnapshot": {
+    "operation_snapshots": {
+      "op_flowmeter_1_reset_totalizer": {
+        "operation_id": "op_flowmeter_1_reset_totalizer",
+        "state": "completed",
+        "message": "Totalizer reset acknowledged by target.",
+        "result": {
+          "completed": true,
+          "total_volume": 0
+        }
+      }
+    }
+  },
+  "operationsSupport": {
+    "enabled": true,
+    "invoke": false,
+    "cancel": false,
+    "progress": true,
+    "result_payload": true,
+    "confirmation": true
+  }
+}

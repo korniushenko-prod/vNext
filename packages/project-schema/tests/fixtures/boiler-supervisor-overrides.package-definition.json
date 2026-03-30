@@ -1,0 +1,225 @@
+{
+    "id":  "boiler_supervisor_overrides",
+    "kind":  "package_definition",
+    "meta":  {
+                 "title":  "BoilerSupervisorOverrides v1",
+                 "origin":  "project",
+                 "description":  "Boiler-like reference package for generic package override/handover baseline.",
+                 "domain":  "boiler",
+                 "package_kind":  "boiler_supervisor_overrides_v1",
+                 "safety_scope":  "non_safety_skeleton"
+             },
+    "members":  {
+                    "auto_owner_1":  {
+                                         "id":  "auto_owner_1",
+                                         "kind":  "package_member",
+                                         "type_ref":  "project:package_command_source",
+                                         "title":  "Auto Owner"
+                                     },
+                    "manual_owner_1":  {
+                                           "id":  "manual_owner_1",
+                                           "kind":  "package_member",
+                                           "type_ref":  "project:package_command_source",
+                                           "title":  "Manual Owner"
+                                       },
+                    "service_owner_1":  {
+                                            "id":  "service_owner_1",
+                                            "kind":  "package_member",
+                                            "type_ref":  "project:package_command_source",
+                                            "title":  "Service Owner"
+                                        },
+                    "remote_owner_1":  {
+                                           "id":  "remote_owner_1",
+                                           "kind":  "package_member",
+                                           "type_ref":  "project:package_command_source",
+                                           "title":  "Remote Owner"
+                                       },
+                    "takeover_request_1":  {
+                                               "id":  "takeover_request_1",
+                                               "kind":  "package_member",
+                                               "type_ref":  "project:package_command_source",
+                                               "title":  "Takeover Request Surface"
+                                           },
+                    "release_request_1":  {
+                                              "id":  "release_request_1",
+                                              "kind":  "package_member",
+                                              "type_ref":  "project:package_command_source",
+                                              "title":  "Release Request Surface"
+                                          }
+                },
+    "signals":  {
+
+                },
+    "override_handover":  {
+                              "authority_holders":  {
+                                                        "auto_owner":  {
+                                                                           "id":  "auto_owner",
+                                                                           "title":  "Auto Holder",
+                                                                           "lane":  "auto",
+                                                                           "source_ports":  [
+                                                                                                {
+                                                                                                    "member_id":  "auto_owner_1",
+                                                                                                    "port_id":  "authority_out"
+                                                                                                }
+                                                                                            ],
+                                                                           "summary":  "Automatic lane is available for return-to-auto."
+                                                                       },
+                                                        "manual_owner":  {
+                                                                             "id":  "manual_owner",
+                                                                             "title":  "Manual Holder",
+                                                                             "lane":  "manual",
+                                                                             "source_ports":  [
+                                                                                                  {
+                                                                                                      "member_id":  "manual_owner_1",
+                                                                                                      "port_id":  "authority_out"
+                                                                                                  }
+                                                                                              ],
+                                                                             "summary":  "Manual holder is currently active."
+                                                                         },
+                                                        "service_owner":  {
+                                                                              "id":  "service_owner",
+                                                                              "title":  "Service Holder",
+                                                                              "lane":  "service",
+                                                                              "source_ports":  [
+                                                                                                   {
+                                                                                                       "member_id":  "service_owner_1",
+                                                                                                       "port_id":  "authority_out"
+                                                                                                   }
+                                                                                               ],
+                                                                              "summary":  "Service holder can request bounded takeover."
+                                                                          },
+                                                        "remote_owner":  {
+                                                                             "id":  "remote_owner",
+                                                                             "title":  "Remote Holder",
+                                                                             "lane":  "remote",
+                                                                             "source_ports":  [
+                                                                                                  {
+                                                                                                      "member_id":  "remote_owner_1",
+                                                                                                      "port_id":  "authority_out"
+                                                                                                  }
+                                                                                              ],
+                                                                             "summary":  "Remote holder remains visible but not authoritative."
+                                                                         }
+                                                    },
+                              "handover_summary":  {
+                                                       "id":  "handover_summary",
+                                                       "title":  "Override Summary",
+                                                       "current_holder_ref":  "manual_owner",
+                                                       "current_lane":  "manual",
+                                                       "requested_holder_ref":  "service_owner",
+                                                       "accepted_request_refs":  [
+                                                                                     "release_to_auto",
+                                                                                     "return_to_auto"
+                                                                                 ],
+                                                       "blocked_request_refs":  [
+                                                                                    "service_takeover"
+                                                                                ],
+                                                       "denied_request_refs":  [
+                                                                                   "remote_takeover"
+                                                                               ],
+                                                       "last_handover_reason":  "manual_override_active",
+                                                       "summary":  "Manual override is active while release back to auto remains available."
+                                                   },
+                              "handover_requests":  {
+                                                        "service_takeover":  {
+                                                                                 "id":  "service_takeover",
+                                                                                 "title":  "Service Takeover",
+                                                                                 "request_kind":  "request_takeover",
+                                                                                 "requested_holder_ref":  "service_owner",
+                                                                                 "state":  "blocked",
+                                                                                 "blocked_reason":  "blocked_by_policy",
+                                                                                 "summary":  "Service takeover is blocked until the active manual holder releases authority.",
+                                                                                 "request_preview":  "request_takeover -\u003e service_owner"
+                                                                             },
+                                                        "release_to_auto":  {
+                                                                                "id":  "release_to_auto",
+                                                                                "title":  "Release To Auto",
+                                                                                "request_kind":  "request_release",
+                                                                                "requested_holder_ref":  "auto_owner",
+                                                                                "state":  "accepted",
+                                                                                "summary":  "Current holder may release control back to the automatic lane.",
+                                                                                "request_preview":  "request_release -\u003e auto_owner"
+                                                                            },
+                                                        "return_to_auto":  {
+                                                                               "id":  "return_to_auto",
+                                                                               "title":  "Return To Auto",
+                                                                               "request_kind":  "request_return_to_auto",
+                                                                               "requested_holder_ref":  "auto_owner",
+                                                                               "state":  "accepted",
+                                                                               "summary":  "Return-to-auto remains available as the bounded fallback handover.",
+                                                                               "request_preview":  "request_return_to_auto -\u003e auto_owner"
+                                                                           },
+                                                        "remote_takeover":  {
+                                                                                "id":  "remote_takeover",
+                                                                                "title":  "Remote Takeover",
+                                                                                "request_kind":  "request_takeover",
+                                                                                "requested_holder_ref":  "remote_owner",
+                                                                                "state":  "denied",
+                                                                                "denied_reason":  "held_by_other_owner",
+                                                                                "summary":  "Remote takeover is denied while manual override remains the active holder.",
+                                                                                "request_preview":  "request_takeover -\u003e remote_owner"
+                                                                            }
+                                                    },
+                              "summary_outputs":  {
+                                                      "override_ready":  {
+                                                                             "id":  "override_ready",
+                                                                             "value_type":  "bool",
+                                                                             "source":  {
+                                                                                            "member_id":  "release_request_1",
+                                                                                            "port_id":  "ready_out"
+                                                                                        }
+                                                                         },
+                                                      "override_blocked":  {
+                                                                               "id":  "override_blocked",
+                                                                               "value_type":  "bool",
+                                                                               "source":  {
+                                                                                              "member_id":  "takeover_request_1",
+                                                                                              "port_id":  "blocked_out"
+                                                                                          }
+                                                                           }
+                                                  },
+                              "aggregate_monitors":  {
+                                                         "override_handover_health":  {
+                                                                                          "id":  "override_handover_health",
+                                                                                          "kind":  "boolean_health_rollup",
+                                                                                          "source_ports":  [
+                                                                                                               {
+                                                                                                                   "member_id":  "manual_owner_1",
+                                                                                                                   "port_id":  "authority_out"
+                                                                                                               },
+                                                                                                               {
+                                                                                                                   "member_id":  "takeover_request_1",
+                                                                                                                   "port_id":  "blocked_out"
+                                                                                                               },
+                                                                                                               {
+                                                                                                                   "member_id":  "release_request_1",
+                                                                                                                   "port_id":  "ready_out"
+                                                                                                               }
+                                                                                                           ]
+                                                                                      }
+                                                     },
+                              "trace_groups":  {
+                                                   "override_handover_trace":  {
+                                                                                   "id":  "override_handover_trace",
+                                                                                   "signals":  [
+                                                                                                   {
+                                                                                                       "member_id":  "manual_owner_1",
+                                                                                                       "port_id":  "authority_out"
+                                                                                                   },
+                                                                                                   {
+                                                                                                       "member_id":  "takeover_request_1",
+                                                                                                       "port_id":  "blocked_out"
+                                                                                                   },
+                                                                                                   {
+                                                                                                       "member_id":  "release_request_1",
+                                                                                                       "port_id":  "ready_out"
+                                                                                                   }
+                                                                                               ]
+                                                                               }
+                                               }
+                          },
+    "boundary_notes":  [
+                           "Wave 18 package override/handover remains package-neutral and does not introduce safety bypass or a hidden package execution engine.",
+                           "Boiler-like content is reference-only and does not define boiler-specific shared semantics."
+                       ]
+}

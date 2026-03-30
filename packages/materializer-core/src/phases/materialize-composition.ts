@@ -20,11 +20,13 @@ import {
   collectRuntimeTraceGroups,
   toRuntimeParamMetadata
 } from "../helpers/runtime-facets.js";
+import { resolveTemplateBackedInstance } from "../templates.js";
 import { resolveLocalTypeRef } from "./build-type-registry.js";
 
 export function expandCompositionRecursively(
   runtimePack: RuntimePack,
   registry: Map<string, unknown>,
+  project: import("@universal-plc/project-schema").ProjectModel,
   parentRuntimeInstanceId: string,
   parentType: ObjectType,
   parentRuntimeInstance: RuntimeInstance,
@@ -48,9 +50,21 @@ export function expandCompositionRecursively(
     }
 
     const runtimeInstanceId = qualifyInstanceId(parentRuntimeInstanceId, childId);
+    const templateResolution = resolveTemplateBackedInstance(
+      project,
+      childInstance,
+      childType,
+      "resolve_templates",
+      `$.definitions.object_types.${parentType.id}.implementation.composition.instances.${childId}`
+    );
+    diagnostics.push(...templateResolution.diagnostics);
+    if (templateResolution.fatal) {
+      continue;
+    }
+    const resolvedChildInstance = templateResolution.resolved_instance;
     const childRuntimeInstance = materializeRuntimeInstanceFromType(
       runtimeInstanceId,
-      childInstance,
+      resolvedChildInstance,
       childType,
       parentRuntimeInstance,
       parentType.id,
@@ -68,18 +82,26 @@ export function expandCompositionRecursively(
       frontendRequirements.mode,
       frontendRequirements.active_requirement_ids
     );
+    const runtimeOperations = collectRuntimeOperations(
+      runtimeInstanceId,
+      childType,
+      "expand_composition",
+      `$.definitions.object_types.${childType.id}.facets.operations.operations`
+    );
 
     runtimePack.instances[runtimeInstanceId] = childRuntimeInstance;
-    Object.assign(runtimePack.operations, collectRuntimeOperations(runtimeInstanceId, childType));
+    Object.assign(runtimePack.operations, runtimeOperations.operations);
     Object.assign(runtimePack.trace_groups, collectRuntimeTraceGroups(runtimeInstanceId, childType));
     Object.assign(runtimePack.monitors, collectRuntimeMonitors(runtimeInstanceId, childType));
     Object.assign(runtimePack.frontend_requirements, frontendRequirements.requirements);
     Object.assign(runtimePack.persistence_slots, collectRuntimePersistenceSlots(runtimeInstanceId, childType));
+    diagnostics.push(...runtimeOperations.diagnostics);
     diagnostics.push(...frontendRequirements.diagnostics);
 
     expandCompositionRecursively(
       runtimePack,
       registry,
+      project,
       runtimeInstanceId,
       childType,
       childRuntimeInstance,

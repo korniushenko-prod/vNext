@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "../../ShipController"
+		},
+		{
+			"name": "universal_plc",
+			"path": "../../universal_plc"
+		},
+		{
+			"name": "vNext",
+			"path": ".."
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {}
+}

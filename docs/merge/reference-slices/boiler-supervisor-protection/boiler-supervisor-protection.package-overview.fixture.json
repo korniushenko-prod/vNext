@@ -1,0 +1,166 @@
+{
+  "id": "package-overview-boiler-supervisor-protection",
+  "title": "BoilerSupervisorProtection v1",
+  "description": "Read-only package protection / recovery surface over child-owned trip, inhibit, and recovery request lanes. It stays generic, non-safety, and package-neutral.",
+  "package_instance_id": "boiler_supervisor_protection_1",
+  "package_definition": {
+    "package_id": "boiler_supervisor_protection",
+    "title": "BoilerSupervisorProtection v1",
+    "origin": "project",
+    "preset_count": 0,
+    "template_count": 0,
+    "presets": [],
+    "templates": [],
+    "boundary_notes": [
+      "Package protection / recovery is a generic supervisory layer only. It is not certified safety logic, flame safeguard, or burner management.",
+      "Trips, inhibits, and recovery requests remain child-owned signals and operations after flattening."
+    ]
+  },
+  "members": [
+    {
+      "id": "pressure_trip_1",
+      "title": "Pressure Trip Source",
+      "role": "trip_source",
+      "type_title": "Package Protection Source",
+      "type_ref": "project:package_protection_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_protection_1__pressure_trip_1",
+      "boundary_note": "Trip state remains a child-owned source and is only summarized at the package layer.",
+      "related_surfaces": []
+    },
+    {
+      "id": "feedwater_guard_1",
+      "title": "Feedwater Guard",
+      "role": "inhibit_source",
+      "type_title": "Package Protection Source",
+      "type_ref": "project:package_protection_source",
+      "template_ref": "",
+      "preset_ref": "",
+      "effective_object_id": "boiler_supervisor_protection_1__feedwater_guard_1",
+      "boundary_note": "Recovery blocking remains child-owned and does not imply package runtime of its own.",
+      "related_surfaces": []
+    }
+  ],
+  "effective_objects": [
+    {
+      "id": "boiler_supervisor_protection_1__pressure_trip_1",
+      "title": "Pressure Trip Source",
+      "type_title": "Package Protection Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    },
+    {
+      "id": "boiler_supervisor_protection_1__feedwater_guard_1",
+      "title": "Feedwater Guard",
+      "type_title": "Package Protection Source",
+      "execution_boundary": "ordinary_runtime_object",
+      "package_neutral": true
+    }
+  ],
+  "package_protection_recovery": {
+    "snapshot_state": "tripped",
+    "protection_summary": {
+      "state": "tripped",
+      "ready": false,
+      "trip_reason_ids": [
+        "pressure_trip"
+      ],
+      "inhibit_reason_ids": [
+        "feedwater_blocked"
+      ],
+      "recovery_request_ids": [
+        "request_recovery",
+        "reset_pressure_trip"
+      ],
+      "diagnostic_summary_ids": [
+        "active_reasons"
+      ]
+    },
+    "trips": [
+      {
+        "id": "pressure_trip",
+        "title": "Pressure Trip",
+        "state": "tripped",
+        "latching": true,
+        "reason_code": "pressure_trip_active",
+        "diagnostic_ref": "diag_pressure_trip",
+        "summary": "Package pressure trip is latched."
+      }
+    ],
+    "inhibits": [
+      {
+        "id": "feedwater_blocked",
+        "title": "Feedwater Blocked",
+        "state": "blocked",
+        "reason_code": "feedwater_blocked",
+        "diagnostic_ref": "diag_feedwater_blocked",
+        "summary": "Feedwater path is blocked until upstream conditions recover."
+      }
+    ],
+    "diagnostic_summaries": [
+      {
+        "id": "active_reasons",
+        "title": "Active Reasons",
+        "trip_ids": [
+          "pressure_trip"
+        ],
+        "inhibit_ids": [
+          "feedwater_blocked"
+        ],
+        "summary": "Recovery remains blocked until the feedwater inhibit clears and the latched trip is reset."
+      }
+    ],
+    "recovery_requests": [
+      {
+        "id": "request_recovery",
+        "title": "Request Recovery",
+        "kind": "reset",
+        "availability_state": "available",
+        "target_operation_id": "op_boiler_supervisor_protection_1__pressure_trip_1_request_recovery",
+        "target_owner_instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+        "summary": "Recovery request stays visible as a child-targeted reset intent."
+      },
+      {
+        "id": "reset_pressure_trip",
+        "title": "Reset Pressure Trip",
+        "kind": "reset_latch",
+        "availability_state": "available",
+        "target_operation_id": "op_boiler_supervisor_protection_1__pressure_trip_1_reset_trip",
+        "target_owner_instance_id": "boiler_supervisor_protection_1__pressure_trip_1",
+        "summary": "Trip reset remains child-owned and confirmation-gated."
+      }
+    ],
+    "summary_outputs": [
+      {
+        "id": "package_ready",
+        "title": "Package Ready",
+        "value": "false",
+        "semantic_state": "blocked"
+      },
+      {
+        "id": "package_tripped",
+        "title": "Package Tripped",
+        "value": "true",
+        "semantic_state": "tripped"
+      }
+    ],
+    "aggregate_monitors": [
+      {
+        "id": "protection_health",
+        "title": "Protection Health",
+        "state": "tripped",
+        "severity": "alarm",
+        "summary": "Trip remains latched while the inhibit still blocks recovery."
+      }
+    ],
+    "trace_groups": [
+      {
+        "id": "protection_trace",
+        "title": "Protection Trace",
+        "signal_count": 2,
+        "summary": "blocked_out, trip_out"
+      }
+    ]
+  }
+}

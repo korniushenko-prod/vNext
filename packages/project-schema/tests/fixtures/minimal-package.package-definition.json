@@ -1,0 +1,35 @@
+{
+  "id": "minimal_service_package",
+  "kind": "package_definition",
+  "meta": {
+    "title": "Minimal Service Package",
+    "origin": "project",
+    "description": "Small authoring-only package contract proving package boundaries without runtime semantics.",
+    "domain": "service",
+    "package_kind": "service_skeleton",
+    "safety_scope": "non_safety_skeleton"
+  },
+  "members": {
+    "relay_1": {
+      "id": "relay_1",
+      "kind": "package_member",
+      "type_ref": "library:std/timed_relay",
+      "title": "Service Relay"
+    }
+  },
+  "signals": {},
+  "bindings": {
+    "relay_start_cmd": {
+      "id": "relay_start_cmd",
+      "kind": "member_port",
+      "member_id": "relay_1",
+      "member_port_id": "start_cmd",
+      "binding_role": "package_control",
+      "required": true,
+      "title": "Relay Start Command"
+    }
+  },
+  "boundary_notes": [
+    "Package remains authoring-only and must flatten into ordinary effective instances later."
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "id": "boiler_supervisor",
+  "kind": "package_definition",
+  "meta": {
+    "title": "Boiler Supervisor v1",
+    "version": "1.0.0",
+    "origin": "library",
+    "description": "Supervisory boiler package built from frozen library objects and package-level supervision metadata.",
+    "domain": "boiler",
+    "package_kind": "boiler_supervisor_v1",
+    "safety_scope": "non_safety_skeleton"
+  },
+  "members": {
+    "pid_1": {
+      "id": "pid_1",
+      "kind": "package_member",
+      "type_ref": "library:std/pid_controller",
+      "title": "Pressure Controller"
+    },
+    "flowmeter_1": {
+      "id": "flowmeter_1",
+      "kind": "package_member",
+      "type_ref": "library:std/pulse_flowmeter",
+      "title": "Feedwater Flowmeter"
+    },
+    "run_hours_1": {
+      "id": "run_hours_1",
+      "kind": "package_member",
+      "type_ref": "library:std/run_hours_counter",
+      "template_ref": "run_hours_service_preset",
+      "title": "Boiler Runtime Hours"
+    },
+    "maintenance_counter_1": {
+      "id": "maintenance_counter_1",
+      "kind": "package_member",
+      "type_ref": "library:std/maintenance_counter",
+      "template_ref": "maintenance_service_saved",
+      "title": "Boiler Maintenance Counter"
+    },
+    "threshold_monitor_1": {
+      "id": "threshold_monitor_1",
+      "kind": "package_member",
+      "type_ref": "library:std/threshold_monitor",
+      "title": "Maintenance Due Monitor"
+    }
+  },
+  "signals": {
+    "sig_runtime_to_maintenance": {
+      "id": "sig_runtime_to_maintenance",
+      "title": "Runtime To Maintenance",
+      "source": { "instance_id": "run_hours_1", "port_id": "total_seconds" },
+      "targets": {
+        "maintenance_usage": { "instance_id": "maintenance_counter_1", "port_id": "usage_total_in" }
+      }
+    },
+    "sig_maintenance_remaining_to_monitor": {
+      "id": "sig_maintenance_remaining_to_monitor",
+      "title": "Remaining To Threshold Monitor",
+      "source": { "instance_id": "maintenance_counter_1", "port_id": "remaining_out" },
+      "targets": {
+        "remaining_monitor": { "instance_id": "threshold_monitor_1", "port_id": "value_in" }
+      }
+    }
+  },
+  "supervision": {
+    "summary_outputs": {
+      "package_ok": { "id": "package_ok", "value_type": "bool", "source": { "member_id": "threshold_monitor_1", "port_id": "source_ok" } },
+      "alarm_present": { "id": "alarm_present", "value_type": "bool", "source": { "member_id": "threshold_monitor_1", "port_id": "alarm_active" } },
+      "maintenance_due": { "id": "maintenance_due", "value_type": "bool", "source": { "member_id": "maintenance_counter_1", "port_id": "due_out" } },
+      "loop_in_auto": { "id": "loop_in_auto", "value_type": "bool", "source": { "member_id": "pid_1", "port_id": "in_auto" } },
+      "flow_ok": { "id": "flow_ok", "value_type": "bool", "source": { "member_id": "flowmeter_1", "port_id": "source_ok" } },
+      "runtime_total": { "id": "runtime_total", "value_type": "float", "source": { "member_id": "run_hours_1", "port_id": "total_hours" } }
+    },
+    "aggregate_monitors": {
+      "health_rollup": {
+        "id": "health_rollup",
+        "kind": "boolean_health_rollup",
+        "source_ports": [
+          { "member_id": "threshold_monitor_1", "port_id": "source_ok" },
+          { "member_id": "flowmeter_1", "port_id": "source_ok" },
+          { "member_id": "maintenance_counter_1", "port_id": "source_ok" }
+        ]
+      }
+    },
+    "aggregate_alarms": {
+      "alarm_rollup": {
+        "id": "alarm_rollup",
+        "severity": "warning",
+        "source_ports": [
+          { "member_id": "threshold_monitor_1", "port_id": "alarm_active" },
+          { "member_id": "maintenance_counter_1", "port_id": "due_out" }
+        ]
+      }
+    },
+    "trace_groups": {
+      "process_summary": {
+        "id": "process_summary",
+        "signals": [
+          { "member_id": "run_hours_1", "port_id": "total_hours" },
+          { "member_id": "flowmeter_1", "port_id": "flow_rate" },
+          { "member_id": "pid_1", "port_id": "mv_out" }
+        ]
+      },
+      "health_summary": {
+        "id": "health_summary",
+        "signals": [
+          { "member_id": "threshold_monitor_1", "port_id": "alarm_active" },
+          { "member_id": "maintenance_counter_1", "port_id": "due_out" },
+          { "member_id": "pid_1", "port_id": "loop_ok" }
+        ]
+      }
+    },
+    "operation_proxies": {
+      "reset_flow_totalizer": { "id": "reset_flow_totalizer", "target_member_id": "flowmeter_1", "target_operation_id": "reset_totalizer", "child_operation_kind": "reset_totalizer" },
+      "reset_runtime_counter": { "id": "reset_runtime_counter", "target_member_id": "run_hours_1", "target_operation_id": "reset_counter", "child_operation_kind": "reset_counter" },
+      "reset_maintenance_interval": { "id": "reset_maintenance_interval", "target_member_id": "maintenance_counter_1", "target_operation_id": "reset_interval", "child_operation_kind": "reset_interval" },
+      "pid_autotune": { "id": "pid_autotune", "target_member_id": "pid_1", "target_operation_id": "autotune", "child_operation_kind": "autotune" }
+    }
+  },
+  "boundary_notes": [
+    "BoilerSupervisor v1 is a supervisory skeleton only. It excludes burner safety, flame supervision, ignition sequencing, and certified shutdown logic.",
+    "Package supervision remains authoring-level aggregation over child objects and does not create a package execution kind."
+  ]
+}

@@ -266,11 +266,31 @@
       "owner_instance_id": "flowmeter_1",
       "kind": "reset_totalizer",
       "title": "Reset Totalizer",
+      "confirmation_policy": "required",
+      "availability": {
+        "mode": "guarded",
+        "required_states": [
+          "stopped"
+        ]
+      },
+      "progress_mode": "signal_based",
+      "result_contract": {
+        "mode": "applyable_result",
+        "fields": [
+          {
+            "id": "completed",
+            "value_type": "bool"
+          },
+          {
+            "id": "total_volume",
+            "value_type": "float"
+          }
+        ]
+      },
       "ui_hint": "danger",
       "safe_when": [
         "stopped"
       ],
-      "confirmation_policy": "required",
       "progress_signals": [
         {
           "instance_id": "flowmeter_1",
@@ -546,5 +566,12 @@
         "source_type_ref": "library:pulse_flowmeter"
       }
     }
+  },
+  "operation_runtime_contract": {
+    "invoke_supported": false,
+    "cancel_supported": false,
+    "progress_supported": false,
+    "result_supported": false,
+    "audit_required": false
   }
 }

@@ -5,11 +5,14 @@ export function normalizeProject(project: ProjectModel): ProjectModel {
     ...project,
     imports: project.imports ?? { libraries: [], packages: [] },
     definitions: {
-      object_types: project.definitions?.object_types ?? {}
+      object_types: project.definitions?.object_types ?? {},
+      templates: project.definitions?.templates ?? {},
+      packages: project.definitions?.packages ?? {}
     },
     system: {
       instances: project.system?.instances ?? {},
-      signals: project.system?.signals ?? {}
+      signals: project.system?.signals ?? {},
+      packages: project.system?.packages ?? {}
     },
     hardware: project.hardware ?? { bindings: {} },
     views: project.views ?? { screens: {} },
