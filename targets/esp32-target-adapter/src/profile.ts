@@ -43,6 +43,18 @@ const SUPPORTED_OPERATION_KINDS = [
   "reset_package_counters",
   "pid_autotune_proxy"
 ];
+const SUPPORTED_HARDWARE_PRESETS = [
+  "lilygo_t3_v1_6_1_oled_lora_builtin_led",
+  "esp32_c3_super_mini_minimal"
+];
+const SUPPORTED_HARDWARE_BOARDS = [
+  "lilygo_t3_v1_6_1",
+  "esp32_c3_super_mini"
+];
+const SUPPORTED_HARDWARE_CHIPS = [
+  "esp32_pico_d4",
+  "esp32_c3"
+];
 
 export const esp32CapabilityProfile: Esp32CapabilityProfile = {
   target_id: "esp32.shipcontroller.v1",
@@ -52,6 +64,12 @@ export const esp32CapabilityProfile: Esp32CapabilityProfile = {
   supported_value_types: SUPPORTED_VALUE_TYPES,
   supported_native_kinds: SUPPORTED_NATIVE_KINDS,
   supported_operation_kinds: SUPPORTED_OPERATION_KINDS,
+  hardware_preset_support: {
+    enabled: true,
+    supported_target_presets: SUPPORTED_HARDWARE_PRESETS,
+    supported_board_templates: SUPPORTED_HARDWARE_BOARDS,
+    supported_chip_templates: SUPPORTED_HARDWARE_CHIPS
+  },
   supports_trace: true,
   supports_operations: true,
   operations_support: esp32OperationSupportProfile,

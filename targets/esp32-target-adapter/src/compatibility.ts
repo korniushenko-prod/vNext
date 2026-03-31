@@ -5,6 +5,7 @@ import type {
   RuntimeResourceBinding
 } from "@universal-plc/runtime-pack-schema";
 import type { TargetAdapterDiagnostic } from "@universal-plc/target-adapter-contracts";
+import { validateHardwareResolution } from "./hardware.js";
 import { validateEsp32OperationSupport } from "./operations.js";
 import { esp32CapabilityProfile } from "./profile.js";
 import { sortDiagnostics, sortedKeys } from "./sort.js";
@@ -117,6 +118,7 @@ export function checkEsp32Compatibility(pack: RuntimePack): Esp32CompatibilityRe
   diagnostics.push(...validatePackageProtectionRecovery(pack));
   diagnostics.push(...validatePackageArbitration(pack));
   diagnostics.push(...validatePackageOverrideHandover(pack));
+  diagnostics.push(...validateHardwareResolution(pack));
 
   if (Object.keys(persistenceSlots).length > 0 && !esp32CapabilityProfile.supports_persistence) {
     diagnostics.push({

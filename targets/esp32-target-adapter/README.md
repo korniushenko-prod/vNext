@@ -166,3 +166,9 @@ Offline target adapter baseline for the ShipController / ESP32 family.
 - `apply()` and `readback()` now expose a bounded, stateful pilot baseline when `options.runtime_pack` or `options.pack_snapshot` is provided during apply
 - the pilot baseline adds config checksum/version echo, deterministic package-level readback summaries, and commissioning-facing state without opening a broad transport redesign
 - this remains bounded to the pilot path and does not imply OTA, cloud deploy, or generic live target orchestration
+
+## Hardware preset note
+- the adapter accepts materializer-local `hardware_resolution` metadata for the frozen preset lane only
+- accepted presets remain exactly `lilygo_t3_v1_6_1_oled_lora_builtin_led` and `esp32_c3_super_mini_minimal`
+- emitted ShipController artifacts may include deterministic `hardware` summaries derived from resolved preset resources
+- this support stays target-facing and offline-only: no UI hardware editor, no display/Wi-Fi runtime drift, and no new transport layer are introduced here

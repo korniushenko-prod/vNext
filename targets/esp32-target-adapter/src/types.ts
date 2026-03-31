@@ -15,12 +15,63 @@ import type {
 export interface Esp32CapabilityProfile extends TargetAdapterCapabilityProfile {
   target_id: "esp32.shipcontroller.v1";
   supported_binding_kinds: RuntimeBindingKind[];
+  hardware_preset_support?: Esp32HardwarePresetSupport;
+}
+
+export interface Esp32HardwarePresetSupport {
+  enabled: boolean;
+  supported_target_presets: string[];
+  supported_board_templates: string[];
+  supported_chip_templates: string[];
 }
 
 export interface Esp32CompatibilityResult {
   ok: boolean;
   diagnostics: TargetAdapterDiagnostic[];
 }
+
+export interface ResolvedHardwarePortRefInput {
+  instance_id: string;
+  port_id?: string;
+}
+
+export interface ResolvedHardwareResourceInput {
+  id: string;
+  title?: string;
+  gpio: number;
+  capabilities: string[];
+  note?: string;
+  allowed_gpios?: number[];
+  origin: "preset_default" | "manifest_override";
+  binding_ids: string[];
+  port_refs: ResolvedHardwarePortRefInput[];
+}
+
+export interface ResolvedHardwareDiagnosticInput {
+  code: string;
+  severity: "error" | "warning";
+  message: string;
+  binding_id?: string;
+  resource_id?: string;
+  gpio?: number;
+}
+
+export interface ResolvedHardwareSectionInput {
+  target_preset_ref: string;
+  chip_template_ref: string;
+  chip_title?: string;
+  board_template_ref: string;
+  board_title?: string;
+  active_rule_ids: string[];
+  reserved_pins: Record<string, number>;
+  forbidden_pins: number[];
+  resources: Record<string, ResolvedHardwareResourceInput>;
+  diagnostics: ResolvedHardwareDiagnosticInput[];
+}
+
+export type RuntimePackWithHardwareResolution = RuntimePack & {
+  hardware_resolution?: ResolvedHardwareSectionInput;
+};
 
 export type Esp32ApplyPlanStepKind =
   | "validate_pack"
@@ -652,6 +703,40 @@ export interface ShipControllerPackageModePhaseArtifact {
   package_coordination_id?: string;
 }
 
+export interface ShipControllerHardwareResourceArtifact {
+  id: string;
+  title?: string;
+  gpio: number;
+  capabilities: string[];
+  note?: string;
+  allowed_gpios?: number[];
+  origin: "preset_default" | "manifest_override";
+  binding_ids: string[];
+  port_refs: ShipControllerEndpointRef[];
+}
+
+export interface ShipControllerHardwareDiagnosticArtifact {
+  code: string;
+  severity: "error" | "warning";
+  message: string;
+  binding_id?: string;
+  resource_id?: string;
+  gpio?: number;
+}
+
+export interface ShipControllerHardwareArtifact {
+  target_preset_ref: string;
+  chip_template_ref: string;
+  chip_title?: string;
+  board_template_ref: string;
+  board_title?: string;
+  active_rule_ids: string[];
+  reserved_pins: Record<string, number>;
+  forbidden_pins: number[];
+  resources: ShipControllerHardwareResourceArtifact[];
+  diagnostics: ShipControllerHardwareDiagnosticArtifact[];
+}
+
 export interface ShipControllerConfigArtifact {
   schema_version: "0.1.0";
   target_kind: "esp32.shipcontroller.v1";
@@ -679,6 +764,7 @@ export interface ShipControllerConfigArtifact {
     package_protection_recovery?: ShipControllerPackageProtectionRecoveryArtifact[];
     package_arbitration?: ShipControllerPackageArbitrationArtifact[];
     package_override_handover?: ShipControllerPackageOverrideHandoverArtifact[];
+    hardware?: ShipControllerHardwareArtifact;
   };
   diagnostics: TargetAdapterDiagnostic[];
 }

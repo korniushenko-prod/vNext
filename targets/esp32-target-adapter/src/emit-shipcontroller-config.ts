@@ -65,6 +65,7 @@ import type {
   ShipControllerThresholdMonitorArtifact,
   ShipControllerTimedRelayArtifact
 } from "./types.js";
+import { emitHardwareArtifact } from "./hardware.js";
 
 export function emitShipControllerConfigArtifact(pack: RuntimePack): ShipControllerConfigArtifact {
   const modbusRtuBuses = emitModbusRtuBuses(pack);
@@ -78,6 +79,7 @@ export function emitShipControllerConfigArtifact(pack: RuntimePack): ShipControl
   const packageProtectionRecovery = emitPackageProtectionRecovery(pack);
   const packageArbitration = emitPackageArbitration(pack);
   const packageOverrideHandover = emitPackageOverrideHandover(pack);
+  const hardware = emitHardwareArtifact(pack);
   const artifacts: ShipControllerConfigArtifact["artifacts"] = {
     digital_inputs: emitDigitalInputs(pack),
     analog_inputs: emitAnalogInputs(pack),
@@ -132,6 +134,10 @@ export function emitShipControllerConfigArtifact(pack: RuntimePack): ShipControl
   }
   if (packageOverrideHandover.length > 0) {
     artifacts.package_override_handover = packageOverrideHandover;
+  }
+
+  if (hardware) {
+    artifacts.hardware = hardware;
   }
 
   return {

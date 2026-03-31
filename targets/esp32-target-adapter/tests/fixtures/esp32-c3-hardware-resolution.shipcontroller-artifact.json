@@ -1,0 +1,98 @@
+{
+  "schema_version": "0.1.0",
+  "target_kind": "esp32.shipcontroller.v1",
+  "source_pack_id": "esp32-c3-hardware-resolution-pack",
+  "capability_profile": "esp32-basic-io",
+  "artifacts": {
+    "digital_inputs": [
+      {
+        "id": "di_input_1",
+        "instance_id": "input_1",
+        "pin": 3
+      }
+    ],
+    "analog_inputs": [],
+    "digital_outputs": [
+      {
+        "id": "do_led_1",
+        "instance_id": "led_1",
+        "pin": 8,
+        "active_high": true
+      }
+    ],
+    "timed_relays": [],
+    "pulse_flowmeters": [],
+    "run_hours_counters": [],
+    "event_counters": [],
+    "threshold_monitors": [],
+    "maintenance_counters": [],
+    "pid_controllers": [],
+    "hardware": {
+      "target_preset_ref": "esp32_c3_super_mini_minimal",
+      "chip_template_ref": "esp32_c3",
+      "chip_title": "ESP32-C3",
+      "board_template_ref": "esp32_c3_super_mini",
+      "board_title": "ESP32-C3 Super Mini",
+      "active_rule_ids": [
+        "status_led",
+        "usb_uart"
+      ],
+      "reserved_pins": {
+        "usb_dp": 20,
+        "usb_dm": 21
+      },
+      "forbidden_pins": [],
+      "resources": [
+        {
+          "id": "builtin_led",
+          "title": "Built-in LED",
+          "gpio": 8,
+          "capabilities": [
+            "do",
+            "pwm"
+          ],
+          "allowed_gpios": [
+            8
+          ],
+          "origin": "manifest_override",
+          "binding_ids": [
+            "hw_builtin_led"
+          ],
+          "port_refs": [
+            {
+              "instance_id": "led_1",
+              "port_id": "cmd"
+            }
+          ]
+        },
+        {
+          "id": "digital_in_1",
+          "title": "Digital Input 1",
+          "gpio": 3,
+          "capabilities": [
+            "di",
+            "counter"
+          ],
+          "allowed_gpios": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "origin": "manifest_override",
+          "binding_ids": [
+            "hw_digital_in_1"
+          ],
+          "port_refs": [
+            {
+              "instance_id": "input_1",
+              "port_id": "value"
+            }
+          ]
+        }
+      ],
+      "diagnostics": []
+    }
+  },
+  "diagnostics": []
+}
