@@ -25,6 +25,8 @@ export interface ProjectModel {
   };
   hardware: {
     bindings: Record<string, unknown>;
+    catalog?: HardwareCatalog;
+    manifest?: HardwareManifest;
   };
   views: {
     screens: Record<string, unknown>;
@@ -96,6 +98,73 @@ export interface ObjectTemplate {
     tags?: Record<string, string>;
     facet_defaults?: Record<string, unknown>;
   };
+}
+
+export interface HardwareCatalog {
+  chips?: Record<string, ChipTemplate>;
+  boards?: Record<string, BoardTemplate>;
+  presets?: Record<string, TargetPreset>;
+}
+
+export interface ChipTemplate {
+  id: string;
+  title: string;
+  family?: string;
+  pins: Record<string, ChipPinTemplate>;
+}
+
+export interface ChipPinTemplate {
+  capabilities: string[];
+  internal_pullup?: boolean;
+  input_only?: boolean;
+  strapping?: boolean;
+  forbidden?: boolean;
+  note?: string;
+}
+
+export interface BoardTemplate {
+  id: string;
+  title: string;
+  chip_template_ref: string;
+  rules: Record<string, BoardRule>;
+}
+
+export interface BoardRule {
+  id: string;
+  feature: string;
+  class: "forbidden" | "exclusive" | "shared" | "warning";
+  owner: string;
+  reason: string;
+  always_on?: boolean;
+  pins: number[];
+}
+
+export interface TargetPreset {
+  id: string;
+  title: string;
+  chip_template_ref: string;
+  board_template_ref: string;
+  active_rule_ids?: string[];
+  resources: Record<string, HardwareResourceTemplate>;
+  reserved_pins?: Record<string, number>;
+}
+
+export interface HardwareResourceTemplate {
+  id: string;
+  title?: string;
+  gpio: number;
+  capabilities: string[];
+  note?: string;
+  allowed_gpios?: number[];
+}
+
+export interface HardwareManifest {
+  target_preset_ref: string;
+  resource_bindings?: Record<string, HardwareResourceBinding>;
+}
+
+export interface HardwareResourceBinding {
+  gpio?: number;
 }
 
 export interface PackageDefinition {

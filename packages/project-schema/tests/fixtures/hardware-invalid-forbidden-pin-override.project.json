@@ -1,0 +1,102 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "hardware_invalid_forbidden_pin_override",
+    "title": "Hardware Invalid Forbidden Pin Override"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {},
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {},
+    "catalog": {
+      "chips": {
+        "esp32_pico_d4": {
+          "id": "esp32_pico_d4",
+          "title": "ESP32-PICO-D4",
+          "pins": {
+            "14": { "capabilities": ["do", "pwm"], "forbidden": false },
+            "16": { "capabilities": [], "forbidden": true, "note": "Package flash routing" }
+          }
+        },
+        "esp32_c3": {
+          "id": "esp32_c3",
+          "title": "ESP32-C3",
+          "pins": {
+            "3": { "capabilities": ["di", "counter"], "forbidden": false }
+          }
+        }
+      },
+      "boards": {
+        "lilygo_t3_v1_6_1": {
+          "id": "lilygo_t3_v1_6_1",
+          "title": "LilyGO T3 v1.6.1",
+          "chip_template_ref": "esp32_pico_d4",
+          "rules": {
+            "package_flash": {
+              "id": "package_flash",
+              "feature": "boot",
+              "class": "forbidden",
+              "owner": "flash",
+              "reason": "Connected to package flash or package routing",
+              "always_on": true,
+              "pins": [16]
+            }
+          }
+        },
+        "esp32_c3_super_mini": {
+          "id": "esp32_c3_super_mini",
+          "title": "ESP32-C3 Super Mini",
+          "chip_template_ref": "esp32_c3",
+          "rules": {}
+        }
+      },
+      "presets": {
+        "lilygo_t3_v1_6_1_oled_lora_builtin_led": {
+          "id": "lilygo_t3_v1_6_1_oled_lora_builtin_led",
+          "title": "LilyGO T3 OLED + LoRa + Built-in LED",
+          "chip_template_ref": "esp32_pico_d4",
+          "board_template_ref": "lilygo_t3_v1_6_1",
+          "resources": {
+            "general_output_1": {
+              "id": "general_output_1",
+              "gpio": 14,
+              "capabilities": ["do", "pwm"],
+              "allowed_gpios": [14, 16]
+            }
+          }
+        },
+        "esp32_c3_super_mini_minimal": {
+          "id": "esp32_c3_super_mini_minimal",
+          "title": "ESP32-C3 Super Mini Minimal",
+          "chip_template_ref": "esp32_c3",
+          "board_template_ref": "esp32_c3_super_mini",
+          "resources": {}
+        }
+      }
+    },
+    "manifest": {
+      "target_preset_ref": "lilygo_t3_v1_6_1_oled_lora_builtin_led",
+      "resource_bindings": {
+        "general_output_1": {
+          "gpio": 16
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

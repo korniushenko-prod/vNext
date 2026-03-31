@@ -1,0 +1,70 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "hardware_invalid_unknown_preset",
+    "title": "Hardware Invalid Unknown Preset"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {},
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {},
+    "catalog": {
+      "chips": {
+        "esp32_c3": {
+          "id": "esp32_c3",
+          "title": "ESP32-C3",
+          "pins": {
+            "3": { "capabilities": ["di", "counter"], "forbidden": false }
+          }
+        }
+      },
+      "boards": {
+        "esp32_c3_super_mini": {
+          "id": "esp32_c3_super_mini",
+          "title": "ESP32-C3 Super Mini",
+          "chip_template_ref": "esp32_c3",
+          "rules": {}
+        }
+      },
+      "presets": {
+        "esp32_c3_super_mini_minimal": {
+          "id": "esp32_c3_super_mini_minimal",
+          "title": "ESP32-C3 Super Mini Minimal",
+          "chip_template_ref": "esp32_c3",
+          "board_template_ref": "esp32_c3_super_mini",
+          "resources": {
+            "digital_in_1": {
+              "id": "digital_in_1",
+              "gpio": 3,
+              "capabilities": ["di", "counter"]
+            }
+          }
+        }
+      }
+    },
+    "manifest": {
+      "target_preset_ref": "missing_preset",
+      "resource_bindings": {
+        "digital_in_1": {
+          "gpio": 3
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

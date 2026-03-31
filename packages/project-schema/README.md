@@ -23,6 +23,14 @@ Canonical authoring contract for `vNext` projects.
 - `template_ref` lives only in `ProjectModel`; `type_ref` remains the required effective type
 - `PackageDefinition` and `PackageInstance` are authoring-only assembly contracts
 - packages must flatten later into ordinary effective instances/signals; no package runtime kind is allowed
+- `hardware.catalog` and `hardware.manifest` are additive authoring-only sections beside frozen `hardware.bindings`
+- hardware catalog stores chip templates, board templates, target presets, and manifest selection only
+- hardware catalog must not pull legacy Wi-Fi, display, screen, block, or runtime target config into authoring schema
+
+## Hardware Catalog note
+- `ChipTemplate`, `BoardTemplate`, `TargetPreset`, and `HardwareManifest` are canonical authoring contracts for hardware presets / target catalog
+- `hardware.manifest.target_preset_ref` must resolve from `hardware.catalog.presets`
+- forbidden pin checks at this layer stay limited to preset/chip/board catalog semantics; no target/runtime logic is implied
 
 ## Wave 10 freeze note
 - Wave 10 freezes packages as authoring-only assembly contracts

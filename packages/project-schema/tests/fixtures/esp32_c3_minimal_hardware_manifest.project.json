@@ -1,0 +1,163 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "esp32_c3_minimal_hardware_manifest",
+    "title": "ESP32-C3 Minimal Hardware Manifest"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {}
+  },
+  "system": {
+    "instances": {},
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {},
+    "catalog": {
+      "chips": {
+        "esp32_pico_d4": {
+          "id": "esp32_pico_d4",
+          "title": "ESP32-PICO-D4",
+          "pins": {
+            "25": { "capabilities": ["di", "do", "pwm"], "forbidden": false },
+            "34": { "capabilities": ["di", "ai", "counter"], "input_only": true, "forbidden": false }
+          }
+        },
+        "esp32_c3": {
+          "id": "esp32_c3",
+          "title": "ESP32-C3",
+          "family": "esp32_c3",
+          "pins": {
+            "2": { "capabilities": ["di", "do", "counter", "pwm"], "strapping": true, "forbidden": false },
+            "3": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "4": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "5": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "6": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "7": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "8": { "capabilities": ["di", "do", "counter", "pwm"], "strapping": true, "forbidden": false },
+            "9": { "capabilities": ["di", "do", "counter", "pwm"], "strapping": true, "forbidden": false },
+            "10": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "20": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "21": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false }
+          }
+        }
+      },
+      "boards": {
+        "lilygo_t3_v1_6_1": {
+          "id": "lilygo_t3_v1_6_1",
+          "title": "LilyGO T3 v1.6.1",
+          "chip_template_ref": "esp32_pico_d4",
+          "rules": {
+            "package_flash": {
+              "id": "package_flash",
+              "feature": "boot",
+              "class": "forbidden",
+              "owner": "flash",
+              "reason": "Connected to package flash",
+              "always_on": true,
+              "pins": [6, 7, 8, 11, 16, 17]
+            }
+          }
+        },
+        "esp32_c3_super_mini": {
+          "id": "esp32_c3_super_mini",
+          "title": "ESP32-C3 Super Mini",
+          "chip_template_ref": "esp32_c3",
+          "rules": {
+            "usb_uart": {
+              "id": "usb_uart",
+              "feature": "usb_uart",
+              "class": "warning",
+              "owner": "usb_uart",
+              "reason": "Shared with USB serial programming and monitor",
+              "always_on": true,
+              "pins": [20, 21]
+            },
+            "status_led": {
+              "id": "status_led",
+              "feature": "led",
+              "class": "shared",
+              "owner": "led",
+              "reason": "Built-in LED",
+              "pins": [8]
+            }
+          }
+        }
+      },
+      "presets": {
+        "lilygo_t3_v1_6_1_oled_lora_builtin_led": {
+          "id": "lilygo_t3_v1_6_1_oled_lora_builtin_led",
+          "title": "LilyGO T3 OLED + LoRa + Built-in LED",
+          "chip_template_ref": "esp32_pico_d4",
+          "board_template_ref": "lilygo_t3_v1_6_1",
+          "resources": {
+            "builtin_led": {
+              "id": "builtin_led",
+              "gpio": 25,
+              "capabilities": ["do", "pwm"]
+            }
+          }
+        },
+        "esp32_c3_super_mini_minimal": {
+          "id": "esp32_c3_super_mini_minimal",
+          "title": "ESP32-C3 Super Mini Minimal",
+          "chip_template_ref": "esp32_c3",
+          "board_template_ref": "esp32_c3_super_mini",
+          "active_rule_ids": ["status_led"],
+          "resources": {
+            "builtin_led": {
+              "id": "builtin_led",
+              "title": "Built-in LED",
+              "gpio": 8,
+              "capabilities": ["do", "pwm"],
+              "allowed_gpios": [8]
+            },
+            "digital_in_1": {
+              "id": "digital_in_1",
+              "title": "Digital Input 1",
+              "gpio": 3,
+              "capabilities": ["di", "counter"],
+              "allowed_gpios": [2, 3, 4, 5]
+            },
+            "digital_out_1": {
+              "id": "digital_out_1",
+              "title": "Digital Output 1",
+              "gpio": 10,
+              "capabilities": ["do", "pwm"],
+              "allowed_gpios": [6, 7, 10]
+            }
+          },
+          "reserved_pins": {
+            "usb_dp": 20,
+            "usb_dm": 21
+          }
+        }
+      }
+    },
+    "manifest": {
+      "target_preset_ref": "esp32_c3_super_mini_minimal",
+      "resource_bindings": {
+        "builtin_led": {
+          "gpio": 8
+        },
+        "digital_in_1": {
+          "gpio": 3
+        },
+        "digital_out_1": {
+          "gpio": 10
+        }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

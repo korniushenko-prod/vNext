@@ -1,6 +1,12 @@
 import type {
+  BoardRule,
+  BoardTemplate,
+  ChipTemplate,
   CompositionEndpoint,
   CompositionModel,
+  HardwareCatalog,
+  HardwareManifest,
+  HardwareResourceTemplate,
   ObjectInstance,
   ObjectTemplate,
   ObjectType,
@@ -60,6 +66,7 @@ import type {
   PortDef,
   ProjectModel,
   SystemSignal,
+  TargetPreset,
   SystemSignalEndpoint
 } from "./types.js";
 import { PROJECT_SCHEMA_VERSION } from "./constants.js";
@@ -161,6 +168,15 @@ export function validateProjectModel(model: unknown): ValidationResult {
 
   if (isRecord(model.hardware)) {
     requireRecord(model.hardware, "bindings", "$.hardware.bindings", diagnostics);
+
+    const catalog = getOptionalRecord(model.hardware, "catalog", "$.hardware.catalog", diagnostics);
+    if (catalog) {
+      validateHardwareCatalog(catalog, "$.hardware.catalog", diagnostics);
+    }
+
+    if ("manifest" in model.hardware && model.hardware.manifest !== undefined) {
+      validateHardwareManifest(model.hardware.manifest, "$.hardware.manifest", diagnostics);
+    }
   }
 
   if (isRecord(model.views)) {
@@ -174,6 +190,7 @@ export function validateProjectModel(model: unknown): ValidationResult {
 
   validateTemplateSemantics(model, diagnostics);
   validatePackageSemantics(model, diagnostics);
+  validateHardwareSemantics(model, diagnostics);
 
   return {
     ok: diagnostics.every((entry) => entry.severity !== "error"),
@@ -2196,6 +2213,398 @@ function validateTemplatePresetDef(presetId: string, value: unknown, path: strin
   return true;
 }
 
+function validateHardwareCatalog(value: Record<string, unknown>, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  const chips = getOptionalRecord(value, "chips", `${path}.chips`, diagnostics);
+  if (chips) {
+    for (const [chipId, chip] of Object.entries(chips)) {
+      validateChipTemplate(chipId, chip, `${path}.chips.${chipId}`, diagnostics);
+    }
+  }
+
+  const boards = getOptionalRecord(value, "boards", `${path}.boards`, diagnostics);
+  if (boards) {
+    for (const [boardId, board] of Object.entries(boards)) {
+      validateBoardTemplate(boardId, board, `${path}.boards.${boardId}`, diagnostics);
+    }
+  }
+
+  const presets = getOptionalRecord(value, "presets", `${path}.presets`, diagnostics);
+  if (presets) {
+    for (const [presetId, preset] of Object.entries(presets)) {
+      validateTargetPreset(presetId, preset, `${path}.presets.${presetId}`, diagnostics);
+    }
+  }
+
+  return true;
+}
+
+function validateChipTemplate(chipId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): value is ChipTemplate {
+  if (!isRecord(value)) {
+    diagnostics.push(error("chip_template.invalid", path, "ChipTemplate must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", chipId, `${path}.id`, diagnostics);
+  requireString(value, "title", `${path}.title`, diagnostics);
+  requireOptionalString(value, "family", `${path}.family`, diagnostics);
+
+  const pins = requireRecord(value, "pins", `${path}.pins`, diagnostics);
+  if (pins) {
+    for (const [pinId, pin] of Object.entries(pins)) {
+      validateChipPinTemplate(pinId, pin, `${path}.pins.${pinId}`, diagnostics);
+    }
+  }
+
+  return true;
+}
+
+function validateChipPinTemplate(pinId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("chip_pin.invalid", path, "Chip pin definition must be an object."));
+    return false;
+  }
+
+  if (Number.isNaN(Number(pinId))) {
+    diagnostics.push(error("chip_pin.id.invalid", path, "Chip pin ids must be numeric strings."));
+  }
+
+  requireStringArray(value, "capabilities", `${path}.capabilities`, diagnostics);
+  requireOptionalBoolean(value, "internal_pullup", `${path}.internal_pullup`, diagnostics);
+  requireOptionalBoolean(value, "input_only", `${path}.input_only`, diagnostics);
+  requireOptionalBoolean(value, "strapping", `${path}.strapping`, diagnostics);
+  requireOptionalBoolean(value, "forbidden", `${path}.forbidden`, diagnostics);
+  requireOptionalString(value, "note", `${path}.note`, diagnostics);
+  return true;
+}
+
+function validateBoardTemplate(boardId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): value is BoardTemplate {
+  if (!isRecord(value)) {
+    diagnostics.push(error("board_template.invalid", path, "BoardTemplate must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", boardId, `${path}.id`, diagnostics);
+  requireString(value, "title", `${path}.title`, diagnostics);
+  requireString(value, "chip_template_ref", `${path}.chip_template_ref`, diagnostics);
+
+  const rules = requireRecord(value, "rules", `${path}.rules`, diagnostics);
+  if (rules) {
+    for (const [ruleId, rule] of Object.entries(rules)) {
+      validateBoardRule(ruleId, rule, `${path}.rules.${ruleId}`, diagnostics);
+    }
+  }
+
+  return true;
+}
+
+function validateBoardRule(ruleId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): value is BoardRule {
+  if (!isRecord(value)) {
+    diagnostics.push(error("board_rule.invalid", path, "BoardRule must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", ruleId, `${path}.id`, diagnostics);
+  requireString(value, "feature", `${path}.feature`, diagnostics);
+  requireOneOf(value, "class", ["forbidden", "exclusive", "shared", "warning"], `${path}.class`, diagnostics);
+  requireString(value, "owner", `${path}.owner`, diagnostics);
+  requireString(value, "reason", `${path}.reason`, diagnostics);
+  requireOptionalBoolean(value, "always_on", `${path}.always_on`, diagnostics);
+  requireNumberArray(value, "pins", `${path}.pins`, diagnostics);
+  return true;
+}
+
+function validateTargetPreset(presetId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): value is TargetPreset {
+  if (!isRecord(value)) {
+    diagnostics.push(error("target_preset.invalid", path, "TargetPreset must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", presetId, `${path}.id`, diagnostics);
+  requireString(value, "title", `${path}.title`, diagnostics);
+  requireString(value, "chip_template_ref", `${path}.chip_template_ref`, diagnostics);
+  requireString(value, "board_template_ref", `${path}.board_template_ref`, diagnostics);
+  requireOptionalStringArray(value, "active_rule_ids", `${path}.active_rule_ids`, diagnostics);
+
+  const resources = requireRecord(value, "resources", `${path}.resources`, diagnostics);
+  if (resources) {
+    for (const [resourceId, resource] of Object.entries(resources)) {
+      validateHardwareResourceTemplate(resourceId, resource, `${path}.resources.${resourceId}`, diagnostics);
+    }
+  }
+
+  const reservedPins = getOptionalRecord(value, "reserved_pins", `${path}.reserved_pins`, diagnostics);
+  if (reservedPins) {
+    for (const [reservedId, reservedPin] of Object.entries(reservedPins)) {
+      if (typeof reservedPin !== "number") {
+        diagnostics.push(error("field.number", `${path}.reserved_pins.${reservedId}`, "Reserved pin values must be numbers."));
+      }
+    }
+  }
+
+  return true;
+}
+
+function validateHardwareResourceTemplate(
+  resourceId: string,
+  value: unknown,
+  path: string,
+  diagnostics: ValidationDiagnostic[]
+): value is HardwareResourceTemplate {
+  if (!isRecord(value)) {
+    diagnostics.push(error("hardware_resource.invalid", path, "HardwareResourceTemplate must be an object."));
+    return false;
+  }
+
+  requireExactString(value, "id", resourceId, `${path}.id`, diagnostics);
+  requireOptionalString(value, "title", `${path}.title`, diagnostics);
+  requireNumber(value, "gpio", `${path}.gpio`, diagnostics);
+  requireStringArray(value, "capabilities", `${path}.capabilities`, diagnostics);
+  requireOptionalString(value, "note", `${path}.note`, diagnostics);
+  requireOptionalNumberArray(value, "allowed_gpios", `${path}.allowed_gpios`, diagnostics);
+  return true;
+}
+
+function validateHardwareManifest(value: unknown, path: string, diagnostics: ValidationDiagnostic[]): value is HardwareManifest {
+  if (!isRecord(value)) {
+    diagnostics.push(error("hardware_manifest.invalid", path, "HardwareManifest must be an object."));
+    return false;
+  }
+
+  requireString(value, "target_preset_ref", `${path}.target_preset_ref`, diagnostics);
+
+  const resourceBindings = getOptionalRecord(value, "resource_bindings", `${path}.resource_bindings`, diagnostics);
+  if (resourceBindings) {
+    for (const [resourceId, binding] of Object.entries(resourceBindings)) {
+      validateHardwareResourceBinding(resourceId, binding, `${path}.resource_bindings.${resourceId}`, diagnostics);
+    }
+  }
+
+  return true;
+}
+
+function validateHardwareResourceBinding(resourceId: string, value: unknown, path: string, diagnostics: ValidationDiagnostic[]): boolean {
+  if (!isRecord(value)) {
+    diagnostics.push(error("hardware_binding.invalid", path, "Hardware resource binding must be an object."));
+    return false;
+  }
+
+  requireOptionalNumber(value, "gpio", `${path}.gpio`, diagnostics);
+
+  if (!("gpio" in value)) {
+    diagnostics.push(error("hardware_binding.gpio.missing", `${path}.gpio`, `Hardware resource binding \`${resourceId}\` must declare a gpio when present.`));
+  }
+
+  return true;
+}
+
+function validateHardwareSemantics(model: Record<string, unknown>, diagnostics: ValidationDiagnostic[]): void {
+  const hardware = isRecord(model.hardware) ? model.hardware : null;
+  const catalog = hardware && isRecord(hardware.catalog) ? hardware.catalog : null;
+  const manifest = hardware && isRecord(hardware.manifest) ? hardware.manifest : null;
+  const chips = catalog && isRecord(catalog.chips) ? catalog.chips : null;
+  const boards = catalog && isRecord(catalog.boards) ? catalog.boards : null;
+  const presets = catalog && isRecord(catalog.presets) ? catalog.presets : null;
+
+  if (boards && chips) {
+    for (const [boardId, board] of Object.entries(boards)) {
+      if (!isRecord(board) || typeof board.chip_template_ref !== "string") {
+        continue;
+      }
+
+      if (!isRecord(chips[board.chip_template_ref])) {
+        diagnostics.push(error(
+          "hardware.board.chip_template_ref.unresolved",
+          `$.hardware.catalog.boards.${boardId}.chip_template_ref`,
+          `BoardTemplate chip_template_ref \`${board.chip_template_ref}\` cannot be resolved from hardware.catalog.chips.`
+        ));
+      }
+    }
+  }
+
+  if (presets && boards && chips) {
+    for (const [presetId, preset] of Object.entries(presets)) {
+      if (!isRecord(preset)) {
+        continue;
+      }
+
+      const presetPath = `$.hardware.catalog.presets.${presetId}`;
+      const boardTemplateRef = typeof preset.board_template_ref === "string" ? preset.board_template_ref : null;
+      const chipTemplateRef = typeof preset.chip_template_ref === "string" ? preset.chip_template_ref : null;
+      const board = boardTemplateRef ? boards[boardTemplateRef] : null;
+      const chip = chipTemplateRef ? chips[chipTemplateRef] : null;
+
+      if (!boardTemplateRef || !isRecord(board)) {
+        diagnostics.push(error(
+          "hardware.preset.board_template_ref.unresolved",
+          `${presetPath}.board_template_ref`,
+          `TargetPreset board_template_ref \`${boardTemplateRef}\` cannot be resolved from hardware.catalog.boards.`
+        ));
+      }
+
+      if (!chipTemplateRef || !isRecord(chip)) {
+        diagnostics.push(error(
+          "hardware.preset.chip_template_ref.unresolved",
+          `${presetPath}.chip_template_ref`,
+          `TargetPreset chip_template_ref \`${chipTemplateRef}\` cannot be resolved from hardware.catalog.chips.`
+        ));
+      }
+
+      if (isRecord(board) && typeof board.chip_template_ref === "string" && chipTemplateRef && board.chip_template_ref !== chipTemplateRef) {
+        diagnostics.push(error(
+          "hardware.preset.chip_template_ref.mismatch",
+          `${presetPath}.chip_template_ref`,
+          `TargetPreset chip_template_ref \`${chipTemplateRef}\` must match board chip_template_ref \`${board.chip_template_ref}\`.`
+        ));
+      }
+
+      const activeRuleIds = Array.isArray(preset.active_rule_ids) ? preset.active_rule_ids : [];
+      const rules = isRecord(board) && isRecord(board.rules) ? board.rules : null;
+      if (rules) {
+        for (const ruleId of activeRuleIds) {
+          if (!isRecord(rules[ruleId])) {
+            diagnostics.push(error(
+              "hardware.preset.active_rule_id.unresolved",
+              `${presetPath}.active_rule_ids`,
+              `TargetPreset active_rule_id \`${ruleId}\` cannot be resolved from board rules.`
+            ));
+          }
+        }
+      }
+    }
+  }
+
+  if (!manifest) {
+    return;
+  }
+
+  const manifestPath = "$.hardware.manifest";
+  const targetPresetRef = typeof manifest.target_preset_ref === "string" ? manifest.target_preset_ref : null;
+  if (!targetPresetRef || !presets || !isRecord(presets[targetPresetRef])) {
+    diagnostics.push(error(
+      "hardware.manifest.target_preset_ref.unresolved",
+      `${manifestPath}.target_preset_ref`,
+      `Hardware manifest target_preset_ref \`${targetPresetRef}\` cannot be resolved from hardware.catalog.presets.`
+    ));
+    return;
+  }
+
+  const preset = presets[targetPresetRef] as Record<string, unknown>;
+  const board = typeof preset.board_template_ref === "string" && boards && isRecord(boards[preset.board_template_ref])
+    ? boards[preset.board_template_ref]
+    : null;
+  const chip = typeof preset.chip_template_ref === "string" && chips && isRecord(chips[preset.chip_template_ref])
+    ? chips[preset.chip_template_ref]
+    : null;
+  const presetResources = isRecord(preset.resources) ? preset.resources : null;
+  const resourceBindings = isRecord(manifest.resource_bindings) ? manifest.resource_bindings : null;
+
+  if (!resourceBindings || !presetResources) {
+    return;
+  }
+
+  const forbiddenPins = collectForbiddenPins(chip, board, preset);
+  for (const [resourceId, binding] of Object.entries(resourceBindings)) {
+    if (!isRecord(binding)) {
+      continue;
+    }
+
+    const bindingPath = `${manifestPath}.resource_bindings.${resourceId}`;
+    const presetResource = presetResources[resourceId];
+    if (!isRecord(presetResource)) {
+      diagnostics.push(error(
+        "hardware.manifest.resource_binding.unresolved",
+        bindingPath,
+        `Hardware manifest resource binding \`${resourceId}\` cannot be resolved from preset resources.`
+      ));
+      continue;
+    }
+
+    const selectedGpio = typeof binding.gpio === "number"
+      ? binding.gpio
+      : (typeof presetResource.gpio === "number" ? presetResource.gpio : null);
+    if (selectedGpio === null) {
+      continue;
+    }
+
+    const allowedGpios = Array.isArray(presetResource.allowed_gpios) ? presetResource.allowed_gpios.filter((entry) => typeof entry === "number") : [];
+    if (allowedGpios.length > 0 && !allowedGpios.includes(selectedGpio)) {
+      diagnostics.push(error(
+        "hardware.manifest.resource_binding.gpio.not_allowed",
+        `${bindingPath}.gpio`,
+        `GPIO ${selectedGpio} is not allowed for resource \`${resourceId}\`.`
+      ));
+    }
+
+    if (forbiddenPins.has(selectedGpio)) {
+      diagnostics.push(error(
+        "hardware.manifest.resource_binding.gpio.forbidden",
+        `${bindingPath}.gpio`,
+        `GPIO ${selectedGpio} is forbidden by the selected chip/board/preset rules.`
+      ));
+    }
+  }
+}
+
+function collectForbiddenPins(
+  chip: unknown,
+  board: unknown,
+  preset: Record<string, unknown>
+): Set<number> {
+  const forbiddenPins = new Set<number>();
+
+  const chipPins = isRecord(chip) && isRecord(chip["pins"]) ? chip["pins"] : null;
+  if (chipPins) {
+    for (const [pinId, pin] of Object.entries(chipPins)) {
+      if (isRecord(pin) && pin.forbidden === true) {
+        const numericPin = Number(pinId);
+        if (!Number.isNaN(numericPin)) {
+          forbiddenPins.add(numericPin);
+        }
+      }
+    }
+  }
+
+  const rules = isRecord(board) && isRecord(board.rules) ? board.rules : null;
+  if (!rules) {
+    return forbiddenPins;
+  }
+
+  const activeRuleIds = new Set<string>();
+  for (const [ruleId, rule] of Object.entries(rules)) {
+    if (isRecord(rule) && rule.always_on === true) {
+      activeRuleIds.add(ruleId);
+    }
+  }
+
+  if (Array.isArray(preset.active_rule_ids)) {
+    for (const ruleId of preset.active_rule_ids) {
+      if (typeof ruleId === "string") {
+        activeRuleIds.add(ruleId);
+      }
+    }
+  }
+
+  for (const ruleId of activeRuleIds) {
+    const rule = rules[ruleId];
+    if (!isRecord(rule) || (rule.class !== "forbidden" && rule.class !== "exclusive")) {
+      continue;
+    }
+
+    const pins = Array.isArray(rule["pins"]) ? rule["pins"] : null;
+    if (!pins) {
+      continue;
+    }
+
+    for (const pin of pins) {
+      if (typeof pin === "number") {
+        forbiddenPins.add(pin);
+      }
+    }
+  }
+
+  return forbiddenPins;
+}
+
 function validateTemplateSemantics(model: Record<string, unknown>, diagnostics: ValidationDiagnostic[]): void {
   const definitions = isRecord(model.definitions) ? model.definitions : null;
   const system = isRecord(model.system) ? model.system : null;
@@ -4060,6 +4469,12 @@ function requireOptionalBoolean(value: Record<string, unknown>, field: string, p
   }
 }
 
+function requireNumber(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
+  if (typeof value[field] !== "number") {
+    diagnostics.push(error("field.number", path, `Field \`${field}\` must be a number.`));
+  }
+}
+
 function requireOptionalNumber(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
   if (field in value && typeof value[field] !== "number") {
     diagnostics.push(error("field.number", path, `Field \`${field}\` must be a number when present.`));
@@ -4083,6 +4498,21 @@ function requireStringArray(value: Record<string, unknown>, field: string, path:
   if (!Array.isArray(current) || current.some((entry) => typeof entry !== "string")) {
     diagnostics.push(error("field.string_array", path, `Field \`${field}\` must be an array of strings.`));
   }
+}
+
+function requireNumberArray(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
+  const current = value[field];
+  if (!Array.isArray(current) || current.some((entry) => typeof entry !== "number")) {
+    diagnostics.push(error("field.number_array", path, `Field \`${field}\` must be an array of numbers.`));
+  }
+}
+
+function requireOptionalNumberArray(value: Record<string, unknown>, field: string, path: string, diagnostics: ValidationDiagnostic[]) {
+  if (!(field in value) || value[field] === undefined) {
+    return;
+  }
+
+  requireNumberArray(value, field, path, diagnostics);
 }
 
 function requireOneOf(
