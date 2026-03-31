@@ -167,3 +167,9 @@ Initial vNext authoring application shell migrated from `universal_plc`.
 - `PumpSkidSupervisor v1` is the first production-like pilot package surfaced in `config-studio`
 - the app now includes a bounded commissioning surface for package state, template/preset summary, binding summary, apply result, readback status, live signals, and commissioning diagnostics
 - this does not reopen generic package execution, SCADA/HMI editing, or broad target transport orchestration
+
+## Hardware preset catalog note
+- `PR-H3` adds a read-only hardware preset surface for the frozen LilyGO and ESP32-C3 target lanes
+- the app now shows selected target preset, chip/board summary, reserved pins, forbidden pins, available resources, and manifest diagnostics from canonical fixtures
+- `PR-H4` adds an editable hardware manifest lane inside the existing authoring shell only: target preset selection, resource GPIO overrides, conflict preview, and manifest save into the current project model
+- this remains authoring-only and conflict-first: no target transport, no runtime Wi-Fi/display editor, and no broad target-config workspace are introduced here

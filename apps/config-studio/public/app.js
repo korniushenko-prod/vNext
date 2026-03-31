@@ -88,6 +88,11 @@ let state = {
     fixtureId: "package-overview-boiler-skeleton",
     selectedMemberId: ""
   },
+  hardwareSurface: {
+    readonlyFixtureId: "hardware-readonly-lilygo",
+    readonlySelectedResourceId: "",
+    editableSelectedResourceId: ""
+  },
   packageCommissioning: {
     fixtureId: "package-commissioning-pump-skid-supervisor-pilot"
   },
@@ -126,7 +131,9 @@ function blankProject() {
     },
     hardware: {
       modules: [],
-      bindings: {}
+      bindings: {},
+      catalog: {},
+      manifest: null
     },
     views: {
       screens: {}
@@ -417,6 +424,8 @@ function legacyProjectToVNext(raw) {
   model.meta.created_at = String(meta.created_at || new Date().toISOString());
   model.meta.updated_at = String(meta.updated_at || model.meta.created_at);
   model.hardware.modules = Array.isArray(hardware.modules) ? cloneJson(hardware.modules) : [];
+  model.hardware.catalog = hardware.catalog && typeof hardware.catalog === "object" ? cloneJson(hardware.catalog) : {};
+  model.hardware.manifest = hardware.manifest && typeof hardware.manifest === "object" ? cloneJson(hardware.manifest) : null;
   model.views.screens = arrayToRecord(Array.isArray(legacy.views) ? cloneJson(legacy.views) : []);
   const legacyObjects = Array.isArray(system.objects) ? cloneJson(system.objects) : [];
   legacyObjects.forEach((obj) => {
@@ -1230,6 +1239,8 @@ function ensureModelRoot() {
   state.model.hardware = state.model.hardware && typeof state.model.hardware === "object" ? state.model.hardware : {};
   state.model.hardware.modules = Array.isArray(state.model.hardware.modules) ? state.model.hardware.modules : [];
   state.model.hardware.bindings = state.model.hardware.bindings && typeof state.model.hardware.bindings === "object" ? state.model.hardware.bindings : {};
+  state.model.hardware.catalog = state.model.hardware.catalog && typeof state.model.hardware.catalog === "object" ? state.model.hardware.catalog : {};
+  state.model.hardware.manifest = state.model.hardware.manifest && typeof state.model.hardware.manifest === "object" ? state.model.hardware.manifest : null;
   state.model.views = state.model.views && typeof state.model.views === "object" ? state.model.views : {};
   state.model.views.screens = state.model.views.screens && typeof state.model.views.screens === "object" ? state.model.views.screens : {};
   state.model.layouts = state.model.layouts && typeof state.model.layouts === "object" ? state.model.layouts : {};
@@ -3551,6 +3562,346 @@ function buildPackageCommissioningPanel() {
   details.innerHTML = window.PackageCommissioningSurface.renderPackageCommissioningMarkup(resolved.surface);
   section.append(details);
 
+  return section;
+}
+
+function listReadonlyHardwareFixtures() {
+  return Array.isArray(window.HardwareSurfaceFixtures?.READONLY_HARDWARE_FIXTURES)
+    ? window.HardwareSurfaceFixtures.READONLY_HARDWARE_FIXTURES
+    : [];
+}
+
+function listEditableHardwareFixtures() {
+  return Array.isArray(window.HardwareSurfaceFixtures?.EDITABLE_HARDWARE_PROJECT_FIXTURES)
+    ? window.HardwareSurfaceFixtures.EDITABLE_HARDWARE_PROJECT_FIXTURES
+    : [];
+}
+
+function ensureEditableHardwareProject() {
+  const fixtures = listEditableHardwareFixtures();
+  if (!fixtures.length || !window.HardwareManifestEditor) {
+    return null;
+  }
+
+  const catalog = window.HardwareSurfaceFixtures?.HARDWARE_CATALOG_FIXTURE || {};
+  const hasPreset = Object.keys(state.model.hardware.catalog || {}).length > 0 && state.model.hardware.manifest?.target_preset_ref;
+  if (!hasPreset) {
+    state.model.hardware.catalog = cloneJson(fixtures[0].model.hardware.catalog);
+    state.model.hardware.manifest = cloneJson(fixtures[0].model.hardware.manifest);
+  }
+
+  return window.HardwareManifestEditor.ensureHardwareProjectModel(state.model, catalog);
+}
+
+function resolveReadonlyHardwareSurface() {
+  const fixtures = listReadonlyHardwareFixtures();
+  if (!fixtures.length || !window.HardwareReadonlySurface) {
+    return { fixtures, fixture: null, surface: null };
+  }
+
+  if (!fixtures.some((fixture) => fixture.id === state.hardwareSurface.readonlyFixtureId)) {
+    state.hardwareSurface.readonlyFixtureId = fixtures[0].id;
+  }
+
+  const fixture = fixtures.find((entry) => entry.id === state.hardwareSurface.readonlyFixtureId) || fixtures[0];
+  const surface = window.HardwareReadonlySurface.createReadonlyHardwareSurfaceViewModel({
+    fixture,
+    selectedResourceId: state.hardwareSurface.readonlySelectedResourceId
+  });
+  state.hardwareSurface.readonlySelectedResourceId = surface.selected_resource_id;
+
+  return { fixtures, fixture, surface };
+}
+
+function resolveEditableHardwareSurface() {
+  if (!window.HardwareManifestEditor) {
+    return { fixtures: [], surface: null };
+  }
+
+  const project = ensureEditableHardwareProject();
+  if (!project) {
+    return { fixtures: [], surface: null };
+  }
+
+  const fixtures = listEditableHardwareFixtures();
+  const surface = window.HardwareManifestEditor.createEditableHardwareManifestViewModel({
+    projectModel: state.model,
+    catalog: window.HardwareSurfaceFixtures?.HARDWARE_CATALOG_FIXTURE || {},
+    selectedResourceId: state.hardwareSurface.editableSelectedResourceId
+  });
+  state.hardwareSurface.editableSelectedResourceId = surface.selected_resource_id;
+
+  return { fixtures, surface };
+}
+
+function renderHardware() {
+  refs.workspace.append(buildReadonlyHardwareSurfacePanel());
+  refs.workspace.append(buildEditableHardwareManifestPanel());
+}
+
+function buildReadonlyHardwareSurfacePanel() {
+  const section = panel("Hardware Preset Catalog", "Read-only hardware preset and manifest surface over the frozen target catalog. It shows preset choice, reserved pins, forbidden pins, resources, and manifest diagnostics without any edit actions.");
+  const resolved = resolveReadonlyHardwareSurface();
+
+  if (!resolved.fixture || !resolved.surface) {
+    const empty = document.createElement("div");
+    empty.className = "subview-empty";
+    empty.textContent = "Hardware preset fixtures are not loaded in this browser session.";
+    section.append(empty);
+    return section;
+  }
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "hardware-surface-toolbar";
+  resolved.fixtures.forEach((fixture) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `hardware-surface-picker${fixture.id === resolved.fixture.id ? " is-active" : ""}`;
+    btn.innerHTML = `<strong>${fixture.title}</strong><span>${fixture.target_preset_ref}</span>`;
+    btn.onclick = () => {
+      state.hardwareSurface.readonlyFixtureId = fixture.id;
+      state.hardwareSurface.readonlySelectedResourceId = "";
+      render();
+    };
+    toolbar.append(btn);
+  });
+  section.append(toolbar);
+
+  const summary = document.createElement("div");
+  summary.className = "hardware-surface-summary";
+  [
+    ["Preset", resolved.surface.target_preset_ref],
+    ["Board", resolved.surface.board_title],
+    ["Chip", resolved.surface.chip_title],
+    ["Resources", String(resolved.surface.summary.resource_count)],
+    ["Diagnostics", String(resolved.surface.summary.diagnostic_count)]
+  ].forEach(([key, value]) => summary.append(kv(key, value)));
+  section.append(summary);
+
+  const shell = document.createElement("div");
+  shell.className = "hardware-surface-shell";
+
+  const list = document.createElement("div");
+  list.className = "hardware-surface-list";
+  if (!resolved.surface.resources.length) {
+    const empty = document.createElement("div");
+    empty.className = "subview-empty";
+    empty.textContent = "No hardware resources are present in this fixture.";
+    list.append(empty);
+  } else {
+    resolved.surface.resources.forEach((resource) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = `hardware-surface-card${resource.id === resolved.surface.selected_resource_id ? " is-active" : ""}`;
+      card.innerHTML = window.HardwareReadonlySurface.renderReadonlyHardwareResourceMarkup(resource);
+      card.onclick = () => {
+        state.hardwareSurface.readonlySelectedResourceId = resource.id;
+        render();
+      };
+      list.append(card);
+    });
+  }
+  shell.append(list);
+
+  const details = document.createElement("div");
+  details.className = "hardware-surface-details";
+  details.innerHTML = window.HardwareReadonlySurface.renderReadonlyHardwareDetailsMarkup(resolved.surface);
+  shell.append(details);
+
+  section.append(shell);
+  return section;
+}
+
+function buildEditableHardwareManifestPanel() {
+  const section = panel("Hardware Manifest Editor", "Editable hardware manifest surface over the frozen target catalog. You can choose a target preset, override resource GPIOs, and see conflicts before materialize/apply without turning config-studio into a broad target-config editor.");
+  const resolved = resolveEditableHardwareSurface();
+
+  if (!resolved.surface || !window.HardwareManifestEditor) {
+    const empty = document.createElement("div");
+    empty.className = "subview-empty";
+    empty.textContent = "Editable hardware manifest tooling is not loaded in this browser session.";
+    section.append(empty);
+    return section;
+  }
+
+  const summary = document.createElement("div");
+  summary.className = "hardware-surface-summary";
+  [
+    ["Preset", resolved.surface.selected_target_preset_ref],
+    ["Board", resolved.surface.board_title],
+    ["Chip", resolved.surface.chip_title],
+    ["Resources", String(resolved.surface.summary.resource_count)],
+    ["Conflicts", String(resolved.surface.summary.conflict_count)]
+  ].forEach(([key, value]) => summary.append(kv(key, value)));
+  section.append(summary);
+
+  const controls = document.createElement("div");
+  controls.className = "hardware-editor-controls";
+
+  const fields = document.createElement("div");
+  fields.className = "field-grid compact-grid";
+  fields.append(selectField(
+    "Target Preset",
+    resolved.surface.selected_target_preset_ref,
+    resolved.surface.target_preset_options,
+    (value) => {
+      window.HardwareManifestEditor.setHardwareTargetPreset(
+        state.model,
+        window.HardwareSurfaceFixtures?.HARDWARE_CATALOG_FIXTURE || {},
+        value
+      );
+      state.hardwareSurface.editableSelectedResourceId = "";
+      touch(`Hardware preset selected: ${value}.`);
+      render();
+    }
+  ));
+  controls.append(fields);
+
+  const demoActions = document.createElement("div");
+  demoActions.className = "compact-actions";
+  resolved.fixtures.forEach((fixture) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn";
+    btn.textContent = fixture.model.meta.title;
+    btn.onclick = () => {
+      state.model.hardware.catalog = cloneJson(fixture.model.hardware.catalog);
+      state.model.hardware.manifest = cloneJson(fixture.model.hardware.manifest);
+      state.hardwareSurface.editableSelectedResourceId = "";
+      touch(`Loaded hardware demo: ${fixture.model.meta.title}.`);
+      render();
+    };
+    demoActions.append(btn);
+  });
+  controls.append(demoActions);
+
+  const editorList = document.createElement("div");
+  editorList.className = "hardware-editor-resource-list";
+  resolved.surface.resources.forEach((resource) => {
+    const card = document.createElement("div");
+    card.className = `hardware-editor-resource-card is-${resource.status}`;
+
+    const head = document.createElement("div");
+    head.className = "hardware-surface-card-head";
+    head.innerHTML = `<strong>${resource.title}</strong><span>${resource.id} • default GPIO ${resource.default_gpio}</span>`;
+    card.append(head);
+
+    const chips = document.createElement("div");
+    chips.className = "hardware-surface-badges";
+    resource.capabilities.forEach((entry) => {
+      const chip = document.createElement("span");
+      chip.className = "hardware-capability-chip";
+      chip.textContent = entry;
+      chips.append(chip);
+    });
+    card.append(chips);
+
+    const form = document.createElement("div");
+    form.className = "field-grid compact-grid";
+    form.append(textField("GPIO Override", String(resource.gpio), (value) => {
+      const nextGpio = Number(value);
+      if (!Number.isFinite(nextGpio)) {
+        setMessage("Enter a numeric GPIO override.", "is-error");
+        return;
+      }
+
+      const result = window.HardwareManifestEditor.setHardwareResourceBindingGpio(
+        state.model,
+        window.HardwareSurfaceFixtures?.HARDWARE_CATALOG_FIXTURE || {},
+        resource.id,
+        nextGpio
+      );
+      state.hardwareSurface.editableSelectedResourceId = resource.id;
+      if (!result.ok) {
+        setMessage(result.diagnostics[0]?.message || "Hardware override is blocked.", "is-error");
+        render();
+        return;
+      }
+
+      touch(`Hardware resource updated: ${resource.id} -> GPIO ${nextGpio}.`);
+      render();
+    }));
+    card.append(form);
+
+    const note = document.createElement("div");
+    note.className = "hardware-surface-note";
+    note.textContent = `Allowed GPIOs: ${resource.allowed_gpios_label}`;
+    card.append(note);
+
+    if (resource.diagnostics.length) {
+      const diagList = document.createElement("div");
+      diagList.className = "hardware-editor-diagnostics";
+      resource.diagnostics.forEach((entry) => {
+        const row = document.createElement("div");
+        row.className = `hardware-editor-diagnostic is-${entry.severity}`;
+        row.textContent = `${entry.code}: ${entry.message}`;
+        diagList.append(row);
+      });
+      card.append(diagList);
+    }
+
+    editorList.append(card);
+  });
+  controls.append(editorList);
+
+  const footer = document.createElement("div");
+  footer.className = "compact-actions";
+
+  const resetBtn = document.createElement("button");
+  resetBtn.type = "button";
+  resetBtn.className = "btn";
+  resetBtn.textContent = "Reset Preset Defaults";
+  resetBtn.onclick = () => {
+    window.HardwareManifestEditor.setHardwareTargetPreset(
+      state.model,
+      window.HardwareSurfaceFixtures?.HARDWARE_CATALOG_FIXTURE || {},
+      resolved.surface.selected_target_preset_ref
+    );
+    touch("Hardware manifest reset to preset defaults.");
+    render();
+  };
+  footer.append(resetBtn);
+
+  const saveBtn = document.createElement("button");
+  saveBtn.type = "button";
+  saveBtn.className = `btn${resolved.surface.can_save ? " primary" : ""}`;
+  saveBtn.textContent = "Save Manifest";
+  saveBtn.disabled = !resolved.surface.can_save;
+  saveBtn.onclick = () => {
+    const result = window.HardwareManifestEditor.saveHardwareManifest(
+      state.model,
+      window.HardwareSurfaceFixtures?.HARDWARE_CATALOG_FIXTURE || {}
+    );
+    if (!result.ok) {
+      setMessage(result.diagnostics[0]?.message || "Hardware manifest cannot be saved yet.", "is-error");
+      render();
+      return;
+    }
+
+    touch("Hardware manifest saved into the current project.");
+    render();
+  };
+  footer.append(saveBtn);
+  controls.append(footer);
+
+  if (resolved.surface.diagnostics.length) {
+    const diagPanel = document.createElement("div");
+    diagPanel.className = "hardware-editor-diagnostics";
+    resolved.surface.diagnostics.forEach((entry) => {
+      const row = document.createElement("div");
+      row.className = `hardware-editor-diagnostic is-${entry.severity}`;
+      row.textContent = `${entry.code}: ${entry.message}`;
+      diagPanel.append(row);
+    });
+    controls.append(diagPanel);
+  } else {
+    const ok = document.createElement("div");
+    ok.className = "small-note";
+    ok.textContent = "No manifest conflicts. This editor lane stays authoring-only and conflict-first.";
+    controls.append(ok);
+  }
+
+  section.append(controls);
   return section;
 }
 
@@ -6045,6 +6396,7 @@ function render() {
     else if (state.tab === "system" && state.registry === "objects") renderObjects();
     else if (state.tab === "system" && state.registry === "signals") renderSignals();
     else if (state.tab === "system" && state.registry === "links") renderLinks();
+    else if (state.tab === "hardware") renderHardware();
     else renderPlaceholder(tabs.find((t) => t.id === state.tab)?.title || "Workspace");
     const overview = buildInstanceOverviewCard();
     if (overview) refs.workspace.append(overview);

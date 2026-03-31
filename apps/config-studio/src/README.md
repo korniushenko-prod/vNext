@@ -168,3 +168,15 @@ package state, configuration/apply summary, readback status, live signals,
 ownership/gating/protection summaries, and diagnostics are accepted, while a
 generic HMI editor, fleet orchestration, and broad target transport remain out
 of scope.
+
+Hardware Catalog Track `PR-H3` adds a read-only hardware preset surface in
+`src/hardware` for the frozen LilyGO and ESP32-C3 lanes. It stays fixture-
+driven and authoring-only: preset choice, chip/board summary, reserved pins,
+forbidden pins, resources, and manifest diagnostics are visible without edit
+actions or target transport.
+
+Hardware Catalog Track `PR-H4` adds an editable hardware manifest surface in
+`src/hardware` on top of that read-only lane. It supports target preset
+selection, resource GPIO override editing, conflict preview, and manifest save
+into the current project model while staying bounded, target-neutral, and
+authoring-only.

@@ -2706,6 +2706,144 @@ body {
   cursor: grabbing;
 }
 
+.hardware-surface-toolbar,
+.hardware-surface-summary,
+.hardware-surface-shell {
+  display: grid;
+  gap: 12px;
+}
+
+.hardware-surface-toolbar {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-bottom: 14px;
+}
+
+.hardware-surface-picker,
+.hardware-surface-card {
+  border: 1px solid rgba(71, 85, 105, 0.7);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.66);
+  color: var(--text);
+  text-align: left;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.hardware-surface-picker.is-active,
+.hardware-surface-card.is-active {
+  border-color: rgba(56, 189, 248, 0.72);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.28);
+}
+
+.hardware-surface-picker strong,
+.hardware-surface-card strong,
+.hardware-surface-details-head h3 {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.hardware-surface-picker span,
+.hardware-surface-card span,
+.hardware-surface-details-head p,
+.hardware-surface-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.hardware-surface-summary {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: 14px;
+}
+
+.hardware-surface-shell {
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.4fr);
+  align-items: start;
+}
+
+.hardware-surface-list,
+.hardware-editor-resource-list,
+.hardware-editor-diagnostics {
+  display: grid;
+  gap: 10px;
+}
+
+.hardware-surface-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.hardware-surface-block,
+.hardware-editor-resource-card {
+  border: 1px solid rgba(71, 85, 105, 0.6);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.58);
+  padding: 14px;
+}
+
+.hardware-surface-block h4 {
+  margin: 0 0 10px;
+}
+
+.hardware-surface-card-head,
+.hardware-surface-kv-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.hardware-surface-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.hardware-capability-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(56, 189, 248, 0.16);
+  color: #c8f1ff;
+  font-size: 11px;
+}
+
+.hardware-surface-kv-list {
+  display: grid;
+  gap: 8px;
+}
+
+.hardware-editor-controls {
+  display: grid;
+  gap: 14px;
+}
+
+.hardware-editor-resource-card.is-conflict {
+  border-color: rgba(248, 113, 113, 0.75);
+}
+
+.hardware-editor-resource-card.is-warning {
+  border-color: rgba(245, 158, 11, 0.75);
+}
+
+.hardware-editor-diagnostic {
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.hardware-editor-diagnostic.is-error {
+  border: 1px solid rgba(248, 113, 113, 0.78);
+  color: #fecaca;
+}
+
+.hardware-editor-diagnostic.is-warning {
+  border: 1px solid rgba(245, 158, 11, 0.72);
+  color: #fde68a;
+}
+
 @media (max-width: 1280px) {
   .layout {
     grid-template-columns: 280px 1fr;
@@ -2739,6 +2877,9 @@ body {
   .package-overview-shell,
   .package-overview-details-grid,
   .package-overview-summary,
+  .hardware-surface-summary,
+  .hardware-surface-shell,
+  .hardware-surface-details-grid,
   .operation-readonly-shell,
   .operation-readonly-details-grid,
   .operation-readonly-summary,
