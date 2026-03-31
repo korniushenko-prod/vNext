@@ -7,6 +7,7 @@
 The repository currently contains:
 
 - frozen generic platform waves through `Wave 18`
+- frozen bounded hardware preset / target catalog track
 - frozen product-track pilot MVP `PumpSkidSupervisor v1`
 - frozen verification, sign-off, and controlled-rollout repo bundle for that pilot
 - one active external execution track for physical bench confirmation
@@ -27,6 +28,7 @@ The repository currently contains:
 - Wave 16: package protection / recovery
 - Wave 17: package arbitration
 - Wave 18: package override / handover
+- Hardware catalog track: authoring-only preset/catalog baseline for LilyGO T3 and ESP32-C3
 
 ## Pilot Track Status
 

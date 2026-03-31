@@ -109,3 +109,9 @@ Canonical authoring contract for `vNext` projects.
 - holder refs, request refs, and summary refs must resolve only to child members and explicit package lane ids
 - package override/handover does not create package execution, backend handover transport, safety semantics, or vendor-specific ownership workflows
 - `BoilerSupervisorOverrides v1` is reference-only and `PumpSkidSupervisorOverrides v1` is the mandatory second acceptance slice
+
+## Hardware catalog freeze note
+- hardware catalog and `hardware.manifest` stay authoring-model fields only
+- target presets remain convenience layers over target choice and resource defaults, not runtime kinds
+- the frozen canonical preset lane remains limited to `lilygo_t3_v1_6_1_oled_lora_builtin_led` and `esp32_c3_super_mini_minimal`
+- schema support stays additive-only beyond bugfixes and does not open transport, runtime Wi-Fi/display config, or live board-management semantics

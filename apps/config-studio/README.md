@@ -173,3 +173,9 @@ Initial vNext authoring application shell migrated from `universal_plc`.
 - the app now shows selected target preset, chip/board summary, reserved pins, forbidden pins, available resources, and manifest diagnostics from canonical fixtures
 - `PR-H4` adds an editable hardware manifest lane inside the existing authoring shell only: target preset selection, resource GPIO overrides, conflict preview, and manifest save into the current project model
 - this remains authoring-only and conflict-first: no target transport, no runtime Wi-Fi/display editor, and no broad target-config workspace are introduced here
+
+## Hardware preset catalog freeze note
+- the hardware preset / target catalog track is frozen here as a bounded authoring-only surface
+- canonical preset support remains limited to the LilyGO T3 and ESP32-C3 reference lanes
+- readonly preset overview and editable manifest save are the accepted UI boundary for this track
+- no live board probing, no transport orchestration, and no generic target-config editor are implied by this freeze

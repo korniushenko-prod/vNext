@@ -172,3 +172,9 @@ Offline target adapter baseline for the ShipController / ESP32 family.
 - accepted presets remain exactly `lilygo_t3_v1_6_1_oled_lora_builtin_led` and `esp32_c3_super_mini_minimal`
 - emitted ShipController artifacts may include deterministic `hardware` summaries derived from resolved preset resources
 - this support stays target-facing and offline-only: no UI hardware editor, no display/Wi-Fi runtime drift, and no new transport layer are introduced here
+
+## Hardware preset freeze note
+- hardware preset support is frozen here as deterministic target-facing summary metadata only
+- the accepted preset lane remains exactly the LilyGO T3 and ESP32-C3 canonical presets
+- adapter support stays offline-only, contract-driven, and additive-only beyond bugfixes
+- no live probing, no preset-specific runtime engines, and no broad target-config transport are implied by this baseline

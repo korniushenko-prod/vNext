@@ -155,6 +155,12 @@ into a target-neutral `RuntimePack`.
 - `materializer-core` must flatten the pilot package into ordinary runtime instances, resources, operations, and package metadata without opening a new generic package runtime model
 - pilot-specific templates, presets, and helper members are accepted only insofar as they still materialize into a package-neutral `RuntimePack`
 
+## Hardware catalog freeze note
+- hardware catalog and manifest stay authoring inputs only; materialization does not turn them into runtime kinds
+- the canonical materialized boundary is target-neutral `hardware_resolution` plus enriched runtime resources
+- the frozen preset lane remains limited to `lilygo_t3_v1_6_1_oled_lora_builtin_led` and `esp32_c3_super_mini_minimal`
+- materialization does not introduce live target probing, target transport, or broad target-config runtime sections
+
 ## First accepted fixtures
 - `empty-project.json`
 - `timed-relay.project.json`
