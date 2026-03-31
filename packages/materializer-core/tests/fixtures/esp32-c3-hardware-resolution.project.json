@@ -1,0 +1,210 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "esp32_c3_hardware_resolution_demo",
+    "title": "ESP32-C3 Hardware Resolution Demo"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "digital_output_actor": {
+        "id": "digital_output_actor",
+        "kind": "object_type",
+        "meta": {
+          "title": "Digital Output Actor",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "cmd": {
+              "id": "cmd",
+              "direction": "in",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "test.digital_output_actor.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      },
+      "digital_input_sensor": {
+        "id": "digital_input_sensor",
+        "kind": "object_type",
+        "meta": {
+          "title": "Digital Input Sensor",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "value": {
+              "id": "value",
+              "direction": "out",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "test.digital_input_sensor.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "led_1": {
+        "id": "led_1",
+        "kind": "object_instance",
+        "type_ref": "project:digital_output_actor",
+        "title": "Built-in LED Actor"
+      },
+      "input_1": {
+        "id": "input_1",
+        "kind": "object_instance",
+        "type_ref": "project:digital_input_sensor",
+        "title": "Digital Input"
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {
+      "hw_builtin_led": {
+        "id": "hw_builtin_led",
+        "instance_id": "led_1",
+        "port_id": "cmd",
+        "binding_kind": "digital_out",
+        "config": {
+          "pin": 8
+        }
+      },
+      "hw_digital_in_1": {
+        "id": "hw_digital_in_1",
+        "instance_id": "input_1",
+        "port_id": "value",
+        "binding_kind": "digital_in",
+        "config": {
+          "pin": 3
+        }
+      }
+    },
+    "catalog": {
+      "chips": {
+        "esp32_c3": {
+          "id": "esp32_c3",
+          "title": "ESP32-C3",
+          "family": "esp32_c3",
+          "pins": {
+            "2": { "capabilities": ["di", "do", "counter", "pwm"], "strapping": true, "forbidden": false },
+            "3": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "4": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "5": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "6": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "7": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "8": { "capabilities": ["di", "do", "counter", "pwm"], "strapping": true, "forbidden": false },
+            "10": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "20": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false },
+            "21": { "capabilities": ["di", "do", "counter", "pwm"], "forbidden": false }
+          }
+        }
+      },
+      "boards": {
+        "esp32_c3_super_mini": {
+          "id": "esp32_c3_super_mini",
+          "title": "ESP32-C3 Super Mini",
+          "chip_template_ref": "esp32_c3",
+          "rules": {
+            "usb_uart": {
+              "id": "usb_uart",
+              "feature": "usb_uart",
+              "class": "warning",
+              "owner": "usb_uart",
+              "reason": "Shared with USB serial programming and monitor",
+              "always_on": true,
+              "pins": [20, 21]
+            },
+            "status_led": {
+              "id": "status_led",
+              "feature": "led",
+              "class": "shared",
+              "owner": "led",
+              "reason": "Built-in LED",
+              "pins": [8]
+            }
+          }
+        }
+      },
+      "presets": {
+        "esp32_c3_super_mini_minimal": {
+          "id": "esp32_c3_super_mini_minimal",
+          "title": "ESP32-C3 Super Mini Minimal",
+          "chip_template_ref": "esp32_c3",
+          "board_template_ref": "esp32_c3_super_mini",
+          "active_rule_ids": ["status_led"],
+          "resources": {
+            "builtin_led": {
+              "id": "builtin_led",
+              "title": "Built-in LED",
+              "gpio": 8,
+              "capabilities": ["do", "pwm"],
+              "allowed_gpios": [8]
+            },
+            "digital_in_1": {
+              "id": "digital_in_1",
+              "title": "Digital Input 1",
+              "gpio": 3,
+              "capabilities": ["di", "counter"],
+              "allowed_gpios": [2, 3, 4, 5]
+            }
+          },
+          "reserved_pins": {
+            "usb_dp": 20,
+            "usb_dm": 21
+          }
+        }
+      }
+    },
+    "manifest": {
+      "target_preset_ref": "esp32_c3_super_mini_minimal",
+      "resource_bindings": {
+        "builtin_led": { "gpio": 8 },
+        "digital_in_1": { "gpio": 3 }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

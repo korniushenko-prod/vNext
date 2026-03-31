@@ -1,0 +1,165 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "esp32-c3-hardware-resolution-pack",
+  "source": {
+    "project_id": "esp32_c3_hardware_resolution_demo",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-31T10:05:00Z"
+  },
+  "instances": {
+    "led_1": {
+      "id": "led_1",
+      "type_ref": "project:digital_output_actor",
+      "title": "Built-in LED Actor",
+      "enabled": true,
+      "ports": {
+        "cmd": {
+          "id": "cmd",
+          "direction": "in",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "test.digital_output_actor.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "esp32_c3_hardware_resolution_demo"
+      }
+    },
+    "input_1": {
+      "id": "input_1",
+      "type_ref": "project:digital_input_sensor",
+      "title": "Digital Input",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "test.digital_input_sensor.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "esp32_c3_hardware_resolution_demo"
+      }
+    }
+  },
+  "connections": {},
+  "resources": {
+    "hw_builtin_led": {
+      "id": "hw_builtin_led",
+      "binding_kind": "digital_out",
+      "instance_id": "led_1",
+      "port_id": "cmd",
+      "config": {
+        "pin": 8,
+        "resolved_hardware": {
+          "target_preset_ref": "esp32_c3_super_mini_minimal",
+          "chip_template_ref": "esp32_c3",
+          "board_template_ref": "esp32_c3_super_mini",
+          "resource_id": "builtin_led",
+          "resource_gpio": 8,
+          "resource_title": "Built-in LED"
+        }
+      }
+    },
+    "hw_digital_in_1": {
+      "id": "hw_digital_in_1",
+      "binding_kind": "digital_in",
+      "instance_id": "input_1",
+      "port_id": "value",
+      "config": {
+        "pin": 3,
+        "resolved_hardware": {
+          "target_preset_ref": "esp32_c3_super_mini_minimal",
+          "chip_template_ref": "esp32_c3",
+          "board_template_ref": "esp32_c3_super_mini",
+          "resource_id": "digital_in_1",
+          "resource_gpio": 3,
+          "resource_title": "Digital Input 1"
+        }
+      }
+    }
+  },
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "hardware_resolution": {
+    "target_preset_ref": "esp32_c3_super_mini_minimal",
+    "chip_template_ref": "esp32_c3",
+    "chip_title": "ESP32-C3",
+    "board_template_ref": "esp32_c3_super_mini",
+    "board_title": "ESP32-C3 Super Mini",
+    "active_rule_ids": [
+      "status_led",
+      "usb_uart"
+    ],
+    "reserved_pins": {
+      "usb_dp": 20,
+      "usb_dm": 21
+    },
+    "forbidden_pins": [],
+    "resources": {
+      "builtin_led": {
+        "id": "builtin_led",
+        "title": "Built-in LED",
+        "gpio": 8,
+        "capabilities": [
+          "do",
+          "pwm"
+        ],
+        "allowed_gpios": [
+          8
+        ],
+        "origin": "manifest_override",
+        "binding_ids": [
+          "hw_builtin_led"
+        ],
+        "port_refs": [
+          {
+            "instance_id": "led_1",
+            "port_id": "cmd"
+          }
+        ]
+      },
+      "digital_in_1": {
+        "id": "digital_in_1",
+        "title": "Digital Input 1",
+        "gpio": 3,
+        "capabilities": [
+          "di",
+          "counter"
+        ],
+        "allowed_gpios": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "origin": "manifest_override",
+        "binding_ids": [
+          "hw_digital_in_1"
+        ],
+        "port_refs": [
+          {
+            "instance_id": "input_1",
+            "port_id": "value"
+          }
+        ]
+      }
+    },
+    "diagnostics": []
+  }
+}

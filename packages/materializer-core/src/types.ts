@@ -11,6 +11,7 @@ export type MaterializerPhase =
   | "resolve_templates"
   | "materialize_system_instances"
   | "materialize_system_signals"
+  | "materialize_hardware"
   | "expand_composition"
   | "finalize_pack";
 
@@ -33,6 +34,49 @@ export interface MaterializeResult {
   pack: RuntimePack;
   diagnostics: MaterializerDiagnostic[];
 }
+
+export interface ResolvedHardwarePortRef {
+  instance_id: string;
+  port_id?: string;
+}
+
+export interface ResolvedHardwareResource {
+  id: string;
+  title?: string;
+  gpio: number;
+  capabilities: string[];
+  note?: string;
+  allowed_gpios?: number[];
+  origin: "preset_default" | "manifest_override";
+  binding_ids: string[];
+  port_refs: ResolvedHardwarePortRef[];
+}
+
+export interface ResolvedHardwareDiagnostic {
+  code: string;
+  severity: "error" | "warning";
+  message: string;
+  binding_id?: string;
+  resource_id?: string;
+  gpio?: number;
+}
+
+export interface ResolvedHardwareSection {
+  target_preset_ref: string;
+  chip_template_ref: string;
+  chip_title?: string;
+  board_template_ref: string;
+  board_title?: string;
+  active_rule_ids: string[];
+  reserved_pins: Record<string, number>;
+  forbidden_pins: number[];
+  resources: Record<string, ResolvedHardwareResource>;
+  diagnostics: ResolvedHardwareDiagnostic[];
+}
+
+export type RuntimePackWithHardwareResolution = RuntimePack & {
+  hardware_resolution?: ResolvedHardwareSection;
+};
 
 export interface LocalTypeRegistry {
   by_type_id: Record<string, unknown>;

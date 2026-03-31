@@ -1,0 +1,127 @@
+{
+  "schema_version": "0.4.0",
+  "meta": {
+    "project_id": "invalid_hardware_missing_resource_mapping",
+    "title": "Invalid Hardware Missing Resource Mapping"
+  },
+  "imports": {
+    "libraries": [],
+    "packages": []
+  },
+  "definitions": {
+    "object_types": {
+      "digital_output_actor": {
+        "id": "digital_output_actor",
+        "kind": "object_type",
+        "meta": {
+          "title": "Digital Output Actor",
+          "origin": "project"
+        },
+        "interface": {
+          "ports": {
+            "cmd": {
+              "id": "cmd",
+              "direction": "in",
+              "channel_kind": "signal",
+              "value_type": "bool"
+            }
+          },
+          "params": {},
+          "alarms": {}
+        },
+        "locals": {
+          "signals": {},
+          "vars": {}
+        },
+        "implementation": {
+          "native": {
+            "native_kind": "test.digital_output_actor.v1"
+          },
+          "composition": null,
+          "state": null,
+          "flow": null
+        },
+        "diagnostics": {}
+      }
+    }
+  },
+  "system": {
+    "instances": {
+      "out_1": {
+        "id": "out_1",
+        "kind": "object_instance",
+        "type_ref": "project:digital_output_actor",
+        "title": "Unmapped Output"
+      }
+    },
+    "signals": {}
+  },
+  "hardware": {
+    "bindings": {
+      "hw_out_1": {
+        "id": "hw_out_1",
+        "instance_id": "out_1",
+        "port_id": "cmd",
+        "binding_kind": "digital_out",
+        "config": {
+          "pin": 13
+        }
+      }
+    },
+    "catalog": {
+      "chips": {
+        "esp32_pico_d4": {
+          "id": "esp32_pico_d4",
+          "title": "ESP32-PICO-D4",
+          "pins": {
+            "13": { "capabilities": ["do", "pwm"], "forbidden": false },
+            "14": { "capabilities": ["do", "pwm"], "forbidden": false },
+            "25": { "capabilities": ["do", "pwm"], "forbidden": false }
+          }
+        }
+      },
+      "boards": {
+        "lilygo_t3_v1_6_1": {
+          "id": "lilygo_t3_v1_6_1",
+          "title": "LilyGO T3 v1.6.1",
+          "chip_template_ref": "esp32_pico_d4",
+          "rules": {}
+        }
+      },
+      "presets": {
+        "lilygo_t3_v1_6_1_oled_lora_builtin_led": {
+          "id": "lilygo_t3_v1_6_1_oled_lora_builtin_led",
+          "title": "LilyGO T3 OLED + LoRa + Built-in LED",
+          "chip_template_ref": "esp32_pico_d4",
+          "board_template_ref": "lilygo_t3_v1_6_1",
+          "resources": {
+            "builtin_led": {
+              "id": "builtin_led",
+              "gpio": 25,
+              "capabilities": ["do", "pwm"]
+            },
+            "general_output_1": {
+              "id": "general_output_1",
+              "gpio": 14,
+              "capabilities": ["do", "pwm"]
+            }
+          }
+        }
+      }
+    },
+    "manifest": {
+      "target_preset_ref": "lilygo_t3_v1_6_1_oled_lora_builtin_led",
+      "resource_bindings": {
+        "builtin_led": { "gpio": 25 },
+        "general_output_1": { "gpio": 14 }
+      }
+    }
+  },
+  "views": {
+    "screens": {}
+  },
+  "layouts": {
+    "system": {},
+    "definitions": {}
+  }
+}

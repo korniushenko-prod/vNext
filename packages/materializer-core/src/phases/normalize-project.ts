@@ -14,7 +14,11 @@ export function normalizeProject(project: ProjectModel): ProjectModel {
       signals: project.system?.signals ?? {},
       packages: project.system?.packages ?? {}
     },
-    hardware: project.hardware ?? { bindings: {} },
+    hardware: {
+      bindings: project.hardware?.bindings ?? {},
+      ...(project.hardware?.catalog !== undefined ? { catalog: project.hardware.catalog } : {}),
+      ...(project.hardware?.manifest !== undefined ? { manifest: project.hardware.manifest } : {})
+    },
     views: project.views ?? { screens: {} },
     layouts: project.layouts ?? { system: {}, definitions: {} }
   };

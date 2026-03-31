@@ -8,14 +8,14 @@ import type {
   RuntimeInstance,
   RuntimePack,
   RuntimePort,
-  RuntimeResolvedParam,
-  RuntimeResourceBinding
+  RuntimeResolvedParam
 } from "@universal-plc/runtime-pack-schema";
 import { error, hasErrors } from "./diagnostics.js";
 import type {
   MaterializeContext,
   MaterializeOptions,
-  MaterializeResult
+  MaterializeResult,
+  RuntimePackWithHardwareResolution
 } from "./types.js";
 import { buildLocalTypeRegistry, resolveLocalTypeRef } from "./phases/build-type-registry.js";
 import { createEmptyRuntimePack } from "./phases/finalize-pack.js";
@@ -32,6 +32,7 @@ import { materializePackageProtectionRecovery } from "./helpers/package-protecti
 import { materializePackageSupervision } from "./helpers/package-supervision.js";
 import { materializeFrontendRequirements, validateActiveFrontendBindings } from "./helpers/frontend-requirements.js";
 import { materializeCommsMetadata } from "./helpers/comms.js";
+import { materializeHardwareBindings } from "./helpers/hardware-resolution.js";
 import { materializeNativeExecution } from "./helpers/native-execution.js";
 import { resolveTemplateBackedInstance } from "./templates.js";
 import {
@@ -102,7 +103,7 @@ export function materializeProject(
   materializePackageProtectionRecovery(flattenedProject, runtimePack, diagnostics);
   materializePackageArbitration(flattenedProject, runtimePack, diagnostics);
   materializePackageOverrideHandover(flattenedProject, runtimePack, diagnostics);
-  materializeHardwareBindings(flattenedProject, runtimePack);
+  materializeHardwareBindings(flattenedProject, runtimePack as RuntimePackWithHardwareResolution, diagnostics);
   validateActiveFrontendBindings(runtimePack, diagnostics);
   if (Object.keys(runtimePack.operations).length > 0) {
     runtimePack.operation_runtime_contract = deriveRuntimeOperationRuntimeContract(runtimePack.operations);
@@ -358,39 +359,4 @@ function validateKnownPackageParams(
   }
 
   return diagnostics;
-}
-
-function materializeHardwareBindings(project: ProjectModel, runtimePack: RuntimePack): void {
-  for (const [bindingId, bindingValue] of Object.entries(project.hardware?.bindings ?? {})) {
-    if (!isHardwareBindingLike(bindingValue)) {
-      continue;
-    }
-
-    runtimePack.resources[bindingId] = {
-      id: bindingValue.id,
-      binding_kind: bindingValue.binding_kind,
-      instance_id: bindingValue.instance_id,
-      ...(bindingValue.port_id !== undefined ? { port_id: bindingValue.port_id } : {}),
-      config: isRecord(bindingValue.config) ? { ...bindingValue.config } : {}
-    } satisfies RuntimeResourceBinding;
-  }
-}
-
-function isHardwareBindingLike(value: unknown): value is {
-  id: string;
-  binding_kind: RuntimeResourceBinding["binding_kind"];
-  instance_id: string;
-  port_id?: string;
-  config?: Record<string, unknown>;
-} {
-  return (
-    isRecord(value) &&
-    typeof value.id === "string" &&
-    typeof value.binding_kind === "string" &&
-    typeof value.instance_id === "string"
-  );
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

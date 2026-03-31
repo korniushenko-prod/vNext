@@ -1,0 +1,188 @@
+{
+  "schema_version": "0.1.0",
+  "pack_id": "lilygo-hardware-resolution-pack",
+  "source": {
+    "project_id": "lilygo_hardware_resolution_demo",
+    "authoring_schema_version": "0.4.0",
+    "generated_at": "2026-03-31T10:00:00Z"
+  },
+  "instances": {
+    "led_1": {
+      "id": "led_1",
+      "type_ref": "project:digital_output_actor",
+      "title": "Built-in LED Actor",
+      "enabled": true,
+      "ports": {
+        "cmd": {
+          "id": "cmd",
+          "direction": "in",
+          "channel_kind": "signal",
+          "value_type": "bool"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "test.digital_output_actor.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "lilygo_hardware_resolution_demo"
+      }
+    },
+    "sensor_1": {
+      "id": "sensor_1",
+      "type_ref": "project:analog_input_sensor",
+      "title": "Analog Sensor",
+      "enabled": true,
+      "ports": {
+        "value": {
+          "id": "value",
+          "direction": "out",
+          "channel_kind": "telemetry",
+          "value_type": "float"
+        }
+      },
+      "params": {},
+      "alarms": {},
+      "native_execution": {
+        "native_kind": "test.analog_input_sensor.v1"
+      },
+      "source_scope": {
+        "kind": "system",
+        "owner_id": "lilygo_hardware_resolution_demo"
+      }
+    }
+  },
+  "connections": {},
+  "resources": {
+    "hw_builtin_led": {
+      "id": "hw_builtin_led",
+      "binding_kind": "digital_out",
+      "instance_id": "led_1",
+      "port_id": "cmd",
+      "config": {
+        "pin": 25,
+        "resolved_hardware": {
+          "target_preset_ref": "lilygo_t3_v1_6_1_oled_lora_builtin_led",
+          "chip_template_ref": "esp32_pico_d4",
+          "board_template_ref": "lilygo_t3_v1_6_1",
+          "resource_id": "builtin_led",
+          "resource_gpio": 25,
+          "resource_title": "Built-in LED"
+        }
+      }
+    },
+    "hw_analog_in_1": {
+      "id": "hw_analog_in_1",
+      "binding_kind": "analog_in",
+      "instance_id": "sensor_1",
+      "port_id": "value",
+      "config": {
+        "pin": 34,
+        "resolved_hardware": {
+          "target_preset_ref": "lilygo_t3_v1_6_1_oled_lora_builtin_led",
+          "chip_template_ref": "esp32_pico_d4",
+          "board_template_ref": "lilygo_t3_v1_6_1",
+          "resource_id": "analog_in_1",
+          "resource_gpio": 34,
+          "resource_title": "Analog Input 1"
+        }
+      }
+    }
+  },
+  "operations": {},
+  "trace_groups": {},
+  "monitors": {},
+  "frontend_requirements": {},
+  "persistence_slots": {},
+  "hardware_resolution": {
+    "target_preset_ref": "lilygo_t3_v1_6_1_oled_lora_builtin_led",
+    "chip_template_ref": "esp32_pico_d4",
+    "chip_title": "ESP32-PICO-D4",
+    "board_template_ref": "lilygo_t3_v1_6_1",
+    "board_title": "LilyGO T3 v1.6.1",
+    "active_rule_ids": [
+      "oled_bus",
+      "package_flash",
+      "status_led"
+    ],
+    "reserved_pins": {
+      "i2c_sda": 21,
+      "i2c_scl": 22
+    },
+    "forbidden_pins": [
+      6,
+      7,
+      8,
+      11,
+      16,
+      17,
+      21,
+      22
+    ],
+    "resources": {
+      "builtin_led": {
+        "id": "builtin_led",
+        "title": "Built-in LED",
+        "gpio": 25,
+        "capabilities": [
+          "do",
+          "pwm"
+        ],
+        "allowed_gpios": [
+          25
+        ],
+        "origin": "manifest_override",
+        "binding_ids": [
+          "hw_builtin_led"
+        ],
+        "port_refs": [
+          {
+            "instance_id": "led_1",
+            "port_id": "cmd"
+          }
+        ]
+      },
+      "analog_in_1": {
+        "id": "analog_in_1",
+        "title": "Analog Input 1",
+        "gpio": 34,
+        "capabilities": [
+          "di",
+          "ai",
+          "counter"
+        ],
+        "allowed_gpios": [
+          34
+        ],
+        "origin": "manifest_override",
+        "binding_ids": [
+          "hw_analog_in_1"
+        ],
+        "port_refs": [
+          {
+            "instance_id": "sensor_1",
+            "port_id": "value"
+          }
+        ]
+      },
+      "general_output_1": {
+        "id": "general_output_1",
+        "title": "General Output 1",
+        "gpio": 14,
+        "capabilities": [
+          "do",
+          "pwm"
+        ],
+        "allowed_gpios": [
+          14
+        ],
+        "origin": "manifest_override",
+        "binding_ids": [],
+        "port_refs": []
+      }
+    },
+    "diagnostics": []
+  }
+}

@@ -12,6 +12,7 @@ into a target-neutral `RuntimePack`.
 - expand `composition.routes` recursively
 - resolve params into final runtime values
 - emit diagnostics and a target-neutral `RuntimePack`
+- resolve additive hardware preset manifests into target-neutral hardware data
 
 ## Non-goals
 - no UI/editor logic
@@ -40,6 +41,11 @@ into a target-neutral `RuntimePack`.
 - template defaults are folded into the effective instance during materialization
 - `RuntimePack` must not contain `template_ref`, `template_id`, or `template_kind`
 - explicit and template-based instances with the same effective values must materialize to the same pack
+
+## Hardware manifest rule
+- `hardware.catalog` and `hardware.manifest` are authoring inputs only; this package resolves them into target-neutral hardware data
+- hardware preset resolution may enrich `RuntimePack.resources` and add materializer-local `hardware_resolution` metadata
+- hardware preset resolution in this package must not emit target artifacts, Wi-Fi/display config, or target-specific execution hooks
 
 ## Operations spine rule
 - `materializer-core` emits `RuntimePack.operations` as target-neutral operation metadata
