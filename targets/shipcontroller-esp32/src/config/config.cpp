@@ -14,12 +14,12 @@ void loadDefaultConfig()
     gConfig.signalCount = 0;
     gConfig.blocks.blockCount = 0;
 
-    gConfig.wifi.mode = "ap";
-    gConfig.wifi.ssid = "ESP32-CTRL";
-    gConfig.wifi.password = "12345678";
+    gConfig.wifi.mode = "sta";
+    gConfig.wifi.ssid = "infinty-starlink";
+    gConfig.wifi.password = "";
     gConfig.wifi.apSsid = "ESP32-CTRL";
     gConfig.wifi.apPassword = "12345678";
-    gConfig.wifi.startupPolicy = "sta_fallback_ap";
+    gConfig.wifi.startupPolicy = "sta_only";
 
     gConfig.i2c.scan = true;
 
