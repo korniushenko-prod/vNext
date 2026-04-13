@@ -26,3 +26,5 @@
 - the bench map is intentionally minimal and sufficient for a first pilot node
 - helper package members used for ownership, override, and protection metadata
   do not require dedicated hardware bindings on this baseline
+- the bounded `ESP32-C3` injector helper is documented in
+  `docs/pilot/pumpskid-v1-bench-injector-esp32-c3.md`

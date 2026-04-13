@@ -22,6 +22,8 @@
   `docs/pilot/pumpskid-v1-bench-io-map.md`
 - target profile:
   `docs/pilot/pumpskid-v1-target-profile.md`
+- bench injector helper:
+  `docs/pilot/pumpskid-v1-bench-injector-esp32-c3.md`
 - canonical bundle:
   `docs/pilot/pumpskid-v1-controlled-pilot.project.json`
 - canonical artifact:
