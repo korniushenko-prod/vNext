@@ -2,8 +2,8 @@
   "config_version": 2,
   "wifi": {
     "mode": "sta",
-    "ssid": "CE",
-    "password": "11223344",
+    "ssid": "Infinity-Starlink",
+    "password": "",
     "ap_ssid": "ShipController",
     "ap_password": "12345678",
     "startup_policy": "sta_fallback_ap"
