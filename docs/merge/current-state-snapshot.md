@@ -70,3 +70,19 @@ The next meaningful state change can happen only after `PR-35A` produces:
 - operator walkthrough notes
 - reboot / persistence confirmation
 - one final pilot verdict
+
+## Forward Roadmap Rebase
+
+Historical Waves 5 through 18 remain frozen implementation history and valid
+proof of architectural baselines.
+
+Forward product planning is now rebased around the machine-first roadmap:
+
+- [Machine-First Goal And Version Roadmap](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\merge\machine-first-goal-and-version-roadmap-v1.md)
+
+The rebased direction is:
+
+- machine compositions over domain-specific kernel entities
+- rule-based first-class diagnostics
+- one shared project model across real, simulation, and training contexts
+- separate simulation/training product later, on the same model

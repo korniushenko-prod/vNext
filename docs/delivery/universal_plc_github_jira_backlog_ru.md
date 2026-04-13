@@ -2,6 +2,19 @@
 Статус: proposed-for-execution  
 Дата: 2026-03-27  
 Цель: превратить зафиксированную архитектуру в управляемый backlog для реальной команды.
+
+> Historical note
+>
+> Этот документ остаётся важным как historical delivery/backlog layer.
+> Но он больше не считается самым точным выражением конечной product goal.
+> Актуальный high-level канон теперь зафиксирован в:
+>
+> - `docs/architecture/adr-0022-machine-first-platform-goal-and-roadmap-rebase.md`
+> - `docs/merge/machine-first-goal-and-version-roadmap-v1.md`
+>
+> То есть frozen wave/package work остаётся valid implementation history, а
+> forward roadmap language rebased to machine-first platform wording.
+
 ## 1. Каноническая формула продукта
 `universal_plc = Authoring Platform -> Materializer -> Runtime Target`
 - **Authoring Platform**: canonical project schema, Definitions/System/Hardware/Views, ObjectType/ObjectInstance, component faces, package authoring.

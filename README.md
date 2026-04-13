@@ -18,6 +18,7 @@ The initial foundation phase is closed. The repository now contains:
 
 Canonical snapshot:
 - [Current State Snapshot](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\merge\current-state-snapshot.md)
+- [Machine-First Goal And Version Roadmap](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\merge\machine-first-goal-and-version-roadmap-v1.md)
 
 ## Active Track
 
@@ -30,6 +31,12 @@ Current rule:
 - do not reopen foundation
 - do not expand package/library scope
 - only close real bench deploy/apply/readback/reboot/persistence/operator evidence for the frozen controlled pilot bundle
+
+Forward planning note:
+
+- historical Waves 5 through 18 remain frozen implementation history
+- forward product language is now rebased around the machine-first roadmap in [Machine-First Goal And Version Roadmap](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\merge\machine-first-goal-and-version-roadmap-v1.md)
+- the active bench track remains the only execution track until `PR-35A` is closed
 
 Primary references for the active track:
 
