@@ -947,7 +947,11 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
         return false;
     }
 
-    saveConfigDocumentToNvs(doc);
+    // Keep boot tolerant when the device only has a legacy /config.json or no
+    // stable runtimecfg namespace yet. Automatic NVS migration during the read
+    // path caused first-boot crashes on the physical LilyGO bench, so the
+    // runtime now loads the legacy document as-is and defers persistence to an
+    // explicit save flow.
     return true;
 }
 
