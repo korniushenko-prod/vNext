@@ -1,246 +1,187 @@
-document.querySelectorAll('.primary-tabs button').forEach(btn=>btn.addEventListener('click',()=>{setPrimaryTabValue(btn.dataset.primaryTab);document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));applyUiMode()}));
-document.querySelectorAll('.tabs button').forEach(btn=>btn.addEventListener('click',()=>{if(btn.classList.contains('hidden'))return;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b===btn));applyUiMode()}));
-const on=(id,event,handler)=>{const el=$(id);if(el)el.addEventListener(event,handler);return el};
-on('secondaryTabSelect','change',()=>{const tab=$('secondaryTabSelect')?.value||'';if(!tab)return;document.querySelector('.tabs button[data-tab="'+tab+'"]:not(.hidden)')?.click()});
+(() => {
+  const on = (id, event, handler) => {
+    const el = $(id);
+    if (el) el.addEventListener(event, handler);
+    return el;
+  };
 
-$('refreshAll').addEventListener('click',loadAll);
-$('detectChipNow').addEventListener('click',async()=>{state.chip=await getJson('/chip');renderSummary()});
-$('refreshHardware').addEventListener('click',async()=>{state.hardware=await getJson('/hardware');renderHardware()});
-$('reloadHardwareSettings').addEventListener('click',loadAll);
-$('saveHardwareSettings').addEventListener('click',saveSettings);
-$('refreshChannels').addEventListener('click',async()=>{state.channels=await getJson('/channels');renderChannels();renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()});
-$('refreshSignals').addEventListener('click',async()=>{state.signals=await getJson('/signals');renderSignals();renderSignalOptions();if(typeof renderAlarmSignalOptions==='function')renderAlarmSignalOptions();renderBlockOptions();renderDisplaySignalOptions();renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()});
-$('refreshBlocks').addEventListener('click',async()=>{state.blocks=await getJson('/blocks');renderBlocks()});
-$('refreshDisplay').addEventListener('click',async()=>{state.display=await getJson('/display');renderDisplay()});
-$('refreshAlarms').addEventListener('click',async()=>{state.alarms=await getJson('/alarms');if(typeof renderAlarms==='function')renderAlarms()});
-$('refreshSequences').addEventListener('click',async()=>{state.sequences=await getJson('/sequences');if(typeof renderSequences==='function')renderSequences()});
-$('refreshComms').addEventListener('click',async()=>{state.buses=await getJson('/buses');state.devices=await getJson('/devices');state.externalResources=await getJson('/external-resources');renderComms();renderChannelOptions();renderChannelConditioningSummary();renderChannelPreview()});
-$('newDisplayScreen').addEventListener('click',()=>{state.ui.displaySelectedScreen='';resetDisplayScreenForm()});
-$('saveDisplayScreen').addEventListener('click',saveDisplayScreen);
-$('deleteDisplayScreen').addEventListener('click',deleteDisplayScreen);
-$('newDisplayWidget').addEventListener('click',()=>{resetDisplayWidgetForm(state.ui.displaySelectedScreen);openModal('displayWidgetModal')});
-$('saveDisplayWidget').addEventListener('click',saveDisplayWidget);
-$('deleteDisplayWidget').addEventListener('click',()=>deleteDisplayWidget());
-$('closeDisplayWidgetModal').addEventListener('click',()=>closeModal('displayWidgetModal'));
-$('displayWidgetModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal('displayWidgetModal')});
-$('displayScreenSelect').addEventListener('change',e=>{state.ui.displaySelectedScreen=e.target.value;resetDisplayScreenForm();renderDisplay()});
-$('refreshStatus').addEventListener('click',async()=>{state.status=await getJson('/status');renderChannels();renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()});
-$('refreshDiagnostics').addEventListener('click',async()=>{state.diagnostics=await getJson('/diagnostics');renderDiagnostics();renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()});
-$('reloadSettings').addEventListener('click',loadAll);
-$('saveSettings').addEventListener('click',saveSettings);
-$('wifiMode').addEventListener('change',updateNetworkVisibility);
-$('wifiStartupPolicy').addEventListener('change',updateNetworkVisibility);
-$('wifiShowPasswords').addEventListener('change',updatePasswordVisibility);
-$('newBus').addEventListener('click',resetBusForm);
-$('saveBus').addEventListener('click',saveBus);
-$('deleteBus').addEventListener('click',()=>deleteBus());
-$('busType').addEventListener('change',renderBusTypeVisibility);
-$('newDevice').addEventListener('click',resetDeviceForm);
-$('saveDevice').addEventListener('click',saveDevice);
-$('deviceApplyDriverPreset').addEventListener('click',applyDeviceDriverPreset);
-$('deviceNewExternalResource').addEventListener('click',prefillExternalResourceFromCurrentDevice);
-$('seedDeviceResources').addEventListener('click',seedDeviceResources);
-$('deleteDevice').addEventListener('click',()=>deleteDevice());
-$('deviceResourceModeActions').addEventListener('click',e=>{const modeId=e.target?.dataset?.deviceResourceMode;if(modeId)prefillExternalResourceFromCurrentDeviceMode(modeId)});
-$('newExternalResource').addEventListener('click',resetExternalResourceForm);
-$('saveExternalResource').addEventListener('click',saveExternalResource);
-$('externalResourceApplyPreset').addEventListener('click',applyExternalResourcePreset);
-$('externalResourceEditChannel').addEventListener('click',editLinkedExternalResourceChannel);
-$('externalResourceBindNow').addEventListener('click',bindCurrentExternalResource);
-$('externalResourceShowNow').addEventListener('click',showCurrentExternalResourceOnDisplay);
-$('externalResourceWriteZero').addEventListener('click',()=>setExternalResourceWritePreset('min'));
-$('externalResourceWriteMid').addEventListener('click',()=>setExternalResourceWritePreset('mid'));
-$('externalResourceWriteMax').addEventListener('click',()=>setExternalResourceWritePreset('max'));
-$('externalResourceWriteNow').addEventListener('click',writeExternalResourceNow);
-$('externalResourceWriteOff').addEventListener('click',()=>writeExternalResourceDigital(false));
-$('externalResourceWriteOn').addEventListener('click',()=>writeExternalResourceDigital(true));
-$('deleteExternalResource').addEventListener('click',()=>deleteExternalResource());
-$('deviceDriver').addEventListener('change',updateDeviceDriverNote);
-$('deviceBusId').addEventListener('change',updateDeviceDriverNote);
-$('externalResourceDeviceId').addEventListener('change',updateExternalResourceNote);
-$('externalResourceKind').addEventListener('change',updateExternalResourceNote);
-$('externalResourceCapability').addEventListener('change',updateExternalResourceNote);
-$('externalResourceSourceIndex').addEventListener('input',updateExternalResourceNote);
-$('externalResourceModeActions').addEventListener('click',e=>{const modeId=e.target?.dataset?.externalResourceMode;if(modeId)applyExternalResourceModePreset(modeId)});
+  document.querySelectorAll(".primary-tabs button").forEach((button) => {
+    button.addEventListener("click", () => {
+      setPrimaryTabValue(button.dataset.primaryTab || "overview");
+      applyUiMode();
+    });
+  });
 
-$('signalFilter').addEventListener('change',e=>setSignalFilter(e.target.value));
-$('signalSearch').addEventListener('input',e=>setSignalSearch(e.target.value));
-$('blockFilter').addEventListener('change',e=>setBlockFilter(e.target.value));
-$('blockSearch').addEventListener('input',e=>setBlockSearch(e.target.value));
-$('uiLanguage').addEventListener('change',e=>setUiLanguage(e.target.value));
-on('uiLangRu','click',()=>setUiLanguage('ru'));
-on('uiLangEn','click',()=>setUiLanguage('en'));
-$('uiMode').addEventListener('change',e=>setUiMode(e.target.value));
-on('quickGoNetworkCard','click',()=>{setPrimaryTabValue('hardware');applyUiMode();document.querySelector('.tabs button[data-tab="network"]')?.click()});
-$('saveChannel').addEventListener('click',saveChannel);
-$('channelType').addEventListener('change',updateChannelTypeVisibility);
-$('channelSourceMode').addEventListener('change',()=>{updateChannelSourceVisibility();updateChannelTypeVisibility()});
-['channelId','channelUnits','channelRawMin','channelRawMax','channelEngMin','channelEngMax','channelOffset','channelScale','channelClampMin','channelClampMax','channelStartupValue'].forEach(id=>{$(id).addEventListener('input',()=>{renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()})});
-['channelProfile','channelFilter','channelClampEnabled','channelGpio','channelExternalResource'].forEach(id=>{$(id).addEventListener('change',()=>{if(id==='channelProfile')updateChannelProfileNote();renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()})});
-$('channelFilterAlpha').addEventListener('input',()=>{renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()});
-$('channelUseLiveWindow').addEventListener('click',applyLiveWindowToChannel);
-$('channelResetAnalogMath').addEventListener('click',resetChannelAnalogMath);
-$('channelEditExternalResource').addEventListener('click',openCurrentChannelExternalResource);
-$('channelShowOnDisplay').addEventListener('click',showCurrentChannelOnDisplay);
-$('channelCalLowEng').addEventListener('input',renderChannelCalibrationAssistant);
-$('channelCalHighEng').addEventListener('input',renderChannelCalibrationAssistant);
-$('channelCaptureLow').addEventListener('click',()=>captureChannelCalibrationPoint('low'));
-$('channelCaptureHigh').addEventListener('click',()=>captureChannelCalibrationPoint('high'));
-$('channelApplyCalibration').addEventListener('click',applyChannelCalibrationPoints);
-$('channelCheckCalibration').addEventListener('click',checkChannelCalibrationResult);
-$('channelRollbackCalibration').addEventListener('click',rollbackChannelCalibration);
-$('newAlarm').addEventListener('click',resetAlarmForm);
-$('saveAlarm').addEventListener('click',saveAlarmDefinition);
-$('deleteAlarm').addEventListener('click',()=>deleteAlarmDefinition());
-$('ackAllAlarms').addEventListener('click',ackAllAlarms);
-$('alarmViewFilter').addEventListener('change',e=>{state.ui.alarmFilter=e.target.value;renderAlarms()});
-$('alarmShowActiveCount').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.alarm_active_count','Active Alarms','pair'));
-$('alarmShowUnackedCount').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.alarm_unacked_count','Unacked Alarms','pair'));
-$('alarmShowLatest').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.alarm_latest','Latest Alarm','pair'));
-ensureActuatorSequenceTemplateUi?.();
-$('newSequence').addEventListener('click',()=>{resetSequenceForm();resetSequenceStateForm();resetSequenceTransitionForm()});
-if($('sequenceSeedActuator'))$('sequenceSeedActuator').addEventListener('click',()=>{ensureActuatorSequenceTemplateUi?.();$('sequenceTemplateId').value=$('sequenceId').value||'actuator_cycle';$('sequenceTemplateLabel').value=$('sequenceLabel').value||'Actuator cycle';});
-$('saveSequence').addEventListener('click',saveSequenceDefinition);
-$('deleteSequence').addEventListener('click',()=>deleteSequenceDefinition());
-$('resetSequenceNow').addEventListener('click',()=>resetSequenceRuntimeNow());
-$('sequenceShowRunningCount').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.sequence_running_count','Running Sequences','pair'));
-$('sequenceShowLatest').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.sequence_latest','Latest Sequence','pair'));
-$('sequenceShowLatestState').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.sequence_latest_state','Sequence State','pair'));
-if($('sequenceApplyActuatorTemplate'))$('sequenceApplyActuatorTemplate').addEventListener('click',()=>seedActuatorSequenceTemplate?.());
-$('newSequenceState').addEventListener('click',()=>resetSequenceStateForm($('sequenceStateParent').value||state.ui.sequenceSelected||''));
-$('saveSequenceState').addEventListener('click',saveSequenceState);
-$('deleteSequenceState').addEventListener('click',()=>deleteSequenceState());
-$('newSequenceTransition').addEventListener('click',()=>resetSequenceTransitionForm($('sequenceTransitionParent').value||state.ui.sequenceSelected||'',$('sequenceTransitionState').value||state.ui.sequenceStateSelected||''));
-$('saveSequenceTransition').addEventListener('click',saveSequenceTransition);
-$('deleteSequenceTransition').addEventListener('click',()=>deleteSequenceTransition());
-$('sequenceSelect').addEventListener('change',e=>{state.ui.sequenceSelected=e.target.value;ensureSequenceSelections(e.target.value,'','');if(e.target.value)editSequence(e.target.value);else resetSequenceForm();renderSequences()});
-$('sequenceStateParent').addEventListener('change',e=>{ensureSequenceSelections(e.target.value,'','');resetSequenceStateForm(e.target.value);resetSequenceTransitionForm(e.target.value);renderSequences()});
-$('sequenceStateSelect').addEventListener('change',e=>{const sequenceId=$('sequenceStateParent').value||state.ui.sequenceSelected||'';if(e.target.value)editSequenceState(sequenceId,e.target.value);else resetSequenceStateForm(sequenceId);renderSequences()});
-$('sequenceTransitionParent').addEventListener('change',e=>{ensureSequenceSelections(e.target.value,'','');resetSequenceTransitionForm(e.target.value);renderSequences()});
-$('sequenceTransitionState').addEventListener('change',e=>{const sequenceId=$('sequenceTransitionParent').value||state.ui.sequenceSelected||'';state.ui.sequenceStateSelected=e.target.value;ensureSequenceSelections(sequenceId,e.target.value,'');resetSequenceTransitionForm(sequenceId,e.target.value);renderSequences()});
-$('sequenceTransitionSelect').addEventListener('change',e=>{const sequenceId=$('sequenceTransitionParent').value||state.ui.sequenceSelected||'';const stateId=$('sequenceTransitionState').value||state.ui.sequenceStateSelected||'';if(e.target.value)editSequenceTransition(sequenceId,stateId,e.target.value);else resetSequenceTransitionForm(sequenceId,stateId);renderSequences()});
+  document.querySelectorAll(".tabs button").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.classList.contains("hidden")) return;
+      document.querySelectorAll(".tabs button").forEach((node) => node.classList.toggle("active", node === button));
+      state.ui.activeTab = button.dataset.tab || "overview";
+      applyUiMode();
+    });
+  });
 
-on('newComparatorBlock','click',()=>{resetBlockForm('comparator');openModal('blockModal')});
-on('newScaleMapBlock','click',()=>{resetBlockForm('scale_map');openModal('blockModal')});
-on('newLogicGateBlock','click',()=>{resetBlockForm('logic_gate');openModal('blockModal')});
-on('newEdgeDetectBlock','click',()=>{resetBlockForm('edge_detect');openModal('blockModal')});
-on('newHysteresisBlock','click',()=>{resetBlockForm('hysteresis');openModal('blockModal')});
-on('blockCompareInput','change',()=>{syncAutoBlockId();updateBlockAssistantPreview()});
-on('blockCompareSignal','change',()=>{syncAutoBlockId();updateBlockAssistantPreview();setBlockTypeVisibility()});
-on('blockCompareValue','input',updateBlockAssistantPreview);
-on('blockCompareValueB','input',updateBlockAssistantPreview);
-on('blockCompareValueC','input',updateBlockAssistantPreview);
-on('blockCompareValueD','input',updateBlockAssistantPreview);
+  on("secondaryTabSelect", "change", () => {
+    const tab = $("secondaryTabSelect")?.value || "";
+    if (!tab) return;
+    document.querySelector(`.tabs button[data-tab="${tab}"]:not(.hidden)`)?.click();
+  });
 
-$('resetChannelForm').addEventListener('click',resetChannelForm);
-$('newSignal').addEventListener('click',()=>{resetSignalForm();openModal('signalModal')});
-$('saveSignal').addEventListener('click',saveSignalDefinition);
-$('resetSignalForm').addEventListener('click',resetSignalForm);
-$('deleteSignal').addEventListener('click',()=>deleteSignalDefinition());
-$('closeSignalModal').addEventListener('click',()=>closeModal('signalModal'));
-$('signalModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal('signalModal')});
-$('signalUnitsPreset').addEventListener('change',updateSignalUnitsVisibility);
+  on("uiLanguage", "change", (event) => setUiLanguage(event.target.value));
+  on("uiLangRu", "click", () => setUiLanguage("ru"));
+  on("uiLangEn", "click", () => setUiLanguage("en"));
+  on("uiMode", "change", (event) => setUiMode(event.target.value));
+  on("quickGoNetworkCard", "click", () => {
+    setPrimaryTabValue("hardware");
+    applyUiMode();
+    document.querySelector('.tabs button[data-tab="network"]:not(.hidden)')?.click();
+  });
 
-on('newTimerBlock','click',()=>{resetBlockForm('timer');openModal('blockModal')});
-on('newButtonBlock','click',()=>{resetBlockForm('button');openModal('blockModal')});
-on('newCounterBlock','click',()=>{resetBlockForm('counter');openModal('blockModal')});
-on('newLatchBlock','click',()=>{resetBlockForm('latch');openModal('blockModal')});
-on('newSelectorBlock','click',()=>{resetBlockForm('selector');openModal('blockModal')});
-on('saveBlock','click',saveBlockDefinition);
-on('resetBlockForm','click',()=>resetBlockForm($('blockType')?.value));
-on('deleteBlock','click',()=>deleteBlockDefinition());
-on('closeBlockModal','click',()=>closeModal('blockModal'));
-on('blockModal','click',e=>{if(e.target===e.currentTarget)closeModal('blockModal')});
-$('closeDisplayWidgetModal').addEventListener('click',()=>closeModal('displayWidgetModal'));
-$('displayWidgetModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal('displayWidgetModal')});
-$('closeCleanupModal').addEventListener('click',()=>closeModal('cleanupModal'));
-$('cancelCleanupDelete').addEventListener('click',()=>closeModal('cleanupModal'));
-$('confirmCleanupDelete').addEventListener('click',confirmCleanupDelete);
-$('cleanupKeepAll').addEventListener('click',()=>setCleanupSelection('none'));
-$('cleanupSelectRecommended').addEventListener('click',()=>setCleanupSelection('recommended'));
-$('cleanupSelectAll').addEventListener('click',()=>setCleanupSelection('all'));
-$('cleanupModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal('cleanupModal')});
-$('cleanupItems').addEventListener('change',e=>{if(e.target?.matches('[data-cleanup-index]'))updateCleanupSelectionHints()});
-$('closeHelpPopover').addEventListener('click',()=>closeModal('helpPopover'));
-$('helpPopoverOk').addEventListener('click',()=>closeModal('helpPopover'));
-$('helpPopover').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal('helpPopover')});
+  on("signalUnitsPreset", "change", () => {
+    const isCustom = $("signalUnitsPreset")?.value === "__custom__";
+    $("signalUnitsCustomWrap")?.classList.toggle("hidden", !isCustom);
+    if (!isCustom && $("signalUnitsCustom")) $("signalUnitsCustom").value = "";
+  });
 
-on('blockScenario','change',()=>applyBlockScenario($('blockScenario').value));
-on('blockIdMode','change',()=>setBlockManualIdMode($('blockIdMode').value));
-on('blockType','change',()=>{syncBlockModeOptions();renderBlockOutputOptions();setBlockTypeVisibility();syncScenarioFromCurrentBlock();syncAutoBlockId()});
-on('blockMode','change',()=>{setBlockTypeVisibility();syncScenarioFromCurrentBlock();syncAutoBlockId()});
-on('blockOutputPreset','change',()=>{syncBlockOutputFromPreset();syncAutoBlockId()});
-on('blockOutput','input',()=>{updateBlockAssistantPreview();syncAutoBlockId()});
-['blockInput','blockTrigger','blockToggleInput','blockSetInput','blockResetInput','blockPrimary','blockSecondary','blockSelect','blockEnable'].forEach(id=>on(id,'change',syncAutoBlockId));
-['blockTrigger','blockEnable','blockPrimary','blockSecondary','blockSelect','blockInput','blockToggleInput','blockSetInput','blockResetInput','blockAutoTriggerGpio','blockAutoTriggerEvent','blockAutoToggleGpio','blockAutoToggleEvent','blockAutoSetGpio','blockAutoSetEvent','blockAutoResetGpio','blockAutoResetEvent','blockDurationValue','blockDurationUnit','blockPeriodValue','blockPeriodUnit'].forEach(id=>on(id,'change',updateBlockAssistantPreview));
-['blockAutoTriggerEnable','blockAutoToggleEnable','blockAutoSetEnable','blockAutoResetEnable'].forEach(id=>on(id,'change',()=>{updateBlockAssistantVisibility();syncScenarioFromCurrentBlock();syncAutoBlockId()}));
-if($('blockScenarioCards'))$('blockScenarioCards').addEventListener('click',e=>{const scenario=e.target?.dataset?.blockScenario;if(!scenario)return;resetBlockForm('timer');applyBlockScenario(scenario);openModal('blockModal')});
+  on("refreshAll", "click", loadAll);
+  on("detectChipNow", "click", async () => {
+    state.chip = await getJson("/chip");
+    renderSummary();
+  });
+  on("refreshHardware", "click", async () => {
+    state.hardware = await getJson("/hardware");
+    renderHardware();
+  });
+  on("refreshChannels", "click", async () => {
+    state.channels = await getJson("/channels");
+    renderChannels();
+    renderChannelOptions();
+    renderChannelConditioningSummary();
+    renderChannelCalibrationAssistant();
+    renderChannelPreview();
+  });
+  on("refreshSignals", "click", async () => {
+    state.signals = await getJson("/signals");
+    renderSignals();
+    renderSignalOptions();
+  });
+  on("refreshStatus", "click", async () => {
+    state.status = await getJson("/status");
+    renderChannels();
+    renderChannelConditioningSummary();
+    renderChannelCalibrationAssistant();
+    renderChannelPreview();
+  });
+  on("refreshDiagnostics", "click", async () => {
+    state.diagnostics = await getJson("/diagnostics");
+    renderDiagnostics();
+  });
+  on("refreshInspector", "click", () => refreshInspector().catch((error) => {
+    if ($("inspectorStatus")) $("inspectorStatus").textContent = `Inspector error: ${error.message}`;
+  }));
+  on("inspectorAuto", "change", updateInspectorTimer);
+  on("inspectorInterval", "change", updateInspectorTimer);
 
-$('saveTemplateSelection').addEventListener('click',saveTemplateSelection);
-$('activeBoardTemplate').addEventListener('change',()=>{$('derivedChipTemplate').value=selectedBoardTemplateChipId()||'-'});
-$('chipTemplateSelect').addEventListener('change',()=>loadSelectedTemplateIntoEditor('chip'));
-$('boardTemplateSelect').addEventListener('change',()=>loadSelectedTemplateIntoEditor('board'));
-$('loadChipTemplate').addEventListener('click',()=>loadSelectedTemplateIntoEditor('chip'));
-$('loadBoardTemplate').addEventListener('click',()=>loadSelectedTemplateIntoEditor('board'));
-$('saveChipTemplate').addEventListener('click',()=>saveTemplate('chip'));
-$('saveApplyChipTemplate').addEventListener('click',()=>saveTemplate('chip',true));
-$('deleteChipTemplate').addEventListener('click',()=>deleteTemplate('chip'));
-$('saveBoardTemplate').addEventListener('click',()=>saveTemplate('board'));
-$('saveApplyBoardTemplate').addEventListener('click',()=>saveTemplate('board',true));
-$('deleteBoardTemplate').addEventListener('click',()=>deleteTemplate('board'));
-$('newChipTemplate').addEventListener('click',newChipTemplate);
-$('seedChipTemplate').addEventListener('click',seedChipTemplate);
-$('newBoardTemplate').addEventListener('click',newBoardTemplate);
-$('addChipPin').addEventListener('click',addChipPin);
-$('addBoardRule').addEventListener('click',addBoardRule);
-$('syncChipFromVisual').addEventListener('click',()=>{syncChipVisualToJson();$('chipTemplateStatus').textContent='Visual editor synced to JSON'});
-$('syncBoardFromVisual').addEventListener('click',()=>{syncBoardVisualToJson();$('boardTemplateStatus').textContent='Visual editor synced to JSON'});
-document.querySelectorAll('.template-tabs button').forEach(btn=>btn.addEventListener('click',()=>setTemplateTab(btn.dataset.templateTab)));
+  on("reloadSettings", "click", loadAll);
+  on("saveSettings", "click", saveSettings);
+  on("wifiMode", "change", updateNetworkVisibility);
+  on("wifiStartupPolicy", "change", updateNetworkVisibility);
+  on("wifiShowPasswords", "change", updatePasswordVisibility);
 
-$('refreshInspector').addEventListener('click',()=>refreshInspector().catch(e=>{$('inspectorStatus').textContent='Inspector error: '+e.message}));
-$('inspectorAuto').addEventListener('change',updateInspectorTimer);
-$('inspectorInterval').addEventListener('change',updateInspectorTimer);
+  on("saveChannel", "click", saveChannel);
+  on("resetChannelForm", "click", resetChannelForm);
+  on("channelType", "change", updateChannelTypeVisibility);
+  on("channelSourceMode", "change", () => {
+    updateChannelSourceVisibility();
+    updateChannelTypeVisibility();
+  });
+  ["channelId", "channelUnits", "channelRawMin", "channelRawMax", "channelEngMin", "channelEngMax", "channelOffset", "channelScale", "channelClampMin", "channelClampMax", "channelStartupValue"].forEach((id) => {
+    on(id, "input", () => {
+      renderChannelConditioningSummary();
+      renderChannelCalibrationAssistant();
+      renderChannelPreview();
+    });
+  });
+  ["channelProfile", "channelFilter", "channelClampEnabled", "channelGpio", "channelExternalResource"].forEach((id) => {
+    on(id, "change", () => {
+      if (id === "channelProfile") updateChannelProfileNote();
+      renderChannelConditioningSummary();
+      renderChannelCalibrationAssistant();
+      renderChannelPreview();
+    });
+  });
+  on("channelFilterAlpha", "input", () => {
+    renderChannelConditioningSummary();
+    renderChannelCalibrationAssistant();
+    renderChannelPreview();
+  });
+  on("channelUseLiveWindow", "click", applyLiveWindowToChannel);
+  on("channelResetAnalogMath", "click", resetChannelAnalogMath);
+  on("channelEditExternalResource", "click", openCurrentChannelExternalResource);
+  on("channelShowOnDisplay", "click", showCurrentChannelOnDisplay);
+  on("channelCalLowEng", "input", renderChannelCalibrationAssistant);
+  on("channelCalHighEng", "input", renderChannelCalibrationAssistant);
+  on("channelCaptureLow", "click", () => captureChannelCalibrationPoint("low"));
+  on("channelCaptureHigh", "click", () => captureChannelCalibrationPoint("high"));
+  on("channelApplyCalibration", "click", applyChannelCalibrationPoints);
+  on("channelCheckCalibration", "click", checkChannelCalibrationResult);
+  on("channelRollbackCalibration", "click", rollbackChannelCalibration);
 
-document.addEventListener('click',e=>{
-  const helpNode=e.target?.closest?.('[data-help]');
-  if(helpNode?.dataset?.help){e.preventDefault();e.stopPropagation();openHelpPopover(helpNode.dataset.help);return}
-  const helpActionNode=e.target?.closest?.('[data-help-action]');
-  if(helpActionNode?.dataset?.helpAction){e.preventDefault();runHelpAction(helpActionNode.dataset.helpAction)}
-});
+  on("newSignal", "click", () => {
+    resetSignalForm();
+    openModal("signalModal");
+  });
+  on("saveSignal", "click", saveSignalDefinition);
+  on("resetSignalForm", "click", resetSignalForm);
+  on("deleteSignal", "click", () => deleteSignalDefinition());
+  on("closeSignalModal", "click", () => closeModal("signalModal"));
+  on("signalModal", "click", (event) => {
+    if (event.target === event.currentTarget) closeModal("signalModal");
+  });
+  on("signalFilter", "change", (event) => setSignalFilter(event.target.value));
+  on("signalSearch", "input", (event) => setSignalSearch(event.target.value));
 
-$('channelsTable').addEventListener('click',e=>{const editId=e.target?.dataset?.editChannel;const deleteId=e.target?.dataset?.deleteChannel;if(editId)editChannel(editId);if(deleteId)deleteChannel(deleteId)});
-$('signalsTable').addEventListener('click',e=>{const viewId=e.target?.dataset?.viewSignal;const editId=e.target?.dataset?.editSignal;const deleteId=e.target?.dataset?.deleteSignal;if(viewId)editSignal(viewId);if(editId)editSignal(editId);if(deleteId)deleteSignalDefinition(deleteId)});
-$('blocksTable').addEventListener('click',e=>{const editId=e.target?.dataset?.editBlock;const deleteId=e.target?.dataset?.deleteBlock;if(editId)editBlock(editId);if(deleteId)deleteBlockDefinition(deleteId)});
-$('displayWidgetsTable').addEventListener('click',e=>{const editValue=e.target?.dataset?.editDisplayWidget;const deleteValue=e.target?.dataset?.deleteDisplayWidget;if(editValue){const parts=editValue.split('|');editDisplayWidget(parts[0],parts[1])}if(deleteValue){const parts=deleteValue.split('|');deleteDisplayWidget(parts[0],parts[1])}});
-$('busesTable').addEventListener('click',e=>{const editId=e.target?.dataset?.editBus;const deleteId=e.target?.dataset?.deleteBus;if(editId)editBus(editId);if(deleteId)deleteBus(deleteId)});
-$('devicesTable').addEventListener('click',e=>{const editId=e.target?.dataset?.editDevice;const deleteId=e.target?.dataset?.deleteDevice;const seedId=e.target?.dataset?.seedDevice;const newResourceId=e.target?.dataset?.newResourceForDevice;if(editId)editDevice(editId);if(seedId)seedDeviceResourcesFromId(seedId);if(newResourceId)prefillExternalResourceFromDeviceId(newResourceId);if(deleteId)deleteDevice(deleteId)});
-$('externalResourcesTable').addEventListener('click',e=>{const bindId=e.target?.dataset?.bindExternalResource;const showId=e.target?.dataset?.showExternalResource;const editId=e.target?.dataset?.editExternalResource;const deleteId=e.target?.dataset?.deleteExternalResource;if(bindId)prefillChannelFromExternalResource(bindId);if(showId)prefillDisplayWidgetFromExternalResource(showId);if(editId)editExternalResource(editId);if(deleteId)deleteExternalResource(deleteId)});
-$('activeAlarmsTable').addEventListener('click',e=>{const ackId=e.target?.dataset?.ackAlarm;const editId=e.target?.dataset?.editAlarm;if(ackId)ackAlarm(ackId);if(editId)editAlarm(editId)});
-$('alarmsTable').addEventListener('click',e=>{const editId=e.target?.dataset?.editAlarm;const deleteId=e.target?.dataset?.deleteAlarm;if(editId)editAlarm(editId);if(deleteId)deleteAlarmDefinition(deleteId)});
-$('sequencesTable').addEventListener('click',e=>{const editId=e.target?.dataset?.editSequence;const resetId=e.target?.dataset?.resetSequence;const deleteId=e.target?.dataset?.deleteSequence;if(editId)editSequence(editId);if(resetId)resetSequenceRuntimeNow(resetId);if(deleteId)deleteSequenceDefinition(deleteId)});
-$('sequenceStatesTable').addEventListener('click',e=>{const editValue=e.target?.dataset?.editSequenceState;const deleteValue=e.target?.dataset?.deleteSequenceState;if(editValue){const parts=editValue.split('|');editSequenceState(parts[0],parts[1])}if(deleteValue){const parts=deleteValue.split('|');deleteSequenceState(parts[0],parts[1])}});
-$('sequenceTransitionsTable').addEventListener('click',e=>{const editValue=e.target?.dataset?.editSequenceTransition;const deleteValue=e.target?.dataset?.deleteSequenceTransition;if(editValue){const parts=editValue.split('|');editSequenceTransition(parts[0],parts[1],parts[2])}if(deleteValue){const parts=deleteValue.split('|');deleteSequenceTransition(parts[0],parts[1],parts[2])}});
-$('chipPinsTable').addEventListener('click',e=>{const gpio=e.target?.dataset?.removeChipPin;if(gpio)removeChipPin(gpio)});
-$('boardRulesTable').addEventListener('click',e=>{const index=e.target?.dataset?.removeBoardRule;if(index!==undefined)removeBoardRule(Number(index))});
+  on("channelsTable", "click", (event) => {
+    const editId = event.target?.dataset?.editChannel;
+    const deleteId = event.target?.dataset?.deleteChannel;
+    if (editId) editChannel(editId);
+    if (deleteId) deleteChannel(deleteId);
+  });
+  on("signalsTable", "click", (event) => {
+    const viewId = event.target?.dataset?.viewSignal;
+    const editId = event.target?.dataset?.editSignal;
+    const deleteId = event.target?.dataset?.deleteSignal;
+    if (viewId) editSignal(viewId);
+    if (editId) editSignal(editId);
+    if (deleteId) deleteSignalDefinition(deleteId);
+  });
 
-ensureInterlockBlockUi?.();
-if($('newInterlockBlock'))$('newInterlockBlock').addEventListener('click',()=>{resetBlockForm('interlock');openModal('blockModal')});
-if($('blockAuxInput'))$('blockAuxInput').addEventListener('change',()=>{syncAutoBlockId();updateBlockAssistantPreview();setBlockTypeVisibility()});
-ensureModeAuthorityBlockUi?.();
-if($('newModeAuthorityBlock'))$('newModeAuthorityBlock').addEventListener('click',()=>{resetBlockForm('mode_authority');openModal('blockModal')});
-ensureFreshnessBlockUi?.();
-if($('newFreshnessBlock'))$('newFreshnessBlock').addEventListener('click',()=>{resetBlockForm('freshness');openModal('blockModal')});
-document.querySelectorAll('[data-block-coming]').forEach(btn=>btn.addEventListener('click',()=>{const name=btn.dataset.blockComing||'block';if($('blocksOverviewNote'))$('blocksOverviewNote').textContent='Блок "'+name+'" уже входит в обязательную базу и будет добавлен следующим этапом как стандартный primitive.'}));
+  document.addEventListener("click", (event) => {
+    const helpNode = event.target?.closest?.("[data-help]");
+    if (helpNode?.dataset?.help) {
+      event.preventDefault();
+      event.stopPropagation();
+      openHelpPopover(helpNode.dataset.help);
+      return;
+    }
+    const helpActionNode = event.target?.closest?.("[data-help-action]");
+    if (helpActionNode?.dataset?.helpAction) {
+      event.preventDefault();
+      runHelpAction(helpActionNode.dataset.helpAction);
+    }
+  });
 
-setTemplateTab('chip');
-populateUnitPresets();
-resetSignalForm();
-if($('blockType'))resetBlockForm();
-resetBusForm();
-resetDeviceForm();
-resetExternalResourceForm();
-if(typeof resetSequenceForm==='function')resetSequenceForm();
-if(typeof resetSequenceStateForm==='function')resetSequenceStateForm();
-if(typeof resetSequenceTransitionForm==='function')resetSequenceTransitionForm();
-applyHelpLanguage();
-setTimeout(()=>bootstrapUi(),0);
+  on("closeHelpPopover", "click", () => closeModal("helpPopover"));
+  on("helpPopoverOk", "click", () => closeModal("helpPopover"));
+  on("helpPopover", "click", (event) => {
+    if (event.target === event.currentTarget) closeModal("helpPopover");
+  });
+
+  populateUnitPresets();
+  applyHelpLanguage();
+  resetSignalForm();
+  resetChannelForm();
+  updateNetworkVisibility();
+  updatePasswordVisibility();
+  setTimeout(() => bootstrapUi(), 0);
+})();
