@@ -88,6 +88,56 @@
   on("wifiStartupPolicy", "change", updateNetworkVisibility);
   on("wifiShowPasswords", "change", updatePasswordVisibility);
 
+  on("saveTemplateSelection", "click", saveTemplateSelection);
+  on("activeBoardTemplate", "change", () => {
+    if ($("derivedChipTemplate")) $("derivedChipTemplate").value = selectedBoardTemplateChipId() || "-";
+  });
+  on("chipTemplateSelect", "change", () => loadSelectedTemplateIntoEditor("chip"));
+  on("boardTemplateSelect", "change", () => loadSelectedTemplateIntoEditor("board"));
+  on("loadChipTemplate", "click", () => loadSelectedTemplateIntoEditor("chip"));
+  on("loadBoardTemplate", "click", () => loadSelectedTemplateIntoEditor("board"));
+  on("newChipTemplate", "click", newChipTemplate);
+  on("newBoardTemplate", "click", newBoardTemplate);
+  on("seedChipTemplate", "click", seedChipTemplate);
+  on("addChipPin", "click", addChipPin);
+  on("addBoardRule", "click", addBoardRule);
+  on("deleteChipTemplate", "click", () => deleteTemplate("chip"));
+  on("deleteBoardTemplate", "click", () => deleteTemplate("board"));
+  on("saveChipTemplate", "click", () => saveTemplate("chip", false));
+  on("saveApplyChipTemplate", "click", () => saveTemplate("chip", true));
+  on("saveBoardTemplate", "click", () => saveTemplate("board", false));
+  on("saveApplyBoardTemplate", "click", () => saveTemplate("board", true));
+  on("syncChipFromVisual", "click", syncChipVisualToJson);
+  on("syncBoardFromVisual", "click", syncBoardVisualToJson);
+  on("chipTemplateLabel", "input", syncChipVisualToJson);
+  on("boardTemplateLabel", "input", syncBoardVisualToJson);
+  on("boardTemplateChipTemplate", "change", syncBoardVisualToJson);
+
+  document.querySelectorAll(".template-tabs button").forEach((button) => {
+    button.addEventListener("click", () => setTemplateTab(button.dataset.templateTab || "chip"));
+  });
+
+  on("chipPinsTable", "change", (event) => {
+    const row = event.target?.closest?.("[data-chip-gpio]");
+    const field = event.target?.dataset?.chipField;
+    if (!row || !field) return;
+    updateChipPinField(row.dataset.chipGpio, field, event.target.type === "checkbox" ? event.target.checked : event.target.value);
+  });
+  on("chipPinsTable", "click", (event) => {
+    const removeGpio = event.target?.dataset?.removeChipPin;
+    if (removeGpio) removeChipPin(removeGpio);
+  });
+  on("boardRulesTable", "change", (event) => {
+    const row = event.target?.closest?.("[data-board-rule]");
+    const field = event.target?.dataset?.boardField;
+    if (!row || field === undefined) return;
+    updateBoardRuleField(parseInt(row.dataset.boardRule, 10), field, event.target.type === "checkbox" ? event.target.checked : event.target.value);
+  });
+  on("boardRulesTable", "click", (event) => {
+    const removeIndex = event.target?.dataset?.removeBoardRule;
+    if (removeIndex !== undefined) removeBoardRule(parseInt(removeIndex, 10));
+  });
+
   on("saveChannel", "click", saveChannel);
   on("resetChannelForm", "click", resetChannelForm);
   on("channelType", "change", updateChannelTypeVisibility);

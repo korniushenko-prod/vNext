@@ -12,6 +12,7 @@
     '/app.js',
     '/app-signals.js',
     '/app-features.js',
+    '/app-templates.js',
     '/app-init.js'
   ];
 

@@ -8,7 +8,6 @@
     "display",
     "alarms",
     "sequences",
-    "templates",
     "comms"
   ]);
 
