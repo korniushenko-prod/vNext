@@ -314,6 +314,7 @@
   window.setUiLanguage = setUiLanguage;
   window.setUiMode = setUiMode;
   window.setPrimaryTabValue = setPrimaryTabValue;
+  window.setActiveTab = setActiveTab;
   window.applyUiMode = applyUiMode;
   window.populateUnitPresets = populateUnitPresets;
   window.setSignalUnits = setSignalUnits;
