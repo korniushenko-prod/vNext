@@ -14,7 +14,7 @@ $('refreshSignals').addEventListener('click',async()=>{state.signals=await getJs
 $('refreshBlocks').addEventListener('click',async()=>{state.blocks=await getJson('/blocks');renderBlocks()});
 $('refreshDisplay').addEventListener('click',async()=>{state.display=await getJson('/display');renderDisplay()});
 $('refreshAlarms').addEventListener('click',async()=>{state.alarms=await getJson('/alarms');if(typeof renderAlarms==='function')renderAlarms()});
-$('refreshSequences').addEventListener('click',async()=>{state.sequences=await getJson('/sequences');if(typeof renderSequences==='function')renderSequences()});
+$('refreshSequences').addEventListener('click',async()=>{state.sequences=await getJson(INIT_API.sequences||'/sequences');if(typeof renderSequences==='function')renderSequences()});
 $('refreshComms').addEventListener('click',async()=>{state.buses=await getJson('/buses');state.devices=await getJson('/devices');state.externalResources=await getJson('/external-resources');renderComms();renderChannelOptions();renderChannelConditioningSummary();renderChannelPreview()});
 $('newDisplayScreen').addEventListener('click',()=>{state.ui.displaySelectedScreen='';resetDisplayScreenForm()});
 $('saveDisplayScreen').addEventListener('click',saveDisplayScreen);

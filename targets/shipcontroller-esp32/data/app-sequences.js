@@ -1,3 +1,5 @@
+const SEQUENCE_API = window.SHIP_API?.endpoints || {};
+
 function renderSequenceSignalOptions(){
   const signalOptions=Object.entries(state.signals?.signals||{})
     .map(([id,signal])=>'<option value="'+id+'">'+id+' - '+(signal.label||id)+'</option>')
@@ -190,7 +192,7 @@ async function saveSequenceDefinition(){
   };
   if(!payload.sequence_id){$('sequenceSaveStatus').textContent='Нужен sequence ID';return;}
   try{
-    const r=await getJson('/sequence',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const r=await getJson(SEQUENCE_API.sequenceDefinition||'/sequence',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     await loadAll();
     editSequence(payload.sequence_id);
     $('sequenceSaveStatus').textContent=r.message||'Sequence сохранена';
@@ -204,7 +206,7 @@ async function deleteSequenceDefinition(sequenceId){
   if(!targetId){$('sequenceSaveStatus').textContent='Сначала выбери sequence';return;}
   $('sequenceSaveStatus').textContent='Удаляю sequence...';
   try{
-    const r=await getJson('/sequence-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetId})});
+    const r=await getJson(SEQUENCE_API.sequenceDelete||'/sequence-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetId})});
     await loadAll();
     resetSequenceForm();
     resetSequenceStateForm();
@@ -220,8 +222,8 @@ async function resetSequenceRuntimeNow(sequenceId){
   if(!targetId){$('sequenceSaveStatus').textContent='Сначала выбери sequence';return;}
   $('sequenceSaveStatus').textContent='Сбрасываю sequence...';
   try{
-    const r=await getJson('/sequence-reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetId})});
-    state.sequences=await getJson('/sequences');
+    const r=await getJson(SEQUENCE_API.sequenceReset||'/sequence-reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetId})});
+    state.sequences=await getJson(SEQUENCE_API.sequences||'/sequences');
     renderSequences();
     $('sequenceSaveStatus').textContent=r.message||'Sequence сброшена';
   }catch(e){
@@ -243,7 +245,7 @@ async function saveSequenceState(){
   };
   if(!payload.sequence_id||!payload.state_id){$('sequenceStateSaveStatus').textContent='Нужны sequence и state ID';return;}
   try{
-    const r=await getJson('/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const r=await getJson(SEQUENCE_API.sequenceState||'/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     await loadAll();
     editSequenceState(payload.sequence_id,payload.state_id);
     $('sequenceStateSaveStatus').textContent=r.message||'State сохранён';
@@ -258,7 +260,7 @@ async function deleteSequenceState(sequenceId,stateId){
   if(!targetSequence||!targetState){$('sequenceStateSaveStatus').textContent='Сначала выбери state';return;}
   $('sequenceStateSaveStatus').textContent='Удаляю state...';
   try{
-    const r=await getJson('/sequence-state-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetSequence,state_id:targetState})});
+    const r=await getJson(SEQUENCE_API.sequenceStateDelete||'/sequence-state-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetSequence,state_id:targetState})});
     await loadAll();
     resetSequenceStateForm(targetSequence);
     resetSequenceTransitionForm(targetSequence);
@@ -283,7 +285,7 @@ async function saveSequenceTransition(){
   if(!payload.sequence_id||!payload.state_id||!payload.transition_id){$('sequenceTransitionSaveStatus').textContent='Нужны sequence, state и transition ID';return;}
   if(!payload.to||!payload.when_signal){$('sequenceTransitionSaveStatus').textContent='Нужны target state и when signal';return;}
   try{
-    const r=await getJson('/sequence-transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const r=await getJson(SEQUENCE_API.sequenceTransition||'/sequence-transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     await loadAll();
     editSequenceTransition(payload.sequence_id,payload.state_id,payload.transition_id);
     $('sequenceTransitionSaveStatus').textContent=r.message||'Transition сохранён';
@@ -299,7 +301,7 @@ async function deleteSequenceTransition(sequenceId,stateId,transitionId){
   if(!targetSequence||!targetState||!targetTransition){$('sequenceTransitionSaveStatus').textContent='Сначала выбери transition';return;}
   $('sequenceTransitionSaveStatus').textContent='Удаляю transition...';
   try{
-    const r=await getJson('/sequence-transition-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetSequence,state_id:targetState,transition_id:targetTransition})});
+    const r=await getJson(SEQUENCE_API.sequenceTransitionDelete||'/sequence-transition-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetSequence,state_id:targetState,transition_id:targetTransition})});
     await loadAll();
     resetSequenceTransitionForm(targetSequence,targetState);
     $('sequenceTransitionSaveStatus').textContent=r.message||'Transition удалён';
@@ -443,7 +445,7 @@ window.seedActuatorSequenceTemplate=async function(){
   if(!commandTarget){$('sequenceTemplateStatus').textContent='Нужен command target';return;}
   $('sequenceTemplateStatus').textContent='Создаю actuator+feedback sequence...';
   try{
-    await getJson('/sequence',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+await getJson(SEQUENCE_API.sequenceDefinition||'/sequence',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       sequence_id:sequenceId,
       label,
       enable_signal:$('sequenceTemplateEnableSignal')?.value||'',
@@ -455,7 +457,7 @@ window.seedActuatorSequenceTemplate=async function(){
       done_state:'done',
       auto_start:false
     })});
-    await getJson('/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+await getJson(SEQUENCE_API.sequenceState||'/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       sequence_id:sequenceId,
       state_id:'start_cmd',
       label:'Start command',
@@ -465,7 +467,7 @@ window.seedActuatorSequenceTemplate=async function(){
       actions_on:[commandTarget],
       actions_off:[]
     })});
-    await getJson('/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+await getJson(SEQUENCE_API.sequenceState||'/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       sequence_id:sequenceId,
       state_id:'run',
       label:'Run',
@@ -475,7 +477,7 @@ window.seedActuatorSequenceTemplate=async function(){
       actions_on:[commandTarget],
       actions_off:[]
     })});
-    await getJson('/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+await getJson(SEQUENCE_API.sequenceState||'/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       sequence_id:sequenceId,
       state_id:'done',
       label:'Done',
@@ -485,7 +487,7 @@ window.seedActuatorSequenceTemplate=async function(){
       actions_on:[],
       actions_off:[commandTarget]
     })});
-    await getJson('/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+await getJson(SEQUENCE_API.sequenceState||'/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       sequence_id:sequenceId,
       state_id:'fault',
       label:'Fault',
@@ -495,7 +497,7 @@ window.seedActuatorSequenceTemplate=async function(){
       actions_on:[],
       actions_off:[commandTarget]
     })});
-    await getJson('/sequence-transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+await getJson(SEQUENCE_API.sequenceTransition||'/sequence-transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       sequence_id:sequenceId,
       state_id:'start_cmd',
       transition_id:'to_run',
@@ -505,7 +507,7 @@ window.seedActuatorSequenceTemplate=async function(){
       delay_ms:0,
       invert:false
     })});
-    await getJson('/sequence-transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+await getJson(SEQUENCE_API.sequenceTransition||'/sequence-transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       sequence_id:sequenceId,
       state_id:'run',
       transition_id:'to_done',
@@ -515,7 +517,7 @@ window.seedActuatorSequenceTemplate=async function(){
       delay_ms:0,
       invert:false
     })});
-    await getJson('/sequence-transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+await getJson(SEQUENCE_API.sequenceTransition||'/sequence-transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       sequence_id:sequenceId,
       state_id:'run',
       transition_id:'feedback_lost',
