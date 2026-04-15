@@ -1,5 +1,551 @@
 // Block-specific UI logic
 
+const BLOCK_TYPE_LABELS = {
+  timer: { ru: "Таймер", en: "Timer" },
+  button: { ru: "Кнопка / события", en: "Button / events" },
+  latch: { ru: "Latch / память", en: "Latch / memory" },
+  selector: { ru: "Selector / выбор", en: "Selector / selection" },
+  comparator: { ru: "Comparator / порог", en: "Comparator / threshold" },
+  scale_map: { ru: "Scale / map", en: "Scale / map" },
+  logic_gate: { ru: "Logic gate", en: "Logic gate" },
+  edge_detect: { ru: "Edge / one-shot", en: "Edge / one-shot" },
+  hysteresis: { ru: "Hysteresis / deadband", en: "Hysteresis / deadband" },
+  counter: { ru: "Counter / счетчик", en: "Counter" },
+  interlock: { ru: "Interlock / permissive", en: "Interlock / permissive" },
+  mode_authority: { ru: "Mode / authority", en: "Mode / authority" },
+  freshness: { ru: "Freshness / heartbeat", en: "Freshness / heartbeat" },
+  signal_extractor: { ru: "Signal extractor / извлечение", en: "Signal extractor" },
+  totalizer: { ru: "Totalizer", en: "Totalizer" },
+  rate_estimator: { ru: "Rate estimator", en: "Rate estimator" },
+  window_aggregator: { ru: "Window aggregator", en: "Window aggregator" }
+};
+
+const BLOCK_MODE_OPTIONS_MAP = {
+  timer: [
+    { value: "pulse", ru: "Импульс", en: "Pulse" },
+    { value: "delay_on", ru: "Задержка включения", en: "On delay" },
+    { value: "delay_off", ru: "Задержка выключения", en: "Off delay" },
+    { value: "interval", ru: "Интервал", en: "Interval" },
+    { value: "interval_while_enabled", ru: "Интервал по enable", en: "Interval while enabled" }
+  ],
+  button: [
+    { value: "events", ru: "События кнопки", en: "Button events" }
+  ],
+  latch: [
+    { value: "toggle", ru: "Toggle", en: "Toggle" },
+    { value: "set_reset", ru: "Set / reset", en: "Set / reset" },
+    { value: "set_only", ru: "Set only", en: "Set only" },
+    { value: "reset_only", ru: "Reset only", en: "Reset only" }
+  ],
+  selector: [
+    { value: "select", ru: "Выбор A/B", en: "Select A/B" }
+  ],
+  comparator: [
+    { value: "gt", ru: ">", en: ">" },
+    { value: "gte", ru: ">=", en: ">=" },
+    { value: "lt", ru: "<", en: "<" },
+    { value: "lte", ru: "<=", en: "<=" },
+    { value: "eq", ru: "=", en: "=" },
+    { value: "between", ru: "Между", en: "Between" },
+    { value: "outside", ru: "Вне окна", en: "Outside" }
+  ],
+  scale_map: [
+    { value: "scale", ru: "Scale", en: "Scale" },
+    { value: "clamp", ru: "Clamp", en: "Clamp" },
+    { value: "map", ru: "Map диапазона", en: "Range map" }
+  ],
+  logic_gate: [
+    { value: "and", ru: "AND", en: "AND" },
+    { value: "or", ru: "OR", en: "OR" },
+    { value: "xor", ru: "XOR", en: "XOR" },
+    { value: "not", ru: "NOT", en: "NOT" }
+  ],
+  edge_detect: [
+    { value: "rising", ru: "Передний фронт", en: "Rising edge" },
+    { value: "falling", ru: "Задний фронт", en: "Falling edge" },
+    { value: "both", ru: "Оба фронта", en: "Both edges" }
+  ],
+  hysteresis: [
+    { value: "high", ru: "High / low", en: "High / low" },
+    { value: "inside_band", ru: "Внутри зоны", en: "Inside band" },
+    { value: "outside_band", ru: "Вне зоны", en: "Outside band" }
+  ],
+  counter: [
+    { value: "rising", ru: "Считать фронты", en: "Count edges" }
+  ],
+  interlock: [
+    { value: "interlock", ru: "Request + permissive + inhibit", en: "Request + permissive + inhibit" },
+    { value: "permissive", ru: "Только permissive", en: "Permissive only" },
+    { value: "inhibit", ru: "Только inhibit", en: "Inhibit only" }
+  ],
+  mode_authority: [
+    { value: "local_remote", ru: "Local / remote", en: "Local / remote" },
+    { value: "local_remote_service", ru: "Local / remote / service", en: "Local / remote / service" },
+    { value: "auto_manual", ru: "Auto / manual", en: "Auto / manual" },
+    { value: "auto_manual_service", ru: "Auto / manual / service", en: "Auto / manual / service" }
+  ],
+  freshness: [
+    { value: "fresh", ru: "Свежесть", en: "Freshness" },
+    { value: "stale", ru: "Устаревание", en: "Stale" },
+    { value: "comm_loss", ru: "Потеря связи", en: "Comm loss" }
+  ],
+  totalizer: [
+    { value: "delta", ru: "Delta total", en: "Delta total" }
+  ],
+  rate_estimator: [
+    { value: "per_second", ru: "В секунду", en: "Per second" },
+    { value: "per_minute", ru: "В минуту", en: "Per minute" },
+    { value: "per_hour", ru: "В час", en: "Per hour" }
+  ],
+  window_aggregator: [
+    { value: "average", ru: "Среднее", en: "Average" },
+    { value: "sum", ru: "Сумма", en: "Sum" },
+    { value: "min", ru: "Минимум", en: "Minimum" },
+    { value: "max", ru: "Максимум", en: "Maximum" }
+  ]
+};
+
+const BLOCK_SCENARIOS = [
+  { value: "manual", label: { ru: "Ручная настройка", en: "Manual" }, type: "", mode: "" },
+  { value: "timer_pulse", label: { ru: "Таймер: импульс", en: "Timer: pulse" }, type: "timer", mode: "pulse" },
+  { value: "timer_interval", label: { ru: "Таймер: интервал", en: "Timer: interval" }, type: "timer", mode: "interval" },
+  { value: "button_events", label: { ru: "Кнопка: события", en: "Button: events" }, type: "button", mode: "events" },
+  { value: "latch_toggle", label: { ru: "Latch: toggle", en: "Latch: toggle" }, type: "latch", mode: "toggle" },
+  { value: "selector_ab", label: { ru: "Selector: A/B", en: "Selector: A/B" }, type: "selector", mode: "select" },
+  { value: "comparator_threshold", label: { ru: "Comparator: порог", en: "Comparator: threshold" }, type: "comparator", mode: "gt" },
+  { value: "scale_linear", label: { ru: "Scale: линейно", en: "Scale: linear" }, type: "scale_map", mode: "scale" },
+  { value: "logic_and", label: { ru: "Logic: AND", en: "Logic: AND" }, type: "logic_gate", mode: "and" },
+  { value: "edge_pulse", label: { ru: "Edge: impulse", en: "Edge: pulse" }, type: "edge_detect", mode: "rising" },
+  { value: "hysteresis_window", label: { ru: "Hysteresis", en: "Hysteresis" }, type: "hysteresis", mode: "high" },
+  { value: "counter_edges", label: { ru: "Counter: фронты", en: "Counter: edges" }, type: "counter", mode: "rising" },
+  { value: "interlock_gate", label: { ru: "Interlock gate", en: "Interlock gate" }, type: "interlock", mode: "interlock" },
+  { value: "mode_local_remote", label: { ru: "Mode: local/remote", en: "Mode: local/remote" }, type: "mode_authority", mode: "local_remote" },
+  { value: "freshness_watchdog", label: { ru: "Freshness watchdog", en: "Freshness watchdog" }, type: "freshness", mode: "fresh" },
+  { value: "signal_extract", label: { ru: "Signal extractor", en: "Signal extractor" }, type: "signal_extractor", mode: "digital_direct" },
+  { value: "totalizer_flow", label: { ru: "Totalizer: flow", en: "Totalizer: flow" }, type: "totalizer", mode: "delta" },
+  { value: "rate_live", label: { ru: "Rate estimator", en: "Rate estimator" }, type: "rate_estimator", mode: "per_minute" },
+  { value: "window_average", label: { ru: "Window average", en: "Window average" }, type: "window_aggregator", mode: "average" }
+];
+
+const TIMER_UNITS = [
+  { value: "ms", label: "ms", factor: 1 },
+  { value: "s", label: "s", factor: 1000 },
+  { value: "min", label: "min", factor: 60000 },
+  { value: "h", label: "h", factor: 3600000 }
+];
+
+function slugifyIdPart(value, fallback = "item") {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  return normalized || fallback;
+}
+
+function blockTypeLabel(type) {
+  const lang = getUiLanguage() === "ru" ? "ru" : "en";
+  return BLOCK_TYPE_LABELS[type]?.[lang] || type || "-";
+}
+
+function getBlockModeOptions(type) {
+  const lang = getUiLanguage() === "ru" ? "ru" : "en";
+  return (BLOCK_MODE_OPTIONS_MAP[type] || []).map((entry) => ({
+    value: entry.value,
+    label: entry[lang] || entry.en || entry.value
+  }));
+}
+
+function renderBlockScenarioOptions() {
+  const select = $("blockScenario");
+  if (!select) return;
+  const lang = getUiLanguage() === "ru" ? "ru" : "en";
+  const current = select.value || "manual";
+  select.innerHTML = BLOCK_SCENARIOS.map((entry) => (
+    `<option value="${entry.value}">${escapeHtml(entry.label[lang] || entry.label.en || entry.value)}</option>`
+  )).join("");
+  select.value = BLOCK_SCENARIOS.some((entry) => entry.value === current) ? current : "manual";
+  const cards = $("blockScenarioCards");
+  if (cards) {
+    cards.innerHTML = BLOCK_SCENARIOS.filter((entry) => entry.value !== "manual").map((entry) => (
+      `<button type="button" class="ghost" data-block-scenario-card="${entry.value}">${escapeHtml(entry.label[lang] || entry.label.en || entry.value)}</button>`
+    )).join("");
+  }
+}
+
+function renderTimerUnitOptions() {
+  ["blockDurationUnit", "blockPeriodUnit"].forEach((id) => {
+    const select = $(id);
+    if (!select) return;
+    const current = select.value || "s";
+    select.innerHTML = TIMER_UNITS.map((unit) => `<option value="${unit.value}">${unit.label}</option>`).join("");
+    select.value = TIMER_UNITS.some((unit) => unit.value === current) ? current : "s";
+  });
+}
+
+function unitFactor(unitValue) {
+  return TIMER_UNITS.find((entry) => entry.value === unitValue)?.factor || 1;
+}
+
+function chooseTimerUnit(ms) {
+  const value = Number(ms || 0);
+  if (!Number.isFinite(value) || value < 1000) return "ms";
+  if (value % 3600000 === 0) return "h";
+  if (value % 60000 === 0) return "min";
+  if (value % 1000 === 0) return "s";
+  return "ms";
+}
+
+function setTimerFieldMs(prefix, milliseconds) {
+  const valueInput = $(`${prefix}Value`);
+  const unitSelect = $(`${prefix}Unit`);
+  if (!valueInput || !unitSelect) return;
+  renderTimerUnitOptions();
+  const totalMs = Number(milliseconds || 0);
+  const unit = chooseTimerUnit(totalMs);
+  unitSelect.value = unit;
+  valueInput.value = String(totalMs / unitFactor(unit));
+}
+
+function getTimerFieldMs(prefix) {
+  const value = parseFloat($(`${prefix}Value`)?.value || "0");
+  const unit = $(`${prefix}Unit`)?.value || "ms";
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.round(value * unitFactor(unit)));
+}
+
+function setIntervalTimerFields(onMs, fullCycleMs) {
+  setTimerFieldMs("blockDuration", onMs);
+  setTimerFieldMs("blockPeriod", fullCycleMs);
+}
+
+function getIntervalFullCycleMs() {
+  return getTimerFieldMs("blockPeriod");
+}
+
+function autoGpioCandidates() {
+  return (state.hardware?.pins || [])
+    .filter((pin) => !["exclusive", "forbidden"].includes(pin.class))
+    .filter((pin) => pin.available || pin.channel || pin.owner === "free")
+    .sort((a, b) => a.gpio - b.gpio);
+}
+
+function renderAutoGpioOptions() {
+  const currentValues = {};
+  ["blockAutoTriggerGpio", "blockAutoToggleGpio", "blockAutoSetGpio", "blockAutoResetGpio"].forEach((id) => {
+    currentValues[id] = $(id)?.value || "";
+  });
+  const options = autoGpioCandidates()
+    .map((pin) => `<option value="${pin.gpio}">GPIO${pin.gpio} - ${escapeHtml(pin.class || "available")}${pin.reason ? ` - ${escapeHtml(pin.reason)}` : ""}</option>`)
+    .join("");
+  ["blockAutoTriggerGpio", "blockAutoToggleGpio", "blockAutoSetGpio", "blockAutoResetGpio"].forEach((id) => {
+    const select = $(id);
+    if (!select) return;
+    select.innerHTML = `<option value="-1">${getUiLanguage() === "ru" ? "Выбери GPIO" : "Select GPIO"}</option>${options}`;
+    if (currentValues[id] && select.querySelector(`option[value="${currentValues[id]}"]`)) {
+      select.value = currentValues[id];
+    } else {
+      select.value = "-1";
+    }
+  });
+}
+
+function blockOutputEntries() {
+  const channels = Object.keys(state.channels?.channels || {}).map((id) => ({
+    value: id,
+    label: `${id} - channel`
+  }));
+  const signals = Object.entries(state.signals?.signals || {}).map(([id, signal]) => ({
+    value: id,
+    label: `${id} - ${signal.label || signal.class || "signal"}`
+  }));
+  const unique = new Map();
+  channels.concat(signals).forEach((entry) => {
+    if (!unique.has(entry.value)) unique.set(entry.value, entry.label);
+  });
+  return Array.from(unique.entries()).map(([value, label]) => ({ value, label }));
+}
+
+function renderBlockOutputOptions() {
+  const select = $("blockOutputPreset");
+  if (!select) return;
+  const current = $("blockOutput")?.value?.trim?.() || select.value || "";
+  const options = blockOutputEntries()
+    .map((entry) => `<option value="${entry.value}">${escapeHtml(entry.label)}</option>`)
+    .join("");
+  select.innerHTML = `<option value="">${getUiLanguage() === "ru" ? "Свободный ID / вручную" : "Manual / free ID"}</option>${options}`;
+  if (current && select.querySelector(`option[value="${current}"]`)) {
+    select.value = current;
+  } else {
+    select.value = "";
+  }
+}
+
+function syncBlockOutputFromPreset() {
+  const preset = $("blockOutputPreset")?.value || "";
+  if ($("blockOutput") && preset) $("blockOutput").value = preset;
+  updateBlockAssistantPreview();
+}
+
+function scenarioForCurrentBlock() {
+  const type = $("blockType")?.value || "";
+  const mode = $("blockMode")?.value || "";
+  return BLOCK_SCENARIOS.find((entry) => entry.type === type && entry.mode === mode)
+    || BLOCK_SCENARIOS.find((entry) => entry.type === type)
+    || BLOCK_SCENARIOS[0];
+}
+
+function syncScenarioFromCurrentBlock() {
+  const scenario = scenarioForCurrentBlock();
+  if ($("blockScenario")) $("blockScenario").value = scenario.value;
+  if ($("blockScenarioNote")) {
+    $("blockScenarioNote").textContent = getUiLanguage() === "ru"
+      ? `Тип ${blockTypeLabel($("blockType")?.value || "")} сейчас лучше всего совпадает со сценарием "${scenario.label.ru || scenario.label.en}".`
+      : `Current ${blockTypeLabel($("blockType")?.value || "")} setup matches "${scenario.label.en || scenario.label.ru}".`;
+  }
+}
+
+function applyBlockScenario(value) {
+  const scenario = BLOCK_SCENARIOS.find((entry) => entry.value === value) || BLOCK_SCENARIOS[0];
+  if (scenario.value === "manual") {
+    syncScenarioFromCurrentBlock();
+    return;
+  }
+  resetBlockForm(scenario.type || "timer");
+  if ($("blockType") && scenario.type) $("blockType").value = scenario.type;
+  syncBlockModeOptions(scenario.mode || undefined);
+  if ($("blockScenario")) $("blockScenario").value = scenario.value;
+  if ($("blockScenarioNote")) {
+    $("blockScenarioNote").textContent = getUiLanguage() === "ru"
+      ? `Применён быстрый сценарий "${scenario.label.ru || scenario.label.en}".`
+      : `Applied quick scenario "${scenario.label.en || scenario.label.ru}".`;
+  }
+}
+
+function currentBlockBaseId() {
+  const type = $("blockType")?.value || "block";
+  const primary = $("blockCompareInput")?.value
+    || $("blockInput")?.value
+    || $("blockTrigger")?.value
+    || $("blockPrimary")?.value
+    || $("blockToggleInput")?.value
+    || $("blockSetInput")?.value
+    || $("blockResetInput")?.value
+    || $("blockOutput")?.value;
+  const typePrefixMap = {
+    timer: "timer",
+    button: "button",
+    latch: "latch",
+    selector: "selector",
+    comparator: "cmp",
+    scale_map: "scale",
+    logic_gate: "logic",
+    edge_detect: "edge",
+    hysteresis: "hyst",
+    counter: "counter",
+    interlock: "interlock",
+    mode_authority: "mode",
+    freshness: "fresh",
+    totalizer: "total",
+    rate_estimator: "rate",
+    window_aggregator: "window"
+  };
+  return `${typePrefixMap[type] || slugifyIdPart(type, "block")}_${slugifyIdPart(primary, "main")}`;
+}
+
+function buildBlockHumanSummary() {
+  const type = $("blockType")?.value || "";
+  const mode = $("blockMode")?.value || "";
+  const output = $("blockOutput")?.value?.trim?.() || "-";
+  const lang = getUiLanguage() === "ru" ? "ru" : "en";
+  const typeLabel = blockTypeLabel(type);
+  const modeLabel = getBlockModeOptions(type).find((entry) => entry.value === mode)?.label || mode || "-";
+  if (lang === "ru") {
+    return `${typeLabel}: режим ${modeLabel}, выход ${output}`;
+  }
+  return `${typeLabel}: mode ${modeLabel}, output ${output}`;
+}
+
+function setBlockManualIdMode(mode) {
+  const manual = mode === "manual";
+  state.ui.blockManualId = manual;
+  if ($("blockIdMode")) $("blockIdMode").value = manual ? "manual" : "auto";
+  if ($("blockId")) $("blockId").readOnly = !manual;
+  refreshBlockIdPresentation();
+}
+
+function syncAutoBlockId(force = false) {
+  const idInput = $("blockId");
+  if (!idInput) return;
+  const autoMode = ($("blockIdMode")?.value || "auto") === "auto";
+  if (!force && !autoMode) return;
+  if (state.ui.blockEditingExisting && !force) return;
+  idInput.value = currentBlockBaseId();
+  refreshBlockIdPresentation();
+}
+
+function refreshBlockIdPresentation() {
+  const blockId = $("blockId")?.value?.trim?.() || currentBlockBaseId();
+  if ($("blockIdChip")) $("blockIdChip").value = buildBlockHumanSummary();
+  if ($("blockIdSummary")) {
+    $("blockIdSummary").textContent = getUiLanguage() === "ru"
+      ? `Предлагаемый ID: ${blockId}. ${buildBlockHumanSummary()}`
+      : `Suggested ID: ${blockId}. ${buildBlockHumanSummary()}`;
+  }
+}
+
+function updateBlockAssistantVisibility() {
+  const type = $("blockType")?.value || "";
+  const autoHelperTypes = new Set(["timer", "latch"]);
+  $("blockAssistantCard")?.classList.toggle("hidden", !autoHelperTypes.has(type) && type !== "signal_extractor");
+  ["blockAutoTrigger", "blockAutoToggle", "blockAutoSet", "blockAutoReset"].forEach((name) => {
+    const enabled = Boolean($(`${name}Enable`)?.checked);
+    $(`${name}Fields`)?.classList.toggle("hidden", !enabled);
+  });
+  const showTiming = ["timer", "latch"].includes(type);
+  $("blockAutoButtonTiming")?.classList.toggle("hidden", !showTiming);
+}
+
+function refreshBlockSectionVisibility() {
+  updateBlockAssistantVisibility();
+  ["blockControlSection", "blockOutputSection", "blockTimingSection", "blockAdvancedSection"].forEach((id) => {
+    $(id)?.classList.remove("hidden");
+  });
+}
+
+function setWrapVisible(id, visible) {
+  const node = $(id);
+  if (!node) return;
+  node.classList.toggle("hidden", !visible);
+}
+
+function setBlockTypeVisibility() {
+  const type = $("blockType")?.value || "timer";
+  const mode = $("blockMode")?.value || "";
+  const allWraps = [
+    "blockTriggerWrap", "blockEnableWrap", "blockPrimaryWrap", "blockSecondaryWrap", "blockSelectWrap",
+    "blockInputWrap", "blockToggleInputWrap", "blockSetInputWrap", "blockResetInputWrap",
+    "blockCompareInputWrap", "blockCompareSignalWrap", "blockAuxInputWrap", "blockOutputPresetWrap",
+    "blockOutputWrap", "blockDurationWrap", "blockPeriodWrap", "blockDebounceWrap", "blockLongPressWrap",
+    "blockDoublePressWrap", "blockCompareValueWrap", "blockCompareValueBWrap", "blockCompareValueCWrap",
+    "blockCompareValueDWrap", "blockRetriggerWrap", "blockStartImmediatelyWrap", "blockRetainWrap",
+    "blockResetPriorityWrap", "blockAutoTriggerWrap", "blockAutoToggleWrap", "blockAutoSetWrap", "blockAutoResetWrap"
+  ];
+  allWraps.forEach((id) => setWrapVisible(id, false));
+  setWrapVisible("blockOutputWrap", type !== "button");
+  setWrapVisible("blockOutputPresetWrap", type !== "button");
+
+  switch (type) {
+    case "timer":
+      setWrapVisible("blockTriggerWrap", mode !== "interval");
+      setWrapVisible("blockEnableWrap", mode === "interval_while_enabled");
+      setWrapVisible("blockDurationWrap", true);
+      setWrapVisible("blockPeriodWrap", mode === "interval" || mode === "interval_while_enabled");
+      setWrapVisible("blockRetriggerWrap", mode !== "interval");
+      setWrapVisible("blockStartImmediatelyWrap", mode === "interval" || mode === "interval_while_enabled");
+      setWrapVisible("blockAutoTriggerWrap", mode !== "interval");
+      break;
+    case "button":
+      setWrapVisible("blockInputWrap", true);
+      setWrapVisible("blockDebounceWrap", true);
+      setWrapVisible("blockLongPressWrap", true);
+      setWrapVisible("blockDoublePressWrap", true);
+      setWrapVisible("blockOutputWrap", false);
+      setWrapVisible("blockOutputPresetWrap", false);
+      break;
+    case "latch":
+      setWrapVisible(mode === "toggle" ? "blockToggleInputWrap" : "blockSetInputWrap", mode !== "reset_only");
+      setWrapVisible("blockResetInputWrap", mode === "set_reset" || mode === "reset_only");
+      setWrapVisible("blockRetainWrap", true);
+      setWrapVisible("blockResetPriorityWrap", mode === "set_reset");
+      setWrapVisible("blockAutoToggleWrap", mode === "toggle");
+      setWrapVisible("blockAutoSetWrap", mode === "set_reset" || mode === "set_only");
+      setWrapVisible("blockAutoResetWrap", mode === "set_reset" || mode === "reset_only");
+      break;
+    case "selector":
+      setWrapVisible("blockPrimaryWrap", true);
+      setWrapVisible("blockSecondaryWrap", true);
+      setWrapVisible("blockSelectWrap", true);
+      break;
+    case "comparator":
+      setWrapVisible("blockCompareInputWrap", true);
+      setWrapVisible("blockCompareSignalWrap", true);
+      setWrapVisible("blockCompareValueWrap", true);
+      setWrapVisible("blockCompareValueBWrap", mode === "between" || mode === "outside");
+      break;
+    case "scale_map":
+      setWrapVisible("blockCompareInputWrap", true);
+      setWrapVisible("blockCompareValueWrap", true);
+      setWrapVisible("blockCompareValueBWrap", true);
+      setWrapVisible("blockCompareValueCWrap", mode === "map");
+      setWrapVisible("blockCompareValueDWrap", mode === "map");
+      break;
+    case "logic_gate":
+      setWrapVisible("blockCompareInputWrap", true);
+      setWrapVisible("blockCompareSignalWrap", mode !== "not");
+      break;
+    case "edge_detect":
+      setWrapVisible("blockCompareInputWrap", true);
+      setWrapVisible("blockDurationWrap", true);
+      setWrapVisible("blockRetriggerWrap", true);
+      break;
+    case "hysteresis":
+      setWrapVisible("blockCompareInputWrap", true);
+      setWrapVisible("blockCompareValueWrap", true);
+      setWrapVisible("blockCompareValueBWrap", true);
+      break;
+    case "counter":
+    case "totalizer":
+    case "rate_estimator":
+    case "window_aggregator":
+      setWrapVisible("blockCompareInputWrap", true);
+      setWrapVisible("blockResetInputWrap", type === "counter" || type === "totalizer");
+      setWrapVisible("blockCompareValueWrap", true);
+      setWrapVisible("blockCompareValueBWrap", type !== "window_aggregator");
+      setWrapVisible("blockCompareValueCWrap", type === "totalizer");
+      setWrapVisible("blockCompareValueDWrap", type === "totalizer");
+      setWrapVisible("blockDurationWrap", type === "rate_estimator" || type === "window_aggregator");
+      setWrapVisible("blockPeriodWrap", type === "window_aggregator");
+      setWrapVisible("blockRetainWrap", type === "totalizer");
+      break;
+    default:
+      setWrapVisible("blockCompareInputWrap", true);
+      break;
+  }
+
+  updateBlockAssistantVisibility();
+  refreshBlockIdPresentation();
+}
+
+function updateBlockAssistantPreview() {
+  const preview = $("blockAssistantPreview");
+  if (!preview) return;
+  const lines = [
+    `${getUiLanguage() === "ru" ? "Блок" : "Block"}: ${blockTypeLabel($("blockType")?.value || "")}`,
+    `${getUiLanguage() === "ru" ? "Режим" : "Mode"}: ${(getBlockModeOptions($("blockType")?.value || "").find((entry) => entry.value === ($("blockMode")?.value || ""))?.label || $("blockMode")?.value || "-")}`,
+    `${getUiLanguage() === "ru" ? "Сводка" : "Summary"}: ${buildBlockHumanSummary()}`
+  ];
+  const output = $("blockOutput")?.value?.trim?.();
+  if (output) lines.push(`${getUiLanguage() === "ru" ? "Выход" : "Output"}: ${output}`);
+  preview.innerHTML = lines.map((line) => `<div>${escapeHtml(line)}</div>`).join("");
+}
+
+function defaultModeForType(type) {
+  return getBlockModeOptions(type)[0]?.value || "";
+}
+
+function syncBlockModeOptions(preferredMode) {
+  const type = $("blockType")?.value || "timer";
+  const select = $("blockMode");
+  if (!select) return;
+  const previous = preferredMode || select.value || defaultModeForType(type);
+  const options = getBlockModeOptions(type);
+  select.innerHTML = options.map((entry) => `<option value="${entry.value}">${escapeHtml(entry.label)}</option>`).join("");
+  select.value = options.some((entry) => entry.value === previous) ? previous : (options[0]?.value || "");
+  setBlockTypeVisibility();
+  updateBlockAssistantPreview();
+}
+
 function renderBlockOptions(){const signalEntries=Object.entries(state.signals?.signals||{});const signalOptions=signalEntries.map(([id,s])=>'<option value="'+id+'">'+id+' - '+(s.label||s.class||'signal')+'</option>').join('');['blockTrigger','blockEnable','blockPrimary','blockSecondary','blockSelect','blockInput','blockToggleInput','blockSetInput','blockResetInput','blockCompareInput','blockCompareSignal'].forEach(id=>{$(id).innerHTML='<option value="">Select signal</option>'+signalOptions});}
 function renderCleanupReview(){const review=state.ui.cleanupReview;const items=review?.candidates||[];$('cleanupSummary').textContent=review?(t('cleanupSummaryPrefix')+review.block_id+t('cleanupSummaryMiddle')):t('cleanupNoData');$('cleanupItems').innerHTML=items.length?items.map((item,index)=>{const refs=item.references||[];const refsHtml=refs.length?refs.map(ref=>'<div class="muted-line">• '+escapeHtml(cleanupReferenceText(ref))+'</div>').join(''):'<div class="muted-line">'+t('cleanupExternalNone')+'</div>';const checked=item.recommended_delete?'checked':'';return '<label class="section-card"><div class="checkbox-row"><input type="checkbox" data-cleanup-index="'+index+'" '+checked+'><strong>'+escapeHtml(cleanupItemTitle(item))+'</strong><span class="caps">'+(item.recommended_delete?t('cleanupWillDelete'):t('cleanupWillKeep'))+'</span></div><div class="muted-line" style="margin-top:8px">'+t('cleanupRolePrefix')+escapeHtml(cleanupRoleLabel(item.kind,item.role))+'</div><div class="muted-line">'+t('cleanupRefsPrefix')+refs.length+'</div><div class="muted-line" style="margin-top:8px">'+t('cleanupInUse')+'</div>'+refsHtml+'</label>'}).join(''):'<div class="note">'+t('cleanupNoRelated')+'</div>';updateCleanupSelectionHints()}
 async function openCleanupReview(blockId){$('cleanupStatus').textContent=t('cleanupLoading');$('cleanupSummary').textContent=t('cleanupLoading');$('cleanupItems').innerHTML='';openModal('cleanupModal');try{const review=await getJson('/block-delete-review?block_id='+encodeURIComponent(blockId));state.ui.cleanupReview=review;renderCleanupReview();$('cleanupStatus').textContent=t('cleanupReviewReady')}catch(e){$('cleanupStatus').textContent=t('saveFailed')+e.message;$('cleanupSummary').textContent='Не удалось получить список зависимостей.';$('cleanupItems').innerHTML=''}}
