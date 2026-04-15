@@ -16,8 +16,10 @@
     '/app-alarms.js',
     '/app-sequences.js',
     '/app-comms.js',
-    '/app-features.js',
+    '/app-editor.js',
+    '/app-modules.js',
     '/app-templates.js',
+    '/app-features.js',
     '/app-init.js'
   ];
 
