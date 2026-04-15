@@ -3,12 +3,7 @@
 (() => {
   const DISABLED_TABS = new Set([
     "editor",
-    "modules",
-    "blocks",
-    "display",
-    "alarms",
-    "sequences",
-    "comms"
+    "modules"
   ]);
 
   const UNIT_PRESETS = [
