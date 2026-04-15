@@ -10,15 +10,16 @@ namespace {
 
 constexpr const char *kRuntimeConfigNamespace = "runtimecfg";
 constexpr const char *kRuntimeConfigKey = "config";
+constexpr const char *kTemplateLibraryPath = "/template_library.json";
 
-bool loadLegacyConfigDocument(JsonDocument &doc)
+bool loadJsonDocumentFromLittleFs(const char *path, JsonDocument &doc)
 {
     if (!LittleFS.begin())
     {
         return false;
     }
 
-    File file = LittleFS.open("/config.json", "r");
+    File file = LittleFS.open(path, "r");
     if (!file)
     {
         return false;
@@ -27,6 +28,29 @@ bool loadLegacyConfigDocument(JsonDocument &doc)
     DeserializationError error = deserializeJson(doc, file);
     file.close();
     return !error;
+}
+
+bool loadLegacyConfigDocument(JsonDocument &doc)
+{
+    return loadJsonDocumentFromLittleFs("/config.json", doc);
+}
+
+bool saveJsonDocumentToLittleFs(const char *path, JsonDocument &doc)
+{
+    if (!LittleFS.begin())
+    {
+        return false;
+    }
+
+    File file = LittleFS.open(path, "w");
+    if (!file)
+    {
+        return false;
+    }
+
+    serializeJsonPretty(doc, file);
+    file.close();
+    return true;
 }
 
 bool saveConfigDocumentToNvs(JsonDocument &doc)
@@ -44,6 +68,55 @@ bool saveConfigDocumentToNvs(JsonDocument &doc)
     size_t written = prefs.putString(kRuntimeConfigKey, json);
     prefs.end();
     return written == json.length();
+}
+
+void ensureTemplateLibraryShape(JsonDocument &doc)
+{
+    JsonObject root = doc.is<JsonObject>() ? doc.as<JsonObject>() : doc.to<JsonObject>();
+    if (!root["chip_templates"].is<JsonObject>())
+    {
+        root["chip_templates"].to<JsonObject>();
+    }
+    if (!root["board_templates"].is<JsonObject>())
+    {
+        root["board_templates"].to<JsonObject>();
+    }
+}
+
+void copyTemplateLibrarySections(JsonDocument &source, JsonDocument &target)
+{
+    target.clear();
+    JsonObject root = target.to<JsonObject>();
+
+    if (source["chip_templates"].is<JsonObject>())
+    {
+        root["chip_templates"] = source["chip_templates"];
+    }
+    else
+    {
+        root["chip_templates"].to<JsonObject>();
+    }
+
+    if (source["board_templates"].is<JsonObject>())
+    {
+        root["board_templates"] = source["board_templates"];
+    }
+    else
+    {
+        root["board_templates"].to<JsonObject>();
+    }
+}
+
+void stripTemplateLibrarySections(JsonDocument &doc)
+{
+    if (!doc.is<JsonObject>())
+    {
+        return;
+    }
+
+    JsonObject root = doc.as<JsonObject>();
+    root.remove("chip_templates");
+    root.remove("board_templates");
 }
 
 } // namespace
@@ -936,6 +1009,7 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
             DeserializationError error = deserializeJson(doc, stored);
             if (!error)
             {
+                stripTemplateLibrarySections(doc);
                 return true;
             }
             doc.clear();
@@ -952,24 +1026,56 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
     // path caused first-boot crashes on the physical LilyGO bench, so the
     // runtime now loads the legacy document as-is and defers persistence to an
     // explicit save flow.
+    stripTemplateLibrarySections(doc);
     return true;
 }
 
 bool saveConfigDocumentToStorage(JsonDocument &doc)
 {
+    stripTemplateLibrarySections(doc);
     return saveConfigDocumentToNvs(doc);
+}
+
+bool loadTemplateLibraryDocumentFromStorage(JsonDocument &doc)
+{
+    doc.clear();
+    if (loadJsonDocumentFromLittleFs(kTemplateLibraryPath, doc))
+    {
+        ensureTemplateLibraryShape(doc);
+        return true;
+    }
+
+    JsonDocument legacyDoc;
+    if (loadLegacyConfigDocument(legacyDoc))
+    {
+        copyTemplateLibrarySections(legacyDoc, doc);
+        ensureTemplateLibraryShape(doc);
+        return true;
+    }
+
+    ensureTemplateLibraryShape(doc);
+    return false;
+}
+
+bool saveTemplateLibraryDocumentToStorage(JsonDocument &doc)
+{
+    ensureTemplateLibraryShape(doc);
+    return saveJsonDocumentToLittleFs(kTemplateLibraryPath, doc);
 }
 
 bool loadConfigFromFile()
 {
-    JsonDocument doc;
-    if (!loadConfigDocumentFromStorage(doc))
+    JsonDocument runtimeDoc;
+    if (!loadConfigDocumentFromStorage(runtimeDoc))
     {
         Serial.println("NO CONFIG");
         return false;
     }
 
-    gConfig.configVersion = doc["config_version"] | 1;
+    JsonDocument templateLibraryDoc;
+    loadTemplateLibraryDocumentFromStorage(templateLibraryDoc);
+
+    gConfig.configVersion = runtimeDoc["config_version"] | 1;
     if (gConfig.configVersion < CURRENT_CONFIG_VERSION)
     {
         Serial.print(F("CONFIG INFO: older config_version detected: "));
@@ -985,60 +1091,60 @@ bool loadConfigFromFile()
         Serial.println(CURRENT_CONFIG_VERSION);
     }
 
-    gConfig.wifi.mode = doc["wifi"]["mode"] | "ap";
-    gConfig.wifi.ssid = doc["wifi"]["ssid"] | "";
-    gConfig.wifi.password = doc["wifi"]["password"] | "";
-    gConfig.wifi.apSsid = doc["wifi"]["ap_ssid"] | gConfig.wifi.apSsid;
-    gConfig.wifi.apPassword = doc["wifi"]["ap_password"] | gConfig.wifi.apPassword;
-    gConfig.wifi.startupPolicy = doc["wifi"]["startup_policy"] | "";
+    gConfig.wifi.mode = runtimeDoc["wifi"]["mode"] | "ap";
+    gConfig.wifi.ssid = runtimeDoc["wifi"]["ssid"] | "";
+    gConfig.wifi.password = runtimeDoc["wifi"]["password"] | "";
+    gConfig.wifi.apSsid = runtimeDoc["wifi"]["ap_ssid"] | gConfig.wifi.apSsid;
+    gConfig.wifi.apPassword = runtimeDoc["wifi"]["ap_password"] | gConfig.wifi.apPassword;
+    gConfig.wifi.startupPolicy = runtimeDoc["wifi"]["startup_policy"] | "";
     if (gConfig.wifi.startupPolicy.length() == 0)
     {
         gConfig.wifi.startupPolicy = (gConfig.wifi.mode == "ap") ? "ap_only" : "sta_fallback_ap";
     }
-    gConfig.i2c.scan = doc["i2c"]["scan"] | gConfig.i2c.scan;
+    gConfig.i2c.scan = runtimeDoc["i2c"]["scan"] | gConfig.i2c.scan;
 
-    gConfig.oled.enabled = doc["oled"]["enabled"] | gConfig.oled.enabled;
-    gConfig.oled.showIpOnFallback = doc["oled"]["show_ip_on_fallback"] | gConfig.oled.showIpOnFallback;
-    gConfig.oled.sda = doc["oled"]["sda"] | gConfig.oled.sda;
-    gConfig.oled.scl = doc["oled"]["scl"] | gConfig.oled.scl;
-    gConfig.oled.address = doc["oled"]["address"] | gConfig.oled.address;
-    gConfig.oled.width = doc["oled"]["width"] | gConfig.oled.width;
-    gConfig.oled.height = doc["oled"]["height"] | gConfig.oled.height;
+    gConfig.oled.enabled = runtimeDoc["oled"]["enabled"] | gConfig.oled.enabled;
+    gConfig.oled.showIpOnFallback = runtimeDoc["oled"]["show_ip_on_fallback"] | gConfig.oled.showIpOnFallback;
+    gConfig.oled.sda = runtimeDoc["oled"]["sda"] | gConfig.oled.sda;
+    gConfig.oled.scl = runtimeDoc["oled"]["scl"] | gConfig.oled.scl;
+    gConfig.oled.address = runtimeDoc["oled"]["address"] | gConfig.oled.address;
+    gConfig.oled.width = runtimeDoc["oled"]["width"] | gConfig.oled.width;
+    gConfig.oled.height = runtimeDoc["oled"]["height"] | gConfig.oled.height;
 
-    gConfig.lora.enabled = doc["lora"]["enabled"] | gConfig.lora.enabled;
-    gConfig.lora.sck = doc["lora"]["sck"] | gConfig.lora.sck;
-    gConfig.lora.miso = doc["lora"]["miso"] | gConfig.lora.miso;
-    gConfig.lora.mosi = doc["lora"]["mosi"] | gConfig.lora.mosi;
-    gConfig.lora.cs = doc["lora"]["cs"] | gConfig.lora.cs;
-    gConfig.lora.rst = doc["lora"]["rst"] | gConfig.lora.rst;
-    gConfig.lora.dio0 = doc["lora"]["dio0"] | gConfig.lora.dio0;
-    gConfig.lora.dio1 = doc["lora"]["dio1"] | gConfig.lora.dio1;
-    gConfig.lora.dio2 = doc["lora"]["dio2"] | gConfig.lora.dio2;
+    gConfig.lora.enabled = runtimeDoc["lora"]["enabled"] | gConfig.lora.enabled;
+    gConfig.lora.sck = runtimeDoc["lora"]["sck"] | gConfig.lora.sck;
+    gConfig.lora.miso = runtimeDoc["lora"]["miso"] | gConfig.lora.miso;
+    gConfig.lora.mosi = runtimeDoc["lora"]["mosi"] | gConfig.lora.mosi;
+    gConfig.lora.cs = runtimeDoc["lora"]["cs"] | gConfig.lora.cs;
+    gConfig.lora.rst = runtimeDoc["lora"]["rst"] | gConfig.lora.rst;
+    gConfig.lora.dio0 = runtimeDoc["lora"]["dio0"] | gConfig.lora.dio0;
+    gConfig.lora.dio1 = runtimeDoc["lora"]["dio1"] | gConfig.lora.dio1;
+    gConfig.lora.dio2 = runtimeDoc["lora"]["dio2"] | gConfig.lora.dio2;
 
-    gConfig.sd.enabled = doc["sd"]["enabled"] | gConfig.sd.enabled;
-    gConfig.sd.cs = doc["sd"]["cs"] | gConfig.sd.cs;
-    gConfig.sd.mosi = doc["sd"]["mosi"] | gConfig.sd.mosi;
-    gConfig.sd.miso = doc["sd"]["miso"] | gConfig.sd.miso;
-    gConfig.sd.sck = doc["sd"]["sck"] | gConfig.sd.sck;
+    gConfig.sd.enabled = runtimeDoc["sd"]["enabled"] | gConfig.sd.enabled;
+    gConfig.sd.cs = runtimeDoc["sd"]["cs"] | gConfig.sd.cs;
+    gConfig.sd.mosi = runtimeDoc["sd"]["mosi"] | gConfig.sd.mosi;
+    gConfig.sd.miso = runtimeDoc["sd"]["miso"] | gConfig.sd.miso;
+    gConfig.sd.sck = runtimeDoc["sd"]["sck"] | gConfig.sd.sck;
 
-    gConfig.led.enabled = doc["led"]["enabled"] | gConfig.led.enabled;
-    gConfig.led.pin = doc["led"]["pin"] | gConfig.led.pin;
+    gConfig.led.enabled = runtimeDoc["led"]["enabled"] | gConfig.led.enabled;
+    gConfig.led.pin = runtimeDoc["led"]["pin"] | gConfig.led.pin;
 
-    gConfig.battery.enabled = doc["battery"]["enabled"] | gConfig.battery.enabled;
-    gConfig.battery.adcPin = doc["battery"]["adc_pin"] | gConfig.battery.adcPin;
+    gConfig.battery.enabled = runtimeDoc["battery"]["enabled"] | gConfig.battery.enabled;
+    gConfig.battery.adcPin = runtimeDoc["battery"]["adc_pin"] | gConfig.battery.adcPin;
 
-    if (doc["display"].is<JsonObject>())
+    if (runtimeDoc["display"].is<JsonObject>())
     {
-        loadDisplayConfig(doc["display"].as<JsonObject>());
+        loadDisplayConfig(runtimeDoc["display"].as<JsonObject>());
     }
     else
     {
         freeDisplayConfig();
     }
 
-    if (doc["buses"].is<JsonObject>())
+    if (runtimeDoc["buses"].is<JsonObject>())
     {
-        loadBusesConfig(doc["buses"].as<JsonObject>());
+        loadBusesConfig(runtimeDoc["buses"].as<JsonObject>());
     }
     else
     {
@@ -1047,9 +1153,9 @@ bool loadConfigFromFile()
         gConfig.busCount = 0;
     }
 
-    if (doc["devices"].is<JsonObject>())
+    if (runtimeDoc["devices"].is<JsonObject>())
     {
-        loadDevicesConfig(doc["devices"].as<JsonObject>());
+        loadDevicesConfig(runtimeDoc["devices"].as<JsonObject>());
     }
     else
     {
@@ -1058,9 +1164,9 @@ bool loadConfigFromFile()
         gConfig.deviceCount = 0;
     }
 
-    if (doc["external_resources"].is<JsonObject>())
+    if (runtimeDoc["external_resources"].is<JsonObject>())
     {
-        loadExternalResourcesConfig(doc["external_resources"].as<JsonObject>());
+        loadExternalResourcesConfig(runtimeDoc["external_resources"].as<JsonObject>());
     }
     else
     {
@@ -1069,31 +1175,31 @@ bool loadConfigFromFile()
         gConfig.externalResourceCount = 0;
     }
 
-    gConfig.system.active_board = doc["system"]["active_board"] | "default";
-    gConfig.system.active_board_template = doc["system"]["active_board_template"] | "";
-    gConfig.system.active_chip_template = doc["system"]["active_chip_template"] | "";
+    gConfig.system.active_board = runtimeDoc["system"]["active_board"] | "default";
+    gConfig.system.active_board_template = runtimeDoc["system"]["active_board_template"] | "";
+    gConfig.system.active_chip_template = runtimeDoc["system"]["active_chip_template"] | "";
 
-    if (doc["chip_templates"].is<JsonObject>())
+    if (templateLibraryDoc["chip_templates"].is<JsonObject>())
     {
-        loadChipTemplates(doc["chip_templates"].as<JsonObject>());
+        loadChipTemplates(templateLibraryDoc["chip_templates"].as<JsonObject>());
     }
     else
     {
         gConfig.chipTemplateCount = 0;
     }
 
-    if (doc["board_templates"].is<JsonObject>())
+    if (templateLibraryDoc["board_templates"].is<JsonObject>())
     {
-        loadBoardTemplates(doc["board_templates"].as<JsonObject>());
+        loadBoardTemplates(templateLibraryDoc["board_templates"].as<JsonObject>());
     }
     else
     {
         gConfig.boardTemplateCount = 0;
     }
 
-    if (doc["boards"].is<JsonObject>())
+    if (runtimeDoc["boards"].is<JsonObject>())
     {
-        loadBoardConfig(doc["boards"].as<JsonObject>());
+        loadBoardConfig(runtimeDoc["boards"].as<JsonObject>());
     }
     else
     {
@@ -1111,34 +1217,34 @@ bool loadConfigFromFile()
         }
     }
 
-    if (doc["channels"].is<JsonObject>())
+    if (runtimeDoc["channels"].is<JsonObject>())
     {
-        loadChannelsConfig(doc["channels"].as<JsonObject>());
+        loadChannelsConfig(runtimeDoc["channels"].as<JsonObject>());
     }
     else
     {
         gConfig.channelCount = 0;
     }
 
-    if (doc["signals"].is<JsonObject>())
+    if (runtimeDoc["signals"].is<JsonObject>())
     {
-        loadSignalsConfig(doc["signals"].as<JsonObject>());
+        loadSignalsConfig(runtimeDoc["signals"].as<JsonObject>());
     }
     else
     {
         gConfig.signalCount = 0;
     }
 
-    if (doc["blocks"].is<JsonObject>())
+    if (runtimeDoc["blocks"].is<JsonObject>())
     {
-        loadBlocksConfig(doc["blocks"].as<JsonObject>());
+        loadBlocksConfig(runtimeDoc["blocks"].as<JsonObject>());
     }
     else
     {
         gConfig.blocks.blockCount = 0;
     }
 
-    if (doc["timer"].is<JsonObject>() && gConfig.blocks.blockCount == 0)
+    if (runtimeDoc["timer"].is<JsonObject>() && gConfig.blocks.blockCount == 0)
     {
         BlockConfig &block = gConfig.blocks.items[gConfig.blocks.blockCount++];
         block.id = "timer_legacy";
@@ -1150,7 +1256,7 @@ bool loadConfigFromFile()
         block.controlSignal = "";
         block.outputA = "relay1";
         block.periodMs = 0;
-        block.durationMs = doc["timer"]["duration"] | 5000;
+        block.durationMs = runtimeDoc["timer"]["duration"] | 5000;
         block.debounceMs = 50;
         block.longPressMs = 800;
         block.doublePressMs = 350;
@@ -1160,7 +1266,7 @@ bool loadConfigFromFile()
         block.startImmediately = false;
     }
 
-    loadUIConfig(doc);
+    loadUIConfig(runtimeDoc);
 
     Serial.println("CONFIG LOADED");
     return true;

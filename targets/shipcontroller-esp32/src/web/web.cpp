@@ -98,6 +98,11 @@ static bool loadConfigDocument(JsonDocument &doc)
     return loadConfigDocumentFromStorage(doc);
 }
 
+static bool loadTemplateLibraryDocument(JsonDocument &doc)
+{
+    return loadTemplateLibraryDocumentFromStorage(doc);
+}
+
 static bool loadEditorProjectsDocument(JsonDocument &doc)
 {
     if (!LittleFS.begin()) return false;
@@ -215,6 +220,11 @@ static bool saveEditorProjectModelToStorage(const String &presetId, JsonDocument
 static bool saveConfigDocument(JsonDocument &doc)
 {
     return saveConfigDocumentToStorage(doc);
+}
+
+static bool saveTemplateLibraryDocument(JsonDocument &doc)
+{
+    return saveTemplateLibraryDocumentToStorage(doc);
 }
 
 static bool applyRuntimeConfig()
@@ -2323,18 +2333,18 @@ static void handleSaveTemplateLibrary()
         return;
     }
 
-    JsonDocument configDoc;
-    if (!loadConfigDocument(configDoc))
+    JsonDocument libraryDoc;
+    if (!loadTemplateLibraryDocument(libraryDoc))
     {
-        sendJsonError(500, "Failed to load config");
+        sendJsonError(500, "Failed to load template library");
         return;
     }
 
     if (type == "chip")
     {
-        JsonObject chipTemplates = configDoc["chip_templates"].is<JsonObject>()
-            ? configDoc["chip_templates"].as<JsonObject>()
-            : configDoc["chip_templates"].to<JsonObject>();
+        JsonObject chipTemplates = libraryDoc["chip_templates"].is<JsonObject>()
+            ? libraryDoc["chip_templates"].as<JsonObject>()
+            : libraryDoc["chip_templates"].to<JsonObject>();
 
         JsonObject destination = chipTemplates[templateId].is<JsonObject>()
             ? chipTemplates[templateId].as<JsonObject>()
@@ -2370,9 +2380,9 @@ static void handleSaveTemplateLibrary()
     }
     else if (type == "board")
     {
-        JsonObject boardTemplates = configDoc["board_templates"].is<JsonObject>()
-            ? configDoc["board_templates"].as<JsonObject>()
-            : configDoc["board_templates"].to<JsonObject>();
+        JsonObject boardTemplates = libraryDoc["board_templates"].is<JsonObject>()
+            ? libraryDoc["board_templates"].as<JsonObject>()
+            : libraryDoc["board_templates"].to<JsonObject>();
 
         JsonObject destination = boardTemplates[templateId].is<JsonObject>()
             ? boardTemplates[templateId].as<JsonObject>()
@@ -2414,9 +2424,9 @@ static void handleSaveTemplateLibrary()
         return;
     }
 
-    if (!saveConfigDocument(configDoc))
+    if (!saveTemplateLibraryDocument(libraryDoc))
     {
-        sendJsonError(500, "Failed to save config");
+        sendJsonError(500, "Failed to save template library");
         return;
     }
 
@@ -2452,10 +2462,10 @@ static void handleDeleteTemplate()
         return;
     }
 
-    JsonDocument configDoc;
-    if (!loadConfigDocument(configDoc))
+    JsonDocument libraryDoc;
+    if (!loadTemplateLibraryDocument(libraryDoc))
     {
-        sendJsonError(500, "Failed to load config");
+        sendJsonError(500, "Failed to load template library");
         return;
     }
 
@@ -2467,7 +2477,7 @@ static void handleDeleteTemplate()
             return;
         }
 
-        JsonObject boardTemplates = configDoc["board_templates"].as<JsonObject>();
+        JsonObject boardTemplates = libraryDoc["board_templates"].as<JsonObject>();
         for (JsonPair pair : boardTemplates)
         {
             JsonObject boardTemplate = pair.value().as<JsonObject>();
@@ -2478,7 +2488,7 @@ static void handleDeleteTemplate()
             }
         }
 
-        JsonObject chipTemplates = configDoc["chip_templates"].as<JsonObject>();
+        JsonObject chipTemplates = libraryDoc["chip_templates"].as<JsonObject>();
         if (chipTemplates.isNull() || chipTemplates[templateId].isNull())
         {
             sendJsonError(404, "Chip template not found");
@@ -2494,7 +2504,14 @@ static void handleDeleteTemplate()
             return;
         }
 
-        JsonObject boards = configDoc["boards"].as<JsonObject>();
+        JsonDocument runtimeDoc;
+        if (!loadConfigDocument(runtimeDoc))
+        {
+            sendJsonError(500, "Failed to load config");
+            return;
+        }
+
+        JsonObject boards = runtimeDoc["boards"].as<JsonObject>();
         for (JsonPair pair : boards)
         {
             JsonObject board = pair.value().as<JsonObject>();
@@ -2505,7 +2522,7 @@ static void handleDeleteTemplate()
             }
         }
 
-        JsonObject boardTemplates = configDoc["board_templates"].as<JsonObject>();
+        JsonObject boardTemplates = libraryDoc["board_templates"].as<JsonObject>();
         if (boardTemplates.isNull() || boardTemplates[templateId].isNull())
         {
             sendJsonError(404, "Board template not found");
@@ -2519,9 +2536,9 @@ static void handleDeleteTemplate()
         return;
     }
 
-    if (!saveConfigDocument(configDoc))
+    if (!saveTemplateLibraryDocument(libraryDoc))
     {
-        sendJsonError(500, "Failed to save config");
+        sendJsonError(500, "Failed to save template library");
         return;
     }
 
