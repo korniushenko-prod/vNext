@@ -598,7 +598,7 @@ renderBlocks=function(){
 const _origResetBlockForm=resetBlockForm;
 resetBlockForm=function(type='timer'){
   _origResetBlockForm(type==='interlock'?'logic_gate':type);
-  ensureInterlockBlockUi?.();
+  window.ensureInterlockBlockUi?.();
   if(type==='interlock'){
     $('blockType').value='interlock';
     syncBlockModeOptions('interlock');
@@ -616,7 +616,7 @@ editBlock=function(id){
   _origEditBlock(id);
   const block=state.blocks?.blocks?.[id];
   if(block?.type==='interlock'){
-    ensureInterlockBlockUi?.();
+    window.ensureInterlockBlockUi?.();
     if($('blockAuxInput'))$('blockAuxInput').value=block.input_c||block.inhibit_signal||'';
     setBlockTypeVisibility();
     updateBlockAssistantPreview();
@@ -701,7 +701,7 @@ renderBlocks=function(){
 const _origResetBlockFormModeAuthority=resetBlockForm;
 resetBlockForm=function(type='timer'){
   _origResetBlockFormModeAuthority(type==='mode_authority'?'selector':type);
-  ensureModeAuthorityBlockUi?.();
+  window.ensureModeAuthorityBlockUi?.();
   if(type==='mode_authority'){
     $('blockType').value='mode_authority';
     syncBlockModeOptions('local_remote');
@@ -722,7 +722,7 @@ editBlock=function(id){
   _origEditBlockModeAuthority(id);
   const block=state.blocks?.blocks?.[id];
   if(block?.type==='mode_authority'){
-    ensureModeAuthorityBlockUi?.();
+    window.ensureModeAuthorityBlockUi?.();
     if($('blockPrimary'))$('blockPrimary').value=block.input_a||block.primary||'';
     if($('blockSecondary'))$('blockSecondary').value=block.input_b||block.secondary||'';
     if($('blockSelect'))$('blockSelect').value=block.control||block.mode_select||'';
@@ -771,7 +771,7 @@ saveBlockDefinition=async function(){
 const _origResetBlockFormFreshness=resetBlockForm;
 resetBlockForm=function(type='timer'){
   _origResetBlockFormFreshness(type==='freshness'?'edge_detect':type);
-  ensureFreshnessBlockUi?.();
+  window.ensureFreshnessBlockUi?.();
   if(type==='freshness'){
     $('blockType').value='freshness';
     syncBlockModeOptions('fresh');
@@ -790,7 +790,7 @@ editBlock=function(id){
   _origEditBlockFreshness(id);
   const block=state.blocks?.blocks?.[id];
   if(block?.type==='freshness'){
-    ensureFreshnessBlockUi?.();
+    window.ensureFreshnessBlockUi?.();
     if($('blockCompareInput'))$('blockCompareInput').value=block.input_a||block.input||'';
     setTimerFieldMs('blockDuration',block.duration_ms||5000);
     setBlockTypeVisibility();

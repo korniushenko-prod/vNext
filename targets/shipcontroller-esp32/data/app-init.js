@@ -97,16 +97,16 @@ $('alarmViewFilter').addEventListener('change',e=>{state.ui.alarmFilter=e.target
 $('alarmShowActiveCount').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.alarm_active_count','Active Alarms','pair'));
 $('alarmShowUnackedCount').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.alarm_unacked_count','Unacked Alarms','pair'));
 $('alarmShowLatest').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.alarm_latest','Latest Alarm','pair'));
-ensureActuatorSequenceTemplateUi?.();
+window.ensureActuatorSequenceTemplateUi?.();
 $('newSequence').addEventListener('click',()=>{resetSequenceForm();resetSequenceStateForm();resetSequenceTransitionForm()});
-if($('sequenceSeedActuator'))$('sequenceSeedActuator').addEventListener('click',()=>{ensureActuatorSequenceTemplateUi?.();$('sequenceTemplateId').value=$('sequenceId').value||'actuator_cycle';$('sequenceTemplateLabel').value=$('sequenceLabel').value||'Actuator cycle';});
+if($('sequenceSeedActuator'))$('sequenceSeedActuator').addEventListener('click',()=>{window.ensureActuatorSequenceTemplateUi?.();$('sequenceTemplateId').value=$('sequenceId').value||'actuator_cycle';$('sequenceTemplateLabel').value=$('sequenceLabel').value||'Actuator cycle';});
 $('saveSequence').addEventListener('click',saveSequenceDefinition);
 $('deleteSequence').addEventListener('click',()=>deleteSequenceDefinition());
 $('resetSequenceNow').addEventListener('click',()=>resetSequenceRuntimeNow());
 $('sequenceShowRunningCount').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.sequence_running_count','Running Sequences','pair'));
 $('sequenceShowLatest').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.sequence_latest','Latest Sequence','pair'));
 $('sequenceShowLatestState').addEventListener('click',()=>prefillDisplayWidgetFromSystemSource('system.sequence_latest_state','Sequence State','pair'));
-if($('sequenceApplyActuatorTemplate'))$('sequenceApplyActuatorTemplate').addEventListener('click',()=>seedActuatorSequenceTemplate?.());
+if($('sequenceApplyActuatorTemplate'))$('sequenceApplyActuatorTemplate').addEventListener('click',()=>window.seedActuatorSequenceTemplate?.());
 $('newSequenceState').addEventListener('click',()=>resetSequenceStateForm($('sequenceStateParent').value||state.ui.sequenceSelected||''));
 $('saveSequenceState').addEventListener('click',saveSequenceState);
 $('deleteSequenceState').addEventListener('click',()=>deleteSequenceState());
@@ -223,12 +223,12 @@ $('sequenceTransitionsTable').addEventListener('click',e=>{const editValue=e.tar
 $('chipPinsTable').addEventListener('click',e=>{const gpio=e.target?.dataset?.removeChipPin;if(gpio)removeChipPin(gpio)});
 $('boardRulesTable').addEventListener('click',e=>{const index=e.target?.dataset?.removeBoardRule;if(index!==undefined)removeBoardRule(Number(index))});
 
-ensureInterlockBlockUi?.();
+window.ensureInterlockBlockUi?.();
 if($('newInterlockBlock'))$('newInterlockBlock').addEventListener('click',()=>{resetBlockForm('interlock');openModal('blockModal')});
 if($('blockAuxInput'))$('blockAuxInput').addEventListener('change',()=>{syncAutoBlockId();updateBlockAssistantPreview();setBlockTypeVisibility()});
-ensureModeAuthorityBlockUi?.();
+window.ensureModeAuthorityBlockUi?.();
 if($('newModeAuthorityBlock'))$('newModeAuthorityBlock').addEventListener('click',()=>{resetBlockForm('mode_authority');openModal('blockModal')});
-ensureFreshnessBlockUi?.();
+window.ensureFreshnessBlockUi?.();
 if($('newFreshnessBlock'))$('newFreshnessBlock').addEventListener('click',()=>{resetBlockForm('freshness');openModal('blockModal')});
 document.querySelectorAll('[data-block-coming]').forEach(btn=>btn.addEventListener('click',()=>{const name=btn.dataset.blockComing||'block';if($('blocksOverviewNote'))$('blocksOverviewNote').textContent='Блок "'+name+'" уже входит в обязательную базу и будет добавлен следующим этапом как стандартный primitive.'}));
 
