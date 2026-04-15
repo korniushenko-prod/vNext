@@ -279,7 +279,7 @@ static bool applyRuntimeConfig()
 
 static void startAccessPoint()
 {
-    String apSsid = gConfig.wifi.apSsid.length() > 0 ? gConfig.wifi.apSsid : "ESP32-CTRL";
+    String apSsid = gConfig.wifi.apSsid.length() > 0 ? gConfig.wifi.apSsid : "ShipController";
     String apPassword = gConfig.wifi.apPassword.length() > 0 ? gConfig.wifi.apPassword : "12345678";
 
     WiFi.mode(WIFI_AP);

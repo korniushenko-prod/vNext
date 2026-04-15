@@ -17,9 +17,9 @@ void loadDefaultConfig()
     gConfig.wifi.mode = "sta";
     gConfig.wifi.ssid = "Infinity-Starlink";
     gConfig.wifi.password = "";
-    gConfig.wifi.apSsid = "ESP32-CTRL";
+    gConfig.wifi.apSsid = "ShipController";
     gConfig.wifi.apPassword = "12345678";
-    gConfig.wifi.startupPolicy = "sta_only";
+    gConfig.wifi.startupPolicy = "sta_fallback_ap";
 
     gConfig.i2c.scan = true;
 
