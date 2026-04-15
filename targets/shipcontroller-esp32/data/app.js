@@ -247,6 +247,18 @@
     return presetValue;
   }
 
+  function updateSignalUnitsVisibility() {
+    const preset = $("signalUnitsPreset");
+    const customWrap = $("signalUnitsCustomWrap");
+    const customInput = $("signalUnitsCustom");
+    if (!preset || !customWrap || !customInput) return;
+    const customMode = preset.value === "__custom__";
+    customWrap.classList.toggle("hidden", !customMode);
+    if (!customMode) {
+      customInput.value = "";
+    }
+  }
+
   function applyHelpLanguage() {
     const lang = getUiLanguage();
     if ($("signalsOverviewNote")) $("signalsOverviewNote").textContent = getI18nValue(lang, "signalsOverview", "");
@@ -306,6 +318,7 @@
   window.populateUnitPresets = populateUnitPresets;
   window.setSignalUnits = setSignalUnits;
   window.getSignalUnits = getSignalUnits;
+  window.updateSignalUnitsVisibility = updateSignalUnitsVisibility;
   window.applyHelpLanguage = applyHelpLanguage;
   window.openHelpPopover = openHelpPopover;
   window.runHelpAction = runHelpAction;
