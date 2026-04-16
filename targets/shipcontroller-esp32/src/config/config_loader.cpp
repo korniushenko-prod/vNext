@@ -10,6 +10,7 @@ namespace {
 
 constexpr const char *kRuntimeConfigNamespace = "runtimecfg";
 constexpr const char *kRuntimeConfigKey = "config";
+constexpr const char *kRuntimeConfigPath = "/runtime_config.json";
 constexpr const char *kTemplateLibraryPath = "/template_library.json";
 
 bool loadJsonDocumentFromLittleFs(const char *path, JsonDocument &doc)
@@ -1026,6 +1027,12 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
 {
     doc.clear();
 
+    if (loadJsonDocumentFromLittleFs(kRuntimeConfigPath, doc))
+    {
+        stripTemplateLibrarySections(doc);
+        return true;
+    }
+
     JsonDocument legacyDoc;
     bool haveLegacy = loadLegacyConfigDocument(legacyDoc);
 
@@ -1079,6 +1086,10 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
 bool saveConfigDocumentToStorage(JsonDocument &doc)
 {
     stripTemplateLibrarySections(doc);
+    if (saveJsonDocumentToLittleFs(kRuntimeConfigPath, doc))
+    {
+        return true;
+    }
     return saveConfigDocumentToNvs(doc);
 }
 
