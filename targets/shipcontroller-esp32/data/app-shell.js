@@ -1,5 +1,5 @@
 (()=>{
-  const ASSET_VERSION = '20260416-runtimefix10';
+  const ASSET_VERSION = '20260416-runtimefix11';
   const ENABLE_EXPERIMENTAL_SCRIPTS = false;
   const FRAGMENTS = [
     { mountId: 'appPanelsMount', url: '/fragments/app-panels.html' },
@@ -75,7 +75,8 @@
   }
 
   function verifyCoreContract() {
-    const missing = REQUIRED_CORE_EXPORTS.filter((key) => typeof window[key] === 'undefined');
+    const registry = window.SHIP_CORE || {};
+    const missing = REQUIRED_CORE_EXPORTS.filter((key) => typeof registry[key] === 'undefined');
     if (missing.length) {
       throw new Error(`core contract missing: ${missing.join(', ')}`);
     }

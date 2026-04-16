@@ -374,35 +374,40 @@
     }
   }
 
-  window.$ = $;
-  window.state = state;
-  window.escapeHtml = escapeHtml;
-  window.boolBadge = boolBadge;
-  window.formatMsForTable = formatMsForTable;
-  window.pretty = pretty;
-  window.normalizeCapabilities = normalizeCapabilities;
-  window.getJson = getJson;
-  window.safeGetJson = safeGetJson;
-  window.openModal = openModal;
-  window.closeModal = closeModal;
-  window.setSaveStatus = setSaveStatus;
-  window.getUiLanguage = getUiLanguage;
-  window.getUiMode = getUiMode;
-  window.t = t;
-  window.setUiLanguage = setUiLanguage;
-  window.setUiMode = setUiMode;
-  window.setPrimaryTabValue = setPrimaryTabValue;
-  window.setActiveTab = setActiveTab;
-  window.applyUiMode = applyUiMode;
-  window.populateUnitPresets = populateUnitPresets;
-  window.setSignalUnits = setSignalUnits;
-  window.getSignalUnits = getSignalUnits;
-  window.updateSignalUnitsVisibility = updateSignalUnitsVisibility;
-  window.recordRequestTrace = recordRequestTrace;
-  window.applyHelpLanguage = applyHelpLanguage;
-  window.openHelpPopover = openHelpPopover;
-  window.runHelpAction = runHelpAction;
-  window.isExperimentalSurfaceEnabled = (surfaceId) => !EXPERIMENTAL_TABS.has(surfaceId || "");
+  const coreApi = {
+    $,
+    state,
+    escapeHtml,
+    boolBadge,
+    formatMsForTable,
+    pretty,
+    normalizeCapabilities,
+    getJson,
+    safeGetJson,
+    openModal,
+    closeModal,
+    setSaveStatus,
+    getUiLanguage,
+    getUiMode,
+    t,
+    setUiLanguage,
+    setUiMode,
+    setPrimaryTabValue,
+    setActiveTab,
+    applyUiMode,
+    populateUnitPresets,
+    setSignalUnits,
+    getSignalUnits,
+    updateSignalUnitsVisibility,
+    recordRequestTrace,
+    applyHelpLanguage,
+    openHelpPopover,
+    runHelpAction,
+    isExperimentalSurfaceEnabled: (surfaceId) => !EXPERIMENTAL_TABS.has(surfaceId || "")
+  };
+
+  window.SHIP_CORE = Object.freeze({ ...coreApi });
+  Object.assign(window, coreApi);
 
   document.addEventListener("DOMContentLoaded", () => {
     populateUnitPresets();

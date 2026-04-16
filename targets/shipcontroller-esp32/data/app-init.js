@@ -1,6 +1,8 @@
 const INIT_API=window.SHIP_API?.endpoints||{};
+const CORE=window.SHIP_CORE||window;
+const {$,state,getJson,openModal,closeModal,setUiLanguage,setUiMode,setPrimaryTabValue,setActiveTab,applyUiMode,populateUnitPresets,updateSignalUnitsVisibility,applyHelpLanguage}=CORE;
 document.querySelectorAll('.primary-tabs button').forEach(btn=>btn.addEventListener('click',()=>{setPrimaryTabValue(btn.dataset.primaryTab);document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));applyUiMode()}));
-document.querySelectorAll('.tabs button').forEach(btn=>btn.addEventListener('click',()=>{if(btn.classList.contains('hidden'))return;window.setActiveTab?.(btn.dataset.tab);applyUiMode()}));
+document.querySelectorAll('.tabs button').forEach(btn=>btn.addEventListener('click',()=>{if(btn.classList.contains('hidden'))return;setActiveTab?.(btn.dataset.tab);applyUiMode()}));
 const on=(id,event,handler)=>{const el=$(id);if(el)el.addEventListener(event,handler);return el};
 on('secondaryTabSelect','change',()=>{const tab=$('secondaryTabSelect')?.value||'';if(!tab)return;document.querySelector('.tabs button[data-tab="'+tab+'"]:not(.hidden)')?.click()});
 

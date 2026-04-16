@@ -106,7 +106,9 @@ Needed change:
   - stable commissioning bootstrap no longer depends on those experimental surfaces
 - `Phase 2` started partially:
   - `app-core.js` is now the canonical home for shared helpers
+  - `window.SHIP_CORE` is now the explicit core registry
   - shell verifies required core exports immediately after loading `app-core.js`
+  - `app-init.js` started consuming core dependencies from `SHIP_CORE` instead of assuming bare globals
   - goal is to fail with one direct bootstrap error instead of a cascade of secondary `ReferenceError`s
 
 ## Phase 1. Freeze and isolate the stable commissioning core
