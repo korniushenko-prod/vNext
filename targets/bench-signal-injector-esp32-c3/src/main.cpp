@@ -474,6 +474,23 @@ String buildIndexHtml() {
     const pulseHz = document.getElementById('pulseHz');
     const pressurePercent = document.getElementById('pressurePercent');
     const pressureValue = document.getElementById('pressureValue');
+    const formState = {
+      discreteDirty: false,
+      pulseDirty: false,
+      pressureDirty: false
+    };
+
+    function markDiscreteDirty() {
+      formState.discreteDirty = true;
+    }
+
+    function markPulseDirty() {
+      formState.pulseDirty = true;
+    }
+
+    function markPressureDirty() {
+      formState.pressureDirty = true;
+    }
 
     async function postForm(url, payload) {
       await fetch(url, {
@@ -497,15 +514,24 @@ String buildIndexHtml() {
       document.getElementById('pulseState').textContent = state.pulse_enabled ? ('ON @ ' + state.pulse_hz + ' Hz') : 'OFF';
       document.getElementById('pressureState').textContent = state.pressure_percent + '%';
 
-      runFeedback.checked = state.run_feedback;
-      faultFeedback.checked = state.fault_feedback;
-      pulseEnabled.checked = state.pulse_enabled;
-      pulseHz.value = state.pulse_hz;
-      pressurePercent.value = state.pressure_percent;
-      pressureValue.textContent = state.pressure_percent + '%';
+      if (!formState.discreteDirty) {
+        runFeedback.checked = state.run_feedback;
+        faultFeedback.checked = state.fault_feedback;
+      }
+
+      if (!formState.pulseDirty) {
+        pulseEnabled.checked = state.pulse_enabled;
+        pulseHz.value = state.pulse_hz;
+      }
+
+      if (!formState.pressureDirty) {
+        pressurePercent.value = state.pressure_percent;
+        pressureValue.textContent = state.pressure_percent + '%';
+      }
     }
 
     async function saveDiscrete() {
+      formState.discreteDirty = false;
       await postForm('/api/discrete', {
         run_feedback: runFeedback.checked ? '1' : '0',
         fault_feedback: faultFeedback.checked ? '1' : '0'
@@ -513,6 +539,7 @@ String buildIndexHtml() {
     }
 
     async function savePulse() {
+      formState.pulseDirty = false;
       await postForm('/api/pulse', {
         pulse_enabled: pulseEnabled.checked ? '1' : '0',
         pulse_hz: pulseHz.value
@@ -520,17 +547,27 @@ String buildIndexHtml() {
     }
 
     async function savePressure() {
+      formState.pressureDirty = false;
       await postForm('/api/pressure', {
         pressure_percent: pressurePercent.value
       });
     }
 
     async function applyPreset(name) {
+      formState.discreteDirty = false;
+      formState.pulseDirty = false;
+      formState.pressureDirty = false;
       await postForm('/api/preset', { name });
     }
 
+    runFeedback.addEventListener('change', markDiscreteDirty);
+    faultFeedback.addEventListener('change', markDiscreteDirty);
+    pulseEnabled.addEventListener('change', markPulseDirty);
+    pulseHz.addEventListener('input', markPulseDirty);
+    pressurePercent.addEventListener('input', markPressureDirty);
+
     refreshState();
-    setInterval(refreshState, 1000);
+    setInterval(refreshState, 2000);
   </script>
 </body>
 </html>
@@ -663,4 +700,3 @@ void loop() {
   server.handleClient();
   updatePulseOutput();
 }
-
