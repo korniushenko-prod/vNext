@@ -1050,7 +1050,17 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
                     // board, OLED/display, channels, blocks or sequences.
                     if (runtimeOverrideDoc["wifi"].is<JsonObject>())
                     {
-                        mergeJsonVariant(doc["wifi"], runtimeOverrideDoc["wifi"].as<JsonVariantConst>());
+                        JsonVariantConst runtimeWifi = runtimeOverrideDoc["wifi"].as<JsonVariantConst>();
+                        String overrideSsid = runtimeWifi["ssid"] | "";
+                        // Treat bench /config.json as the source of truth for
+                        // connectivity unless NVS carries a complete STA
+                        // override. This prevents old AP-mode snapshots from
+                        // hijacking boot after the project model has already
+                        // been restored from legacy config.
+                        if (overrideSsid.length() > 0)
+                        {
+                            mergeJsonVariant(doc["wifi"], runtimeWifi);
+                        }
                     }
                 }
                 else
