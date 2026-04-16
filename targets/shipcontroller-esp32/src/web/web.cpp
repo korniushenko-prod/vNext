@@ -320,6 +320,23 @@ static String contentTypeForPath(const String &path)
     return "application/octet-stream";
 }
 
+static void applyStaticCacheHeaders(const String &path)
+{
+    const bool hasVersion = server.hasArg("v");
+    const bool isShellDocument = path == "/" || path.endsWith("/index.html") || path == "/index.html";
+    if (isShellDocument)
+    {
+        server.sendHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
+        return;
+    }
+    if (hasVersion)
+    {
+        server.sendHeader("Cache-Control", "public, max-age=31536000, immutable");
+        return;
+    }
+    server.sendHeader("Cache-Control", "public, max-age=300");
+}
+
 static bool tryServeStaticFile(String path)
 {
     if (path.isEmpty()) return false;
@@ -331,6 +348,7 @@ static bool tryServeStaticFile(String path)
     File file = LittleFS.open(path, "r");
     if (!file) return false;
 
+    applyStaticCacheHeaders(path);
     server.streamFile(file, contentTypeForPath(path));
     file.close();
     return true;

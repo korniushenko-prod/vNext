@@ -1,5 +1,5 @@
 (()=>{
-  const ASSET_VERSION = '20260416-runtimefix3';
+  const ASSET_VERSION = '20260416-runtimefix4';
   const FRAGMENTS = [
     { mountId: 'appPanelsMount', url: '/fragments/app-panels.html' },
     { mountId: 'appModalsMount', url: '/fragments/app-modals.html' }
@@ -40,7 +40,7 @@
   async function loadFragment(mountId, url) {
     const mount = $(mountId);
     if (!mount) return;
-    const response = await fetch(versionedUrl(url), { cache: 'no-cache' });
+    const response = await fetch(versionedUrl(url));
     if (!response.ok) {
       throw new Error(`fragment ${url} -> ${response.status}`);
     }
