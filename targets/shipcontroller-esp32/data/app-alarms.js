@@ -130,8 +130,8 @@ async function saveAlarmDefinition(){
   if(!payload.source_signal){$('alarmSaveStatus').textContent='Нужен source signal';return;}
   try{
     const r=await getJson('/alarm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    await loadAll();
-    $('alarmSaveStatus').textContent=r.message||'Alarm сохранена';
+    const refreshOk=await refreshAlarmSurface();
+    $('alarmSaveStatus').textContent=refreshOk?(r.message||'Alarm сохранена'):'Alarm сохранена с предупреждениями обновления';
   }catch(e){
     $('alarmSaveStatus').textContent='Save failed: '+e.message;
   }
@@ -144,9 +144,9 @@ async function deleteAlarmDefinition(id){
   $('alarmSaveStatus').textContent='Удаляю alarm...';
   try{
     const r=await getJson('/alarm-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({alarm_id:alarmId})});
-    await loadAll();
+    const refreshOk=await refreshAlarmSurface();
     resetAlarmForm();
-    $('alarmSaveStatus').textContent=r.message||'Alarm удалена';
+    $('alarmSaveStatus').textContent=refreshOk?(r.message||'Alarm удалена'):'Alarm удалена с предупреждениями обновления';
   }catch(e){
     $('alarmSaveStatus').textContent='Delete failed: '+e.message;
   }

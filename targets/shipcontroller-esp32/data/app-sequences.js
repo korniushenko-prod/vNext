@@ -193,9 +193,9 @@ async function saveSequenceDefinition(){
   if(!payload.sequence_id){$('sequenceSaveStatus').textContent='Нужен sequence ID';return;}
   try{
     const r=await getJson(SEQUENCE_API.sequenceDefinition||'/sequence',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    await loadAll();
+    const refreshOk=await refreshSequenceSurface();
     editSequence(payload.sequence_id);
-    $('sequenceSaveStatus').textContent=r.message||'Sequence сохранена';
+    $('sequenceSaveStatus').textContent=refreshOk?(r.message||'Sequence сохранена'):'Sequence сохранена с предупреждениями обновления';
   }catch(e){
     $('sequenceSaveStatus').textContent='Save failed: '+e.message;
   }
@@ -207,11 +207,11 @@ async function deleteSequenceDefinition(sequenceId){
   $('sequenceSaveStatus').textContent='Удаляю sequence...';
   try{
     const r=await getJson(SEQUENCE_API.sequenceDelete||'/sequence-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetId})});
-    await loadAll();
+    const refreshOk=await refreshSequenceSurface();
     resetSequenceForm();
     resetSequenceStateForm();
     resetSequenceTransitionForm();
-    $('sequenceSaveStatus').textContent=r.message||'Sequence удалена';
+    $('sequenceSaveStatus').textContent=refreshOk?(r.message||'Sequence удалена'):'Sequence удалена с предупреждениями обновления';
   }catch(e){
     $('sequenceSaveStatus').textContent='Delete failed: '+e.message;
   }
@@ -246,9 +246,9 @@ async function saveSequenceState(){
   if(!payload.sequence_id||!payload.state_id){$('sequenceStateSaveStatus').textContent='Нужны sequence и state ID';return;}
   try{
     const r=await getJson(SEQUENCE_API.sequenceState||'/sequence-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    await loadAll();
+    const refreshOk=await refreshSequenceSurface();
     editSequenceState(payload.sequence_id,payload.state_id);
-    $('sequenceStateSaveStatus').textContent=r.message||'State сохранён';
+    $('sequenceStateSaveStatus').textContent=refreshOk?(r.message||'State сохранён'):'State сохранён с предупреждениями обновления';
   }catch(e){
     $('sequenceStateSaveStatus').textContent='Save failed: '+e.message;
   }
@@ -261,10 +261,10 @@ async function deleteSequenceState(sequenceId,stateId){
   $('sequenceStateSaveStatus').textContent='Удаляю state...';
   try{
     const r=await getJson(SEQUENCE_API.sequenceStateDelete||'/sequence-state-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetSequence,state_id:targetState})});
-    await loadAll();
+    const refreshOk=await refreshSequenceSurface();
     resetSequenceStateForm(targetSequence);
     resetSequenceTransitionForm(targetSequence);
-    $('sequenceStateSaveStatus').textContent=r.message||'State удалён';
+    $('sequenceStateSaveStatus').textContent=refreshOk?(r.message||'State удалён'):'State удалён с предупреждениями обновления';
   }catch(e){
     $('sequenceStateSaveStatus').textContent='Delete failed: '+e.message;
   }
@@ -286,9 +286,9 @@ async function saveSequenceTransition(){
   if(!payload.to||!payload.when_signal){$('sequenceTransitionSaveStatus').textContent='Нужны target state и when signal';return;}
   try{
     const r=await getJson(SEQUENCE_API.sequenceTransition||'/sequence-transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    await loadAll();
+    const refreshOk=await refreshSequenceSurface();
     editSequenceTransition(payload.sequence_id,payload.state_id,payload.transition_id);
-    $('sequenceTransitionSaveStatus').textContent=r.message||'Transition сохранён';
+    $('sequenceTransitionSaveStatus').textContent=refreshOk?(r.message||'Transition сохранён'):'Transition сохранён с предупреждениями обновления';
   }catch(e){
     $('sequenceTransitionSaveStatus').textContent='Save failed: '+e.message;
   }
@@ -302,9 +302,9 @@ async function deleteSequenceTransition(sequenceId,stateId,transitionId){
   $('sequenceTransitionSaveStatus').textContent='Удаляю transition...';
   try{
     const r=await getJson(SEQUENCE_API.sequenceTransitionDelete||'/sequence-transition-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sequence_id:targetSequence,state_id:targetState,transition_id:targetTransition})});
-    await loadAll();
+    const refreshOk=await refreshSequenceSurface();
     resetSequenceTransitionForm(targetSequence,targetState);
-    $('sequenceTransitionSaveStatus').textContent=r.message||'Transition удалён';
+    $('sequenceTransitionSaveStatus').textContent=refreshOk?(r.message||'Transition удалён'):'Transition удалён с предупреждениями обновления';
   }catch(e){
     $('sequenceTransitionSaveStatus').textContent='Delete failed: '+e.message;
   }
