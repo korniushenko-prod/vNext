@@ -1043,7 +1043,15 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
                 if (haveLegacy)
                 {
                     doc = legacyDoc;
-                    mergeJsonVariant(doc.as<JsonVariant>(), runtimeOverrideDoc.as<JsonVariantConst>());
+                    // Keep the repo/bench project model authoritative when a
+                    // full legacy /config.json exists. NVS is still allowed to
+                    // override volatile device connectivity, but it must not
+                    // silently blank project-critical sections such as active
+                    // board, OLED/display, channels, blocks or sequences.
+                    if (runtimeOverrideDoc["wifi"].is<JsonObject>())
+                    {
+                        mergeJsonVariant(doc["wifi"], runtimeOverrideDoc["wifi"].as<JsonVariantConst>());
+                    }
                 }
                 else
                 {
