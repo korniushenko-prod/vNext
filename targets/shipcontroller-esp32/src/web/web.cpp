@@ -4949,11 +4949,22 @@ void webInit()
     else
     {
         Serial.println("Connecting to WiFi...");
+        Serial.println("STA SSID: " + gConfig.wifi.ssid);
+        WiFi.persistent(false);
+        WiFi.disconnect(true, true);
+        delay(200);
         WiFi.mode(WIFI_STA);
-        WiFi.begin(gConfig.wifi.ssid.c_str(), gConfig.wifi.password.c_str());
+        if (gConfig.wifi.password.length() > 0)
+        {
+            WiFi.begin(gConfig.wifi.ssid.c_str(), gConfig.wifi.password.c_str());
+        }
+        else
+        {
+            WiFi.begin(gConfig.wifi.ssid.c_str());
+        }
         unsigned long start = millis();
 
-        while (WiFi.status() != WL_CONNECTED && millis() - start < 10000)
+        while (WiFi.status() != WL_CONNECTED && millis() - start < 15000)
         {
             delay(500);
             Serial.print(".");
