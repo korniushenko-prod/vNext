@@ -681,7 +681,7 @@ async function editorMaterializeInputBehaviorNode(){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(payload)
   });
-  await loadAll();
+  await refreshBlockSurface();
 }
 
 function buildRunLatchMaterializePayload(model){
@@ -710,7 +710,7 @@ async function editorMaterializeRunLatchNode(){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(payload)
   });
-  await loadAll();
+  await refreshBlockSurface();
 }
 
 function buildPermissiveMaterializePayload(model){
@@ -740,7 +740,7 @@ async function editorMaterializePermissiveNode(){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(payload)
   });
-  await loadAll();
+  await refreshBlockSurface();
 }
 
 function buildTimerMaterializePayloads(model){
@@ -793,7 +793,7 @@ async function editorMaterializeTimerNode(){
       body:JSON.stringify(payload)
     });
   }
-  await loadAll();
+  await refreshBlockSurface();
 }
 
 async function editorMaterializeTestOne(){
@@ -820,7 +820,7 @@ async function editorMaterializeTestOne(){
       body:JSON.stringify(payload)
     });
   }
-  await loadAll();
+  await refreshBlockSurface();
 }
 
 function editorPortSignalId(nodeId,port){
@@ -1024,7 +1024,7 @@ async function editorDeleteOwnedRuntime(ownerId){
   for(const item of owned){
     await deleteBlockWithReview(item.id);
   }
-  await loadAll();
+  await refreshBlockSurface();
   return true;
 }
 
@@ -1701,7 +1701,7 @@ async function createEditorTestOneInputPoint(){
   const wizard=ensureEditorTestOneWizardState();
   const existingChannelId=String(wizard.inputExistingChannelId||'').trim();
   if(existingChannelId&&state.channels?.channels?.[existingChannelId]){
-    await loadAll();
+    await refreshBlockSurface();
     updateEditorNodeBinding('src_button','source_signal','signal:'+existingChannelId);
     return;
   }
@@ -1729,7 +1729,7 @@ async function createEditorTestOneInputPoint(){
       initial:false
     })
   });
-  await loadAll();
+  await refreshBlockSurface();
   updateEditorNodeBinding('src_button','source_signal','signal:'+channelId);
 }
 
@@ -1759,7 +1759,7 @@ async function createEditorTestOneOutputPoint(){
       initial:!!wizard.outputInitial
     })
   });
-  await loadAll();
+  await refreshBlockSurface();
   updateEditorNodeBinding('out_relay','output_target','channel:'+channelId);
 }
 
