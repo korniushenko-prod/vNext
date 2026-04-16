@@ -527,7 +527,7 @@ await getJson(SEQUENCE_API.sequenceTransition||'/sequence-transition',{method:'P
       delay_ms:feedbackLossMs,
       invert:true
     })});
-    await loadAll();
+    await refreshSequenceSurface();
     editSequence(sequenceId);
     editSequenceState(sequenceId,'start_cmd');
     editSequenceTransition(sequenceId,'start_cmd','to_run');
