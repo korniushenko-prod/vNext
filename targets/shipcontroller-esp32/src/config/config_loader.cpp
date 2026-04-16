@@ -119,6 +119,33 @@ void stripTemplateLibrarySections(JsonDocument &doc)
     root.remove("board_templates");
 }
 
+void mergeJsonVariant(JsonVariant dst, JsonVariantConst src)
+{
+    if (src.isNull())
+    {
+        return;
+    }
+
+    if (src.is<JsonObjectConst>())
+    {
+        JsonObject dstObject = dst.is<JsonObject>() ? dst.as<JsonObject>() : dst.to<JsonObject>();
+        JsonObjectConst srcObject = src.as<JsonObjectConst>();
+        for (JsonPairConst pair : srcObject)
+        {
+            mergeJsonVariant(dstObject[pair.key().c_str()], pair.value());
+        }
+        return;
+    }
+
+    if (src.is<JsonArrayConst>())
+    {
+        dst.set(src);
+        return;
+    }
+
+    dst.set(src);
+}
+
 } // namespace
 
 static void logTruncationWarning(const __FlashStringHelper *section, int limit)
@@ -999,6 +1026,9 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
 {
     doc.clear();
 
+    JsonDocument legacyDoc;
+    bool haveLegacy = loadLegacyConfigDocument(legacyDoc);
+
     Preferences prefs;
     if (prefs.begin(kRuntimeConfigNamespace, true))
     {
@@ -1006,9 +1036,19 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
         prefs.end();
         if (stored.length() > 0)
         {
-            DeserializationError error = deserializeJson(doc, stored);
+            JsonDocument runtimeOverrideDoc;
+            DeserializationError error = deserializeJson(runtimeOverrideDoc, stored);
             if (!error)
             {
+                if (haveLegacy)
+                {
+                    doc = legacyDoc;
+                    mergeJsonVariant(doc.as<JsonVariant>(), runtimeOverrideDoc.as<JsonVariantConst>());
+                }
+                else
+                {
+                    doc = runtimeOverrideDoc;
+                }
                 stripTemplateLibrarySections(doc);
                 return true;
             }
@@ -1016,10 +1056,12 @@ bool loadConfigDocumentFromStorage(JsonDocument &doc)
         }
     }
 
-    if (!loadLegacyConfigDocument(doc))
+    if (!haveLegacy)
     {
         return false;
     }
+
+    doc = legacyDoc;
 
     // Keep boot tolerant when the device only has a legacy /config.json or no
     // stable runtimecfg namespace yet. Automatic NVS migration during the read
