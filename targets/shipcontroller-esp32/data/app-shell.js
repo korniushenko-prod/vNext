@@ -1,5 +1,5 @@
 (()=>{
-  const ASSET_VERSION = '20260416-runtimefix11';
+  const ASSET_VERSION = '20260416-runtimefix12';
   const ENABLE_EXPERIMENTAL_SCRIPTS = false;
   const FRAGMENTS = [
     { mountId: 'appPanelsMount', url: '/fragments/app-panels.html' },

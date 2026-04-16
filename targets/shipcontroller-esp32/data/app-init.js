@@ -1,8 +1,49 @@
 const INIT_API=window.SHIP_API?.endpoints||{};
 const CORE=window.SHIP_CORE||window;
 const {$,state,getJson,openModal,closeModal,setUiLanguage,setUiMode,setPrimaryTabValue,setActiveTab,applyUiMode,populateUnitPresets,updateSignalUnitsVisibility,applyHelpLanguage}=CORE;
-document.querySelectorAll('.primary-tabs button').forEach(btn=>btn.addEventListener('click',()=>{setPrimaryTabValue(btn.dataset.primaryTab);document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));applyUiMode()}));
-document.querySelectorAll('.tabs button').forEach(btn=>btn.addEventListener('click',()=>{if(btn.classList.contains('hidden'))return;setActiveTab?.(btn.dataset.tab);applyUiMode()}));
+let runtimeSurfaceRefreshInFlight=false;
+
+async function refreshChannelsSurfaceNow(){
+  state.channels=await getJson(INIT_API.channels||'/channels');
+  state.status=await getJson(INIT_API.status||'/status');
+  renderChannels();
+  renderChannelConditioningSummary();
+  renderChannelCalibrationAssistant();
+  renderChannelPreview();
+}
+
+async function refreshSignalsSurfaceNow(){
+  state.signals=await getJson(INIT_API.signals||'/signals');
+  renderSignals();
+  renderSignalOptions();
+  if(typeof renderAlarmSignalOptions==='function')renderAlarmSignalOptions();
+  renderBlockOptions();
+  renderDisplaySignalOptions();
+  renderChannelConditioningSummary();
+  renderChannelCalibrationAssistant();
+  renderChannelPreview();
+}
+
+async function refreshActiveRuntimeSurface(){
+  if(document.hidden||runtimeSurfaceRefreshInFlight)return;
+  const activeTab=state.ui?.activeTab||'overview';
+  if(activeTab!=='channels'&&activeTab!=='signals')return;
+  runtimeSurfaceRefreshInFlight=true;
+  try{
+    if(activeTab==='channels'){
+      await refreshChannelsSurfaceNow();
+    }else if(activeTab==='signals'){
+      await refreshSignalsSurfaceNow();
+    }
+  }catch(error){
+    if($('runtimeOverview'))$('runtimeOverview').textContent='Auto refresh warning: '+error.message+'\n\n'+($('runtimeOverview').textContent||'');
+  }finally{
+    runtimeSurfaceRefreshInFlight=false;
+  }
+}
+
+document.querySelectorAll('.primary-tabs button').forEach(btn=>btn.addEventListener('click',()=>{setPrimaryTabValue(btn.dataset.primaryTab);document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));applyUiMode();setTimeout(refreshActiveRuntimeSurface,0)}));
+document.querySelectorAll('.tabs button').forEach(btn=>btn.addEventListener('click',()=>{if(btn.classList.contains('hidden'))return;setActiveTab?.(btn.dataset.tab);applyUiMode();setTimeout(refreshActiveRuntimeSurface,0)}));
 const on=(id,event,handler)=>{const el=$(id);if(el)el.addEventListener(event,handler);return el};
 on('secondaryTabSelect','change',()=>{const tab=$('secondaryTabSelect')?.value||'';if(!tab)return;document.querySelector('.tabs button[data-tab="'+tab+'"]:not(.hidden)')?.click()});
 
@@ -11,8 +52,8 @@ $('detectChipNow').addEventListener('click',async()=>{state.chip=await getJson(I
 $('refreshHardware').addEventListener('click',async()=>{state.hardware=await getJson(INIT_API.hardware||'/hardware');renderHardware()});
 $('reloadHardwareSettings').addEventListener('click',loadAll);
 $('saveHardwareSettings').addEventListener('click',saveSettings);
-$('refreshChannels').addEventListener('click',async()=>{state.channels=await getJson(INIT_API.channels||'/channels');renderChannels();renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()});
-$('refreshSignals').addEventListener('click',async()=>{state.signals=await getJson(INIT_API.signals||'/signals');renderSignals();renderSignalOptions();if(typeof renderAlarmSignalOptions==='function')renderAlarmSignalOptions();renderBlockOptions();renderDisplaySignalOptions();renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()});
+$('refreshChannels').addEventListener('click',refreshChannelsSurfaceNow);
+$('refreshSignals').addEventListener('click',refreshSignalsSurfaceNow);
 $('refreshBlocks').addEventListener('click',async()=>{state.blocks=await getJson('/blocks');renderBlocks()});
 $('refreshDisplay').addEventListener('click',async()=>{state.display=await getJson('/display');renderDisplay()});
 $('refreshAlarms').addEventListener('click',async()=>{state.alarms=await getJson('/alarms');if(typeof renderAlarms==='function')renderAlarms()});
@@ -248,3 +289,4 @@ if(typeof resetSequenceStateForm==='function')resetSequenceStateForm();
 if(typeof resetSequenceTransitionForm==='function')resetSequenceTransitionForm();
 applyHelpLanguage();
 setTimeout(()=>bootstrapUi(),0);
+setInterval(refreshActiveRuntimeSurface,1500);
