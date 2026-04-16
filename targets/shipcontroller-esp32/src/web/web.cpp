@@ -355,16 +355,18 @@ static void handleGetEditorProjectModel()
     }
 
     JsonDocument modelDoc;
-    if (!loadEditorProjectModelFromStorage(presetId, modelDoc))
-    {
-        sendJsonError(404, "Editor project model not found");
-        return;
-    }
-
     JsonDocument response;
     response["ok"] = true;
     response["preset"] = presetId;
-    response["model"] = modelDoc.as<JsonVariant>();
+    if (loadEditorProjectModelFromStorage(presetId, modelDoc))
+    {
+        response["model"] = modelDoc.as<JsonVariant>();
+    }
+    else
+    {
+        response["model"] = nullptr;
+        response["message"] = "Editor project model not found in storage";
+    }
     sendJsonDoc(response);
 }
 
