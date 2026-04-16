@@ -99,6 +99,16 @@ Needed change:
 
 ## Refactor phases
 
+## Current progress snapshot
+
+- `Phase 1` started:
+  - `editor` and `modules` removed from required shell path
+  - stable commissioning bootstrap no longer depends on those experimental surfaces
+- `Phase 2` started partially:
+  - `app-core.js` is now the canonical home for shared helpers
+  - shell verifies required core exports immediately after loading `app-core.js`
+  - goal is to fail with one direct bootstrap error instead of a cascade of secondary `ReferenceError`s
+
 ## Phase 1. Freeze and isolate the stable commissioning core
 
 ### Goal

@@ -1,10 +1,11 @@
 "use strict";
 
 (() => {
-  const DISABLED_TABS = new Set([
+  const EXPERIMENTAL_TABS = new Set([
     "editor",
     "modules"
   ]);
+  const DISABLED_TABS = new Set(EXPERIMENTAL_TABS);
 
   const UNIT_PRESETS = [
     { value: "", label: "No units" },
@@ -119,6 +120,20 @@
 
   function setSaveStatus(text) {
     if ($("saveStatus")) $("saveStatus").textContent = text;
+  }
+
+  function pretty(value) {
+    return JSON.stringify(value, null, 2);
+  }
+
+  function normalizeCapabilities(value) {
+    if (Array.isArray(value)) {
+      return value.map((entry) => String(entry).trim()).filter(Boolean);
+    }
+    return String(value || "")
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter(Boolean);
   }
 
   const state = {
@@ -364,6 +379,8 @@
   window.escapeHtml = escapeHtml;
   window.boolBadge = boolBadge;
   window.formatMsForTable = formatMsForTable;
+  window.pretty = pretty;
+  window.normalizeCapabilities = normalizeCapabilities;
   window.getJson = getJson;
   window.safeGetJson = safeGetJson;
   window.openModal = openModal;
@@ -385,6 +402,7 @@
   window.applyHelpLanguage = applyHelpLanguage;
   window.openHelpPopover = openHelpPopover;
   window.runHelpAction = runHelpAction;
+  window.isExperimentalSurfaceEnabled = (surfaceId) => !EXPERIMENTAL_TABS.has(surfaceId || "");
 
   document.addEventListener("DOMContentLoaded", () => {
     populateUnitPresets();

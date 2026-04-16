@@ -1,11 +1,12 @@
 (()=>{
-  const ASSET_VERSION = '20260416-runtimefix4';
+  const ASSET_VERSION = '20260416-runtimefix9';
+  const ENABLE_EXPERIMENTAL_SCRIPTS = false;
   const FRAGMENTS = [
     { mountId: 'appPanelsMount', url: '/fragments/app-panels.html' },
     { mountId: 'appModalsMount', url: '/fragments/app-modals.html' }
   ];
 
-  const SCRIPT_ORDER = [
+  const CORE_SCRIPT_ORDER = [
     '/app-i18n.js',
     '/app-help.js',
     '/app-ui-text.js',
@@ -17,11 +18,27 @@
     '/app-alarms.js',
     '/app-sequences.js',
     '/app-comms.js',
-    '/app-editor.js',
-    '/app-modules.js',
     '/app-templates.js',
     '/app-features.js',
     '/app-init.js'
+  ];
+  const REQUIRED_CORE_EXPORTS = [
+    '$',
+    'state',
+    'getJson',
+    'safeGetJson',
+    'pretty',
+    'escapeHtml',
+    'normalizeCapabilities',
+    'setPrimaryTabValue',
+    'setActiveTab',
+    'applyUiMode',
+    'updateSignalUnitsVisibility',
+    'recordRequestTrace'
+  ];
+  const EXPERIMENTAL_SCRIPT_ORDER = [
+    '/app-editor.js',
+    '/app-modules.js'
   ];
 
   function $(id) {
@@ -57,6 +74,13 @@
     });
   }
 
+  function verifyCoreContract() {
+    const missing = REQUIRED_CORE_EXPORTS.filter((key) => typeof window[key] === 'undefined');
+    if (missing.length) {
+      throw new Error(`core contract missing: ${missing.join(', ')}`);
+    }
+  }
+
   async function withRetries(loader, label, attempts = 3) {
     let lastError = null;
     for (let attempt = 1; attempt <= attempts; attempt++) {
@@ -83,12 +107,18 @@
         );
       }
       if (status) status.textContent = 'Подключаю скрипты...';
-      for (const src of SCRIPT_ORDER) {
+      const scriptOrder = ENABLE_EXPERIMENTAL_SCRIPTS
+        ? CORE_SCRIPT_ORDER.concat(EXPERIMENTAL_SCRIPT_ORDER)
+        : CORE_SCRIPT_ORDER;
+      for (const src of scriptOrder) {
         if (status) status.textContent = `Подключаю ${src}...`;
         await withRetries(
           () => loadScript(src),
           `script ${src}`
         );
+        if (src === '/app-core.js') {
+          verifyCoreContract();
+        }
       }
       if (status) status.remove();
     } catch (error) {
