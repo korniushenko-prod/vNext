@@ -592,8 +592,8 @@ async function saveBus(){
   $('busStatus').textContent='Сохраняю шину...';
   try{
     const r=await getJson('/bus',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    await loadAll();
-    $('busStatus').textContent=r.message||'Шина сохранена';
+    const refreshOk=await refreshCommsSurface();
+    $('busStatus').textContent=refreshOk?(r.message||'Шина сохранена'):'Шина сохранена с предупреждениями обновления';
   }catch(e){
     $('busStatus').textContent='Save failed: '+e.message;
   }
@@ -606,9 +606,9 @@ async function deleteBus(id){
   $('busStatus').textContent='Удаляю шину...';
   try{
     const r=await getJson('/bus-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bus_id:busId})});
-    await loadAll();
+    const refreshOk=await refreshCommsSurface();
     resetBusForm();
-    $('busStatus').textContent=r.message||'Шина удалена';
+    $('busStatus').textContent=refreshOk?(r.message||'Шина удалена'):'Шина удалена с предупреждениями обновления';
   }catch(e){
     $('busStatus').textContent='Delete failed: '+e.message;
   }
@@ -737,8 +737,8 @@ async function writeExternalResourceNow(){
       return;
     }
     const r=await getJson('/external-resource-write',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    await loadAll();
-    $('externalResourceStatus').textContent=r.message||'Test write выполнен';
+    const refreshOk=await refreshCommsSurface();
+    $('externalResourceStatus').textContent=refreshOk?(r.message||'Test write выполнен'):'Test write выполнен с предупреждениями обновления';
   }catch(e){
     $('externalResourceStatus').textContent='Write failed: '+e.message;
   }
@@ -757,8 +757,8 @@ async function writeExternalResourceDigital(value){
   $('externalResourceStatus').textContent='Отправляю test write...';
   try{
     const r=await getJson('/external-resource-write',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resource_id:resourceId,digital_value:!!value})});
-    await loadAll();
-    $('externalResourceStatus').textContent=r.message||'Test write выполнен';
+    const refreshOk=await refreshCommsSurface();
+    $('externalResourceStatus').textContent=refreshOk?(r.message||'Test write выполнен'):'Test write выполнен с предупреждениями обновления';
   }catch(e){
     $('externalResourceStatus').textContent='Write failed: '+e.message;
   }
@@ -770,8 +770,8 @@ async function saveDevice(){
   $('deviceStatus').textContent='Сохраняю устройство...';
   try{
     const r=await getJson('/device',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    await loadAll();
-    $('deviceStatus').textContent=r.message||'Устройство сохранено';
+    const refreshOk=await refreshCommsSurface();
+    $('deviceStatus').textContent=refreshOk?(r.message||'Устройство сохранено'):'Устройство сохранено с предупреждениями обновления';
   }catch(e){
     $('deviceStatus').textContent='Save failed: '+e.message;
   }
@@ -786,8 +786,8 @@ async function seedDeviceResources(){
   $('deviceStatus').textContent='Создаю ch0..ch3...';
   try{
     const r=await getJson('/device-seed-external-resources',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:deviceId,template:templateDef.seedTemplate})});
-    await loadAll();
-    $('deviceStatus').textContent=r.message||'Ресурсы устройства созданы';
+    const refreshOk=await refreshCommsSurface();
+    $('deviceStatus').textContent=refreshOk?(r.message||'Ресурсы устройства созданы'):'Ресурсы устройства созданы с предупреждениями обновления';
   }catch(e){
     $('deviceStatus').textContent='Seed failed: '+e.message;
   }
@@ -812,8 +812,8 @@ async function seedDeviceResourcesFromId(deviceId){
   $('deviceStatus').textContent='Создаю ресурсы для '+deviceId+'...';
   try{
     const r=await getJson('/device-seed-external-resources',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:deviceId,template:templateDef.seedTemplate})});
-    await loadAll();
-    $('deviceStatus').textContent=r.message||('Ресурсы устройства '+deviceId+' созданы');
+    const refreshOk=await refreshCommsSurface();
+    $('deviceStatus').textContent=refreshOk?(r.message||('Ресурсы устройства '+deviceId+' созданы')):'Ресурсы устройства созданы с предупреждениями обновления';
   }catch(e){
     $('deviceStatus').textContent='Seed failed: '+e.message;
   }
@@ -826,9 +826,9 @@ async function deleteDevice(id){
   $('deviceStatus').textContent='Удаляю устройство...';
   try{
     const r=await getJson('/device-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:deviceId})});
-    await loadAll();
+    const refreshOk=await refreshCommsSurface();
     resetDeviceForm();
-    $('deviceStatus').textContent=r.message||'Устройство удалено';
+    $('deviceStatus').textContent=refreshOk?(r.message||'Устройство удалено'):'Устройство удалено с предупреждениями обновления';
   }catch(e){
     $('deviceStatus').textContent='Delete failed: '+e.message;
   }
@@ -840,8 +840,8 @@ async function saveExternalResource(){
   $('externalResourceStatus').textContent='Сохраняю внешний ресурс...';
   try{
     const r=await getJson('/external-resource',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    await loadAll();
-    $('externalResourceStatus').textContent=r.message||'Внешний ресурс сохранён';
+    const refreshOk=await refreshCommsSurface();
+    $('externalResourceStatus').textContent=refreshOk?(r.message||'Внешний ресурс сохранён'):'Внешний ресурс сохранён с предупреждениями обновления';
   }catch(e){
     $('externalResourceStatus').textContent='Save failed: '+e.message;
   }
@@ -854,9 +854,9 @@ async function deleteExternalResource(id){
   $('externalResourceStatus').textContent='Удаляю внешний ресурс...';
   try{
     const r=await getJson('/external-resource-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resource_id:resourceId})});
-    await loadAll();
+    const refreshOk=await refreshCommsSurface();
     resetExternalResourceForm();
-    $('externalResourceStatus').textContent=r.message||'Внешний ресурс удалён';
+    $('externalResourceStatus').textContent=refreshOk?(r.message||'Внешний ресурс удалён'):'Внешний ресурс удалён с предупреждениями обновления';
   }catch(e){
     $('externalResourceStatus').textContent='Delete failed: '+e.message;
   }
