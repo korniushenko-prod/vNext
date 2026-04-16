@@ -381,6 +381,7 @@
   window.setSignalUnits = setSignalUnits;
   window.getSignalUnits = getSignalUnits;
   window.updateSignalUnitsVisibility = updateSignalUnitsVisibility;
+  window.recordRequestTrace = recordRequestTrace;
   window.applyHelpLanguage = applyHelpLanguage;
   window.openHelpPopover = openHelpPopover;
   window.runHelpAction = runHelpAction;
