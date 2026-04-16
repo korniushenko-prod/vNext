@@ -1,5 +1,5 @@
 (()=>{
-  const ASSET_VERSION = '20260323-editorflow1';
+  const ASSET_VERSION = '20260416-runtimefix2';
   const FRAGMENTS = [
     { mountId: 'appPanelsMount', url: '/fragments/app-panels.html' },
     { mountId: 'appModalsMount', url: '/fragments/app-modals.html' }

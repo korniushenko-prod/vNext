@@ -29,6 +29,7 @@ $('refreshStatus').addEventListener('click',async()=>{state.status=await getJson
 $('refreshDiagnostics').addEventListener('click',async()=>{state.diagnostics=await getJson(INIT_API.diagnostics||'/diagnostics');renderDiagnostics();renderChannelConditioningSummary();renderChannelCalibrationAssistant();renderChannelPreview()});
 $('reloadSettings').addEventListener('click',loadAll);
 $('saveSettings').addEventListener('click',saveSettings);
+$('clearRequestTrace')?.addEventListener('click',()=>{state.ui.requestTrace=[];window.renderRequestTrace?.()});
 $('wifiMode').addEventListener('change',updateNetworkVisibility);
 $('wifiStartupPolicy').addEventListener('change',updateNetworkVisibility);
 $('wifiShowPasswords').addEventListener('change',updatePasswordVisibility);

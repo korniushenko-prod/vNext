@@ -47,16 +47,54 @@
   }
 
   async function getJson(url, options = undefined) {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      throw new Error(`${url} -> ${response.status}`);
-    }
-    const text = await response.text();
-    if (!text) return {};
+    const method = String(options?.method || "GET").toUpperCase();
+    const startedAt = Date.now();
+    const startedPerf = (globalThis.performance?.now?.() ?? 0);
     try {
-      return JSON.parse(text);
+      const response = await fetch(url, options);
+      const text = await response.text();
+      const durationMs = Math.round((globalThis.performance?.now?.() ?? 0) - startedPerf);
+      recordRequestTrace({
+        method,
+        url,
+        ok: response.ok,
+        status: response.status,
+        durationMs,
+        size: text.length,
+        startedAt
+      });
+      if (!response.ok) {
+        throw new Error(`${url} -> ${response.status}`);
+      }
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        recordRequestTrace({
+          method,
+          url,
+          ok: false,
+          status: response.status,
+          durationMs,
+          size: text.length,
+          startedAt,
+          error: "non-json payload"
+        });
+        throw new Error(`${url} returned non-JSON payload`);
+      }
     } catch (error) {
-      throw new Error(`${url} returned non-JSON payload`);
+      const durationMs = Math.round((globalThis.performance?.now?.() ?? 0) - startedPerf);
+      recordRequestTrace({
+        method,
+        url,
+        ok: false,
+        status: 0,
+        durationMs,
+        size: 0,
+        startedAt,
+        error: error?.message || "fetch failed"
+      });
+      throw error;
     }
   }
 
@@ -102,9 +140,27 @@
       signalFilter: "all",
       signalSearch: "",
       displaySelectedScreen: "",
-      inspectorTimer: null
+      inspectorTimer: null,
+      requestTrace: []
     }
   };
+
+  function recordRequestTrace(entry) {
+    const next = {
+      method: entry?.method || "GET",
+      url: entry?.url || "-",
+      ok: !!entry?.ok,
+      status: Number(entry?.status || 0),
+      durationMs: Number(entry?.durationMs || 0),
+      size: Number(entry?.size || 0),
+      startedAt: Number(entry?.startedAt || Date.now()),
+      error: entry?.error || ""
+    };
+    state.ui.requestTrace = [next, ...(state.ui.requestTrace || [])].slice(0, 40);
+    if (typeof window.renderRequestTrace === "function") {
+      window.renderRequestTrace();
+    }
+  }
 
   function getUiLanguage() {
     return state.ui.uiLanguage || $("uiLanguage")?.value || "ru";
