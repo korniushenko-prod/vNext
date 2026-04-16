@@ -110,6 +110,10 @@
     return state.ui.uiLanguage || $("uiLanguage")?.value || "ru";
   }
 
+  function getUiMode() {
+    return state.ui.uiMode || $("uiMode")?.value || "commissioning";
+  }
+
   function getI18nValue(lang, key, fallback = "") {
     return window.SHIP_I18N?.[lang]?.[key] ?? window.SHIP_I18N?.ru?.[key] ?? fallback;
   }
@@ -310,6 +314,7 @@
   window.closeModal = closeModal;
   window.setSaveStatus = setSaveStatus;
   window.getUiLanguage = getUiLanguage;
+  window.getUiMode = getUiMode;
   window.t = t;
   window.setUiLanguage = setUiLanguage;
   window.setUiMode = setUiMode;
