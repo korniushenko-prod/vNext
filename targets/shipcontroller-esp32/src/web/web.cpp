@@ -301,9 +301,10 @@ static void startAccessPoint()
 
 static void sendJsonDoc(JsonDocument &doc)
 {
-    String json;
-    serializeJson(doc, json);
-    server.send(200, "application/json", json);
+    server.setContentLength(measureJson(doc));
+    server.send(200, "application/json", "");
+    WiFiClient client = server.client();
+    serializeJson(doc, client);
 }
 
 static String contentTypeForPath(const String &path)
@@ -340,9 +341,10 @@ static void sendJsonError(int statusCode, const char *message)
     JsonDocument doc;
     doc["ok"] = false;
     doc["message"] = message;
-    String json;
-    serializeJson(doc, json);
-    server.send(statusCode, "application/json", json);
+    server.setContentLength(measureJson(doc));
+    server.send(statusCode, "application/json", "");
+    WiFiClient client = server.client();
+    serializeJson(doc, client);
 }
 
 static void handleGetEditorProjectModel()
