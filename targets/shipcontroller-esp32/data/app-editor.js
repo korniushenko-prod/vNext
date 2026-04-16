@@ -326,7 +326,6 @@ function saveEditorProjectModel(){
   const model=state.projectModel;
   if(!model?.metadata?.preset_id)return;
   localStorage.setItem(editorProjectStorageKey(model.metadata.preset_id),JSON.stringify(model));
-  scheduleEditorProjectBackendSave();
 }
 
 function ensureMigratedProjectModelSaved(){
@@ -1950,7 +1949,6 @@ function renderEditor(){
   const center=ui.mode==='state'?buildStateMode(demo,ui):buildFlowMode(demo,ui);
   root.innerHTML='<div class="editor-workspace">'+top+'<div class="editor-grid"><aside class="editor-sidebar"><div class="editor-sidebar-section">'+buildProjectTree(demo,ui)+'</div><div class="editor-sidebar-section">'+buildLibrary()+'</div></aside><main class="editor-stage">'+center+'</main><aside class="editor-inspector">'+buildInspector()+'</aside></div>'+buildGeneratedPreview(demo,ui)+'</div>';
   saveEditorUiState();
-  saveEditorProjectModel();
   if(state.ui.editorHydratedPreset!==demo.metadata?.preset_id){
     state.ui.editorHydratedPreset=demo.metadata?.preset_id||'';
     hydrateEditorProjectModelFromBackend(state.ui.editorHydratedPreset);
