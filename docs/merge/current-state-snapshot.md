@@ -10,7 +10,7 @@ The repository currently contains:
 - frozen bounded hardware preset / target catalog track
 - frozen product-track pilot MVP `PumpSkidSupervisor v1`
 - frozen verification, sign-off, and controlled-rollout repo bundle for that pilot
-- one active external execution track for physical bench confirmation
+- one completed bounded bench confirmation track for physical proof
 
 ## Frozen Baselines
 
@@ -36,7 +36,8 @@ The repository currently contains:
   `PumpSkidSupervisor v1`
 - verification track frozen
 - sign-off / controlled rollout repo track frozen
-- controlled pilot bundle is prepared in repo, but real physical bench evidence is still outstanding
+- controlled pilot bundle is prepared in repo
+- bounded physical bench evidence is now confirmed
 
 Canonical pilot references:
 
@@ -47,29 +48,34 @@ Canonical pilot references:
 
 ## Active Track Marker
 
-Current and only active track:
+Completed external track:
 
 - `PR-35A — Controlled Pilot Bench Execution`
 
 This means:
 
-- use only the frozen controlled pilot bundle
-- do not open a new wave
-- do not reopen foundation/frozen contracts
-- do not add new library objects or package capabilities
-- focus only on real bench deploy/apply/readback/reboot/persistence/operator evidence
+- the frozen controlled pilot bundle was exercised on the live bench
+- `GPIO34` and `GPIO35` input paths were confirmed
+- `GPIO25` output proof was confirmed through the LED path
+- reboot/persistence behavior was confirmed within current bench scope
+- this phase is no longer the main active blocker
 
 ## Next Truth Boundary
 
 The repo-side truth for the controlled pilot is already frozen.
 
-The next meaningful state change can happen only after `PR-35A` produces:
+`PR-35A` has already produced:
 
 - real bench execution
-- physical/manual evidence bundle
-- operator walkthrough notes
+- bounded physical/manual evidence
 - reboot / persistence confirmation
-- one final pilot verdict
+- one bounded pilot verdict
+
+The next meaningful state change now returns to:
+
+- frontend stabilization
+- machine-first roadmap execution
+- authoring/runtime UX simplification around channels, signals, and machine composition
 
 ## Forward Roadmap Rebase
 
