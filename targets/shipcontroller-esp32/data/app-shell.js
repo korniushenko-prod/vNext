@@ -33,6 +33,10 @@
     return `${url}${separator}v=${ASSET_VERSION}`;
   }
 
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   async function loadFragment(mountId, url) {
     const mount = $(mountId);
     if (!mount) return;
@@ -53,16 +57,38 @@
     });
   }
 
+  async function withRetries(loader, label, attempts = 3) {
+    let lastError = null;
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      try {
+        return await loader();
+      } catch (error) {
+        lastError = error;
+        if (attempt < attempts) {
+          await sleep(200 * attempt);
+        }
+      }
+    }
+    throw lastError || new Error(label);
+  }
+
   async function bootstrapShell() {
     const status = $('shellBootstrapStatus');
     try {
       if (status) status.textContent = 'Загружаю интерфейс...';
       for (const fragment of FRAGMENTS) {
-        await loadFragment(fragment.mountId, fragment.url);
+        await withRetries(
+          () => loadFragment(fragment.mountId, fragment.url),
+          `fragment ${fragment.url}`
+        );
       }
       if (status) status.textContent = 'Подключаю скрипты...';
       for (const src of SCRIPT_ORDER) {
-        await loadScript(src);
+        if (status) status.textContent = `Подключаю ${src}...`;
+        await withRetries(
+          () => loadScript(src),
+          `script ${src}`
+        );
       }
       if (status) status.remove();
     } catch (error) {
