@@ -69,6 +69,12 @@ export interface MachineSectionDefinition {
 export interface MachineDefinition {
   id: string;
   name: string;
+  behaviorKind: "sequence" | "control" | "monitoring";
+  behaviorSummary?: {
+    primaryStateIds: string[];
+    faultStateIds: string[];
+    recoveryTransitionIds: string[];
+  };
   sections: MachineSectionDefinition[];
   regions?: MachineRegionDefinition[];
   sceneGroups?: MachineSceneGroupDefinition[];
@@ -139,6 +145,12 @@ export const demoProject: UniversalPlcDemoProject = {
     {
       id: "boiler_sequence",
       name: "Boiler Sequence",
+      behaviorKind: "sequence",
+      behaviorSummary: {
+        primaryStateIds: ["idle", "starting", "running", "stopping"],
+        faultStateIds: ["fault"],
+        recoveryTransitionIds: ["t_fault_idle"]
+      },
       sections: [
         {
           id: "sec_startup",

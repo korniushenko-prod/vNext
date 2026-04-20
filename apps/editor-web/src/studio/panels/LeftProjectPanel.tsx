@@ -63,7 +63,7 @@ export function LeftProjectPanel() {
               onClick={() => selectItem("machine", activeMachine.id, { machineId: activeMachine.id })}
             >
               <strong>{activeMachine.name}</strong>
-              <span>{activeMachine.sceneGroups?.length || 0} groups / {activeMachine.states.length} states</span>
+              <span>{activeMachine.behaviorKind} / {activeMachine.states.length} states</span>
             </li>
             {(activeMachine.sceneGroups || []).map((group) => (
               <li

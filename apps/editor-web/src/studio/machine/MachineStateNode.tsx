@@ -22,10 +22,6 @@ export function MachineStateNode({ data, selected }: NodeProps) {
           <span>Timeout</span>
           <strong>{nodeData.timeoutMs ? `${nodeData.timeoutMs} ms` : "—"}</strong>
         </div>
-        <div className="machine-node__row">
-          <span>Context</span>
-          <strong>{nodeData.regionId || nodeData.sectionId}</strong>
-        </div>
       </div>
     </div>
   );

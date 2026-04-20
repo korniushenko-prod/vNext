@@ -61,7 +61,27 @@ export interface MachinePositionUpdate {
   position: { x: number; y: number };
 }
 
-function createTransitionLabel(transition: MachineTransitionDefinition) {
+function createTransitionLabel(machine: MachineDefinition, transition: MachineTransitionDefinition) {
+  if (machine.behaviorKind === "sequence") {
+    if (transition.event) {
+      return transition.event;
+    }
+
+    if (transition.guard && transition.delayMs) {
+      return `${transition.guard} · ${transition.delayMs}ms`;
+    }
+
+    if (transition.guard) {
+      return transition.guard;
+    }
+
+    if (transition.delayMs) {
+      return `${transition.delayMs}ms`;
+    }
+
+    return transition.action ?? "";
+  }
+
   const parts = [
     transition.event ? `evt:${transition.event}` : "",
     transition.guard ? `guard:${transition.guard}` : "",
@@ -243,6 +263,7 @@ export function machineToFlowNodes(
   selection: MachineSelectionContext
 ): Array<Node<MachineNodeData | MachineContainerNodeData>> {
   const focusedStateIds = getFocusedStateIds(machine, selection);
+  const showContainerNodes = machine.behaviorKind !== "sequence";
   const groupNodes = (machine.sceneGroups ?? []).map((group) =>
     sceneGroupToNode(machine, group, selection, focusedStateIds)
   );
@@ -276,7 +297,7 @@ export function machineToFlowNodes(
     };
   });
 
-  return [...groupNodes, ...regionNodes, ...stateNodes];
+  return showContainerNodes ? [...groupNodes, ...regionNodes, ...stateNodes] : stateNodes;
 }
 
 export function machineToFlowEdges(machine: MachineDefinition, selection: MachineSelectionContext): Edge<MachineEdgeData>[] {
@@ -285,7 +306,7 @@ export function machineToFlowEdges(machine: MachineDefinition, selection: Machin
     id: transition.id,
     source: transition.source,
     target: transition.target,
-    label: createTransitionLabel(transition),
+    label: createTransitionLabel(machine, transition),
     labelShowBg: true,
     labelBgPadding: [8, 4],
     labelBgBorderRadius: 999,

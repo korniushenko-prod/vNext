@@ -88,12 +88,35 @@ export function MachineWorkspace() {
       : null
   ].filter(Boolean) as Array<{ label: string; onClick: () => void }>;
 
+  const behaviorSummary = machine.behaviorSummary
+    ? {
+        primary: machine.behaviorSummary.primaryStateIds
+          .map((stateId) => machine.states.find((state) => state.id === stateId)?.name)
+          .filter(Boolean)
+          .join(" -> "),
+        fault: machine.behaviorSummary.faultStateIds
+          .map((stateId) => machine.states.find((state) => state.id === stateId)?.name)
+          .filter(Boolean)
+          .join(" -> "),
+        recovery: machine.behaviorSummary.recoveryTransitionIds
+          .map((transitionId) => machine.transitions.find((transition) => transition.id === transitionId))
+          .filter(Boolean)
+          .map((transition) => transition?.event || `${transition?.source} -> ${transition?.target}`)
+          .filter(Boolean)
+          .join(" -> ")
+      }
+    : null;
+
   return (
     <div className="workspace workspace-machine">
       <div className="workspace-header">
         <div>
           <h2>Machine</h2>
-          <p className="muted-copy">Primary workspace for machine behavior, state transitions and orchestration.</p>
+          <p className="muted-copy">
+            {machine.behaviorKind === "sequence"
+              ? "Sequence view: show only how the machine moves through start, run, stop, fault and recovery."
+              : "Primary workspace for machine behavior, state transitions and orchestration."}
+          </p>
         </div>
       </div>
 
@@ -123,6 +146,28 @@ export function MachineWorkspace() {
           ))}
         </div>
       </div>
+
+      {behaviorSummary ? (
+        <div className="behavior-summary-grid">
+          <div className="summary-card behavior-card">
+            <span>Behavior Lens</span>
+            <strong>Sequence</strong>
+            <p>Canvas shows the behavioral path, not all project data.</p>
+          </div>
+          <div className="summary-card behavior-card">
+            <span>Normal Path</span>
+            <strong>{behaviorSummary.primary}</strong>
+          </div>
+          <div className="summary-card behavior-card">
+            <span>Fault Path</span>
+            <strong>{behaviorSummary.fault}</strong>
+          </div>
+          <div className="summary-card behavior-card">
+            <span>Recovery</span>
+            <strong>{behaviorSummary.recovery}</strong>
+          </div>
+        </div>
+      ) : null}
 
       <div className="machine-workspace-grid">
         <section className="panel-card machine-browser">
