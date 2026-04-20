@@ -1,6 +1,9 @@
 import type {
   IoBindingDefinition,
   LogicBlockDefinition,
+  MachineDefinition,
+  MachineRegionDefinition,
+  MachineSectionDefinition,
   MachineStateDefinition,
   MachineTransitionDefinition,
   SignalDefinition
@@ -16,23 +19,143 @@ function SectionRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function renderStateInspector(state: MachineStateDefinition) {
+function renderReferenceActions(options: {
+  signalIds?: string[];
+  blockIds?: string[];
+  bindingIds?: string[];
+  setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void;
+  selectItem: (type: "state" | "transition" | "signal" | "block" | "binding" | "machine" | "section" | "region" | null, id: string | null, options?: { machineId?: string | null; sectionId?: string | null }) => void;
+}) {
+  const { signalIds = [], blockIds = [], bindingIds = [], setActiveWorkspace, selectItem } = options;
+  return (
+    <div className="inspector-actions">
+      {signalIds[0] ? (
+        <button
+          type="button"
+          className="inspector-link"
+          onClick={() => {
+            setActiveWorkspace("logic");
+            selectItem("signal", signalIds[0]);
+          }}
+        >
+          Open related signal
+        </button>
+      ) : null}
+      {blockIds[0] ? (
+        <button
+          type="button"
+          className="inspector-link"
+          onClick={() => {
+            setActiveWorkspace("logic");
+            selectItem("block", blockIds[0]);
+          }}
+        >
+          Open related block
+        </button>
+      ) : null}
+      {bindingIds[0] ? (
+        <button
+          type="button"
+          className="inspector-link"
+          onClick={() => {
+            setActiveWorkspace("bind");
+            selectItem("binding", bindingIds[0]);
+          }}
+        >
+          Open related binding
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function renderMachineInspector(machine: MachineDefinition) {
+  return (
+    <>
+      <h3>{machine.name}</h3>
+      <dl className="inspector-grid">
+        <SectionRow label="Selected" value="Machine" />
+        <SectionRow label="States" value={String(machine.states.length)} />
+        <SectionRow label="Transitions" value={String(machine.transitions.length)} />
+        <SectionRow label="Sections" value={String(machine.sections.length)} />
+        <SectionRow label="Regions" value={String(machine.regions?.length || 0)} />
+      </dl>
+    </>
+  );
+}
+
+function renderSectionInspector(
+  section: MachineSectionDefinition,
+  setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
+  selectItem: (type: "state" | "transition" | "signal" | "block" | "binding" | "machine" | "section" | "region" | null, id: string | null, options?: { machineId?: string | null; sectionId?: string | null }) => void
+) {
+  return (
+    <>
+      <h3>{section.name}</h3>
+      <dl className="inspector-grid">
+        <SectionRow label="Selected" value="Section" />
+        <SectionRow label="Summary" value={section.summary} />
+        <SectionRow label="Regions" value={section.regionIds?.join(", ") || ""} />
+        <SectionRow label="Color" value={section.color} />
+      </dl>
+      {renderReferenceActions({
+        signalIds: section.relatedSignalIds,
+        blockIds: section.relatedBlockIds,
+        bindingIds: section.relatedBindingIds,
+        setActiveWorkspace,
+        selectItem
+      })}
+    </>
+  );
+}
+
+function renderRegionInspector(region: MachineRegionDefinition) {
+  return (
+    <>
+      <h3>{region.name}</h3>
+      <dl className="inspector-grid">
+        <SectionRow label="Selected" value="Region" />
+        <SectionRow label="Type" value={region.type} />
+        <SectionRow label="Purpose" value="State region placeholder for future hierarchy/parallel semantics" />
+      </dl>
+    </>
+  );
+}
+
+function renderStateInspector(
+  state: MachineStateDefinition,
+  setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
+  selectItem: (type: "state" | "transition" | "signal" | "block" | "binding" | "machine" | "section" | "region" | null, id: string | null, options?: { machineId?: string | null; sectionId?: string | null }) => void
+) {
   return (
     <>
       <h3>{state.name}</h3>
       <dl className="inspector-grid">
         <SectionRow label="Selected" value={state.name} />
         <SectionRow label="Kind" value={state.kind} />
+        <SectionRow label="Section" value={state.sectionId} />
+        <SectionRow label="Region" value={state.regionId || ""} />
         <SectionRow label="Entry actions" value={state.entryActions?.join(", ") || ""} />
         <SectionRow label="Exit actions" value={state.exitActions?.join(", ") || ""} />
         <SectionRow label="Timeout" value={state.timeoutMs ? `${state.timeoutMs} ms` : ""} />
         <SectionRow label="Diagnostics" value="Placeholder" />
       </dl>
+      {renderReferenceActions({
+        signalIds: state.relatedSignalIds,
+        blockIds: state.relatedBlockIds,
+        bindingIds: state.relatedBindingIds,
+        setActiveWorkspace,
+        selectItem
+      })}
     </>
   );
 }
 
-function renderTransitionInspector(transition: MachineTransitionDefinition) {
+function renderTransitionInspector(
+  transition: MachineTransitionDefinition,
+  setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
+  selectItem: (type: "state" | "transition" | "signal" | "block" | "binding" | "machine" | "section" | "region" | null, id: string | null, options?: { machineId?: string | null; sectionId?: string | null }) => void
+) {
   return (
     <>
       <h3>{transition.id}</h3>
@@ -40,11 +163,19 @@ function renderTransitionInspector(transition: MachineTransitionDefinition) {
         <SectionRow label="Selected" value="Transition" />
         <SectionRow label="Source" value={transition.source} />
         <SectionRow label="Target" value={transition.target} />
+        <SectionRow label="Section" value={transition.sectionId || ""} />
         <SectionRow label="Event" value={transition.event || ""} />
         <SectionRow label="Guard" value={transition.guard || ""} />
         <SectionRow label="Delay" value={transition.delayMs ? `${transition.delayMs} ms` : ""} />
         <SectionRow label="Action" value={transition.action || ""} />
       </dl>
+      {renderReferenceActions({
+        signalIds: transition.relatedSignalIds,
+        blockIds: transition.relatedBlockIds,
+        bindingIds: transition.relatedBindingIds,
+        setActiveWorkspace,
+        selectItem
+      })}
     </>
   );
 }
@@ -103,8 +234,15 @@ export function InspectorPanel() {
   const project = useStudioStore((state) => state.project);
   const selectedItemId = useStudioStore((state) => state.selectedItemId);
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
+  const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
+  const setActiveWorkspace = useStudioStore((state) => state.setActiveWorkspace);
+  const selectItem = useStudioStore((state) => state.selectItem);
 
-  const machine = project.machines[0];
+  const machine = project.machines.find((item) => item.id === selectedMachineId) ?? project.machines[0];
+  const selectedSection =
+    selectedItemType === "section" ? machine.sections.find((item) => item.id === selectedItemId) ?? null : null;
+  const selectedRegion =
+    selectedItemType === "region" ? machine.regions?.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedState = selectedItemType === "state" ? machine.states.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedTransition =
     selectedItemType === "transition" ? machine.transitions.find((item) => item.id === selectedItemId) ?? null : null;
@@ -119,10 +257,16 @@ export function InspectorPanel() {
     <aside className="studio-panel studio-panel--right">
       <section className="panel-card">
         <h2>Inspector</h2>
-        {selectedState
-          ? renderStateInspector(selectedState)
+        {selectedItemType === "machine"
+          ? renderMachineInspector(machine)
+          : selectedSection
+          ? renderSectionInspector(selectedSection, setActiveWorkspace, selectItem)
+          : selectedRegion
+          ? renderRegionInspector(selectedRegion)
+          : selectedState
+          ? renderStateInspector(selectedState, setActiveWorkspace, selectItem)
           : selectedTransition
-          ? renderTransitionInspector(selectedTransition)
+          ? renderTransitionInspector(selectedTransition, setActiveWorkspace, selectItem)
           : selectedSignal
           ? renderSignalInspector(selectedSignal)
           : selectedBlock

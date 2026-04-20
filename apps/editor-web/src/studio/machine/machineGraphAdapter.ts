@@ -3,6 +3,8 @@ import type { MachineDefinition, MachineStateDefinition, MachineTransitionDefini
 
 export interface MachineNodeData extends Record<string, unknown> {
   machineId: string;
+  sectionId: string;
+  regionId?: string;
   label: string;
   kind: MachineStateDefinition["kind"];
   active: boolean;
@@ -10,6 +12,8 @@ export interface MachineNodeData extends Record<string, unknown> {
 }
 
 export interface MachineEdgeData extends Record<string, unknown> {
+  machineId: string;
+  sectionId?: string;
   event?: string;
   guard?: string;
   action?: string;
@@ -22,8 +26,13 @@ export interface MachinePositionUpdate {
 }
 
 function createTransitionLabel(transition: MachineTransitionDefinition) {
-  const parts = [transition.event, transition.guard].filter(Boolean);
-  return parts.join(" / ");
+  const parts = [
+    transition.event ? `evt:${transition.event}` : "",
+    transition.guard ? `guard:${transition.guard}` : "",
+    transition.delayMs ? `delay:${transition.delayMs}ms` : "",
+    transition.action ? `act:${transition.action}` : ""
+  ].filter(Boolean);
+  return parts.join(" | ");
 }
 
 export function machineToFlowNodes(machine: MachineDefinition): Node<MachineNodeData>[] {
@@ -33,6 +42,8 @@ export function machineToFlowNodes(machine: MachineDefinition): Node<MachineNode
     position: state.position,
     data: {
       machineId: machine.id,
+      sectionId: state.sectionId,
+      regionId: state.regionId,
       label: state.name,
       kind: state.kind,
       active: Boolean(state.active),
@@ -48,6 +59,8 @@ export function machineToFlowEdges(machine: MachineDefinition): Edge<MachineEdge
     target: transition.target,
     label: createTransitionLabel(transition),
     data: {
+      machineId: machine.id,
+      sectionId: transition.sectionId,
       event: transition.event,
       guard: transition.guard,
       action: transition.action,

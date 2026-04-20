@@ -1,7 +1,7 @@
 import { Background, Controls, MiniMap, ReactFlow, ReactFlowProvider } from "@xyflow/react";
 import { useMemo } from "react";
 import { useStudioStore } from "../store/studioStore";
-import { createMachinePositionUpdate, machineToFlowEdges, machineToFlowNodes } from "./machineGraphAdapter";
+import { createMachinePositionUpdate, machineToFlowEdges, machineToFlowNodes, type MachineEdgeData, type MachineNodeData } from "./machineGraphAdapter";
 import { MachineStateNode } from "./MachineStateNode";
 
 const nodeTypes = {
@@ -22,8 +22,14 @@ function MachineCanvasInner() {
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
-      onNodeClick={(_, node) => selectItem("state", node.id)}
-      onEdgeClick={(_, edge) => selectItem("transition", edge.id)}
+      onNodeClick={(_, node) => {
+        const data = node.data as MachineNodeData;
+        selectItem("state", node.id, { machineId: data.machineId, sectionId: data.sectionId });
+      }}
+      onEdgeClick={(_, edge) => {
+        const data = edge.data as MachineEdgeData | undefined;
+        selectItem("transition", edge.id, { machineId: data?.machineId ?? machine.id, sectionId: data?.sectionId ?? null });
+      }}
       onPaneClick={() => selectItem(null, null)}
       onNodeDragStop={(_, node) => {
         const update = createMachinePositionUpdate(node.id, node.position);

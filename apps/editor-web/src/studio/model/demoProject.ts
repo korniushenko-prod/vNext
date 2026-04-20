@@ -4,26 +4,54 @@ export interface MachineStateDefinition {
   id: string;
   name: string;
   kind: "initial" | "normal" | "fault" | "final";
+  sectionId: string;
+  regionId?: string;
   position: { x: number; y: number };
   entryActions?: string[];
   exitActions?: string[];
   timeoutMs?: number;
   active?: boolean;
+  relatedSignalIds?: string[];
+  relatedBlockIds?: string[];
+  relatedBindingIds?: string[];
 }
 
 export interface MachineTransitionDefinition {
   id: string;
   source: string;
   target: string;
+  sectionId?: string;
   event?: string;
   guard?: string;
   delayMs?: number;
   action?: string;
+  relatedSignalIds?: string[];
+  relatedBlockIds?: string[];
+  relatedBindingIds?: string[];
+}
+
+export interface MachineRegionDefinition {
+  id: string;
+  name: string;
+  type: "exclusive" | "parallel";
+}
+
+export interface MachineSectionDefinition {
+  id: string;
+  name: string;
+  summary: string;
+  color: string;
+  regionIds?: string[];
+  relatedSignalIds?: string[];
+  relatedBlockIds?: string[];
+  relatedBindingIds?: string[];
 }
 
 export interface MachineDefinition {
   id: string;
   name: string;
+  sections: MachineSectionDefinition[];
+  regions?: MachineRegionDefinition[];
   states: MachineStateDefinition[];
   transitions: MachineTransitionDefinition[];
 }
@@ -91,53 +119,179 @@ export const demoProject: UniversalPlcDemoProject = {
     {
       id: "boiler_sequence",
       name: "Boiler Sequence",
+      sections: [
+        {
+          id: "sec_startup",
+          name: "Startup",
+          summary: "Idle and Starting states with permissives, purge and feedback acquisition.",
+          color: "#5ab1ff",
+          regionIds: ["main_region"],
+          relatedSignalIds: ["pump.start_cmd", "pump.run_fb"],
+          relatedBlockIds: ["block_start_stop_latch", "block_timer_on"],
+          relatedBindingIds: ["bind_pump_start", "bind_pump_run"]
+        },
+        {
+          id: "sec_running",
+          name: "Running",
+          summary: "Normal run and controlled stop path with tank level observation.",
+          color: "#66d9c7",
+          regionIds: ["main_region"],
+          relatedSignalIds: ["tank.level", "pump.run_fb"],
+          relatedBlockIds: ["block_threshold_monitor", "block_interlock_set"],
+          relatedBindingIds: ["bind_tank_level", "bind_pump_run"]
+        },
+        {
+          id: "sec_fault",
+          name: "Fault Handling",
+          summary: "Trip path and manual recovery back to idle.",
+          color: "#ff7b8d",
+          regionIds: ["fault_region"],
+          relatedSignalIds: ["pump.fault_fb"],
+          relatedBlockIds: ["block_interlock_set"],
+          relatedBindingIds: ["bind_pump_fault"]
+        }
+      ],
+      regions: [
+        { id: "main_region", name: "Main Region", type: "exclusive" },
+        { id: "fault_region", name: "Fault Region", type: "exclusive" }
+      ],
       states: [
         {
           id: "idle",
           name: "Idle",
           kind: "initial",
+          sectionId: "sec_startup",
+          regionId: "main_region",
           position: { x: 60, y: 180 },
-          exitActions: ["clear_start_request"]
+          exitActions: ["clear_start_request"],
+          relatedSignalIds: ["pump.start_cmd"],
+          relatedBlockIds: ["block_start_stop_latch"],
+          relatedBindingIds: ["bind_pump_start"]
         },
         {
           id: "starting",
           name: "Starting",
           kind: "normal",
+          sectionId: "sec_startup",
+          regionId: "main_region",
           position: { x: 320, y: 90 },
           entryActions: ["open_purge_air", "start_timer"],
-          timeoutMs: 8000
+          timeoutMs: 8000,
+          relatedSignalIds: ["pump.start_cmd", "pump.run_fb"],
+          relatedBlockIds: ["block_start_stop_latch", "block_timer_on"],
+          relatedBindingIds: ["bind_pump_start", "bind_pump_run"]
         },
         {
           id: "running",
           name: "Running",
           kind: "normal",
+          sectionId: "sec_running",
+          regionId: "main_region",
           position: { x: 610, y: 180 },
           entryActions: ["enable_burner"],
-          active: true
+          active: true,
+          relatedSignalIds: ["pump.run_fb", "tank.level"],
+          relatedBlockIds: ["block_threshold_monitor", "block_interlock_set"],
+          relatedBindingIds: ["bind_pump_run", "bind_tank_level"]
         },
         {
           id: "stopping",
           name: "Stopping",
           kind: "final",
+          sectionId: "sec_running",
+          regionId: "main_region",
           position: { x: 890, y: 280 },
-          entryActions: ["close_fuel", "run_post_purge"]
+          entryActions: ["close_fuel", "run_post_purge"],
+          relatedSignalIds: ["pump.start_cmd"],
+          relatedBlockIds: ["block_timer_on"],
+          relatedBindingIds: ["bind_pump_start"]
         },
         {
           id: "fault",
           name: "Fault",
           kind: "fault",
+          sectionId: "sec_fault",
+          regionId: "fault_region",
           position: { x: 620, y: 10 },
-          entryActions: ["trip_outputs", "raise_alarm"]
+          entryActions: ["trip_outputs", "raise_alarm"],
+          relatedSignalIds: ["pump.fault_fb"],
+          relatedBlockIds: ["block_interlock_set"],
+          relatedBindingIds: ["bind_pump_fault"]
         }
       ],
       transitions: [
-        { id: "t_idle_starting", source: "idle", target: "starting", event: "start", action: "latch_start" },
-        { id: "t_starting_running", source: "starting", target: "running", guard: "feedback_ok" },
-        { id: "t_running_stopping", source: "running", target: "stopping", event: "stop" },
-        { id: "t_stopping_idle", source: "stopping", target: "idle", guard: "stopped" },
-        { id: "t_starting_fault", source: "starting", target: "fault", guard: "timeout", delayMs: 8000 },
-        { id: "t_running_fault", source: "running", target: "fault", guard: "fault_detected" },
-        { id: "t_fault_idle", source: "fault", target: "idle", event: "reset" }
+        {
+          id: "t_idle_starting",
+          source: "idle",
+          target: "starting",
+          sectionId: "sec_startup",
+          event: "start",
+          action: "latch_start",
+          relatedSignalIds: ["pump.start_cmd"],
+          relatedBlockIds: ["block_start_stop_latch"],
+          relatedBindingIds: ["bind_pump_start"]
+        },
+        {
+          id: "t_starting_running",
+          source: "starting",
+          target: "running",
+          sectionId: "sec_startup",
+          guard: "feedback_ok",
+          relatedSignalIds: ["pump.run_fb"],
+          relatedBlockIds: ["block_timer_on"],
+          relatedBindingIds: ["bind_pump_run"]
+        },
+        {
+          id: "t_running_stopping",
+          source: "running",
+          target: "stopping",
+          sectionId: "sec_running",
+          event: "stop",
+          relatedSignalIds: ["pump.start_cmd"],
+          relatedBlockIds: ["block_interlock_set"],
+          relatedBindingIds: ["bind_pump_start"]
+        },
+        {
+          id: "t_stopping_idle",
+          source: "stopping",
+          target: "idle",
+          sectionId: "sec_running",
+          guard: "stopped",
+          relatedSignalIds: ["pump.run_fb"],
+          relatedBlockIds: ["block_timer_on"],
+          relatedBindingIds: ["bind_pump_run"]
+        },
+        {
+          id: "t_starting_fault",
+          source: "starting",
+          target: "fault",
+          sectionId: "sec_fault",
+          guard: "timeout",
+          delayMs: 8000,
+          relatedSignalIds: ["pump.run_fb"],
+          relatedBlockIds: ["block_timer_on"],
+          relatedBindingIds: ["bind_pump_run"]
+        },
+        {
+          id: "t_running_fault",
+          source: "running",
+          target: "fault",
+          sectionId: "sec_fault",
+          guard: "fault_detected",
+          relatedSignalIds: ["pump.fault_fb"],
+          relatedBlockIds: ["block_interlock_set"],
+          relatedBindingIds: ["bind_pump_fault"]
+        },
+        {
+          id: "t_fault_idle",
+          source: "fault",
+          target: "idle",
+          sectionId: "sec_fault",
+          event: "reset",
+          relatedSignalIds: ["pump.fault_fb"],
+          relatedBlockIds: ["block_interlock_set"],
+          relatedBindingIds: ["bind_pump_fault"]
+        }
       ]
     }
   ],
