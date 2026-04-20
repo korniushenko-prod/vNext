@@ -120,6 +120,7 @@ function renderObjectInspector(
   selectItem: SelectItemFn
 ) {
   const canOpenBehavior = Boolean(object.behavior?.machineId);
+  const canOpenControlBehavior = object.behaviorKind !== "sequence";
   const canOpenStructure = Boolean(object.structure);
   return (
     <>
@@ -146,12 +147,12 @@ function renderObjectInspector(
         >
           Focus in topology
         </button>
-        {canOpenBehavior || canOpenStructure ? (
+        {canOpenBehavior || canOpenControlBehavior || canOpenStructure ? (
           <button
             type="button"
             className="inspector-link"
             onClick={() => {
-              setObjectViewLens(canOpenBehavior ? "behavior" : "structure");
+              setObjectViewLens(canOpenBehavior || canOpenControlBehavior ? "behavior" : "structure");
               setMachineViewMode("object");
               selectItem(canOpenBehavior ? "machine" : "object", object.behavior?.machineId ?? object.id, {
                 objectId: object.id,

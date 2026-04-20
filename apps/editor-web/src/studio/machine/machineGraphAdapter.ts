@@ -310,10 +310,6 @@ export function machineToFlowEdges(machine: MachineDefinition, selection: Machin
     labelShowBg: true,
     labelBgPadding: [8, 4],
     labelBgBorderRadius: 999,
-    labelBgStyle: {
-      fill: "rgba(7, 15, 25, 0.82)",
-      stroke: "rgba(192, 210, 230, 0.1)"
-    },
     labelStyle: {
       fill: "#cfddef",
       fontSize: 11
@@ -339,16 +335,39 @@ export function machineToFlowEdges(machine: MachineDefinition, selection: Machin
             !focusedStateIds.has(transition.target)
         )
     },
+    type: machine.behaviorKind === "sequence" ? "smoothstep" : "default",
+    pathOptions: machine.behaviorKind === "sequence" ? { borderRadius: 18, offset: 28 } : undefined,
     animated: transition.guard === "timeout" || transition.guard === "fault_detected",
     markerEnd: { type: MarkerType.ArrowClosed },
     style: {
+      stroke:
+        machine.behaviorKind === "sequence"
+          ? transition.target === "fault_lockout"
+            ? "rgba(255, 120, 142, 0.9)"
+            : transition.source === "fault_lockout"
+              ? "rgba(102, 217, 199, 0.92)"
+              : transition.target === "normal_stop" || transition.target === "post_purge"
+                ? "rgba(144, 172, 208, 0.82)"
+                : "rgba(132, 189, 236, 0.88)"
+          : undefined,
       opacity:
         focusedStateIds &&
         !focusedStateIds.has(transition.source) &&
         !focusedStateIds.has(transition.target)
           ? 0.24
           : 1,
-      strokeWidth: entityMatchesSelection("transition", transition.id, selection) ? 2.4 : 1.5
+      strokeWidth: entityMatchesSelection("transition", transition.id, selection) ? 2.4 : 1.8
+    },
+    labelBgStyle: {
+      fill: "rgba(7, 15, 25, 0.9)",
+      stroke:
+        machine.behaviorKind === "sequence"
+          ? transition.target === "fault_lockout"
+            ? "rgba(255, 120, 142, 0.28)"
+            : transition.source === "fault_lockout"
+              ? "rgba(102, 217, 199, 0.24)"
+              : "rgba(192, 210, 230, 0.1)"
+          : "rgba(192, 210, 230, 0.1)"
     }
   }));
 }

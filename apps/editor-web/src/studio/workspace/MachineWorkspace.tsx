@@ -1,4 +1,5 @@
 import { MachineCanvas } from "../machine/MachineCanvas";
+import { ObjectControlCanvas } from "../machine/ObjectControlCanvas";
 import { ObjectTopologyCanvas } from "../machine/ObjectTopologyCanvas";
 import { ObjectStructureCanvas } from "../machine/ObjectStructureCanvas";
 import { useStudioStore } from "../store/studioStore";
@@ -24,8 +25,9 @@ export function MachineWorkspace() {
     ? project.machines.find((item) => item.id === selectedObject.behavior?.machineId) ?? null
     : null;
   const machine = behaviorMachine;
+  const supportsBehaviorLens = Boolean(machine || selectedObject.behaviorKind !== "sequence");
   const resolvedObjectViewLens =
-    objectViewLens === "behavior" && !machine && selectedObject.structure ? "structure" : objectViewLens;
+    objectViewLens === "behavior" && !supportsBehaviorLens && selectedObject.structure ? "structure" : objectViewLens;
 
   const selectedState = machine && selectedItemType === "state" ? machine.states.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedTransition =
@@ -288,23 +290,42 @@ export function MachineWorkspace() {
                 <span>Object Lens</span>
                 <strong>{resolvedObjectViewLens === "behavior" ? "Behavior" : "Structure"}</strong>
                 <p>
-                  {resolvedObjectViewLens === "behavior"
-                    ? `Canvas shows only internal behavior of ${selectedObject.name}, not whole-project wiring.`
-                    : `Canvas shows ports, internal units and local routes inside ${selectedObject.name}.`}
+                    {resolvedObjectViewLens === "behavior"
+                      ? `Canvas shows only internal behavior of ${selectedObject.name}, not whole-project wiring.`
+                      : `Canvas shows ports, internal units and local routes inside ${selectedObject.name}.`}
                 </p>
               </div>
-              <div className="summary-card behavior-card">
-                <span>Normal Path</span>
-                <strong>{behaviorSummary.primary}</strong>
-              </div>
-              <div className="summary-card behavior-card">
-                <span>Fault Path</span>
-                <strong>{behaviorSummary.fault}</strong>
-              </div>
-              <div className="summary-card behavior-card">
-                <span>Recovery</span>
-                <strong>{behaviorSummary.recovery}</strong>
-              </div>
+              {machine ? (
+                <>
+                  <div className="summary-card behavior-card">
+                    <span>Normal Path</span>
+                    <strong>{behaviorSummary.primary}</strong>
+                  </div>
+                  <div className="summary-card behavior-card">
+                    <span>Fault Path</span>
+                    <strong>{behaviorSummary.fault}</strong>
+                  </div>
+                  <div className="summary-card behavior-card">
+                    <span>Recovery</span>
+                    <strong>{behaviorSummary.recovery}</strong>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="summary-card behavior-card">
+                    <span>Mode / Status</span>
+                    <strong>{selectedObject.status.map((port) => port.name).join(", ") || "No status ports"}</strong>
+                  </div>
+                  <div className="summary-card behavior-card">
+                    <span>Permissions</span>
+                    <strong>{selectedObject.permissions.map((port) => port.name).join(", ") || "No permissives"}</strong>
+                  </div>
+                  <div className="summary-card behavior-card">
+                    <span>Outputs</span>
+                    <strong>{selectedObject.outputs.map((port) => port.name).join(", ") || "No outputs"}</strong>
+                  </div>
+                </>
+              )}
             </div>
           ) : resolvedObjectViewLens === "structure" && selectedObject.structure ? (
             <div className="behavior-summary-grid">
@@ -361,18 +382,18 @@ export function MachineWorkspace() {
 
               <div className="machine-browser__meta">
                 <div className="summary-card compact-card">
-                  <span>{resolvedObjectViewLens === "behavior" ? "Machine" : "Nodes"}</span>
-                  <strong>{resolvedObjectViewLens === "behavior" ? machine?.name || "None" : selectedObject.structure?.nodes.length || 0}</strong>
+                  <span>{resolvedObjectViewLens === "behavior" ? (machine ? "Machine" : "Behavior") : "Nodes"}</span>
+                  <strong>{resolvedObjectViewLens === "behavior" ? machine?.name || `${selectedObject.behaviorKind} view` : selectedObject.structure?.nodes.length || 0}</strong>
                 </div>
                 <div className="summary-card compact-card">
-                  <span>{resolvedObjectViewLens === "behavior" ? "States" : "Routes"}</span>
-                  <strong>{resolvedObjectViewLens === "behavior" ? machine?.states.length || 0 : selectedObject.structure?.routes.length || 0}</strong>
+                  <span>{resolvedObjectViewLens === "behavior" ? (machine ? "States" : "Permissions") : "Routes"}</span>
+                  <strong>{resolvedObjectViewLens === "behavior" ? (machine?.states.length || selectedObject.permissions.length) : selectedObject.structure?.routes.length || 0}</strong>
                 </div>
                 <div className="summary-card compact-card">
-                  <span>{resolvedObjectViewLens === "behavior" ? "Transitions" : "Ports"}</span>
+                  <span>{resolvedObjectViewLens === "behavior" ? (machine ? "Transitions" : "Alarms") : "Ports"}</span>
                   <strong>
                     {resolvedObjectViewLens === "behavior"
-                      ? machine?.transitions.length || 0
+                      ? machine?.transitions.length || selectedObject.alarms.length
                       : selectedObject.commands.length +
                         selectedObject.inputs.length +
                         selectedObject.outputs.length +
@@ -387,20 +408,36 @@ export function MachineWorkspace() {
                 <h3>{resolvedObjectViewLens === "behavior" ? "Internal Structure" : "Internal Units"}</h3>
                 <ul className="plain-list">
                   {resolvedObjectViewLens === "behavior"
-                    ? machine?.sections.map((section) => (
-                        <li
-                          key={section.id}
-                          className={section.id === selectedSectionId ? "is-focused" : ""}
-                          onClick={() =>
-                            selectItem("section", section.id, {
-                              objectId: selectedObject.id,
-                              machineId: machine.id,
-                              sectionId: section.id
-                            })
-                          }
-                        >
-                          <strong>{section.name}</strong>
-                          <span>{section.summary}</span>
+                    ? machine
+                      ? machine.sections.map((section) => (
+                          <li
+                            key={section.id}
+                            className={section.id === selectedSectionId ? "is-focused" : ""}
+                            onClick={() =>
+                              selectItem("section", section.id, {
+                                objectId: selectedObject.id,
+                                machineId: machine.id,
+                                sectionId: section.id
+                              })
+                            }
+                          >
+                            <strong>{section.name}</strong>
+                            <span>{section.summary}</span>
+                          </li>
+                        ))
+                      : selectedObject.structure?.nodes.map((node) => (
+                          <li
+                            key={node.id}
+                            className={selectedItemType === "subobject" && selectedItemId === node.id ? "is-focused" : ""}
+                            onClick={() =>
+                              selectItem("subobject", node.id, {
+                                objectId: selectedObject.id,
+                                machineId: selectedObject.behavior?.machineId ?? null
+                              })
+                            }
+                          >
+                          <strong>{node.title}</strong>
+                          <span>{node.kind}</span>
                         </li>
                       ))
                     : selectedObject.structure?.nodes.map((node) => (
@@ -423,24 +460,39 @@ export function MachineWorkspace() {
 
               {resolvedObjectViewLens === "behavior" ? (
                 <div className="panel-card machine-region-card">
-                  <h3>Behavior Regions</h3>
+                  <h3>{machine ? "Behavior Regions" : "Control Focus"}</h3>
                   <ul className="plain-list">
-                    {(machine?.regions || []).map((region) => (
-                      <li
-                        key={region.id}
-                        className={region.id === selectedRegionId ? "is-focused" : ""}
-                        onClick={() =>
-                          selectItem("region", region.id, {
-                            objectId: selectedObject.id,
-                            machineId: machine?.id ?? null,
-                            regionId: region.id
-                          })
-                        }
-                      >
-                        <strong>{region.name}</strong>
-                        <span>{region.summary}</span>
-                      </li>
-                    ))}
+                    {machine
+                      ? (machine.regions || []).map((region) => (
+                          <li
+                            key={region.id}
+                            className={region.id === selectedRegionId ? "is-focused" : ""}
+                            onClick={() =>
+                              selectItem("region", region.id, {
+                                objectId: selectedObject.id,
+                                machineId: machine?.id ?? null,
+                                regionId: region.id
+                              })
+                            }
+                          >
+                            <strong>{region.name}</strong>
+                            <span>{region.summary}</span>
+                          </li>
+                        ))
+                      : [
+                          <li key="mode">
+                            <strong>Mode</strong>
+                            <span>{selectedObject.status.map((port) => port.name).join(", ") || "No status ports"}</span>
+                          </li>,
+                          <li key="perm">
+                            <strong>Permissives</strong>
+                            <span>{selectedObject.permissions.map((port) => port.name).join(", ") || "No permissives"}</span>
+                          </li>,
+                          <li key="faults">
+                            <strong>Faults</strong>
+                            <span>{selectedObject.alarms.map((port) => port.name).join(", ") || "No alarm ports"}</span>
+                          </li>
+                        ]}
                   </ul>
                 </div>
               ) : (
@@ -463,7 +515,7 @@ export function MachineWorkspace() {
                 <h3>Object Lens</h3>
                 <div className="machine-filter-switcher" aria-label="Object view lens">
                   {[
-                    { id: "behavior", label: "Behavior", disabled: !selectedObject.behavior?.machineId },
+                    { id: "behavior", label: "Behavior", disabled: !supportsBehaviorLens },
                     { id: "structure", label: "Structure", disabled: !selectedObject.structure }
                   ].map((lens) => (
                     <button
@@ -479,7 +531,7 @@ export function MachineWorkspace() {
                 </div>
               </div>
 
-              {resolvedObjectViewLens === "behavior" ? (
+              {resolvedObjectViewLens === "behavior" && machine ? (
                 <div className="panel-card machine-region-card">
                   <h3>View Filter</h3>
                   <div className="machine-filter-switcher" aria-label="Machine filter mode">
@@ -506,6 +558,8 @@ export function MachineWorkspace() {
               <ObjectStructureCanvas />
             ) : machine ? (
               <MachineCanvas />
+            ) : resolvedObjectViewLens === "behavior" && supportsBehaviorLens ? (
+              <ObjectControlCanvas />
             ) : (
               <section className="panel-card">
                 <h3>No behavior view</h3>
