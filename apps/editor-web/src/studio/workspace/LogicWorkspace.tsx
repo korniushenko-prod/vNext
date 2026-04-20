@@ -9,6 +9,9 @@ export function LogicWorkspace() {
   const filteredSignals = logicContext
     ? signals.filter((signal) => logicContext.signalIds.includes(signal.id))
     : signals;
+  const rawSignals = filteredSignals.filter((signal) => signal.layer === "raw");
+  const conditionedSignals = filteredSignals.filter((signal) => signal.layer === "conditioned");
+  const semanticSignals = filteredSignals.filter((signal) => signal.layer === "semantic");
   const filteredBlocks = logicContext
     ? blocks.filter((block) => logicContext.blockIds.includes(block.id))
     : blocks;
@@ -38,16 +41,34 @@ export function LogicWorkspace() {
         <section className="panel-card">
           <h3>Signals</h3>
           <ul className="plain-list">
-            {filteredSignals.map((signal) => (
+            {semanticSignals.map((signal) => (
               <li
                 key={signal.id}
                 className={logicContext ? "is-focused" : ""}
                 onClick={() => selectItem("signal", signal.id)}
               >
                 <strong>{signal.name}</strong>
-                <span>{signal.type} / {signal.direction}</span>
+                <span>{signal.layer} / {signal.type}</span>
               </li>
             ))}
+          </ul>
+        </section>
+
+        <section className="panel-card">
+          <h3>Signal Layers</h3>
+          <ul className="plain-list">
+            <li>
+              <strong>Raw</strong>
+              <span>{rawSignals.length} direct physical points</span>
+            </li>
+            <li>
+              <strong>Conditioned</strong>
+              <span>{conditionedSignals.length} debounced / scaled values</span>
+            </li>
+            <li>
+              <strong>Semantic</strong>
+              <span>{semanticSignals.length} object-facing engineering signals</span>
+            </li>
           </ul>
         </section>
 
@@ -70,7 +91,7 @@ export function LogicWorkspace() {
         <section className="panel-card logic-placeholder">
           <h3>Connections</h3>
           <p className="muted-copy">
-            Future typed relation view for signals and blocks. Kept as skeleton in v1 so Machine remains the primary authoring surface.
+            Semantic signals now sit between raw bindings and object-facing logic. Next step is full trace through blocks and object contracts.
           </p>
         </section>
       </div>

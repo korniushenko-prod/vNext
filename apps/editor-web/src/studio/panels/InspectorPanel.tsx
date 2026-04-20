@@ -12,6 +12,7 @@ import type {
   PlcObjectDefinition,
   SignalDefinition
 } from "../model/demoProject";
+import { buildSignalTrace, getSignalById } from "../model/signalTrace";
 import type { LogicWorkspaceContext, SelectItemOptions, SelectedItemType } from "../store/studioStore";
 import { useStudioStore } from "../store/studioStore";
 
@@ -445,13 +446,14 @@ function renderTransitionInspector(
   );
 }
 
-function renderBindingInspector(binding: IoBindingDefinition) {
+function renderBindingInspector(binding: IoBindingDefinition, logicalSignal: SignalDefinition | null) {
   return (
     <>
       <h3>{binding.id}</h3>
       <dl className="inspector-grid">
         <SectionRow label="Selected" value="Binding" />
-        <SectionRow label="Logical signal" value={binding.signalId} />
+        <SectionRow label="Raw signal" value={binding.signalId} />
+        <SectionRow label="Signal layer" value={logicalSignal?.layer || ""} />
         <SectionRow label="Physical channel" value={binding.physicalSource} />
         <SectionRow label="Direction" value={binding.direction} />
         <SectionRow label="Type" value={binding.type} />
@@ -464,16 +466,20 @@ function renderBindingInspector(binding: IoBindingDefinition) {
   );
 }
 
-function renderSignalInspector(signal: SignalDefinition) {
+function renderSignalInspector(signal: SignalDefinition, trace: ReturnType<typeof buildSignalTrace> | null) {
   return (
     <>
       <h3>{signal.name}</h3>
       <dl className="inspector-grid">
         <SectionRow label="Selected" value="Signal" />
         <SectionRow label="Name" value={signal.name} />
+        <SectionRow label="Layer" value={signal.layer} />
+        <SectionRow label="Summary" value={signal.summary} />
         <SectionRow label="Type" value={signal.type} />
         <SectionRow label="Direction" value={signal.direction} />
         <SectionRow label="Value" value={signal.value !== undefined ? String(signal.value) : ""} />
+        <SectionRow label="Derived from" value={trace?.upstream.map((item) => item.id).join(" -> ") || ""} />
+        <SectionRow label="Consumed by" value={signal.consumerRefs?.map((item) => `${item.objectId}.${item.portName}`).join(", ") || ""} />
       </dl>
     </>
   );
@@ -531,6 +537,8 @@ export function InspectorPanel() {
     selectedItemType === "block" ? project.blocks.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedBinding =
     selectedItemType === "binding" ? project.bindings.find((item) => item.id === selectedItemId) ?? null : null;
+  const selectedBindingSignal = selectedBinding ? getSignalById(project, selectedBinding.signalId) : null;
+  const selectedSignalTrace = selectedSignal ? buildSignalTrace(project, selectedSignal.id) : null;
   const selectedStateGroup =
     selectedState ? machine.sceneGroups?.find((group) => group.stateIds.includes(selectedState.id)) ?? null : null;
   const selectedLinkSource =
@@ -613,11 +621,11 @@ export function InspectorPanel() {
               selectItem
             )
           : selectedSignal
-          ? renderSignalInspector(selectedSignal)
+          ? renderSignalInspector(selectedSignal, selectedSignalTrace)
           : selectedBlock
           ? renderBlockInspector(selectedBlock)
           : selectedBinding
-          ? renderBindingInspector(selectedBinding)
+          ? renderBindingInspector(selectedBinding, selectedBindingSignal)
           : (
             <div className="empty-state">
               <strong>Nothing selected</strong>

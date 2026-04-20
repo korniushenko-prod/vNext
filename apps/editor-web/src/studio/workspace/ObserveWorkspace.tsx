@@ -3,6 +3,7 @@ import { useStudioStore } from "../store/studioStore";
 export function ObserveWorkspace() {
   const snapshot = useStudioStore((state) => state.project.runtimeSnapshot);
   const signals = useStudioStore((state) => state.project.signals);
+  const semanticSignals = signals.filter((signal) => signal.layer === "semantic");
 
   return (
     <div className="workspace">
@@ -36,7 +37,7 @@ export function ObserveWorkspace() {
         <section className="panel-card">
           <h3>Signal Values</h3>
           <ul className="plain-list">
-            {signals.map((signal) => (
+            {semanticSignals.map((signal) => (
               <li key={signal.id}>
                 <strong>{signal.id}</strong>
                 <span>{String(signal.value)}</span>

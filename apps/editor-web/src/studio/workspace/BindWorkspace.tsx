@@ -1,6 +1,11 @@
 import { useStudioStore } from "../store/studioStore";
 
+function findNextSignal(signals: ReturnType<typeof useStudioStore.getState>["project"]["signals"], signalId: string) {
+  return signals.find((signal) => signal.derivedFromSignalIds?.includes(signalId)) ?? null;
+}
+
 export function BindWorkspace() {
+  const signals = useStudioStore((state) => state.project.signals);
   const bindings = useStudioStore((state) => state.project.bindings);
   const bindContext = useStudioStore((state) => state.bindContext);
   const focusBindContext = useStudioStore((state) => state.focusBindContext);
@@ -34,7 +39,9 @@ export function BindWorkspace() {
         <table>
           <thead>
             <tr>
-              <th>Logical Signal</th>
+              <th>Raw</th>
+              <th>Conditioned</th>
+              <th>Semantic</th>
               <th>Direction</th>
               <th>Physical Source</th>
               <th>Type</th>
@@ -42,15 +49,22 @@ export function BindWorkspace() {
             </tr>
           </thead>
           <tbody>
-            {filteredBindings.map((binding) => (
+            {filteredBindings.map((binding) => {
+              const rawSignal = signals.find((signal) => signal.id === binding.signalId) ?? null;
+              const conditionedSignal = rawSignal ? findNextSignal(signals, rawSignal.id) : null;
+              const semanticSignal = conditionedSignal ? findNextSignal(signals, conditionedSignal.id) : null;
+
+              return (
               <tr key={binding.id} className={bindContext ? "is-contextual" : ""} onClick={() => selectItem("binding", binding.id)}>
-                <td>{binding.signalId}</td>
+                <td>{rawSignal?.name ?? binding.signalId}</td>
+                <td>{conditionedSignal?.name ?? "—"}</td>
+                <td>{semanticSignal?.name ?? "—"}</td>
                 <td>{binding.direction}</td>
                 <td>{binding.physicalSource}</td>
                 <td>{binding.type}</td>
                 <td>{String(binding.status)}</td>
               </tr>
-            ))}
+            )})}
           </tbody>
         </table>
       </div>
