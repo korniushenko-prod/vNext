@@ -1,5 +1,45 @@
 export type WorkspaceId = "bind" | "logic" | "machine" | "observe";
 
+export interface ObjectInterfacePortDefinition {
+  id: string;
+  name: string;
+  kind: "input" | "output" | "command" | "status" | "permission" | "alarm";
+  summary: string;
+  signalIds?: string[];
+  bindingIds?: string[];
+}
+
+export interface ObjectBehaviorDefinition {
+  machineId?: string;
+  summary: string;
+}
+
+export interface PlcObjectDefinition {
+  id: string;
+  name: string;
+  type: string;
+  behaviorKind: "sequence" | "control" | "monitoring";
+  summary: string;
+  commands: ObjectInterfacePortDefinition[];
+  inputs: ObjectInterfacePortDefinition[];
+  outputs: ObjectInterfacePortDefinition[];
+  status: ObjectInterfacePortDefinition[];
+  permissions: ObjectInterfacePortDefinition[];
+  alarms: ObjectInterfacePortDefinition[];
+  behavior?: ObjectBehaviorDefinition;
+}
+
+export interface ObjectCompositionLinkDefinition {
+  id: string;
+  sourceObjectId: string;
+  targetObjectId: string;
+  kind: "command" | "permission" | "status" | "fault";
+  label: string;
+  summary: string;
+  sourcePortId?: string;
+  targetPortId?: string;
+}
+
 export interface MachineStateDefinition {
   id: string;
   name: string;
@@ -68,6 +108,7 @@ export interface MachineSectionDefinition {
 
 export interface MachineDefinition {
   id: string;
+  objectId: string;
   name: string;
   behaviorKind: "sequence" | "control" | "monitoring";
   behaviorSummary?: {
@@ -131,6 +172,8 @@ export interface RuntimeSnapshot {
 export interface UniversalPlcDemoProject {
   id: string;
   name: string;
+  objects: PlcObjectDefinition[];
+  compositionLinks: ObjectCompositionLinkDefinition[];
   machines: MachineDefinition[];
   signals: SignalDefinition[];
   bindings: IoBindingDefinition[];
@@ -141,9 +184,308 @@ export interface UniversalPlcDemoProject {
 export const demoProject: UniversalPlcDemoProject = {
   id: "demo_boiler",
   name: "Demo Boiler Supervisor",
+  objects: [
+    {
+      id: "burner",
+      name: "Burner",
+      type: "Burner",
+      behaviorKind: "sequence",
+      summary: "Main burner object with start, run, stop, fault and recovery behavior.",
+      commands: [
+        {
+          id: "burner.cmd.start",
+          name: "start",
+          kind: "command",
+          summary: "Start request from boiler supervisor.",
+          signalIds: ["pump.start_cmd"],
+          bindingIds: ["bind_pump_start"]
+        },
+        {
+          id: "burner.cmd.stop",
+          name: "stop",
+          kind: "command",
+          summary: "Controlled stop request."
+        },
+        {
+          id: "burner.cmd.reset",
+          name: "reset",
+          kind: "command",
+          summary: "Manual recovery from fault."
+        }
+      ],
+      inputs: [
+        {
+          id: "burner.in.fuel_ready",
+          name: "fuelReady",
+          kind: "input",
+          summary: "Fuel group reports that fuel path is ready."
+        },
+        {
+          id: "burner.in.water_ok",
+          name: "waterOk",
+          kind: "input",
+          summary: "Water level group allows burner operation."
+        },
+        {
+          id: "burner.in.protection_ok",
+          name: "boilerPermissive",
+          kind: "input",
+          summary: "Boiler protection object grants run permissive."
+        }
+      ],
+      outputs: [
+        {
+          id: "burner.out.request_fuel",
+          name: "requestFuel",
+          kind: "output",
+          summary: "Burner asks fuel group to prepare circulation and valves."
+        },
+        {
+          id: "burner.out.running",
+          name: "running",
+          kind: "output",
+          summary: "Burner reports active run state."
+        }
+      ],
+      status: [
+        {
+          id: "burner.status.state",
+          name: "state",
+          kind: "status",
+          summary: "idle / starting / running / stopping / fault"
+        }
+      ],
+      permissions: [
+        {
+          id: "burner.perm.start",
+          name: "startPermissive",
+          kind: "permission",
+          summary: "Combined start permissive derived from fuel, water and protection objects."
+        }
+      ],
+      alarms: [
+        {
+          id: "burner.alarm.fault",
+          name: "fault",
+          kind: "alarm",
+          summary: "Trip state exported to the rest of the system."
+        }
+      ],
+      behavior: {
+        machineId: "boiler_sequence",
+        summary: "Sequence-first internal behavior with startup, run, stop and recovery."
+      }
+    },
+    {
+      id: "fuel_group",
+      name: "FuelGroup",
+      type: "FuelGroup",
+      behaviorKind: "control",
+      summary: "Fuel preparation, circulation and ready signal for burner start.",
+      commands: [
+        {
+          id: "fuel_group.cmd.prepare",
+          name: "prepareFuel",
+          kind: "command",
+          summary: "Prepare fuel path for burner start."
+        }
+      ],
+      inputs: [
+        {
+          id: "fuel_group.in.burner_request",
+          name: "burnerRequest",
+          kind: "input",
+          summary: "Burner asks fuel group to become ready."
+        }
+      ],
+      outputs: [
+        {
+          id: "fuel_group.out.ready",
+          name: "fuelReady",
+          kind: "output",
+          summary: "Fuel path ready for ignition."
+        }
+      ],
+      status: [
+        {
+          id: "fuel_group.status.mode",
+          name: "activeMode",
+          kind: "status",
+          summary: "Current active fuel mode."
+        }
+      ],
+      permissions: [
+        {
+          id: "fuel_group.perm.ready",
+          name: "ready",
+          kind: "permission",
+          summary: "Fuel group grants ready permissive."
+        }
+      ],
+      alarms: [
+        {
+          id: "fuel_group.alarm.fault",
+          name: "fuelFault",
+          kind: "alarm",
+          summary: "Fuel-side fault blocks burner start."
+        }
+      ]
+    },
+    {
+      id: "water_level_group",
+      name: "WaterLevelGroup",
+      type: "WaterLevelGroup",
+      behaviorKind: "monitoring",
+      summary: "Monitors level thresholds and grants burner permission when water is healthy.",
+      commands: [],
+      inputs: [
+        {
+          id: "water_level_group.in.level",
+          name: "levelValue",
+          kind: "input",
+          summary: "Measured drum or tank level.",
+          signalIds: ["tank.level"],
+          bindingIds: ["bind_tank_level"]
+        }
+      ],
+      outputs: [
+        {
+          id: "water_level_group.out.water_ok",
+          name: "waterOk",
+          kind: "output",
+          summary: "Water level is within safe operating band."
+        }
+      ],
+      status: [
+        {
+          id: "water_level_group.status.state",
+          name: "state",
+          kind: "status",
+          summary: "normal / low / highhigh / fault"
+        }
+      ],
+      permissions: [
+        {
+          id: "water_level_group.perm.run",
+          name: "runAllowed",
+          kind: "permission",
+          summary: "Allows burner run while level is healthy."
+        }
+      ],
+      alarms: [
+        {
+          id: "water_level_group.alarm.low",
+          name: "lowLowAlarm",
+          kind: "alarm",
+          summary: "Critical low level alarm."
+        }
+      ]
+    },
+    {
+      id: "boiler_protection",
+      name: "BoilerProtection",
+      type: "BoilerProtection",
+      behaviorKind: "control",
+      summary: "Supervisor permissives and trip conditions around the burner.",
+      commands: [],
+      inputs: [
+        {
+          id: "boiler_protection.in.running",
+          name: "burnerRunning",
+          kind: "input",
+          summary: "Burner running status for supervision."
+        }
+      ],
+      outputs: [
+        {
+          id: "boiler_protection.out.permissive",
+          name: "boilerPermissive",
+          kind: "output",
+          summary: "Global protection permissive for burner start."
+        }
+      ],
+      status: [
+        {
+          id: "boiler_protection.status.health",
+          name: "health",
+          kind: "status",
+          summary: "ok / warning / fault"
+        }
+      ],
+      permissions: [
+        {
+          id: "boiler_protection.perm.start",
+          name: "startAllowed",
+          kind: "permission",
+          summary: "Start allowed by protection layer."
+        }
+      ],
+      alarms: [
+        {
+          id: "boiler_protection.alarm.trip",
+          name: "protectionTrip",
+          kind: "alarm",
+          summary: "Protection trip propagated to burner."
+        }
+      ]
+    }
+  ],
+  compositionLinks: [
+    {
+      id: "link_burner_to_fuel",
+      sourceObjectId: "burner",
+      targetObjectId: "fuel_group",
+      kind: "command",
+      label: "requestFuel",
+      summary: "Burner asks the fuel group to prepare the fuel path.",
+      sourcePortId: "burner.out.request_fuel",
+      targetPortId: "fuel_group.in.burner_request"
+    },
+    {
+      id: "link_fuel_to_burner",
+      sourceObjectId: "fuel_group",
+      targetObjectId: "burner",
+      kind: "status",
+      label: "fuelReady",
+      summary: "Fuel group reports readiness to burner.",
+      sourcePortId: "fuel_group.out.ready",
+      targetPortId: "burner.in.fuel_ready"
+    },
+    {
+      id: "link_water_to_burner",
+      sourceObjectId: "water_level_group",
+      targetObjectId: "burner",
+      kind: "permission",
+      label: "waterOk",
+      summary: "Water level group grants run permission.",
+      sourcePortId: "water_level_group.out.water_ok",
+      targetPortId: "burner.in.water_ok"
+    },
+    {
+      id: "link_protection_to_burner",
+      sourceObjectId: "boiler_protection",
+      targetObjectId: "burner",
+      kind: "permission",
+      label: "boilerPermissive",
+      summary: "Protection object allows burner start.",
+      sourcePortId: "boiler_protection.out.permissive",
+      targetPortId: "burner.in.protection_ok"
+    },
+    {
+      id: "link_burner_to_protection",
+      sourceObjectId: "burner",
+      targetObjectId: "boiler_protection",
+      kind: "status",
+      label: "running",
+      summary: "Burner publishes running state to boiler protection.",
+      sourcePortId: "burner.out.running",
+      targetPortId: "boiler_protection.in.running"
+    }
+  ],
   machines: [
     {
       id: "boiler_sequence",
+      objectId: "burner",
       name: "Boiler Sequence",
       behaviorKind: "sequence",
       behaviorSummary: {

@@ -4,6 +4,7 @@ import { useStudioStore } from "../store/studioStore";
 export function LeftProjectPanel() {
   const project = useStudioStore((state) => state.project);
   const activeWorkspace = useStudioStore((state) => state.activeWorkspace);
+  const selectedObjectId = useStudioStore((state) => state.selectedObjectId);
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
   const selectedGroupId = useStudioStore((state) => state.selectedGroupId);
@@ -15,8 +16,8 @@ export function LeftProjectPanel() {
   const treeLines = useMemo(
     () => [
       project.name,
+      ...project.objects.map((object) => `  Object/${object.name}`),
       `  Machines/${machine.name}`,
-      ...machine.states.map((state) => `    State/${state.name}`),
       `  Signals/${project.signals.length}`,
       `  Blocks/${project.blocks.length}`,
       `  IO/${project.bindings.length}`
@@ -25,6 +26,7 @@ export function LeftProjectPanel() {
   );
 
   const activeMachine = project.machines.find((item) => item.id === selectedMachineId) ?? machine;
+  const activeObject = project.objects.find((item) => item.id === selectedObjectId) ?? project.objects[0];
 
   return (
     <aside className="studio-panel studio-panel--left">
@@ -58,9 +60,26 @@ export function LeftProjectPanel() {
         <section className="panel-card">
           <h3>Machine Browser</h3>
           <ul className="plain-list">
+            {project.objects.map((object) => (
+              <li
+                key={object.id}
+                className={object.id === activeObject.id || (selectedItemType === "object" && selectedObjectId === object.id) ? "is-focused" : ""}
+                onClick={() =>
+                  selectItem("object", object.id, {
+                    objectId: object.id,
+                    machineId: object.behavior?.machineId ?? null
+                  })
+                }
+              >
+                <strong>{object.name}</strong>
+                <span>
+                  {object.type} / {object.behaviorKind}
+                </span>
+              </li>
+            ))}
             <li
               className={selectedItemType === "machine" ? "is-focused" : ""}
-              onClick={() => selectItem("machine", activeMachine.id, { machineId: activeMachine.id })}
+              onClick={() => selectItem("machine", activeMachine.id, { objectId: activeObject.id, machineId: activeMachine.id })}
             >
               <strong>{activeMachine.name}</strong>
               <span>{activeMachine.behaviorKind} / {activeMachine.states.length} states</span>
@@ -69,7 +88,9 @@ export function LeftProjectPanel() {
               <li
                 key={group.id}
                 className={group.id === selectedGroupId ? "is-focused" : ""}
-                onClick={() => selectItem("group", group.id, { machineId: activeMachine.id, groupId: group.id })}
+                onClick={() =>
+                  selectItem("group", group.id, { objectId: activeObject.id, machineId: activeMachine.id, groupId: group.id })
+                }
               >
                 <strong>{group.name}</strong>
                 <span>{group.summary}</span>
@@ -79,7 +100,13 @@ export function LeftProjectPanel() {
               <li
                 key={section.id}
                 className={section.id === selectedSectionId ? "is-focused" : ""}
-                onClick={() => selectItem("section", section.id, { machineId: activeMachine.id, sectionId: section.id })}
+                onClick={() =>
+                  selectItem("section", section.id, {
+                    objectId: activeObject.id,
+                    machineId: activeMachine.id,
+                    sectionId: section.id
+                  })
+                }
               >
                 <strong>{section.name}</strong>
                 <span>{section.summary}</span>
@@ -89,7 +116,13 @@ export function LeftProjectPanel() {
               <li
                 key={region.id}
                 className={region.id === selectedRegionId ? "is-focused" : ""}
-                onClick={() => selectItem("region", region.id, { machineId: activeMachine.id, regionId: region.id })}
+                onClick={() =>
+                  selectItem("region", region.id, {
+                    objectId: activeObject.id,
+                    machineId: activeMachine.id,
+                    regionId: region.id
+                  })
+                }
               >
                 <strong>{region.name}</strong>
                 <span>{region.summary}</span>

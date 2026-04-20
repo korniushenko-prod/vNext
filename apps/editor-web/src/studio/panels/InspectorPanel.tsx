@@ -2,11 +2,13 @@ import type {
   IoBindingDefinition,
   LogicBlockDefinition,
   MachineDefinition,
+  ObjectCompositionLinkDefinition,
   MachineRegionDefinition,
   MachineSceneGroupDefinition,
   MachineSectionDefinition,
   MachineStateDefinition,
   MachineTransitionDefinition,
+  PlcObjectDefinition,
   SignalDefinition
 } from "../model/demoProject";
 import type { LogicWorkspaceContext, SelectItemOptions, SelectedItemType } from "../store/studioStore";
@@ -104,6 +106,73 @@ function renderMachineInspector(machine: MachineDefinition) {
         <SectionRow label="Scene groups" value={String(machine.sceneGroups?.length || 0)} />
         <SectionRow label="Sections" value={String(machine.sections.length)} />
         <SectionRow label="Regions" value={String(machine.regions?.length || 0)} />
+      </dl>
+    </>
+  );
+}
+
+function renderObjectInspector(
+  object: PlcObjectDefinition,
+  setMachineViewMode: (mode: "topology" | "object") => void,
+  selectItem: SelectItemFn
+) {
+  return (
+    <>
+      <h3>{object.name}</h3>
+      <dl className="inspector-grid">
+        <SectionRow label="Selected" value="Object" />
+        <SectionRow label="Type" value={object.type} />
+        <SectionRow label="Behavior" value={object.behaviorKind} />
+        <SectionRow label="Commands" value={String(object.commands.length)} />
+        <SectionRow label="Inputs" value={String(object.inputs.length)} />
+        <SectionRow label="Outputs" value={String(object.outputs.length)} />
+        <SectionRow label="Status" value={String(object.status.length)} />
+        <SectionRow label="Permissions" value={String(object.permissions.length)} />
+        <SectionRow label="Alarms" value={String(object.alarms.length)} />
+      </dl>
+      <div className="inspector-actions">
+        <button
+          type="button"
+          className="inspector-link"
+          onClick={() => {
+            setMachineViewMode("topology");
+            selectItem("object", object.id, { objectId: object.id, machineId: object.behavior?.machineId ?? null });
+          }}
+        >
+          Focus in topology
+        </button>
+        {object.behavior?.machineId ? (
+          <button
+            type="button"
+            className="inspector-link"
+            onClick={() => {
+              setMachineViewMode("object");
+              selectItem("machine", object.behavior?.machineId ?? null, {
+                objectId: object.id,
+                machineId: object.behavior?.machineId ?? null
+              });
+            }}
+          >
+            Open behavior view
+          </button>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
+function renderObjectLinkInspector(link: ObjectCompositionLinkDefinition, source: PlcObjectDefinition, target: PlcObjectDefinition) {
+  return (
+    <>
+      <h3>{link.label}</h3>
+      <dl className="inspector-grid">
+        <SectionRow label="Selected" value="Composition Link" />
+        <SectionRow label="Type" value={link.kind} />
+        <SectionRow label="Source" value={source.name} />
+        <SectionRow label="Target" value={target.name} />
+        <SectionRow label="Source Port" value={link.sourcePortId || ""} />
+        <SectionRow label="Target Port" value={link.targetPortId || ""} />
+        <SectionRow label="Meaning" value={link.summary} />
       </dl>
     </>
   );
@@ -379,11 +448,15 @@ export function InspectorPanel() {
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
   const setActiveWorkspace = useStudioStore((state) => state.setActiveWorkspace);
+  const setMachineViewMode = useStudioStore((state) => state.setMachineViewMode);
   const setMachineFilterMode = useStudioStore((state) => state.setMachineFilterMode);
   const focusLogicContext = useStudioStore((state) => state.focusLogicContext);
   const focusBindContext = useStudioStore((state) => state.focusBindContext);
   const selectItem = useStudioStore((state) => state.selectItem);
 
+  const selectedObject = selectedItemType === "object" ? project.objects.find((item) => item.id === selectedItemId) ?? null : null;
+  const selectedObjectLink =
+    selectedItemType === "object-link" ? project.compositionLinks.find((item) => item.id === selectedItemId) ?? null : null;
   const machine = project.machines.find((item) => item.id === selectedMachineId) ?? project.machines[0];
   const selectedGroup =
     selectedItemType === "group" ? machine.sceneGroups?.find((item) => item.id === selectedItemId) ?? null : null;
@@ -402,12 +475,20 @@ export function InspectorPanel() {
     selectedItemType === "binding" ? project.bindings.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedStateGroup =
     selectedState ? machine.sceneGroups?.find((group) => group.stateIds.includes(selectedState.id)) ?? null : null;
+  const selectedLinkSource =
+    selectedObjectLink ? project.objects.find((item) => item.id === selectedObjectLink.sourceObjectId) ?? null : null;
+  const selectedLinkTarget =
+    selectedObjectLink ? project.objects.find((item) => item.id === selectedObjectLink.targetObjectId) ?? null : null;
 
   return (
     <aside className="studio-panel studio-panel--right">
       <section className="panel-card">
         <h2>Inspector</h2>
-        {selectedItemType === "machine"
+        {selectedObject
+          ? renderObjectInspector(selectedObject, setMachineViewMode, selectItem)
+          : selectedObjectLink && selectedLinkSource && selectedLinkTarget
+          ? renderObjectLinkInspector(selectedObjectLink, selectedLinkSource, selectedLinkTarget)
+          : selectedItemType === "machine"
           ? renderMachineInspector(machine)
           : selectedGroup
           ? renderGroupInspector(
@@ -471,7 +552,7 @@ export function InspectorPanel() {
           : (
             <div className="empty-state">
               <strong>Nothing selected</strong>
-              <p>Select a state, transition, signal, block or binding to inspect it here.</p>
+              <p>Select an object, link, state, transition, signal, block or binding to inspect it here.</p>
             </div>
           )}
       </section>
