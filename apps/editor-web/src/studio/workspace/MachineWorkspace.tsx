@@ -2,8 +2,13 @@ import { useStudioStore } from "../store/studioStore";
 import { MachineCanvas } from "../machine/MachineCanvas";
 
 export function MachineWorkspace() {
-  const machine = useStudioStore((state) => state.project.machines[0]);
+  const machine = useStudioStore((state) => {
+    const selectedMachine = state.project.machines.find((item) => item.id === state.selectedMachineId);
+    return selectedMachine ?? state.project.machines[0];
+  });
+  const selectedGroupId = useStudioStore((state) => state.selectedGroupId);
   const selectedSectionId = useStudioStore((state) => state.selectedSectionId);
+  const selectedRegionId = useStudioStore((state) => state.selectedRegionId);
   const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
   const selectItem = useStudioStore((state) => state.selectItem);
 
@@ -18,16 +23,16 @@ export function MachineWorkspace() {
 
       <div className="machine-workspace-grid">
         <section className="panel-card machine-browser">
-          <h3>Machine Sections</h3>
+          <h3>Scene Groups</h3>
           <ul className="plain-list">
-            {machine.sections.map((section) => (
+            {(machine.sceneGroups || []).map((group) => (
               <li
-                key={section.id}
-                className={section.id === selectedSectionId ? "is-focused" : ""}
-                onClick={() => selectItem("section", section.id, { machineId: machine.id, sectionId: section.id })}
+                key={group.id}
+                className={group.id === selectedGroupId ? "is-focused" : ""}
+                onClick={() => selectItem("group", group.id, { machineId: machine.id, groupId: group.id })}
               >
-                <strong>{section.name}</strong>
-                <span>{section.summary}</span>
+                <strong>{group.name}</strong>
+                <span>{group.summary}</span>
               </li>
             ))}
           </ul>
@@ -38,8 +43,8 @@ export function MachineWorkspace() {
               <strong>{selectedMachineId || machine.id}</strong>
             </div>
             <div className="summary-card compact-card">
-              <span>Sections</span>
-              <strong>{machine.sections.length}</strong>
+              <span>Groups</span>
+              <strong>{machine.sceneGroups?.length || 0}</strong>
             </div>
             <div className="summary-card compact-card">
               <span>Regions</span>
@@ -47,13 +52,33 @@ export function MachineWorkspace() {
             </div>
           </div>
 
+          <div className="panel-card machine-browser__section">
+            <h3>Sections</h3>
+            <ul className="plain-list">
+              {machine.sections.map((section) => (
+                <li
+                  key={section.id}
+                  className={section.id === selectedSectionId ? "is-focused" : ""}
+                  onClick={() => selectItem("section", section.id, { machineId: machine.id, sectionId: section.id })}
+                >
+                  <strong>{section.name}</strong>
+                  <span>{section.summary}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div className="panel-card machine-region-card">
             <h3>State Regions</h3>
             <ul className="plain-list">
               {(machine.regions || []).map((region) => (
-                <li key={region.id} onClick={() => selectItem("region", region.id, { machineId: machine.id })}>
+                <li
+                  key={region.id}
+                  className={region.id === selectedRegionId ? "is-focused" : ""}
+                  onClick={() => selectItem("region", region.id, { machineId: machine.id, regionId: region.id })}
+                >
                   <strong>{region.name}</strong>
-                  <span>{region.type} region placeholder</span>
+                  <span>{region.summary}</span>
                 </li>
               ))}
             </ul>

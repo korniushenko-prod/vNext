@@ -4,8 +4,11 @@ import { useStudioStore } from "../store/studioStore";
 export function LeftProjectPanel() {
   const project = useStudioStore((state) => state.project);
   const activeWorkspace = useStudioStore((state) => state.activeWorkspace);
+  const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
+  const selectedGroupId = useStudioStore((state) => state.selectedGroupId);
   const selectedSectionId = useStudioStore((state) => state.selectedSectionId);
+  const selectedRegionId = useStudioStore((state) => state.selectedRegionId);
   const selectItem = useStudioStore((state) => state.selectItem);
 
   const machine = project.machines[0];
@@ -55,10 +58,23 @@ export function LeftProjectPanel() {
         <section className="panel-card">
           <h3>Machine Browser</h3>
           <ul className="plain-list">
-            <li className="is-focused" onClick={() => selectItem("machine", activeMachine.id, { machineId: activeMachine.id })}>
+            <li
+              className={selectedItemType === "machine" ? "is-focused" : ""}
+              onClick={() => selectItem("machine", activeMachine.id, { machineId: activeMachine.id })}
+            >
               <strong>{activeMachine.name}</strong>
-              <span>{activeMachine.sections.length} sections / {activeMachine.states.length} states</span>
+              <span>{activeMachine.sceneGroups?.length || 0} groups / {activeMachine.states.length} states</span>
             </li>
+            {(activeMachine.sceneGroups || []).map((group) => (
+              <li
+                key={group.id}
+                className={group.id === selectedGroupId ? "is-focused" : ""}
+                onClick={() => selectItem("group", group.id, { machineId: activeMachine.id, groupId: group.id })}
+              >
+                <strong>{group.name}</strong>
+                <span>{group.summary}</span>
+              </li>
+            ))}
             {activeMachine.sections.map((section) => (
               <li
                 key={section.id}
@@ -67,6 +83,16 @@ export function LeftProjectPanel() {
               >
                 <strong>{section.name}</strong>
                 <span>{section.summary}</span>
+              </li>
+            ))}
+            {(activeMachine.regions || []).map((region) => (
+              <li
+                key={region.id}
+                className={region.id === selectedRegionId ? "is-focused" : ""}
+                onClick={() => selectItem("region", region.id, { machineId: activeMachine.id, regionId: region.id })}
+              >
+                <strong>{region.name}</strong>
+                <span>{region.summary}</span>
               </li>
             ))}
           </ul>

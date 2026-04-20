@@ -34,6 +34,25 @@ export interface MachineRegionDefinition {
   id: string;
   name: string;
   type: "exclusive" | "parallel";
+  summary: string;
+  color: string;
+  stateIds: string[];
+  relatedSignalIds?: string[];
+  relatedBlockIds?: string[];
+  relatedBindingIds?: string[];
+}
+
+export interface MachineSceneGroupDefinition {
+  id: string;
+  name: string;
+  summary: string;
+  color: string;
+  stateIds: string[];
+  sectionIds?: string[];
+  regionIds?: string[];
+  relatedSignalIds?: string[];
+  relatedBlockIds?: string[];
+  relatedBindingIds?: string[];
 }
 
 export interface MachineSectionDefinition {
@@ -52,6 +71,7 @@ export interface MachineDefinition {
   name: string;
   sections: MachineSectionDefinition[];
   regions?: MachineRegionDefinition[];
+  sceneGroups?: MachineSceneGroupDefinition[];
   states: MachineStateDefinition[];
   transitions: MachineTransitionDefinition[];
 }
@@ -125,7 +145,7 @@ export const demoProject: UniversalPlcDemoProject = {
           name: "Startup",
           summary: "Idle and Starting states with permissives, purge and feedback acquisition.",
           color: "#5ab1ff",
-          regionIds: ["main_region"],
+          regionIds: ["cmd_region"],
           relatedSignalIds: ["pump.start_cmd", "pump.run_fb"],
           relatedBlockIds: ["block_start_stop_latch", "block_timer_on"],
           relatedBindingIds: ["bind_pump_start", "bind_pump_run"]
@@ -135,7 +155,7 @@ export const demoProject: UniversalPlcDemoProject = {
           name: "Running",
           summary: "Normal run and controlled stop path with tank level observation.",
           color: "#66d9c7",
-          regionIds: ["main_region"],
+          regionIds: ["feedback_region", "cmd_region"],
           relatedSignalIds: ["tank.level", "pump.run_fb"],
           relatedBlockIds: ["block_threshold_monitor", "block_interlock_set"],
           relatedBindingIds: ["bind_tank_level", "bind_pump_run"]
@@ -152,8 +172,77 @@ export const demoProject: UniversalPlcDemoProject = {
         }
       ],
       regions: [
-        { id: "main_region", name: "Main Region", type: "exclusive" },
-        { id: "fault_region", name: "Fault Region", type: "exclusive" }
+        {
+          id: "cmd_region",
+          name: "Command Path",
+          type: "exclusive",
+          summary: "Operator intent, permissive checks and orderly stop sequencing.",
+          color: "#7bb6ff",
+          stateIds: ["idle", "starting", "stopping"],
+          relatedSignalIds: ["pump.start_cmd"],
+          relatedBlockIds: ["block_start_stop_latch", "block_timer_on"],
+          relatedBindingIds: ["bind_pump_start"]
+        },
+        {
+          id: "feedback_region",
+          name: "Feedback Path",
+          type: "exclusive",
+          summary: "Run confirmation and live process observation while the machine is active.",
+          color: "#66d9c7",
+          stateIds: ["running"],
+          relatedSignalIds: ["pump.run_fb", "tank.level"],
+          relatedBlockIds: ["block_threshold_monitor"],
+          relatedBindingIds: ["bind_pump_run", "bind_tank_level"]
+        },
+        {
+          id: "fault_region",
+          name: "Fault Path",
+          type: "exclusive",
+          summary: "Trip isolation and operator-guided recovery back to Idle.",
+          color: "#ff7b8d",
+          stateIds: ["fault"],
+          relatedSignalIds: ["pump.fault_fb"],
+          relatedBlockIds: ["block_interlock_set"],
+          relatedBindingIds: ["bind_pump_fault"]
+        }
+      ],
+      sceneGroups: [
+        {
+          id: "grp_startup",
+          name: "Startup Envelope",
+          summary: "Warm-up and feedback acquisition before steady operation is allowed.",
+          color: "#5ab1ff",
+          stateIds: ["idle", "starting"],
+          sectionIds: ["sec_startup"],
+          regionIds: ["cmd_region"],
+          relatedSignalIds: ["pump.start_cmd", "pump.run_fb"],
+          relatedBlockIds: ["block_start_stop_latch", "block_timer_on"],
+          relatedBindingIds: ["bind_pump_start", "bind_pump_run"]
+        },
+        {
+          id: "grp_operation",
+          name: "Normal Operation",
+          summary: "Controlled running and stop path with process-level observation.",
+          color: "#66d9c7",
+          stateIds: ["running", "stopping"],
+          sectionIds: ["sec_running"],
+          regionIds: ["feedback_region", "cmd_region"],
+          relatedSignalIds: ["tank.level", "pump.run_fb", "pump.start_cmd"],
+          relatedBlockIds: ["block_threshold_monitor", "block_interlock_set", "block_timer_on"],
+          relatedBindingIds: ["bind_tank_level", "bind_pump_run", "bind_pump_start"]
+        },
+        {
+          id: "grp_fault",
+          name: "Fault Handling",
+          summary: "Trip containment zone with reset path back to the main sequence.",
+          color: "#ff7b8d",
+          stateIds: ["fault"],
+          sectionIds: ["sec_fault"],
+          regionIds: ["fault_region"],
+          relatedSignalIds: ["pump.fault_fb"],
+          relatedBlockIds: ["block_interlock_set"],
+          relatedBindingIds: ["bind_pump_fault"]
+        }
       ],
       states: [
         {
@@ -161,7 +250,7 @@ export const demoProject: UniversalPlcDemoProject = {
           name: "Idle",
           kind: "initial",
           sectionId: "sec_startup",
-          regionId: "main_region",
+          regionId: "cmd_region",
           position: { x: 60, y: 180 },
           exitActions: ["clear_start_request"],
           relatedSignalIds: ["pump.start_cmd"],
@@ -173,7 +262,7 @@ export const demoProject: UniversalPlcDemoProject = {
           name: "Starting",
           kind: "normal",
           sectionId: "sec_startup",
-          regionId: "main_region",
+          regionId: "cmd_region",
           position: { x: 320, y: 90 },
           entryActions: ["open_purge_air", "start_timer"],
           timeoutMs: 8000,
@@ -186,7 +275,7 @@ export const demoProject: UniversalPlcDemoProject = {
           name: "Running",
           kind: "normal",
           sectionId: "sec_running",
-          regionId: "main_region",
+          regionId: "feedback_region",
           position: { x: 610, y: 180 },
           entryActions: ["enable_burner"],
           active: true,
@@ -199,7 +288,7 @@ export const demoProject: UniversalPlcDemoProject = {
           name: "Stopping",
           kind: "final",
           sectionId: "sec_running",
-          regionId: "main_region",
+          regionId: "cmd_region",
           position: { x: 890, y: 280 },
           entryActions: ["close_fuel", "run_post_purge"],
           relatedSignalIds: ["pump.start_cmd"],

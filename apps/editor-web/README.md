@@ -33,6 +33,7 @@ Boundary:
 ## Architecture
 
 - `Machine` is the primary workspace
+- `Machine` uses visual scene groups and state regions to structure behavior without turning canvas semantics into runtime semantics
 - `Bind` is for physical/logical I/O binding
 - `Logic` is for signal and block logic skeleton
 - `Observe` is for runtime diagnostics and live state

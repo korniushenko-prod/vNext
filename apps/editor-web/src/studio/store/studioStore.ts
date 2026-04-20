@@ -1,17 +1,23 @@
 import { create } from "zustand";
 import { demoProject, type UniversalPlcDemoProject, type WorkspaceId } from "../model/demoProject";
 
-export type SelectedItemType = "machine" | "section" | "region" | "state" | "transition" | "signal" | "block" | "binding" | null;
+export type SelectedItemType = "machine" | "group" | "section" | "region" | "state" | "transition" | "signal" | "block" | "binding" | null;
 
 interface StudioState {
   activeWorkspace: WorkspaceId;
   selectedItemId: string | null;
   selectedItemType: SelectedItemType;
   selectedMachineId: string | null;
+  selectedGroupId: string | null;
   selectedSectionId: string | null;
+  selectedRegionId: string | null;
   project: UniversalPlcDemoProject;
   setActiveWorkspace: (workspace: WorkspaceId) => void;
-  selectItem: (type: SelectedItemType, id: string | null, options?: { machineId?: string | null; sectionId?: string | null }) => void;
+  selectItem: (
+    type: SelectedItemType,
+    id: string | null,
+    options?: { machineId?: string | null; groupId?: string | null; sectionId?: string | null; regionId?: string | null }
+  ) => void;
   updateMachineNodePosition: (machineId: string, stateId: string, position: { x: number; y: number }) => void;
 }
 
@@ -20,7 +26,9 @@ export const useStudioStore = create<StudioState>((set) => ({
   selectedItemId: "running",
   selectedItemType: "state",
   selectedMachineId: "boiler_sequence",
+  selectedGroupId: "grp_operation",
   selectedSectionId: "sec_running",
+  selectedRegionId: "feedback_region",
   project: demoProject,
   setActiveWorkspace: (workspace) => set({ activeWorkspace: workspace }),
   selectItem: (type, id, options) =>
@@ -28,7 +36,9 @@ export const useStudioStore = create<StudioState>((set) => ({
       selectedItemType: type,
       selectedItemId: id,
       selectedMachineId: options?.machineId ?? state.selectedMachineId,
-      selectedSectionId: options?.sectionId ?? state.selectedSectionId
+      selectedGroupId: options?.groupId ?? state.selectedGroupId,
+      selectedSectionId: options?.sectionId ?? state.selectedSectionId,
+      selectedRegionId: options?.regionId ?? state.selectedRegionId
     })),
   updateMachineNodePosition: (machineId, stateId, position) =>
     set((state) => ({
