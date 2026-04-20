@@ -169,19 +169,21 @@ function sceneGroupToNode(
   const overlapsFocus = focusedStateIds ? group.stateIds.some((stateId) => focusedStateIds.has(stateId)) : false;
   const isFocused = entityMatchesSelection("group", group.id, selection) || overlapsFocus;
   const isDimmed = Boolean(focusedStateIds && !overlapsFocus);
+  const width = Math.max(196, Math.min(260, Math.round(bounds.width * 0.44)));
+  const height = isFocused ? 84 : 48;
 
   return {
     id: group.id,
     type: "machineGroup",
-    position: { x: bounds.x, y: bounds.y },
+    position: { x: bounds.x + 18, y: bounds.y - (isFocused ? 18 : 12) },
     selectable: true,
     draggable: false,
     connectable: false,
-    zIndex: 0,
+    zIndex: 2,
     selected: entityMatchesSelection("group", group.id, selection),
     style: {
-      width: bounds.width,
-      height: bounds.height
+      width,
+      height
     },
     data: {
       entityType: "group",
@@ -202,7 +204,7 @@ function regionToNode(
   selection: MachineSelectionContext,
   focusedStateIds: Set<string> | null
 ): Node<MachineContainerNodeData> {
-  const bounds = getBoundsForStates(machine, region.stateIds, { top: 52, right: 28, bottom: 34, left: 28 });
+  const bounds = getBoundsForStates(machine, region.stateIds, { top: 30, right: 18, bottom: 22, left: 18 });
   const overlapsFocus = focusedStateIds ? region.stateIds.some((stateId) => focusedStateIds.has(stateId)) : false;
   const isFocused = entityMatchesSelection("region", region.id, selection) || overlapsFocus;
   const isDimmed = Boolean(focusedStateIds && !overlapsFocus);
@@ -214,7 +216,7 @@ function regionToNode(
     selectable: true,
     draggable: false,
     connectable: false,
-    zIndex: 1,
+    zIndex: 0,
     selected: entityMatchesSelection("region", region.id, selection),
     style: {
       width: bounds.width,

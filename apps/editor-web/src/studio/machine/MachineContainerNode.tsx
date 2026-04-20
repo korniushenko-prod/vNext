@@ -3,6 +3,7 @@ import type { MachineContainerNodeData } from "./machineGraphAdapter";
 
 export function MachineContainerNode({ data, selected }: NodeProps) {
   const nodeData = data as MachineContainerNodeData;
+  const showSummary = selected || nodeData.isFocused;
 
   return (
     <div
@@ -17,7 +18,7 @@ export function MachineContainerNode({ data, selected }: NodeProps) {
           {nodeData.entityType} · {nodeData.memberCount} states
         </span>
       </div>
-      <p className="machine-container-node__summary">{nodeData.summary}</p>
+      {showSummary ? <p className="machine-container-node__summary">{nodeData.summary}</p> : null}
     </div>
   );
 }

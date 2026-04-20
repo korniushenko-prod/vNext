@@ -359,7 +359,26 @@ textarea {
 }
 
 .machine-container-node.is-dimmed {
-  opacity: 0.28;
+  opacity: 0.16;
+}
+
+.machine-container-node--group {
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--machine-container-accent) 22%, rgba(13, 24, 38, 0.92)),
+    rgba(10, 18, 29, 0.82)
+  );
+  box-shadow:
+    0 14px 28px rgba(4, 10, 18, 0.34),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 10px 12px;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.machine-container-node--group.is-dimmed {
+  opacity: 0.3;
 }
 
 .machine-container-node--region {
@@ -367,9 +386,10 @@ textarea {
   border-radius: 20px;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--machine-container-accent) 8%, rgba(12, 22, 36, 0.38)),
-    rgba(10, 18, 29, 0.05)
+    color-mix(in srgb, var(--machine-container-accent) 6%, rgba(12, 22, 36, 0.24)),
+    rgba(10, 18, 29, 0.02)
   );
+  padding: 12px 14px;
 }
 
 .machine-container-node__header {
@@ -394,10 +414,14 @@ textarea {
 
 .machine-container-node__summary {
   margin: 0;
-  max-width: 78%;
+  max-width: 72%;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.45;
+}
+
+.machine-container-node--group .machine-container-node__summary {
+  max-width: 100%;
 }
 
 .machine-node {
@@ -419,7 +443,7 @@ textarea {
 }
 
 .machine-node.is-dimmed {
-  opacity: 0.38;
+  opacity: 0.54;
 }
 
 .machine-node.is-active {
