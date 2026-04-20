@@ -2,6 +2,25 @@ import { create } from "zustand";
 import { demoProject, type UniversalPlcDemoProject, type WorkspaceId } from "../model/demoProject";
 
 export type SelectedItemType = "machine" | "group" | "section" | "region" | "state" | "transition" | "signal" | "block" | "binding" | null;
+export type MachineFilterMode = "all" | "focus" | "region";
+
+export interface SelectItemOptions {
+  machineId?: string | null;
+  groupId?: string | null;
+  sectionId?: string | null;
+  regionId?: string | null;
+}
+
+export interface LogicWorkspaceContext {
+  title: string;
+  signalIds: string[];
+  blockIds: string[];
+}
+
+export interface BindWorkspaceContext {
+  title: string;
+  bindingIds: string[];
+}
 
 interface StudioState {
   activeWorkspace: WorkspaceId;
@@ -11,13 +30,15 @@ interface StudioState {
   selectedGroupId: string | null;
   selectedSectionId: string | null;
   selectedRegionId: string | null;
+  machineFilterMode: MachineFilterMode;
+  logicContext: LogicWorkspaceContext | null;
+  bindContext: BindWorkspaceContext | null;
   project: UniversalPlcDemoProject;
   setActiveWorkspace: (workspace: WorkspaceId) => void;
-  selectItem: (
-    type: SelectedItemType,
-    id: string | null,
-    options?: { machineId?: string | null; groupId?: string | null; sectionId?: string | null; regionId?: string | null }
-  ) => void;
+  selectItem: (type: SelectedItemType, id: string | null, options?: SelectItemOptions) => void;
+  setMachineFilterMode: (mode: MachineFilterMode) => void;
+  focusLogicContext: (context: LogicWorkspaceContext | null) => void;
+  focusBindContext: (context: BindWorkspaceContext | null) => void;
   updateMachineNodePosition: (machineId: string, stateId: string, position: { x: number; y: number }) => void;
 }
 
@@ -29,6 +50,9 @@ export const useStudioStore = create<StudioState>((set) => ({
   selectedGroupId: "grp_operation",
   selectedSectionId: "sec_running",
   selectedRegionId: "feedback_region",
+  machineFilterMode: "focus",
+  logicContext: null,
+  bindContext: null,
   project: demoProject,
   setActiveWorkspace: (workspace) => set({ activeWorkspace: workspace }),
   selectItem: (type, id, options) =>
@@ -40,6 +64,9 @@ export const useStudioStore = create<StudioState>((set) => ({
       selectedSectionId: options?.sectionId ?? state.selectedSectionId,
       selectedRegionId: options?.regionId ?? state.selectedRegionId
     })),
+  setMachineFilterMode: (mode) => set({ machineFilterMode: mode }),
+  focusLogicContext: (context) => set({ logicContext: context }),
+  focusBindContext: (context) => set({ bindContext: context }),
   updateMachineNodePosition: (machineId, stateId, position) =>
     set((state) => ({
       project: {

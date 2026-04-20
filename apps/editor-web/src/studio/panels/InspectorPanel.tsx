@@ -9,13 +9,13 @@ import type {
   MachineTransitionDefinition,
   SignalDefinition
 } from "../model/demoProject";
-import type { SelectedItemType } from "../store/studioStore";
+import type { LogicWorkspaceContext, SelectItemOptions, SelectedItemType } from "../store/studioStore";
 import { useStudioStore } from "../store/studioStore";
 
 type SelectItemFn = (
   type: SelectedItemType,
   id: string | null,
-  options?: { machineId?: string | null; groupId?: string | null; sectionId?: string | null; regionId?: string | null }
+  options?: SelectItemOptions
 ) => void;
 
 function SectionRow({ label, value }: { label: string; value: string }) {
@@ -28,37 +28,49 @@ function SectionRow({ label, value }: { label: string; value: string }) {
 }
 
 function renderReferenceActions(options: {
+  sourceLabel: string;
   signalIds?: string[];
   blockIds?: string[];
   bindingIds?: string[];
+  focusMachine?: () => void;
   setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void;
+  focusLogicContext: (context: LogicWorkspaceContext | null) => void;
+  focusBindContext: (context: { title: string; bindingIds: string[] } | null) => void;
   selectItem: SelectItemFn;
 }) {
-  const { signalIds = [], blockIds = [], bindingIds = [], setActiveWorkspace, selectItem } = options;
+  const {
+    sourceLabel,
+    signalIds = [],
+    blockIds = [],
+    bindingIds = [],
+    focusMachine,
+    setActiveWorkspace,
+    focusLogicContext,
+    focusBindContext,
+    selectItem
+  } = options;
   return (
     <div className="inspector-actions">
-      {signalIds[0] ? (
-        <button
-          type="button"
-          className="inspector-link"
-          onClick={() => {
-            setActiveWorkspace("logic");
-            selectItem("signal", signalIds[0]);
-          }}
-        >
-          Open related signal
+      {focusMachine ? (
+        <button type="button" className="inspector-link" onClick={focusMachine}>
+          Focus on canvas
         </button>
       ) : null}
-      {blockIds[0] ? (
+      {signalIds[0] || blockIds[0] ? (
         <button
           type="button"
           className="inspector-link"
           onClick={() => {
             setActiveWorkspace("logic");
-            selectItem("block", blockIds[0]);
+            focusLogicContext({
+              title: `${sourceLabel} -> related signals and blocks`,
+              signalIds,
+              blockIds
+            });
+            selectItem(signalIds[0] ? "signal" : "block", signalIds[0] ?? blockIds[0] ?? null);
           }}
         >
-          Open related block
+          Open Logic Context
         </button>
       ) : null}
       {bindingIds[0] ? (
@@ -67,10 +79,14 @@ function renderReferenceActions(options: {
           className="inspector-link"
           onClick={() => {
             setActiveWorkspace("bind");
+            focusBindContext({
+              title: `${sourceLabel} -> related bindings`,
+              bindingIds
+            });
             selectItem("binding", bindingIds[0]);
           }}
         >
-          Open related binding
+          Open Bind Context
         </button>
       ) : null}
     </div>
@@ -96,7 +112,11 @@ function renderMachineInspector(machine: MachineDefinition) {
 function renderGroupInspector(
   group: MachineSceneGroupDefinition,
   machine: MachineDefinition,
+  machineId: string,
   setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
+  setMachineFilterMode: (mode: "all" | "focus" | "region") => void,
+  focusLogicContext: (context: LogicWorkspaceContext | null) => void,
+  focusBindContext: (context: { title: string; bindingIds: string[] } | null) => void,
   selectItem: SelectItemFn
 ) {
   const states = machine.states.filter((state) => group.stateIds.includes(state.id)).map((state) => state.name);
@@ -112,10 +132,18 @@ function renderGroupInspector(
         <SectionRow label="Color" value={group.color} />
       </dl>
       {renderReferenceActions({
+        sourceLabel: group.name,
         signalIds: group.relatedSignalIds,
         blockIds: group.relatedBlockIds,
         bindingIds: group.relatedBindingIds,
+        focusMachine: () => {
+          setActiveWorkspace("machine");
+          setMachineFilterMode("focus");
+          selectItem("group", group.id, { machineId, groupId: group.id });
+        },
         setActiveWorkspace,
+        focusLogicContext,
+        focusBindContext,
         selectItem
       })}
     </>
@@ -124,7 +152,11 @@ function renderGroupInspector(
 
 function renderSectionInspector(
   section: MachineSectionDefinition,
+  machineId: string,
   setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
+  setMachineFilterMode: (mode: "all" | "focus" | "region") => void,
+  focusLogicContext: (context: LogicWorkspaceContext | null) => void,
+  focusBindContext: (context: { title: string; bindingIds: string[] } | null) => void,
   selectItem: SelectItemFn
 ) {
   return (
@@ -137,10 +169,18 @@ function renderSectionInspector(
         <SectionRow label="Color" value={section.color} />
       </dl>
       {renderReferenceActions({
+        sourceLabel: section.name,
         signalIds: section.relatedSignalIds,
         blockIds: section.relatedBlockIds,
         bindingIds: section.relatedBindingIds,
+        focusMachine: () => {
+          setActiveWorkspace("machine");
+          setMachineFilterMode("focus");
+          selectItem("section", section.id, { machineId, sectionId: section.id });
+        },
         setActiveWorkspace,
+        focusLogicContext,
+        focusBindContext,
         selectItem
       })}
     </>
@@ -150,7 +190,11 @@ function renderSectionInspector(
 function renderRegionInspector(
   region: MachineRegionDefinition,
   machine: MachineDefinition,
+  machineId: string,
   setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
+  setMachineFilterMode: (mode: "all" | "focus" | "region") => void,
+  focusLogicContext: (context: LogicWorkspaceContext | null) => void,
+  focusBindContext: (context: { title: string; bindingIds: string[] } | null) => void,
   selectItem: SelectItemFn
 ) {
   const states = machine.states.filter((state) => region.stateIds.includes(state.id)).map((state) => state.name);
@@ -165,10 +209,18 @@ function renderRegionInspector(
         <SectionRow label="Color" value={region.color} />
       </dl>
       {renderReferenceActions({
+        sourceLabel: region.name,
         signalIds: region.relatedSignalIds,
         blockIds: region.relatedBlockIds,
         bindingIds: region.relatedBindingIds,
+        focusMachine: () => {
+          setActiveWorkspace("machine");
+          setMachineFilterMode("region");
+          selectItem("region", region.id, { machineId, regionId: region.id });
+        },
         setActiveWorkspace,
+        focusLogicContext,
+        focusBindContext,
         selectItem
       })}
     </>
@@ -177,7 +229,12 @@ function renderRegionInspector(
 
 function renderStateInspector(
   state: MachineStateDefinition,
+  machineId: string,
+  groupId: string | null,
   setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
+  setMachineFilterMode: (mode: "all" | "focus" | "region") => void,
+  focusLogicContext: (context: LogicWorkspaceContext | null) => void,
+  focusBindContext: (context: { title: string; bindingIds: string[] } | null) => void,
   selectItem: SelectItemFn
 ) {
   return (
@@ -194,10 +251,23 @@ function renderStateInspector(
         <SectionRow label="Diagnostics" value="Placeholder" />
       </dl>
       {renderReferenceActions({
+        sourceLabel: state.name,
         signalIds: state.relatedSignalIds,
         blockIds: state.relatedBlockIds,
         bindingIds: state.relatedBindingIds,
+        focusMachine: () => {
+          setActiveWorkspace("machine");
+          setMachineFilterMode("focus");
+          selectItem("state", state.id, {
+            machineId,
+            groupId,
+            sectionId: state.sectionId,
+            regionId: state.regionId
+          });
+        },
         setActiveWorkspace,
+        focusLogicContext,
+        focusBindContext,
         selectItem
       })}
     </>
@@ -206,9 +276,16 @@ function renderStateInspector(
 
 function renderTransitionInspector(
   transition: MachineTransitionDefinition,
+  machine: MachineDefinition,
   setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
+  setMachineFilterMode: (mode: "all" | "focus" | "region") => void,
+  focusLogicContext: (context: LogicWorkspaceContext | null) => void,
+  focusBindContext: (context: { title: string; bindingIds: string[] } | null) => void,
   selectItem: SelectItemFn
 ) {
+  const sourceState = machine.states.find((state) => state.id === transition.source) ?? null;
+  const relatedGroup =
+    sourceState ? machine.sceneGroups?.find((group) => group.stateIds.includes(sourceState.id)) ?? null : null;
   return (
     <>
       <h3>{transition.id}</h3>
@@ -223,10 +300,23 @@ function renderTransitionInspector(
         <SectionRow label="Action" value={transition.action || ""} />
       </dl>
       {renderReferenceActions({
+        sourceLabel: transition.id,
         signalIds: transition.relatedSignalIds,
         blockIds: transition.relatedBlockIds,
         bindingIds: transition.relatedBindingIds,
+        focusMachine: () => {
+          setActiveWorkspace("machine");
+          setMachineFilterMode("focus");
+          selectItem("transition", transition.id, {
+            machineId: machine.id,
+            groupId: relatedGroup?.id ?? null,
+            sectionId: transition.sectionId,
+            regionId: sourceState?.regionId ?? null
+          });
+        },
         setActiveWorkspace,
+        focusLogicContext,
+        focusBindContext,
         selectItem
       })}
     </>
@@ -289,6 +379,9 @@ export function InspectorPanel() {
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
   const setActiveWorkspace = useStudioStore((state) => state.setActiveWorkspace);
+  const setMachineFilterMode = useStudioStore((state) => state.setMachineFilterMode);
+  const focusLogicContext = useStudioStore((state) => state.focusLogicContext);
+  const focusBindContext = useStudioStore((state) => state.focusBindContext);
   const selectItem = useStudioStore((state) => state.selectItem);
 
   const machine = project.machines.find((item) => item.id === selectedMachineId) ?? project.machines[0];
@@ -307,6 +400,8 @@ export function InspectorPanel() {
     selectedItemType === "block" ? project.blocks.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedBinding =
     selectedItemType === "binding" ? project.bindings.find((item) => item.id === selectedItemId) ?? null : null;
+  const selectedStateGroup =
+    selectedState ? machine.sceneGroups?.find((group) => group.stateIds.includes(selectedState.id)) ?? null : null;
 
   return (
     <aside className="studio-panel studio-panel--right">
@@ -315,15 +410,58 @@ export function InspectorPanel() {
         {selectedItemType === "machine"
           ? renderMachineInspector(machine)
           : selectedGroup
-          ? renderGroupInspector(selectedGroup, machine, setActiveWorkspace, selectItem)
+          ? renderGroupInspector(
+              selectedGroup,
+              machine,
+              machine.id,
+              setActiveWorkspace,
+              setMachineFilterMode,
+              focusLogicContext,
+              focusBindContext,
+              selectItem
+            )
           : selectedSection
-          ? renderSectionInspector(selectedSection, setActiveWorkspace, selectItem)
+          ? renderSectionInspector(
+              selectedSection,
+              machine.id,
+              setActiveWorkspace,
+              setMachineFilterMode,
+              focusLogicContext,
+              focusBindContext,
+              selectItem
+            )
           : selectedRegion
-          ? renderRegionInspector(selectedRegion, machine, setActiveWorkspace, selectItem)
+          ? renderRegionInspector(
+              selectedRegion,
+              machine,
+              machine.id,
+              setActiveWorkspace,
+              setMachineFilterMode,
+              focusLogicContext,
+              focusBindContext,
+              selectItem
+            )
           : selectedState
-          ? renderStateInspector(selectedState, setActiveWorkspace, selectItem)
+          ? renderStateInspector(
+              selectedState,
+              machine.id,
+              selectedStateGroup?.id ?? null,
+              setActiveWorkspace,
+              setMachineFilterMode,
+              focusLogicContext,
+              focusBindContext,
+              selectItem
+            )
           : selectedTransition
-          ? renderTransitionInspector(selectedTransition, setActiveWorkspace, selectItem)
+          ? renderTransitionInspector(
+              selectedTransition,
+              machine,
+              setActiveWorkspace,
+              setMachineFilterMode,
+              focusLogicContext,
+              focusBindContext,
+              selectItem
+            )
           : selectedSignal
           ? renderSignalInspector(selectedSignal)
           : selectedBlock

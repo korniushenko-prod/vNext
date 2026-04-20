@@ -190,6 +190,54 @@ textarea {
   min-height: 100%;
 }
 
+.machine-toolbar,
+.workspace-context {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.machine-breadcrumbs,
+.machine-filter-switcher {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.machine-breadcrumb,
+.machine-filter-switcher button {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.machine-breadcrumb:hover,
+.machine-filter-switcher button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.machine-filter-switcher button.is-active {
+  border-color: rgba(90, 177, 255, 0.35);
+  background: linear-gradient(135deg, rgba(90, 177, 255, 0.16), rgba(102, 217, 199, 0.12));
+}
+
+.workspace-context {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(90, 177, 255, 0.18);
+  background: rgba(90, 177, 255, 0.06);
+}
+
+.workspace-context p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
 .machine-workspace-grid {
   flex: 1;
   min-height: 0;
@@ -478,6 +526,10 @@ th {
 
 tbody tr:hover {
   background: rgba(255, 255, 255, 0.03);
+}
+
+tbody tr.is-contextual {
+  background: rgba(90, 177, 255, 0.08);
 }
 
 .inspector-grid {

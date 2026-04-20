@@ -1,8 +1,9 @@
-import { Background, Controls, MiniMap, ReactFlow, ReactFlowProvider } from "@xyflow/react";
-import { useMemo } from "react";
+import { Background, Controls, MiniMap, ReactFlow, ReactFlowProvider, useReactFlow } from "@xyflow/react";
+import { useEffect, useMemo } from "react";
 import { useStudioStore } from "../store/studioStore";
 import {
   createMachinePositionUpdate,
+  getMachineFocusNodeIds,
   machineToFlowEdges,
   machineToFlowNodes,
   type MachineContainerNodeData,
@@ -19,24 +20,48 @@ const nodeTypes = {
 };
 
 function MachineCanvasInner() {
+  const reactFlow = useReactFlow();
   const machine = useStudioStore((state) => {
     const selectedMachine = state.project.machines.find((item) => item.id === state.selectedMachineId);
     return selectedMachine ?? state.project.machines[0];
   });
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedItemId = useStudioStore((state) => state.selectedItemId);
+  const selectedRegionId = useStudioStore((state) => state.selectedRegionId);
+  const machineFilterMode = useStudioStore((state) => state.machineFilterMode);
   const selectItem = useStudioStore((state) => state.selectItem);
   const updateMachineNodePosition = useStudioStore((state) => state.updateMachineNodePosition);
 
   const selection = useMemo(
     () => ({
       selectedItemType,
-      selectedItemId
+      selectedItemId,
+      selectedRegionId,
+      filterMode: machineFilterMode
     }),
-    [selectedItemId, selectedItemType]
+    [machineFilterMode, selectedItemId, selectedItemType, selectedRegionId]
   );
   const nodes = useMemo(() => machineToFlowNodes(machine, selection), [machine, selection]);
   const edges = useMemo(() => machineToFlowEdges(machine, selection), [machine, selection]);
+
+  useEffect(() => {
+    const focusNodeIds = getMachineFocusNodeIds(machine, selection);
+    if (!focusNodeIds.length) {
+      return;
+    }
+
+    const fitNodes = focusNodeIds.map((id) => ({ id }));
+    const timer = window.setTimeout(() => {
+      reactFlow.fitView({
+        nodes: fitNodes,
+        duration: 280,
+        padding: 0.24,
+        includeHiddenNodes: true
+      });
+    }, 40);
+
+    return () => window.clearTimeout(timer);
+  }, [machine, reactFlow, selection]);
 
   return (
     <ReactFlow

@@ -6,7 +6,7 @@ import type {
   MachineStateDefinition,
   MachineTransitionDefinition
 } from "../model/demoProject";
-import type { SelectedItemType } from "../store/studioStore";
+import type { MachineFilterMode, SelectedItemType } from "../store/studioStore";
 
 const STATE_WIDTH = 208;
 const STATE_HEIGHT = 112;
@@ -14,6 +14,8 @@ const STATE_HEIGHT = 112;
 export interface MachineSelectionContext {
   selectedItemType: SelectedItemType;
   selectedItemId: string | null;
+  selectedRegionId: string | null;
+  filterMode: MachineFilterMode;
 }
 
 export interface MachineNodeData extends Record<string, unknown> {
@@ -97,7 +99,7 @@ function getBoundsForStates(machine: MachineDefinition, stateIds: string[], padd
   };
 }
 
-function getFocusedStateIds(machine: MachineDefinition, selection: MachineSelectionContext) {
+function getSelectionStateIds(machine: MachineDefinition, selection: MachineSelectionContext) {
   if (!selection.selectedItemType || !selection.selectedItemId) {
     return null;
   }
@@ -117,6 +119,33 @@ function getFocusedStateIds(machine: MachineDefinition, selection: MachineSelect
       const transition = machine.transitions.find((item) => item.id === selection.selectedItemId);
       return transition ? new Set([transition.source, transition.target]) : null;
     }
+    default:
+      return null;
+  }
+}
+
+function getRegionFocusStateIds(machine: MachineDefinition, selection: MachineSelectionContext) {
+  const explicitRegionId =
+    selection.selectedItemType === "region"
+      ? selection.selectedItemId
+      : selection.selectedRegionId;
+
+  if (!explicitRegionId) {
+    return null;
+  }
+
+  return new Set(machine.regions?.find((region) => region.id === explicitRegionId)?.stateIds ?? []);
+}
+
+function getFocusedStateIds(machine: MachineDefinition, selection: MachineSelectionContext) {
+  switch (selection.filterMode) {
+    case "focus":
+      return getSelectionStateIds(machine, selection);
+    case "region": {
+      const regionStateIds = getRegionFocusStateIds(machine, selection);
+      return regionStateIds && regionStateIds.size ? regionStateIds : getSelectionStateIds(machine, selection);
+    }
+    case "all":
     default:
       return null;
   }
@@ -296,6 +325,29 @@ export function machineToFlowEdges(machine: MachineDefinition, selection: Machin
       strokeWidth: entityMatchesSelection("transition", transition.id, selection) ? 2.4 : 1.5
     }
   }));
+}
+
+export function getMachineFocusNodeIds(machine: MachineDefinition, selection: MachineSelectionContext) {
+  const stateIds = Array.from(getFocusedStateIds(machine, selection) ?? []);
+  if (!stateIds.length) {
+    return [];
+  }
+
+  const nodeIds = new Set<string>(stateIds);
+
+  if (selection.selectedItemType === "group" && selection.selectedItemId) {
+    nodeIds.add(selection.selectedItemId);
+  }
+
+  if (selection.selectedItemType === "region" && selection.selectedItemId) {
+    nodeIds.add(selection.selectedItemId);
+  }
+
+  if (selection.filterMode === "region" && selection.selectedRegionId) {
+    nodeIds.add(selection.selectedRegionId);
+  }
+
+  return Array.from(nodeIds);
 }
 
 export function createMachinePositionUpdate(

@@ -7,10 +7,86 @@ export function MachineWorkspace() {
     return selectedMachine ?? state.project.machines[0];
   });
   const selectedGroupId = useStudioStore((state) => state.selectedGroupId);
+  const selectedItemId = useStudioStore((state) => state.selectedItemId);
+  const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedSectionId = useStudioStore((state) => state.selectedSectionId);
   const selectedRegionId = useStudioStore((state) => state.selectedRegionId);
   const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
+  const machineFilterMode = useStudioStore((state) => state.machineFilterMode);
+  const setMachineFilterMode = useStudioStore((state) => state.setMachineFilterMode);
   const selectItem = useStudioStore((state) => state.selectItem);
+
+  const selectedState = selectedItemType === "state" ? machine.states.find((item) => item.id === selectedItemId) ?? null : null;
+  const selectedTransition =
+    selectedItemType === "transition" ? machine.transitions.find((item) => item.id === selectedItemId) ?? null : null;
+  const selectedGroup =
+    machine.sceneGroups?.find((item) => item.id === (selectedItemType === "group" ? selectedItemId : selectedGroupId)) ?? null;
+  const selectedSection =
+    machine.sections.find(
+      (item) =>
+        item.id ===
+        (selectedItemType === "section"
+          ? selectedItemId
+          : selectedState?.sectionId ?? selectedTransition?.sectionId ?? selectedSectionId)
+    ) ?? null;
+  const selectedRegion =
+    machine.regions?.find(
+      (item) =>
+        item.id ===
+        (selectedItemType === "region"
+          ? selectedItemId
+          : selectedState?.regionId ??
+            machine.states.find((state) => state.id === selectedTransition?.source)?.regionId ??
+            selectedRegionId)
+    ) ?? null;
+
+  const breadcrumbs = [
+    {
+      label: machine.name,
+      onClick: () => selectItem("machine", machine.id, { machineId: machine.id })
+    },
+    selectedSection
+      ? {
+          label: selectedSection.name,
+          onClick: () => selectItem("section", selectedSection.id, { machineId: machine.id, sectionId: selectedSection.id })
+        }
+      : null,
+    selectedRegion
+      ? {
+          label: selectedRegion.name,
+          onClick: () => selectItem("region", selectedRegion.id, { machineId: machine.id, regionId: selectedRegion.id })
+        }
+      : null,
+    selectedGroup
+      ? {
+          label: selectedGroup.name,
+          onClick: () => selectItem("group", selectedGroup.id, { machineId: machine.id, groupId: selectedGroup.id })
+        }
+      : null,
+    selectedState
+      ? {
+          label: selectedState.name,
+          onClick: () =>
+            selectItem("state", selectedState.id, {
+              machineId: machine.id,
+              groupId: selectedGroup?.id ?? null,
+              sectionId: selectedState.sectionId,
+              regionId: selectedState.regionId
+            })
+        }
+      : selectedTransition
+      ? {
+          label: selectedTransition.event || selectedTransition.id,
+          onClick: () =>
+            selectItem("transition", selectedTransition.id, {
+              machineId: machine.id,
+              groupId: selectedGroup?.id ?? null,
+              sectionId: selectedTransition.sectionId,
+              regionId: selectedRegion?.id ?? null
+            })
+        }
+      : null
+  ].filter(Boolean) as Array<{ label: string; onClick: () => void }>;
 
   return (
     <div className="workspace workspace-machine">
@@ -18,6 +94,33 @@ export function MachineWorkspace() {
         <div>
           <h2>Machine</h2>
           <p className="muted-copy">Primary workspace for machine behavior, state transitions and orchestration.</p>
+        </div>
+      </div>
+
+      <div className="machine-toolbar">
+        <div className="machine-breadcrumbs" aria-label="Machine breadcrumbs">
+          {breadcrumbs.map((crumb, index) => (
+            <button key={`${crumb.label}-${index}`} type="button" className="machine-breadcrumb" onClick={crumb.onClick}>
+              {crumb.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="machine-filter-switcher" aria-label="Machine filter mode">
+          {[
+            { id: "all", label: "All" },
+            { id: "focus", label: "Focus" },
+            { id: "region", label: "Region" }
+          ].map((mode) => (
+            <button
+              key={mode.id}
+              type="button"
+              className={machineFilterMode === mode.id ? "is-active" : ""}
+              onClick={() => setMachineFilterMode(mode.id as "all" | "focus" | "region")}
+            >
+              {mode.label}
+            </button>
+          ))}
         </div>
       </div>
 
