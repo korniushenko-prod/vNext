@@ -1005,6 +1005,30 @@ textarea {
   gap: 8px;
 }
 
+.machine-node__handle {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 2px solid rgba(136, 186, 232, 0.72);
+  background: rgba(8, 17, 30, 0.96);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.machine-node__handle--top,
+.machine-node__handle--bottom {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.machine-node__handle--left {
+  left: -6px;
+}
+
+.machine-node__handle--right {
+  right: -6px;
+}
+
 .machine-node__row {
   display: flex;
   justify-content: space-between;

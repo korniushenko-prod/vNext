@@ -91,6 +91,30 @@ function createTransitionLabel(machine: MachineDefinition, transition: MachineTr
   return parts.join(" | ");
 }
 
+function getSequenceEdgeHandles(transition: MachineTransitionDefinition) {
+  if (transition.target === "fault_lockout") {
+    return { sourceHandle: "top", targetHandle: "bottom-in" };
+  }
+
+  if (transition.source === "fault_lockout") {
+    return { sourceHandle: "bottom", targetHandle: "top-in" };
+  }
+
+  if (transition.target === "normal_stop") {
+    return { sourceHandle: "bottom", targetHandle: "top-in" };
+  }
+
+  if (transition.source === "normal_stop" && transition.target === "post_purge") {
+    return { sourceHandle: "left", targetHandle: "right" };
+  }
+
+  if (transition.source === "post_purge" && transition.target === "idle") {
+    return { sourceHandle: "left", targetHandle: "bottom-in" };
+  }
+
+  return { sourceHandle: "right", targetHandle: "left" };
+}
+
 function findGroupForState(machine: MachineDefinition, stateId: string) {
   return machine.sceneGroups?.find((group) => group.stateIds.includes(stateId)) ?? null;
 }
@@ -280,6 +304,8 @@ export function machineToFlowNodes(
       type: "machineState",
       position: state.position,
       zIndex: 3,
+      sourcePosition: machine.behaviorKind === "sequence" ? undefined : undefined,
+      targetPosition: machine.behaviorKind === "sequence" ? undefined : undefined,
       selected: entityMatchesSelection("state", state.id, selection),
       data: {
         entityType: "state",
@@ -303,6 +329,7 @@ export function machineToFlowNodes(
 export function machineToFlowEdges(machine: MachineDefinition, selection: MachineSelectionContext): Edge<MachineEdgeData>[] {
   const focusedStateIds = getFocusedStateIds(machine, selection);
   return machine.transitions.map((transition) => ({
+    ...(machine.behaviorKind === "sequence" ? getSequenceEdgeHandles(transition) : {}),
     id: transition.id,
     source: transition.source,
     target: transition.target,
