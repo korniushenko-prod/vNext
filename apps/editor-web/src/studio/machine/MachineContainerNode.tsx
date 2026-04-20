@@ -3,7 +3,7 @@ import type { MachineContainerNodeData } from "./machineGraphAdapter";
 
 export function MachineContainerNode({ data, selected }: NodeProps) {
   const nodeData = data as MachineContainerNodeData;
-  const showSummary = selected || nodeData.isFocused;
+  const showSummary = selected;
 
   return (
     <div

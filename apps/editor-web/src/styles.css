@@ -363,7 +363,7 @@ textarea {
 }
 
 .machine-container-node--group {
-  border-radius: 18px;
+  border-radius: 16px;
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--machine-container-accent) 22%, rgba(13, 24, 38, 0.92)),
@@ -372,13 +372,13 @@ textarea {
   box-shadow:
     0 14px 28px rgba(4, 10, 18, 0.34),
     inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  padding: 10px 12px;
+  padding: 8px 10px;
   justify-content: flex-start;
-  gap: 8px;
+  gap: 6px;
 }
 
 .machine-container-node--group.is-dimmed {
-  opacity: 0.3;
+  opacity: 0.18;
 }
 
 .machine-container-node--region {
@@ -406,8 +406,8 @@ textarea {
 
 .machine-container-node__badge {
   border-radius: 999px;
-  padding: 5px 10px;
-  font-size: 11px;
+  padding: 4px 8px;
+  font-size: 10px;
   color: color-mix(in srgb, var(--machine-container-accent) 28%, #d5e6ff);
   background: rgba(255, 255, 255, 0.05);
 }
@@ -422,6 +422,10 @@ textarea {
 
 .machine-container-node--group .machine-container-node__summary {
   max-width: 100%;
+}
+
+.machine-container-node--group .machine-container-node__label {
+  font-size: 13px;
 }
 
 .machine-node {

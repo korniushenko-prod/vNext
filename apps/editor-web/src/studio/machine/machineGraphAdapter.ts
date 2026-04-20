@@ -169,13 +169,16 @@ function sceneGroupToNode(
   const overlapsFocus = focusedStateIds ? group.stateIds.some((stateId) => focusedStateIds.has(stateId)) : false;
   const isFocused = entityMatchesSelection("group", group.id, selection) || overlapsFocus;
   const isDimmed = Boolean(focusedStateIds && !overlapsFocus);
-  const width = Math.max(196, Math.min(260, Math.round(bounds.width * 0.44)));
+  const width = Math.max(152, Math.min(210, Math.round(bounds.width * 0.34)));
   const height = isFocused ? 84 : 48;
 
   return {
     id: group.id,
     type: "machineGroup",
-    position: { x: bounds.x + 18, y: bounds.y - (isFocused ? 18 : 12) },
+    position: {
+      x: bounds.x + bounds.width - width - 12,
+      y: bounds.y + 8
+    },
     selectable: true,
     draggable: false,
     connectable: false,
