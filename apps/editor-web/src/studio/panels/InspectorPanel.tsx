@@ -115,8 +115,11 @@ function renderMachineInspector(machine: MachineDefinition) {
 function renderObjectInspector(
   object: PlcObjectDefinition,
   setMachineViewMode: (mode: "topology" | "object") => void,
+  setObjectViewLens: (lens: "behavior" | "structure") => void,
   selectItem: SelectItemFn
 ) {
+  const canOpenBehavior = Boolean(object.behavior?.machineId);
+  const canOpenStructure = Boolean(object.structure);
   return (
     <>
       <h3>{object.name}</h3>
@@ -142,19 +145,20 @@ function renderObjectInspector(
         >
           Focus in topology
         </button>
-        {object.behavior?.machineId ? (
+        {canOpenBehavior || canOpenStructure ? (
           <button
             type="button"
             className="inspector-link"
             onClick={() => {
+              setObjectViewLens(canOpenBehavior ? "behavior" : "structure");
               setMachineViewMode("object");
-              selectItem("machine", object.behavior?.machineId ?? null, {
+              selectItem(canOpenBehavior ? "machine" : "object", object.behavior?.machineId ?? object.id, {
                 objectId: object.id,
                 machineId: object.behavior?.machineId ?? null
               });
             }}
           >
-            Open behavior view
+            Open object view
           </button>
         ) : null}
       </div>
@@ -539,7 +543,7 @@ export function InspectorPanel() {
       <section className="panel-card">
         <h2>Inspector</h2>
         {selectedObject
-          ? renderObjectInspector(selectedObject, setMachineViewMode, selectItem)
+          ? renderObjectInspector(selectedObject, setMachineViewMode, setObjectViewLens, selectItem)
           : selectedObjectLink && selectedLinkSource && selectedLinkTarget
           ? renderObjectLinkInspector(selectedObjectLink, selectedLinkSource, selectedLinkTarget)
           : selectedSubobject && currentObject

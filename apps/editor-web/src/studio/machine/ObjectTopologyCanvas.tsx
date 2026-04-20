@@ -77,6 +77,7 @@ export function ObjectTopologyCanvas() {
   const selectedItemId = useStudioStore((state) => state.selectedItemId);
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const setMachineViewMode = useStudioStore((state) => state.setMachineViewMode);
+  const setObjectViewLens = useStudioStore((state) => state.setObjectViewLens);
   const selectItem = useStudioStore((state) => state.selectItem);
 
   const selectedObject = project.objects.find((item) => item.id === selectedObjectId) ?? project.objects[0];
@@ -93,6 +94,7 @@ export function ObjectTopologyCanvas() {
   const machine = selectedObject.behavior?.machineId
     ? project.machines.find((item) => item.id === selectedObject.behavior?.machineId) ?? null
     : null;
+  const canOpenObjectView = Boolean(machine || selectedObject.structure);
 
   return (
     <div className="machine-canvas topology-canvas">
@@ -148,19 +150,20 @@ export function ObjectTopologyCanvas() {
             <button
               type="button"
               className="topology-open-behavior"
-              disabled={!machine}
+              disabled={!canOpenObjectView}
               onClick={() => {
-                if (!machine) {
+                if (!canOpenObjectView) {
                   return;
                 }
+                setObjectViewLens(machine ? "behavior" : "structure");
                 setMachineViewMode("object");
-                selectItem("machine", machine.id, {
+                selectItem(machine ? "machine" : "object", machine?.id ?? selectedObject.id, {
                   objectId: selectedObject.id,
-                  machineId: machine.id
+                  machineId: machine?.id ?? null
                 });
               }}
             >
-              {machine ? "Open Behavior View" : "Behavior view not defined"}
+              {canOpenObjectView ? "Open Object View" : "Object view not defined"}
             </button>
           </div>
         </section>

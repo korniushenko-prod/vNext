@@ -24,6 +24,8 @@ export function MachineWorkspace() {
     ? project.machines.find((item) => item.id === selectedObject.behavior?.machineId) ?? null
     : null;
   const machine = behaviorMachine;
+  const resolvedObjectViewLens =
+    objectViewLens === "behavior" && !machine && selectedObject.structure ? "structure" : objectViewLens;
 
   const selectedState = machine && selectedItemType === "state" ? machine.states.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedTransition =
@@ -280,13 +282,13 @@ export function MachineWorkspace() {
         </>
       ) : (
         <>
-          {objectViewLens === "behavior" && behaviorSummary ? (
+          {resolvedObjectViewLens === "behavior" && behaviorSummary ? (
             <div className="behavior-summary-grid">
               <div className="summary-card behavior-card">
                 <span>Object Lens</span>
-                <strong>{objectViewLens === "behavior" ? "Behavior" : "Structure"}</strong>
+                <strong>{resolvedObjectViewLens === "behavior" ? "Behavior" : "Structure"}</strong>
                 <p>
-                  {objectViewLens === "behavior"
+                  {resolvedObjectViewLens === "behavior"
                     ? `Canvas shows only internal behavior of ${selectedObject.name}, not whole-project wiring.`
                     : `Canvas shows ports, internal units and local routes inside ${selectedObject.name}.`}
                 </p>
@@ -304,7 +306,7 @@ export function MachineWorkspace() {
                 <strong>{behaviorSummary.recovery}</strong>
               </div>
             </div>
-          ) : objectViewLens === "structure" && selectedObject.structure ? (
+          ) : resolvedObjectViewLens === "structure" && selectedObject.structure ? (
             <div className="behavior-summary-grid">
               <div className="summary-card behavior-card">
                 <span>Object Lens</span>
@@ -359,17 +361,17 @@ export function MachineWorkspace() {
 
               <div className="machine-browser__meta">
                 <div className="summary-card compact-card">
-                  <span>{objectViewLens === "behavior" ? "Machine" : "Nodes"}</span>
-                  <strong>{objectViewLens === "behavior" ? machine?.name || "None" : selectedObject.structure?.nodes.length || 0}</strong>
+                  <span>{resolvedObjectViewLens === "behavior" ? "Machine" : "Nodes"}</span>
+                  <strong>{resolvedObjectViewLens === "behavior" ? machine?.name || "None" : selectedObject.structure?.nodes.length || 0}</strong>
                 </div>
                 <div className="summary-card compact-card">
-                  <span>{objectViewLens === "behavior" ? "States" : "Routes"}</span>
-                  <strong>{objectViewLens === "behavior" ? machine?.states.length || 0 : selectedObject.structure?.routes.length || 0}</strong>
+                  <span>{resolvedObjectViewLens === "behavior" ? "States" : "Routes"}</span>
+                  <strong>{resolvedObjectViewLens === "behavior" ? machine?.states.length || 0 : selectedObject.structure?.routes.length || 0}</strong>
                 </div>
                 <div className="summary-card compact-card">
-                  <span>{objectViewLens === "behavior" ? "Transitions" : "Ports"}</span>
+                  <span>{resolvedObjectViewLens === "behavior" ? "Transitions" : "Ports"}</span>
                   <strong>
-                    {objectViewLens === "behavior"
+                    {resolvedObjectViewLens === "behavior"
                       ? machine?.transitions.length || 0
                       : selectedObject.commands.length +
                         selectedObject.inputs.length +
@@ -382,9 +384,9 @@ export function MachineWorkspace() {
               </div>
 
               <div className="panel-card machine-browser__section">
-                <h3>{objectViewLens === "behavior" ? "Internal Structure" : "Internal Units"}</h3>
+                <h3>{resolvedObjectViewLens === "behavior" ? "Internal Structure" : "Internal Units"}</h3>
                 <ul className="plain-list">
-                  {objectViewLens === "behavior"
+                  {resolvedObjectViewLens === "behavior"
                     ? machine?.sections.map((section) => (
                         <li
                           key={section.id}
@@ -419,7 +421,7 @@ export function MachineWorkspace() {
                 </ul>
               </div>
 
-              {objectViewLens === "behavior" ? (
+              {resolvedObjectViewLens === "behavior" ? (
                 <div className="panel-card machine-region-card">
                   <h3>Behavior Regions</h3>
                   <ul className="plain-list">
@@ -468,7 +470,7 @@ export function MachineWorkspace() {
                       key={lens.id}
                       type="button"
                       disabled={lens.disabled}
-                      className={objectViewLens === lens.id ? "is-active" : ""}
+                      className={resolvedObjectViewLens === lens.id ? "is-active" : ""}
                       onClick={() => setObjectViewLens(lens.id as "behavior" | "structure")}
                     >
                       {lens.label}
@@ -477,7 +479,7 @@ export function MachineWorkspace() {
                 </div>
               </div>
 
-              {objectViewLens === "behavior" ? (
+              {resolvedObjectViewLens === "behavior" ? (
                 <div className="panel-card machine-region-card">
                   <h3>View Filter</h3>
                   <div className="machine-filter-switcher" aria-label="Machine filter mode">
@@ -500,7 +502,7 @@ export function MachineWorkspace() {
               ) : null}
             </section>
 
-            {objectViewLens === "structure" && selectedObject.structure ? (
+            {resolvedObjectViewLens === "structure" && selectedObject.structure ? (
               <ObjectStructureCanvas />
             ) : machine ? (
               <MachineCanvas />
