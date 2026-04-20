@@ -545,6 +545,209 @@ textarea {
   color: #ff9fae;
 }
 
+.structure-canvas {
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+  overflow: auto;
+}
+
+.structure-canvas__header p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.structure-shell {
+  min-height: 660px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background:
+    radial-gradient(circle at top left, rgba(90, 177, 255, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(18, 32, 49, 0.9), rgba(11, 22, 35, 0.92));
+  padding: 16px;
+}
+
+.structure-boundary-rails {
+  position: relative;
+  min-height: 620px;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 240px;
+  gap: 16px;
+}
+
+.structure-boundary-rail {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.structure-boundary-group {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 12px;
+}
+
+.structure-boundary-group h4 {
+  margin: 0 0 10px;
+}
+
+.structure-port-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.structure-port-card + .structure-port-card {
+  margin-top: 8px;
+}
+
+.structure-port-card.is-right {
+  text-align: right;
+}
+
+.structure-port-card__text {
+  display: grid;
+  gap: 4px;
+}
+
+.structure-port-card__text span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.structure-port-handle {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+}
+
+.structure-port-handle.is-source {
+  background: rgba(90, 177, 255, 0.22);
+  border-color: rgba(90, 177, 255, 0.72);
+}
+
+.structure-port-handle.is-target {
+  background: rgba(102, 217, 199, 0.22);
+  border-color: rgba(102, 217, 199, 0.72);
+}
+
+.structure-center-pane {
+  position: relative;
+  min-height: 620px;
+  border-radius: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at 25% 20%, rgba(90, 177, 255, 0.06), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  overflow: hidden;
+}
+
+.structure-node-layer,
+.structure-routes {
+  position: absolute;
+  inset: 0;
+}
+
+.structure-routes {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.structure-route-path {
+  fill: none;
+  stroke: rgba(151, 190, 228, 0.6);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 6 6;
+}
+
+.structure-route-label {
+  fill: #d8e6f8;
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.structure-node-card {
+  position: absolute;
+  width: 280px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(21, 37, 57, 0.96), rgba(14, 24, 38, 0.96));
+  box-shadow: 0 14px 32px rgba(2, 7, 14, 0.28);
+  padding: 14px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.structure-node-card.is-selected {
+  border-color: rgba(90, 177, 255, 0.55);
+  box-shadow: 0 0 0 2px rgba(90, 177, 255, 0.18), 0 14px 32px rgba(2, 7, 14, 0.28);
+}
+
+.structure-node-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.structure-node-card__header div {
+  display: grid;
+  gap: 4px;
+}
+
+.structure-node-card__header span,
+.structure-node-card p {
+  color: var(--muted);
+}
+
+.structure-node-card p {
+  margin: 12px 0;
+  line-height: 1.45;
+}
+
+.structure-node-card__ports {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.structure-node-port-col {
+  display: grid;
+  gap: 8px;
+}
+
+.structure-node-port {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 13px;
+}
+
+.structure-node-port.is-output {
+  justify-content: space-between;
+}
+
+.machine-filter-switcher button:disabled,
+.topology-open-behavior:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .machine-container-node {
   width: 100%;
   height: 100%;
@@ -874,8 +1077,31 @@ tbody tr.is-contextual {
 
   .topology-layout,
   .topology-interface-grid,
-  .topology-center-card__footer {
+  .topology-center-card__footer,
+  .structure-boundary-rails {
     grid-template-columns: 1fr;
+  }
+
+  .structure-node-card {
+    position: relative;
+    width: 100%;
+    left: auto !important;
+    top: auto !important;
+  }
+
+  .structure-center-pane {
+    min-height: auto;
+  }
+
+  .structure-node-layer {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .structure-routes {
+    display: none;
   }
 }
 

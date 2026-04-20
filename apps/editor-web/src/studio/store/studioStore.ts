@@ -4,6 +4,7 @@ import { demoProject, type UniversalPlcDemoProject, type WorkspaceId } from "../
 export type SelectedItemType =
   | "object"
   | "object-link"
+  | "subobject"
   | "machine"
   | "group"
   | "section"
@@ -16,6 +17,7 @@ export type SelectedItemType =
   | null;
 export type MachineFilterMode = "all" | "focus" | "region";
 export type MachineViewMode = "topology" | "object";
+export type ObjectViewLens = "behavior" | "structure";
 
 export interface SelectItemOptions {
   objectId?: string | null;
@@ -46,6 +48,7 @@ interface StudioState {
   selectedSectionId: string | null;
   selectedRegionId: string | null;
   machineViewMode: MachineViewMode;
+  objectViewLens: ObjectViewLens;
   machineFilterMode: MachineFilterMode;
   logicContext: LogicWorkspaceContext | null;
   bindContext: BindWorkspaceContext | null;
@@ -53,6 +56,7 @@ interface StudioState {
   setActiveWorkspace: (workspace: WorkspaceId) => void;
   selectItem: (type: SelectedItemType, id: string | null, options?: SelectItemOptions) => void;
   setMachineViewMode: (mode: MachineViewMode) => void;
+  setObjectViewLens: (lens: ObjectViewLens) => void;
   setMachineFilterMode: (mode: MachineFilterMode) => void;
   focusLogicContext: (context: LogicWorkspaceContext | null) => void;
   focusBindContext: (context: BindWorkspaceContext | null) => void;
@@ -69,6 +73,7 @@ export const useStudioStore = create<StudioState>((set) => ({
   selectedSectionId: "sec_running",
   selectedRegionId: "feedback_region",
   machineViewMode: "topology",
+  objectViewLens: "behavior",
   machineFilterMode: "focus",
   logicContext: null,
   bindContext: null,
@@ -85,6 +90,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       selectedRegionId: options?.regionId ?? state.selectedRegionId
     })),
   setMachineViewMode: (mode) => set({ machineViewMode: mode }),
+  setObjectViewLens: (lens) => set({ objectViewLens: lens }),
   setMachineFilterMode: (mode) => set({ machineFilterMode: mode }),
   focusLogicContext: (context) => set({ logicContext: context }),
   focusBindContext: (context) => set({ bindContext: context }),

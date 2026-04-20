@@ -8,6 +8,7 @@ import type {
   MachineSectionDefinition,
   MachineStateDefinition,
   MachineTransitionDefinition,
+  ObjectStructureNodeDefinition,
   PlcObjectDefinition,
   SignalDefinition
 } from "../model/demoProject";
@@ -174,6 +175,54 @@ function renderObjectLinkInspector(link: ObjectCompositionLinkDefinition, source
         <SectionRow label="Target Port" value={link.targetPortId || ""} />
         <SectionRow label="Meaning" value={link.summary} />
       </dl>
+    </>
+  );
+}
+
+function renderSubobjectInspector(
+  object: PlcObjectDefinition,
+  node: ObjectStructureNodeDefinition,
+  setMachineViewMode: (mode: "topology" | "object") => void,
+  setObjectViewLens: (lens: "behavior" | "structure") => void,
+  setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
+  focusLogicContext: (context: LogicWorkspaceContext | null) => void,
+  focusBindContext: (context: { title: string; bindingIds: string[] } | null) => void,
+  selectItem: SelectItemFn
+) {
+  return (
+    <>
+      <h3>{node.title}</h3>
+      <dl className="inspector-grid">
+        <SectionRow label="Selected" value="Internal Node" />
+        <SectionRow label="Parent Object" value={object.name} />
+        <SectionRow label="Kind" value={node.kind} />
+        <SectionRow label="Summary" value={node.summary} />
+        <SectionRow label="Inputs" value={node.inputs.map((port) => port.name).join(", ")} />
+        <SectionRow label="Outputs" value={node.outputs.map((port) => port.name).join(", ")} />
+      </dl>
+      <div className="inspector-actions">
+        <button
+          type="button"
+          className="inspector-link"
+          onClick={() => {
+            setMachineViewMode("object");
+            setObjectViewLens("structure");
+            selectItem("subobject", node.id, { objectId: object.id, machineId: object.behavior?.machineId ?? null });
+          }}
+        >
+          Focus in structure
+        </button>
+      </div>
+      {renderReferenceActions({
+        sourceLabel: `${object.name} / ${node.title}`,
+        signalIds: node.relatedSignalIds,
+        blockIds: node.relatedBlockIds,
+        bindingIds: node.relatedBindingIds,
+        setActiveWorkspace,
+        focusLogicContext,
+        focusBindContext,
+        selectItem
+      })}
     </>
   );
 }
@@ -446,17 +495,22 @@ export function InspectorPanel() {
   const project = useStudioStore((state) => state.project);
   const selectedItemId = useStudioStore((state) => state.selectedItemId);
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
+  const selectedObjectId = useStudioStore((state) => state.selectedObjectId);
   const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
   const setActiveWorkspace = useStudioStore((state) => state.setActiveWorkspace);
   const setMachineViewMode = useStudioStore((state) => state.setMachineViewMode);
+  const setObjectViewLens = useStudioStore((state) => state.setObjectViewLens);
   const setMachineFilterMode = useStudioStore((state) => state.setMachineFilterMode);
   const focusLogicContext = useStudioStore((state) => state.focusLogicContext);
   const focusBindContext = useStudioStore((state) => state.focusBindContext);
   const selectItem = useStudioStore((state) => state.selectItem);
 
   const selectedObject = selectedItemType === "object" ? project.objects.find((item) => item.id === selectedItemId) ?? null : null;
+  const currentObject = project.objects.find((item) => item.id === (selectedObject?.id || selectedObjectId || project.objects[0]?.id)) ?? project.objects[0];
   const selectedObjectLink =
     selectedItemType === "object-link" ? project.compositionLinks.find((item) => item.id === selectedItemId) ?? null : null;
+  const selectedSubobject =
+    selectedItemType === "subobject" ? currentObject?.structure?.nodes.find((item) => item.id === selectedItemId) ?? null : null;
   const machine = project.machines.find((item) => item.id === selectedMachineId) ?? project.machines[0];
   const selectedGroup =
     selectedItemType === "group" ? machine.sceneGroups?.find((item) => item.id === selectedItemId) ?? null : null;
@@ -488,6 +542,17 @@ export function InspectorPanel() {
           ? renderObjectInspector(selectedObject, setMachineViewMode, selectItem)
           : selectedObjectLink && selectedLinkSource && selectedLinkTarget
           ? renderObjectLinkInspector(selectedObjectLink, selectedLinkSource, selectedLinkTarget)
+          : selectedSubobject && currentObject
+          ? renderSubobjectInspector(
+              currentObject,
+              selectedSubobject,
+              setMachineViewMode,
+              setObjectViewLens,
+              setActiveWorkspace,
+              focusLogicContext,
+              focusBindContext,
+              selectItem
+            )
           : selectedItemType === "machine"
           ? renderMachineInspector(machine)
           : selectedGroup

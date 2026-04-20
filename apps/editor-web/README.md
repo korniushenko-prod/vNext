@@ -35,11 +35,15 @@ Boundary:
 - `Machine` is the primary workspace
 - `Machine` is split into two levels:
   - `Topology`: objects and their public contracts
-  - `Object`: internal behavior of the selected object
+  - `Object`: internal behavior or structure of the selected object
 - top-level `Machine` view shows only objects and composition links
 - composition links are limited to command, permission, status, or fault semantics
 - internal behavior stays inside the object boundary
 - `Object` view uses `React Flow` only for internal behavior visualization
+- `Object` also has a `Structure` lens inspired by the legacy Config Studio composition canvas:
+  - boundary rails for object interface ports
+  - internal units in the middle
+  - local routes between ports and internal nodes
 - `Machine` includes breadcrumbs and cross-workspace navigation into `Logic` and `Bind`
 - `Bind` is for physical/logical I/O binding
 - `Logic` is for signal and block logic skeleton

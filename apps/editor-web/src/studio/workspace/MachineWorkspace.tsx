@@ -1,5 +1,6 @@
 import { MachineCanvas } from "../machine/MachineCanvas";
 import { ObjectTopologyCanvas } from "../machine/ObjectTopologyCanvas";
+import { ObjectStructureCanvas } from "../machine/ObjectStructureCanvas";
 import { useStudioStore } from "../store/studioStore";
 
 export function MachineWorkspace() {
@@ -10,10 +11,11 @@ export function MachineWorkspace() {
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedSectionId = useStudioStore((state) => state.selectedSectionId);
   const selectedRegionId = useStudioStore((state) => state.selectedRegionId);
-  const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
   const machineViewMode = useStudioStore((state) => state.machineViewMode);
+  const objectViewLens = useStudioStore((state) => state.objectViewLens);
   const machineFilterMode = useStudioStore((state) => state.machineFilterMode);
   const setMachineViewMode = useStudioStore((state) => state.setMachineViewMode);
+  const setObjectViewLens = useStudioStore((state) => state.setObjectViewLens);
   const setMachineFilterMode = useStudioStore((state) => state.setMachineFilterMode);
   const selectItem = useStudioStore((state) => state.selectItem);
 
@@ -21,11 +23,7 @@ export function MachineWorkspace() {
   const behaviorMachine = selectedObject.behavior?.machineId
     ? project.machines.find((item) => item.id === selectedObject.behavior?.machineId) ?? null
     : null;
-  const machine =
-    behaviorMachine ??
-    project.machines.find((item) => item.id === selectedMachineId) ??
-    project.machines[0] ??
-    null;
+  const machine = behaviorMachine;
 
   const selectedState = machine && selectedItemType === "state" ? machine.states.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedTransition =
@@ -215,7 +213,7 @@ export function MachineWorkspace() {
             <div className="summary-card behavior-card">
               <span>Selected Object</span>
               <strong>{selectedObject.name}</strong>
-              <p>{selectedObject.behavior?.summary ?? "This object does not yet expose an internal behavior view."}</p>
+              <p>{selectedObject.behavior?.summary ?? selectedObject.structure?.summary ?? "This object does not yet expose an internal view."}</p>
             </div>
           </div>
 
@@ -280,14 +278,18 @@ export function MachineWorkspace() {
             <ObjectTopologyCanvas />
           </div>
         </>
-      ) : machine ? (
+      ) : (
         <>
-          {behaviorSummary ? (
+          {objectViewLens === "behavior" && behaviorSummary ? (
             <div className="behavior-summary-grid">
               <div className="summary-card behavior-card">
-                <span>Behavior Lens</span>
-                <strong>{machine.behaviorKind === "sequence" ? "Sequence" : machine.behaviorKind}</strong>
-                <p>Canvas shows only internal behavior of {selectedObject.name}, not whole-project wiring.</p>
+                <span>Object Lens</span>
+                <strong>{objectViewLens === "behavior" ? "Behavior" : "Structure"}</strong>
+                <p>
+                  {objectViewLens === "behavior"
+                    ? `Canvas shows only internal behavior of ${selectedObject.name}, not whole-project wiring.`
+                    : `Canvas shows ports, internal units and local routes inside ${selectedObject.name}.`}
+                </p>
               </div>
               <div className="summary-card behavior-card">
                 <span>Normal Path</span>
@@ -300,6 +302,33 @@ export function MachineWorkspace() {
               <div className="summary-card behavior-card">
                 <span>Recovery</span>
                 <strong>{behaviorSummary.recovery}</strong>
+              </div>
+            </div>
+          ) : objectViewLens === "structure" && selectedObject.structure ? (
+            <div className="behavior-summary-grid">
+              <div className="summary-card behavior-card">
+                <span>Object Lens</span>
+                <strong>Structure</strong>
+                <p>Canvas shows interface boundary, internal units and local routes inside {selectedObject.name}.</p>
+              </div>
+              <div className="summary-card behavior-card">
+                <span>Internal Units</span>
+                <strong>{selectedObject.structure.nodes.length}</strong>
+              </div>
+              <div className="summary-card behavior-card">
+                <span>Local Routes</span>
+                <strong>{selectedObject.structure.routes.length}</strong>
+              </div>
+              <div className="summary-card behavior-card">
+                <span>Boundary Ports</span>
+                <strong>
+                  {selectedObject.commands.length +
+                    selectedObject.inputs.length +
+                    selectedObject.outputs.length +
+                    selectedObject.status.length +
+                    selectedObject.permissions.length +
+                    selectedObject.alarms.length}
+                </strong>
               </div>
             </div>
           ) : null}
@@ -330,92 +359,159 @@ export function MachineWorkspace() {
 
               <div className="machine-browser__meta">
                 <div className="summary-card compact-card">
-                  <span>Machine</span>
-                  <strong>{machine.name}</strong>
+                  <span>{objectViewLens === "behavior" ? "Machine" : "Nodes"}</span>
+                  <strong>{objectViewLens === "behavior" ? machine?.name || "None" : selectedObject.structure?.nodes.length || 0}</strong>
                 </div>
                 <div className="summary-card compact-card">
-                  <span>States</span>
-                  <strong>{machine.states.length}</strong>
+                  <span>{objectViewLens === "behavior" ? "States" : "Routes"}</span>
+                  <strong>{objectViewLens === "behavior" ? machine?.states.length || 0 : selectedObject.structure?.routes.length || 0}</strong>
                 </div>
                 <div className="summary-card compact-card">
-                  <span>Transitions</span>
-                  <strong>{machine.transitions.length}</strong>
+                  <span>{objectViewLens === "behavior" ? "Transitions" : "Ports"}</span>
+                  <strong>
+                    {objectViewLens === "behavior"
+                      ? machine?.transitions.length || 0
+                      : selectedObject.commands.length +
+                        selectedObject.inputs.length +
+                        selectedObject.outputs.length +
+                        selectedObject.status.length +
+                        selectedObject.permissions.length +
+                        selectedObject.alarms.length}
+                  </strong>
                 </div>
               </div>
 
               <div className="panel-card machine-browser__section">
-                <h3>Internal Structure</h3>
+                <h3>{objectViewLens === "behavior" ? "Internal Structure" : "Internal Units"}</h3>
                 <ul className="plain-list">
-                  {machine.sections.map((section) => (
-                    <li
-                      key={section.id}
-                      className={section.id === selectedSectionId ? "is-focused" : ""}
-                      onClick={() =>
-                        selectItem("section", section.id, {
-                          objectId: selectedObject.id,
-                          machineId: machine.id,
-                          sectionId: section.id
-                        })
-                      }
-                    >
-                      <strong>{section.name}</strong>
-                      <span>{section.summary}</span>
-                    </li>
-                  ))}
+                  {objectViewLens === "behavior"
+                    ? machine?.sections.map((section) => (
+                        <li
+                          key={section.id}
+                          className={section.id === selectedSectionId ? "is-focused" : ""}
+                          onClick={() =>
+                            selectItem("section", section.id, {
+                              objectId: selectedObject.id,
+                              machineId: machine.id,
+                              sectionId: section.id
+                            })
+                          }
+                        >
+                          <strong>{section.name}</strong>
+                          <span>{section.summary}</span>
+                        </li>
+                      ))
+                    : selectedObject.structure?.nodes.map((node) => (
+                        <li
+                          key={node.id}
+                          className={selectedItemType === "subobject" && selectedItemId === node.id ? "is-focused" : ""}
+                          onClick={() =>
+                            selectItem("subobject", node.id, {
+                              objectId: selectedObject.id,
+                              machineId: selectedObject.behavior?.machineId ?? null
+                            })
+                          }
+                        >
+                          <strong>{node.title}</strong>
+                          <span>{node.summary}</span>
+                        </li>
+                      ))}
                 </ul>
               </div>
 
-              <div className="panel-card machine-region-card">
-                <h3>Behavior Regions</h3>
-                <ul className="plain-list">
-                  {(machine.regions || []).map((region) => (
-                    <li
-                      key={region.id}
-                      className={region.id === selectedRegionId ? "is-focused" : ""}
-                      onClick={() =>
-                        selectItem("region", region.id, {
-                          objectId: selectedObject.id,
-                          machineId: machine.id,
-                          regionId: region.id
-                        })
-                      }
-                    >
-                      <strong>{region.name}</strong>
-                      <span>{region.summary}</span>
+              {objectViewLens === "behavior" ? (
+                <div className="panel-card machine-region-card">
+                  <h3>Behavior Regions</h3>
+                  <ul className="plain-list">
+                    {(machine?.regions || []).map((region) => (
+                      <li
+                        key={region.id}
+                        className={region.id === selectedRegionId ? "is-focused" : ""}
+                        onClick={() =>
+                          selectItem("region", region.id, {
+                            objectId: selectedObject.id,
+                            machineId: machine?.id ?? null,
+                            regionId: region.id
+                          })
+                        }
+                      >
+                        <strong>{region.name}</strong>
+                        <span>{region.summary}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <div className="panel-card machine-region-card">
+                  <h3>Boundary Summary</h3>
+                  <ul className="plain-list">
+                    <li>
+                      <strong>Incoming</strong>
+                      <span>{selectedObject.commands.length + selectedObject.inputs.length + selectedObject.permissions.length} ports</span>
                     </li>
-                  ))}
-                </ul>
-              </div>
+                    <li>
+                      <strong>Outgoing</strong>
+                      <span>{selectedObject.outputs.length + selectedObject.status.length + selectedObject.alarms.length} ports</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
 
               <div className="panel-card machine-region-card">
-                <h3>View Filter</h3>
-                <div className="machine-filter-switcher" aria-label="Machine filter mode">
+                <h3>Object Lens</h3>
+                <div className="machine-filter-switcher" aria-label="Object view lens">
                   {[
-                    { id: "all", label: "All" },
-                    { id: "focus", label: "Focus" },
-                    { id: "region", label: "Region" }
-                  ].map((mode) => (
+                    { id: "behavior", label: "Behavior", disabled: !selectedObject.behavior?.machineId },
+                    { id: "structure", label: "Structure", disabled: !selectedObject.structure }
+                  ].map((lens) => (
                     <button
-                      key={mode.id}
+                      key={lens.id}
                       type="button"
-                      className={machineFilterMode === mode.id ? "is-active" : ""}
-                      onClick={() => setMachineFilterMode(mode.id as "all" | "focus" | "region")}
+                      disabled={lens.disabled}
+                      className={objectViewLens === lens.id ? "is-active" : ""}
+                      onClick={() => setObjectViewLens(lens.id as "behavior" | "structure")}
                     >
-                      {mode.label}
+                      {lens.label}
                     </button>
                   ))}
                 </div>
               </div>
+
+              {objectViewLens === "behavior" ? (
+                <div className="panel-card machine-region-card">
+                  <h3>View Filter</h3>
+                  <div className="machine-filter-switcher" aria-label="Machine filter mode">
+                    {[
+                      { id: "all", label: "All" },
+                      { id: "focus", label: "Focus" },
+                      { id: "region", label: "Region" }
+                    ].map((mode) => (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        className={machineFilterMode === mode.id ? "is-active" : ""}
+                        onClick={() => setMachineFilterMode(mode.id as "all" | "focus" | "region")}
+                      >
+                        {mode.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </section>
 
-            <MachineCanvas />
+            {objectViewLens === "structure" && selectedObject.structure ? (
+              <ObjectStructureCanvas />
+            ) : machine ? (
+              <MachineCanvas />
+            ) : (
+              <section className="panel-card">
+                <h3>No behavior view</h3>
+                <p className="muted-copy">Selected object does not yet expose a machine behavior definition.</p>
+              </section>
+            )}
           </div>
         </>
-      ) : (
-        <section className="panel-card">
-          <h3>No behavior view</h3>
-          <p className="muted-copy">Selected object does not yet expose a machine behavior definition.</p>
-        </section>
       )}
     </div>
   );

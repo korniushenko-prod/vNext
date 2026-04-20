@@ -14,6 +14,40 @@ export interface ObjectBehaviorDefinition {
   summary: string;
 }
 
+export interface ObjectStructureNodeDefinition {
+  id: string;
+  title: string;
+  kind: "sequence" | "control" | "monitoring" | "diagnostics" | "subobject";
+  summary: string;
+  position: { x: number; y: number };
+  inputs: Array<{ id: string; name: string }>;
+  outputs: Array<{ id: string; name: string }>;
+  relatedSignalIds?: string[];
+  relatedBlockIds?: string[];
+  relatedBindingIds?: string[];
+}
+
+export interface ObjectStructureRouteEndpointDefinition {
+  kind: "boundary" | "node";
+  portKind?: "command" | "input" | "output" | "status" | "permission" | "alarm";
+  portId: string;
+  nodeId?: string;
+}
+
+export interface ObjectStructureRouteDefinition {
+  id: string;
+  label: string;
+  summary: string;
+  from: ObjectStructureRouteEndpointDefinition;
+  to: ObjectStructureRouteEndpointDefinition;
+}
+
+export interface ObjectStructureDefinition {
+  summary: string;
+  nodes: ObjectStructureNodeDefinition[];
+  routes: ObjectStructureRouteDefinition[];
+}
+
 export interface PlcObjectDefinition {
   id: string;
   name: string;
@@ -27,6 +61,7 @@ export interface PlcObjectDefinition {
   permissions: ObjectInterfacePortDefinition[];
   alarms: ObjectInterfacePortDefinition[];
   behavior?: ObjectBehaviorDefinition;
+  structure?: ObjectStructureDefinition;
 }
 
 export interface ObjectCompositionLinkDefinition {
@@ -274,6 +309,186 @@ export const demoProject: UniversalPlcDemoProject = {
       behavior: {
         machineId: "boiler_sequence",
         summary: "Sequence-first internal behavior with startup, run, stop and recovery."
+      },
+      structure: {
+        summary: "Burner object is built from sequence, ignition, flame supervision and fault handling units.",
+        nodes: [
+          {
+            id: "burner_sequence_unit",
+            title: "BurnerSequence",
+            kind: "sequence",
+            summary: "Owns idle, starting, running, stopping, fault and recovery progression.",
+            position: { x: 260, y: 90 },
+            inputs: [
+              { id: "startCmd", name: "startCmd" },
+              { id: "stopCmd", name: "stopCmd" },
+              { id: "reset", name: "reset" },
+              { id: "fuelReady", name: "fuelReady" },
+              { id: "waterOk", name: "waterOk" },
+              { id: "boilerPermissive", name: "boilerPermissive" }
+            ],
+            outputs: [
+              { id: "requestFuel", name: "requestFuel" },
+              { id: "igniteCmd", name: "igniteCmd" },
+              { id: "tripCmd", name: "tripCmd" },
+              { id: "state", name: "state" }
+            ],
+            relatedSignalIds: ["pump.start_cmd", "pump.run_fb", "pump.fault_fb"],
+            relatedBlockIds: ["block_start_stop_latch", "block_timer_on"],
+            relatedBindingIds: ["bind_pump_start", "bind_pump_run", "bind_pump_fault"]
+          },
+          {
+            id: "ignition_unit",
+            title: "IgnitionUnit",
+            kind: "control",
+            summary: "Generates ignition request and confirms burner enable path.",
+            position: { x: 610, y: 110 },
+            inputs: [
+              { id: "igniteCmd", name: "igniteCmd" },
+              { id: "reset", name: "reset" }
+            ],
+            outputs: [
+              { id: "burnerEnable", name: "burnerEnable" },
+              { id: "ignitionActive", name: "ignitionActive" }
+            ]
+          },
+          {
+            id: "flame_supervision",
+            title: "FlameSupervision",
+            kind: "monitoring",
+            summary: "Checks run feedback and flame-related health before entering stable run.",
+            position: { x: 610, y: 300 },
+            inputs: [
+              { id: "runFeedback", name: "runFeedback" },
+              { id: "burnerEnable", name: "burnerEnable" }
+            ],
+            outputs: [
+              { id: "feedbackOk", name: "feedbackOk" },
+              { id: "faultDetected", name: "faultDetected" }
+            ],
+            relatedSignalIds: ["pump.run_fb", "pump.fault_fb"],
+            relatedBindingIds: ["bind_pump_run", "bind_pump_fault"]
+          },
+          {
+            id: "fault_manager",
+            title: "FaultManager",
+            kind: "diagnostics",
+            summary: "Latches trips and exports burner fault to the rest of the plant.",
+            position: { x: 610, y: 470 },
+            inputs: [
+              { id: "tripCmd", name: "tripCmd" },
+              { id: "faultDetected", name: "faultDetected" },
+              { id: "reset", name: "reset" }
+            ],
+            outputs: [
+              { id: "fault", name: "fault" },
+              { id: "running", name: "running" }
+            ],
+            relatedSignalIds: ["pump.fault_fb"],
+            relatedBlockIds: ["block_interlock_set"],
+            relatedBindingIds: ["bind_pump_fault"]
+          }
+        ],
+        routes: [
+          {
+            id: "route_start_to_sequence",
+            label: "startCmd",
+            summary: "Supervisor start command enters BurnerSequence.",
+            from: { kind: "boundary", portKind: "command", portId: "burner.cmd.start" },
+            to: { kind: "node", nodeId: "burner_sequence_unit", portId: "startCmd" }
+          },
+          {
+            id: "route_stop_to_sequence",
+            label: "stopCmd",
+            summary: "Supervisor stop command enters BurnerSequence.",
+            from: { kind: "boundary", portKind: "command", portId: "burner.cmd.stop" },
+            to: { kind: "node", nodeId: "burner_sequence_unit", portId: "stopCmd" }
+          },
+          {
+            id: "route_reset_to_sequence",
+            label: "reset",
+            summary: "Reset command is shared into sequence and fault manager.",
+            from: { kind: "boundary", portKind: "command", portId: "burner.cmd.reset" },
+            to: { kind: "node", nodeId: "burner_sequence_unit", portId: "reset" }
+          },
+          {
+            id: "route_fuel_ready_to_sequence",
+            label: "fuelReady",
+            summary: "FuelGroup readiness reaches BurnerSequence boundary input.",
+            from: { kind: "boundary", portKind: "input", portId: "burner.in.fuel_ready" },
+            to: { kind: "node", nodeId: "burner_sequence_unit", portId: "fuelReady" }
+          },
+          {
+            id: "route_water_ok_to_sequence",
+            label: "waterOk",
+            summary: "Water level permissive enters BurnerSequence.",
+            from: { kind: "boundary", portKind: "input", portId: "burner.in.water_ok" },
+            to: { kind: "node", nodeId: "burner_sequence_unit", portId: "waterOk" }
+          },
+          {
+            id: "route_boiler_perm_to_sequence",
+            label: "boilerPermissive",
+            summary: "Protection permissive reaches BurnerSequence.",
+            from: { kind: "boundary", portKind: "input", portId: "burner.in.protection_ok" },
+            to: { kind: "node", nodeId: "burner_sequence_unit", portId: "boilerPermissive" }
+          },
+          {
+            id: "route_sequence_to_fuel_boundary",
+            label: "requestFuel",
+            summary: "BurnerSequence exports fuel request through object boundary.",
+            from: { kind: "node", nodeId: "burner_sequence_unit", portId: "requestFuel" },
+            to: { kind: "boundary", portKind: "output", portId: "burner.out.request_fuel" }
+          },
+          {
+            id: "route_sequence_to_ignition",
+            label: "igniteCmd",
+            summary: "Sequence commands IgnitionUnit to energize the burner path.",
+            from: { kind: "node", nodeId: "burner_sequence_unit", portId: "igniteCmd" },
+            to: { kind: "node", nodeId: "ignition_unit", portId: "igniteCmd" }
+          },
+          {
+            id: "route_ignition_to_supervision",
+            label: "burnerEnable",
+            summary: "IgnitionUnit signals enable state to flame supervision.",
+            from: { kind: "node", nodeId: "ignition_unit", portId: "burnerEnable" },
+            to: { kind: "node", nodeId: "flame_supervision", portId: "burnerEnable" }
+          },
+          {
+            id: "route_run_feedback_to_supervision",
+            label: "runFeedback",
+            summary: "Live run feedback is observed by FlameSupervision.",
+            from: { kind: "boundary", portKind: "status", portId: "burner.status.state" },
+            to: { kind: "node", nodeId: "flame_supervision", portId: "runFeedback" }
+          },
+          {
+            id: "route_supervision_fault_to_fault_manager",
+            label: "faultDetected",
+            summary: "Supervision trips feed into FaultManager.",
+            from: { kind: "node", nodeId: "flame_supervision", portId: "faultDetected" },
+            to: { kind: "node", nodeId: "fault_manager", portId: "faultDetected" }
+          },
+          {
+            id: "route_sequence_trip_to_fault_manager",
+            label: "tripCmd",
+            summary: "Sequence can also trip the fault manager directly.",
+            from: { kind: "node", nodeId: "burner_sequence_unit", portId: "tripCmd" },
+            to: { kind: "node", nodeId: "fault_manager", portId: "tripCmd" }
+          },
+          {
+            id: "route_fault_manager_to_fault_boundary",
+            label: "fault",
+            summary: "FaultManager exports burner fault to the plant.",
+            from: { kind: "node", nodeId: "fault_manager", portId: "fault" },
+            to: { kind: "boundary", portKind: "alarm", portId: "burner.alarm.fault" }
+          },
+          {
+            id: "route_fault_manager_to_running_boundary",
+            label: "running",
+            summary: "FaultManager publishes running summary outward.",
+            from: { kind: "node", nodeId: "fault_manager", portId: "running" },
+            to: { kind: "boundary", portKind: "output", portId: "burner.out.running" }
+          }
+        ]
       }
     },
     {
@@ -329,7 +544,76 @@ export const demoProject: UniversalPlcDemoProject = {
           kind: "alarm",
           summary: "Fuel-side fault blocks burner start."
         }
-      ]
+      ],
+      structure: {
+        summary: "Fuel group coordinates mode selection, circulation and ready evaluation.",
+        nodes: [
+          {
+            id: "fuel_mode_selector",
+            title: "ModeSelector",
+            kind: "control",
+            summary: "Chooses active fuel path and forwards demand.",
+            position: { x: 280, y: 120 },
+            inputs: [{ id: "burnerRequest", name: "burnerRequest" }],
+            outputs: [{ id: "prepareCmd", name: "prepareCmd" }]
+          },
+          {
+            id: "circulation_control",
+            title: "CirculationControl",
+            kind: "control",
+            summary: "Starts recirculation and valve preparation for selected fuel mode.",
+            position: { x: 560, y: 110 },
+            inputs: [{ id: "prepareCmd", name: "prepareCmd" }],
+            outputs: [{ id: "circulationActive", name: "circulationActive" }]
+          },
+          {
+            id: "ready_evaluator",
+            title: "FuelReadyEvaluator",
+            kind: "monitoring",
+            summary: "Determines when the fuel path is actually ready for burner startup.",
+            position: { x: 560, y: 300 },
+            inputs: [{ id: "circulationActive", name: "circulationActive" }],
+            outputs: [{ id: "fuelReady", name: "fuelReady" }, { id: "fuelFault", name: "fuelFault" }]
+          }
+        ],
+        routes: [
+          {
+            id: "route_burner_request_to_mode_selector",
+            label: "burnerRequest",
+            summary: "Burner request enters fuel group.",
+            from: { kind: "boundary", portKind: "input", portId: "fuel_group.in.burner_request" },
+            to: { kind: "node", nodeId: "fuel_mode_selector", portId: "burnerRequest" }
+          },
+          {
+            id: "route_prepare_cmd",
+            label: "prepareCmd",
+            summary: "Mode selector commands circulation control.",
+            from: { kind: "node", nodeId: "fuel_mode_selector", portId: "prepareCmd" },
+            to: { kind: "node", nodeId: "circulation_control", portId: "prepareCmd" }
+          },
+          {
+            id: "route_circulation_active",
+            label: "circulationActive",
+            summary: "Circulation state feeds the ready evaluator.",
+            from: { kind: "node", nodeId: "circulation_control", portId: "circulationActive" },
+            to: { kind: "node", nodeId: "ready_evaluator", portId: "circulationActive" }
+          },
+          {
+            id: "route_fuel_ready_boundary",
+            label: "fuelReady",
+            summary: "Ready evaluator exports readiness to the burner.",
+            from: { kind: "node", nodeId: "ready_evaluator", portId: "fuelReady" },
+            to: { kind: "boundary", portKind: "output", portId: "fuel_group.out.ready" }
+          },
+          {
+            id: "route_fuel_fault_boundary",
+            label: "fuelFault",
+            summary: "Fuel-side fault is exported through the alarm boundary.",
+            from: { kind: "node", nodeId: "ready_evaluator", portId: "fuelFault" },
+            to: { kind: "boundary", portKind: "alarm", portId: "fuel_group.alarm.fault" }
+          }
+        ]
+      }
     },
     {
       id: "water_level_group",
