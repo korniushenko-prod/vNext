@@ -8,7 +8,7 @@ Graph-first `universal_plc` engineering studio shell for v1.
 
 - `Bind`: logical to physical I/O binding
 - `Logic`: signals and block logic skeleton
-- `Machine`: object topology at the top level, object behavior one level deeper
+- `Machine`: system objects at the top level, object internals one level deeper
 - `Observe`: runtime truth, diagnostics, live snapshot
 
 ## Main architectural rule
@@ -34,16 +34,21 @@ Boundary:
 
 - `Machine` is the primary workspace
 - `Machine` is split into two levels:
-  - `Topology`: objects and their public contracts
+  - `System`: large engineering objects and their public contracts
   - `Object`: internal behavior or structure of the selected object
-- top-level `Machine` view shows only objects and composition links
+- top-level `Machine` view shows only large system objects and composition links
 - composition links are limited to command, permission, status, or fault semantics
 - internal behavior stays inside the object boundary
+- object contracts are first-class: commands, inputs, outputs, status, permissions, and alarms
 - `Object` view uses `React Flow` only for internal behavior visualization
 - `Object` also has a `Structure` lens inspired by the legacy Config Studio composition canvas:
   - boundary rails for object interface ports
   - internal units in the middle
   - local routes between ports and internal nodes
+- authoring direction:
+  - top level = object-to-object relationships
+  - inside object = port-to-node and node-to-node relationships
+  - detail view later = timers, filters, comparators, and technical evaluation internals
 - `Machine` includes breadcrumbs and cross-workspace navigation into `Logic` and `Bind`
 - `Bind` is for physical/logical I/O binding
 - `Logic` is for signal and block logic skeleton

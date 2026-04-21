@@ -124,7 +124,7 @@ export function ObjectTopologyCanvas() {
         <section className="topology-center-card">
           <div className="topology-center-card__header">
             <div>
-              <span className="topology-eyebrow">Selected Object</span>
+              <span className="topology-eyebrow">System Object</span>
               <h3>{selectedObject.name}</h3>
               <p>{selectedObject.summary}</p>
             </div>
@@ -145,8 +145,8 @@ export function ObjectTopologyCanvas() {
 
           <div className="topology-center-card__footer">
             <div className="summary-card compact-card">
-              <span>Behavior</span>
-              <strong>{selectedObject.behavior?.summary ?? "No internal behavior view yet"}</strong>
+              <span>Internal View</span>
+              <strong>{selectedObject.behavior?.summary ?? selectedObject.structure?.summary ?? "No internal object view yet"}</strong>
             </div>
             <button
               type="button"
@@ -164,7 +164,7 @@ export function ObjectTopologyCanvas() {
                 });
               }}
             >
-              {canOpenObjectView ? "Open Object View" : "Object view not defined"}
+              {canOpenObjectView ? "Open Internal View" : "Internal view not defined"}
             </button>
           </div>
         </section>
@@ -193,7 +193,7 @@ export function ObjectTopologyCanvas() {
 
       <section className="topology-links-panel">
         <header>
-          <span>Composition Links</span>
+          <span>System Links</span>
           <strong>Only public object contracts appear here</strong>
         </header>
         <div className="topology-link-grid">

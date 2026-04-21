@@ -55,7 +55,7 @@ export function MachineWorkspace() {
 
   const topologyBreadcrumbs = [
     {
-      label: "Topology",
+      label: "System",
       onClick: () => setMachineViewMode("topology")
     },
     {
@@ -68,7 +68,7 @@ export function MachineWorkspace() {
     machineViewMode === "object" && machine
       ? [
           {
-            label: "Topology",
+            label: "System",
             onClick: () => setMachineViewMode("topology")
           },
           {
@@ -164,8 +164,8 @@ export function MachineWorkspace() {
           <h2>Machine</h2>
           <p className="muted-copy">
             {machineViewMode === "topology"
-              ? "Top level shows objects and only their public contracts. Internal behavior lives one level deeper."
-              : "Object behavior view shows only how the selected object behaves inside its own boundary."}
+              ? "System view shows only large engineering objects and their public contracts. Internal logic stays one level deeper."
+              : "Object view shows the inside of one object: its behavior, structure and local evaluation context."}
           </p>
         </div>
       </div>
@@ -181,7 +181,7 @@ export function MachineWorkspace() {
 
         <div className="machine-filter-switcher" aria-label="Machine view mode">
           {[
-            { id: "topology", label: "Topology" },
+            { id: "topology", label: "System" },
             { id: "object", label: "Object" }
           ].map((mode) => (
             <button
@@ -201,18 +201,18 @@ export function MachineWorkspace() {
           <div className="behavior-summary-grid">
             <div className="summary-card behavior-card">
               <span>Canvas Role</span>
-              <strong>Object Topology</strong>
-              <p>Main screen shows objects and their external contracts, not internal implementation details.</p>
+              <strong>System Objects</strong>
+              <p>Main screen shows only large objects, their contract ports and their cross-object relationships.</p>
             </div>
             <div className="summary-card behavior-card">
               <span>Objects</span>
               <strong>{project.objects.length}</strong>
-              <p>Burner, fuel, monitoring and protection stay readable as separate engineering units.</p>
+              <p>Burner, fuel, water, pressure and protection stay readable as separate engineering units.</p>
             </div>
             <div className="summary-card behavior-card">
               <span>Links</span>
               <strong>{project.compositionLinks.length}</strong>
-              <p>Every cross-object link is command, permission, status or fault only.</p>
+              <p>Every cross-object link is command, permission, status or fault. No internal leaks.</p>
             </div>
             <div className="summary-card behavior-card">
               <span>Selected Object</span>
@@ -223,7 +223,7 @@ export function MachineWorkspace() {
 
           <div className="machine-workspace-grid machine-workspace-grid--topology">
             <section className="panel-card machine-browser">
-              <h3>Objects</h3>
+              <h3>System Objects</h3>
               <ul className="plain-list">
                 {project.objects.map((object) => (
                   <li
@@ -260,7 +260,7 @@ export function MachineWorkspace() {
               </div>
 
               <div className="panel-card machine-browser__section">
-                <h3>Public Contract</h3>
+                <h3>External Contract</h3>
                 <ul className="plain-list">
                   {[
                     ...selectedObject.commands.map((port) => `Command/${port.name}`),
@@ -285,13 +285,13 @@ export function MachineWorkspace() {
       ) : (
         <>
           {resolvedObjectViewLens === "behavior" && behaviorSummary ? (
-            <div className="behavior-summary-grid">
-              <div className="summary-card behavior-card">
-                <span>Object Lens</span>
-                <strong>{resolvedObjectViewLens === "behavior" ? "Behavior" : "Structure"}</strong>
+              <div className="behavior-summary-grid">
+                <div className="summary-card behavior-card">
+                  <span>Object Lens</span>
+                  <strong>{resolvedObjectViewLens === "behavior" ? "Behavior" : "Structure"}</strong>
                 <p>
                     {resolvedObjectViewLens === "behavior"
-                      ? `Canvas shows only internal behavior of ${selectedObject.name}, not whole-project wiring.`
+                      ? `Canvas shows only internal behavior of ${selectedObject.name}, not whole-system wiring.`
                       : `Canvas shows ports, internal units and local routes inside ${selectedObject.name}.`}
                 </p>
               </div>
@@ -358,7 +358,7 @@ export function MachineWorkspace() {
 
           <div className="machine-workspace-grid">
             <section className="panel-card machine-browser">
-              <h3>{selectedObject.name} Interface</h3>
+              <h3>{selectedObject.name} Contract</h3>
               <ul className="plain-list">
                 {selectedObject.commands.map((port) => (
                   <li key={port.id}>
@@ -382,7 +382,7 @@ export function MachineWorkspace() {
 
               <div className="machine-browser__meta">
                 <div className="summary-card compact-card">
-                  <span>{resolvedObjectViewLens === "behavior" ? (machine ? "Machine" : "Behavior") : "Nodes"}</span>
+                  <span>{resolvedObjectViewLens === "behavior" ? (machine ? "Behavior" : "Behavior") : "Nodes"}</span>
                   <strong>{resolvedObjectViewLens === "behavior" ? machine?.name || `${selectedObject.behaviorKind} view` : selectedObject.structure?.nodes.length || 0}</strong>
                 </div>
                 <div className="summary-card compact-card">
@@ -405,7 +405,7 @@ export function MachineWorkspace() {
               </div>
 
               <div className="panel-card machine-browser__section">
-                <h3>{resolvedObjectViewLens === "behavior" ? "Internal Structure" : "Internal Units"}</h3>
+                <h3>{resolvedObjectViewLens === "behavior" ? "Internal Parts" : "Internal Units"}</h3>
                 <ul className="plain-list">
                   {resolvedObjectViewLens === "behavior"
                     ? machine
