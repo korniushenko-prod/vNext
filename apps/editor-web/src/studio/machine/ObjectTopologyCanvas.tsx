@@ -94,8 +94,9 @@ export function ObjectTopologyCanvas() {
   const machine = selectedObject.behavior?.machineId
     ? project.machines.find((item) => item.id === selectedObject.behavior?.machineId) ?? null
     : null;
-  const opensBehaviorByDefault = Boolean(machine || selectedObject.behaviorKind !== "sequence");
-  const canOpenObjectView = Boolean(opensBehaviorByDefault || selectedObject.structure);
+  const defaultObjectLens =
+    machine ? "behavior" : selectedObject.structure ? "structure" : selectedObject.behaviorKind !== "sequence" ? "behavior" : null;
+  const canOpenObjectView = Boolean(defaultObjectLens);
 
   return (
     <div className="machine-canvas topology-canvas">
@@ -156,7 +157,7 @@ export function ObjectTopologyCanvas() {
                 if (!canOpenObjectView) {
                   return;
                 }
-                setObjectViewLens(opensBehaviorByDefault ? "behavior" : "structure");
+                setObjectViewLens(defaultObjectLens === "behavior" ? "behavior" : "structure");
                 setMachineViewMode("object");
                 selectItem(machine ? "machine" : "object", machine?.id ?? selectedObject.id, {
                   objectId: selectedObject.id,

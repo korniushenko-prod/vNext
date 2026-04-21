@@ -122,6 +122,8 @@ function renderObjectInspector(
   const canOpenBehavior = Boolean(object.behavior?.machineId);
   const canOpenControlBehavior = object.behaviorKind !== "sequence";
   const canOpenStructure = Boolean(object.structure);
+  const defaultObjectLens =
+    canOpenBehavior ? "behavior" : canOpenStructure ? "structure" : canOpenControlBehavior ? "behavior" : null;
   return (
     <>
       <h3>{object.name}</h3>
@@ -152,7 +154,7 @@ function renderObjectInspector(
             type="button"
             className="inspector-link"
             onClick={() => {
-              setObjectViewLens(canOpenBehavior || canOpenControlBehavior ? "behavior" : "structure");
+              setObjectViewLens(defaultObjectLens === "behavior" ? "behavior" : "structure");
               setMachineViewMode("object");
               selectItem(canOpenBehavior ? "machine" : "object", object.behavior?.machineId ?? object.id, {
                 objectId: object.id,
@@ -160,7 +162,7 @@ function renderObjectInspector(
               });
             }}
           >
-            Open object view
+            Open internal view
           </button>
         ) : null}
       </div>
