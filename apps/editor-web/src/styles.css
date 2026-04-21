@@ -199,6 +199,17 @@ textarea {
   flex-wrap: wrap;
 }
 
+.machine-toolbar--compact {
+  align-items: flex-start;
+}
+
+.machine-toolbar__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .machine-breadcrumbs,
 .machine-filter-switcher {
   display: flex;
@@ -231,6 +242,10 @@ textarea {
   border-radius: 16px;
   border: 1px solid rgba(90, 177, 255, 0.18);
   background: rgba(90, 177, 255, 0.06);
+}
+
+.workspace-context--compact {
+  padding: 10px 12px;
 }
 
 .workspace-context p {
@@ -315,6 +330,87 @@ textarea {
   line-height: 1.55;
 }
 
+.tree-panel {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tree-panel__header {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.tree-panel__header span {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tree-root {
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+  max-height: calc(100vh - 220px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.tree-group,
+.tree-branch,
+.tree-children {
+  display: grid;
+  gap: 4px;
+}
+
+.tree-children {
+  padding-left: 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tree-item {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 6px 8px;
+  text-align: left;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+}
+
+.tree-item:not(.tree-item--label) {
+  cursor: pointer;
+}
+
+.tree-item:not(.tree-item--label):hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.tree-item.is-selected {
+  background: linear-gradient(135deg, rgba(90, 177, 255, 0.14), rgba(102, 217, 199, 0.08));
+  border-color: rgba(90, 177, 255, 0.28);
+}
+
+.tree-item__label {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.tree-item__meta {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.tree-item--label .tree-item__label {
+  color: #d9e7fb;
+  font-weight: 600;
+}
+
 .palette-list,
 .plain-list {
   display: flex;
@@ -349,6 +445,12 @@ textarea {
   min-height: 520px;
   overflow: hidden;
   border-color: rgba(90, 177, 255, 0.16);
+}
+
+.machine-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
 }
 
 .topology-canvas {
@@ -407,8 +509,8 @@ textarea {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
-  border-radius: 16px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  padding: 9px 10px;
   text-align: left;
   cursor: pointer;
   transition: 180ms ease;
@@ -416,7 +518,7 @@ textarea {
 
 .topology-side-card {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .topology-side-card p,
@@ -441,9 +543,9 @@ textarea {
 }
 
 .topology-center-card {
-  padding: 18px;
+  padding: 14px;
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .topology-center-card__header {
@@ -482,9 +584,9 @@ textarea {
 
 .topology-port-group {
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.025);
-  padding: 12px;
+  padding: 10px;
 }
 
 .topology-port-group h4 {
@@ -502,8 +604,8 @@ textarea {
 .topology-port-list li {
   display: grid;
   gap: 4px;
-  padding: 10px 12px;
-  border-radius: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -517,6 +619,11 @@ textarea {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: stretch;
+}
+
+.topology-open-behavior {
+  align-self: end;
+  white-space: nowrap;
 }
 
 .topology-open-behavior:disabled {
