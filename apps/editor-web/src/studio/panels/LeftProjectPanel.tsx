@@ -114,6 +114,13 @@ const signalLayerPresentation = {
   semantic: { label: "Semantic", icon: "S" }
 } as const;
 
+const linkKindPresentation = {
+  command: { label: "Commands", icon: "CMD" },
+  permission: { label: "Permissions", icon: "PER" },
+  status: { label: "Status", icon: "STS" },
+  fault: { label: "Faults", icon: "FLT" }
+} as const;
+
 function getObjectIcon(object: PlcObjectDefinition) {
   switch (object.behaviorKind) {
     case "sequence":
@@ -146,6 +153,27 @@ function getBlockIcon(block: LogicBlockDefinition) {
     default:
       return "BLK";
   }
+}
+
+function getSignalScope(signal: SignalDefinition) {
+  const parts = signal.name.split(".");
+  if (parts.length < 2) {
+    return "general";
+  }
+
+  if (parts[0] === "raw" && parts.length >= 3 && (parts[1] === "di" || parts[1] === "ai" || parts[1] === "do" || parts[1] === "ao")) {
+    return parts[2].split("_")[0] || parts[1];
+  }
+
+  return parts[1] || "general";
+}
+
+function getScopeLabel(scope: string) {
+  return scope
+    .split(/[_-]/g)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function renderPortFamilies(
@@ -198,6 +226,7 @@ export function LeftProjectPanel() {
   const selectItem = useStudioStore((state) => state.selectItem);
 
   const tree = useTreeState([
+    "project-root",
     "system-objects",
     "system-links",
     "signals",
@@ -233,6 +262,52 @@ export function LeftProjectPanel() {
     return Array.from(groups.entries()).sort(([left], [right]) => left.localeCompare(right));
   }, [project.blocks]);
 
+  const linksByKind = useMemo(() => {
+    const groups = new Map<keyof typeof linkKindPresentation, typeof project.compositionLinks>();
+
+    for (const link of project.compositionLinks) {
+      const bucket = groups.get(link.kind) ?? [];
+      bucket.push(link);
+      groups.set(link.kind, bucket);
+    }
+
+    return (Object.keys(linkKindPresentation) as Array<keyof typeof linkKindPresentation>)
+      .map((kind) => [kind, groups.get(kind) ?? []] as const)
+      .filter(([, links]) => links.length > 0);
+  }, [project.compositionLinks]);
+
+  const signalsByLayerAndScope = useMemo(() => {
+    return (Object.keys(signalLayerPresentation) as Array<keyof typeof signalLayerPresentation>).map((layer) => {
+      const scopeMap = new Map<string, SignalDefinition[]>();
+      for (const signal of signalsByLayer[layer]) {
+        const scope = getSignalScope(signal);
+        const bucket = scopeMap.get(scope) ?? [];
+        bucket.push(signal);
+        scopeMap.set(scope, bucket);
+      }
+
+      return [
+        layer,
+        Array.from(scopeMap.entries()).sort(([left], [right]) => left.localeCompare(right))
+      ] as const;
+    });
+  }, [signalsByLayer]);
+
+  const bindingsByScope = useMemo(() => {
+    const signalById = new Map(project.signals.map((signal) => [signal.id, signal]));
+    const scopeMap = new Map<string, typeof project.bindings>();
+
+    for (const binding of project.bindings) {
+      const signal = signalById.get(binding.signalId);
+      const scope = signal ? getSignalScope(signal) : "general";
+      const bucket = scopeMap.get(scope) ?? [];
+      bucket.push(binding);
+      scopeMap.set(scope, bucket);
+    }
+
+    return Array.from(scopeMap.entries()).sort(([left], [right]) => left.localeCompare(right));
+  }, [project.bindings, project.signals]);
+
   return (
     <aside className="studio-panel studio-panel--left">
       <section className="panel-card tree-panel">
@@ -243,13 +318,20 @@ export function LeftProjectPanel() {
 
         <div className="tree-root">
           <TreeBranch
-            label="System Objects"
-            meta={String(project.objects.length)}
-            icon="SYS"
-            open={tree.isOpen("system-objects")}
-            onToggle={() => tree.toggle("system-objects")}
+            label={project.name}
+            meta="Project"
+            icon="PRJ"
+            open={tree.isOpen("project-root")}
+            onToggle={() => tree.toggle("project-root")}
           >
-            {project.objects.map((object) => {
+            <TreeBranch
+              label="System Objects"
+              meta={String(project.objects.length)}
+              icon="SYS"
+              open={tree.isOpen("system-objects")}
+              onToggle={() => tree.toggle("system-objects")}
+            >
+              {project.objects.map((object) => {
               const objectKey = `object:${object.id}`;
               const objectOpen = tree.isOpen(objectKey) || selectedObjectId === object.id;
               const objectMachine = object.behavior?.machineId ? machinesById[object.behavior.machineId] ?? null : null;
@@ -363,10 +445,19 @@ export function LeftProjectPanel() {
                         }}
                       />
 
+                      <TreeBranch
+                        label="Sections"
+                        meta={String(objectMachine.sections.length)}
+                        icon="SCT"
+                        open={tree.isOpen(`object:${object.id}:sections`) || objectOpen}
+                        onToggle={() => tree.toggle(`object:${object.id}:sections`)}
+                      >
                       {objectMachine.sections.map((section) => {
                         const sectionKey = `object:${object.id}:section:${section.id}`;
                         const sectionOpen = tree.isOpen(sectionKey) || selectedItemId === section.id;
                         const states = objectMachine.states.filter((state) => state.sectionId === section.id);
+                        const regions = objectMachine.regions?.filter((region) => section.regionIds?.includes(region.id)) ?? [];
+                        const transitions = objectMachine.transitions.filter((transition) => transition.sectionId === section.id);
 
                         return (
                           <TreeBranch
@@ -388,6 +479,44 @@ export function LeftProjectPanel() {
                               });
                             }}
                           >
+                            {regions.length ? (
+                              <TreeBranch
+                                label="Regions"
+                                meta={String(regions.length)}
+                                icon="RGN"
+                                open={tree.isOpen(`${sectionKey}:regions`) || sectionOpen}
+                                onToggle={() => tree.toggle(`${sectionKey}:regions`)}
+                              >
+                                {regions.map((region) => (
+                                  <TreeLeaf
+                                    key={region.id}
+                                    label={region.name}
+                                    meta={region.type}
+                                    icon="◫"
+                                    selected={selectedItemType === "region" && selectedItemId === region.id}
+                                    onClick={() => {
+                                      setActiveWorkspace("machine");
+                                      setMachineViewMode("object");
+                                      setObjectViewLens("behavior");
+                                      selectItem("region", region.id, {
+                                        objectId: object.id,
+                                        machineId: objectMachine.id,
+                                        sectionId: section.id,
+                                        regionId: region.id
+                                      });
+                                    }}
+                                  />
+                                ))}
+                              </TreeBranch>
+                            ) : null}
+
+                            <TreeBranch
+                              label="States"
+                              meta={String(states.length)}
+                              icon="STS"
+                              open={tree.isOpen(`${sectionKey}:states`) || sectionOpen}
+                              onToggle={() => tree.toggle(`${sectionKey}:states`)}
+                            >
                             {states.map((state) => (
                               <TreeLeaf
                                 key={state.id}
@@ -408,36 +537,40 @@ export function LeftProjectPanel() {
                                 }}
                               />
                             ))}
+                            </TreeBranch>
+
+                            {transitions.length ? (
+                              <TreeBranch
+                                label="Transitions"
+                                meta={String(transitions.length)}
+                                icon="TRX"
+                                open={tree.isOpen(`${sectionKey}:transitions`) || sectionOpen}
+                                onToggle={() => tree.toggle(`${sectionKey}:transitions`)}
+                              >
+                                {transitions.map((transition) => (
+                                  <TreeLeaf
+                                    key={transition.id}
+                                    label={transition.event || `${transition.source} -> ${transition.target}`}
+                                    meta={transition.guard || transition.action || transition.id}
+                                    icon="→"
+                                    selected={selectedItemType === "transition" && selectedItemId === transition.id}
+                                    onClick={() => {
+                                      setActiveWorkspace("machine");
+                                      setMachineViewMode("object");
+                                      setObjectViewLens("behavior");
+                                      selectItem("transition", transition.id, {
+                                        objectId: object.id,
+                                        machineId: objectMachine.id,
+                                        sectionId: transition.sectionId ?? null
+                                      });
+                                    }}
+                                  />
+                                ))}
+                              </TreeBranch>
+                            ) : null}
                           </TreeBranch>
                         );
                       })}
-
-                      <TreeBranch
-                        label="Transitions"
-                        meta={String(objectMachine.transitions.length)}
-                        icon="TRX"
-                        open={tree.isOpen(`object:${object.id}:transitions`) || objectOpen}
-                        onToggle={() => tree.toggle(`object:${object.id}:transitions`)}
-                      >
-                        {objectMachine.transitions.map((transition) => (
-                          <TreeLeaf
-                            key={transition.id}
-                            label={transition.event || `${transition.source} -> ${transition.target}`}
-                            meta={transition.guard || transition.action || transition.id}
-                            icon="→"
-                            selected={selectedItemType === "transition" && selectedItemId === transition.id}
-                            onClick={() => {
-                              setActiveWorkspace("machine");
-                              setMachineViewMode("object");
-                              setObjectViewLens("behavior");
-                              selectItem("transition", transition.id, {
-                                objectId: object.id,
-                                machineId: objectMachine.id,
-                                sectionId: transition.sectionId ?? null
-                              });
-                            }}
-                          />
-                        ))}
                       </TreeBranch>
                     </TreeBranch>
                   ) : (
@@ -468,123 +601,157 @@ export function LeftProjectPanel() {
                 </TreeBranch>
               );
             })}
-          </TreeBranch>
+            </TreeBranch>
 
-          <TreeBranch
-            label="System Links"
-            meta={String(project.compositionLinks.length)}
-            icon="LKS"
-            open={tree.isOpen("system-links")}
-            onToggle={() => tree.toggle("system-links")}
-          >
-            {project.compositionLinks.map((link) => (
-              <TreeLeaf
-                key={link.id}
-                label={link.label}
-                meta={link.kind}
-                icon="⇄"
-                selected={selectedItemType === "object-link" && selectedItemId === link.id}
-                onClick={() => {
-                  setActiveWorkspace("machine");
-                  setMachineViewMode("topology");
-                  selectItem("object-link", link.id, {
-                    objectId: link.sourceObjectId
-                  });
-                }}
-              />
-            ))}
-          </TreeBranch>
-
-          <TreeBranch
-            label="Signals"
-            meta={String(project.signals.length)}
-            icon="SIG"
-            open={tree.isOpen("signals")}
-            onToggle={() => tree.toggle("signals")}
-          >
-            {(Object.keys(signalLayerPresentation) as Array<keyof typeof signalLayerPresentation>).map((layer) => (
-              <TreeBranch
-                key={layer}
-                label={signalLayerPresentation[layer].label}
-                meta={String(signalsByLayer[layer].length)}
-                icon={signalLayerPresentation[layer].icon}
-                open={tree.isOpen(`signals:${layer}`)}
-                onToggle={() => tree.toggle(`signals:${layer}`)}
-              >
-                {signalsByLayer[layer].map((signal) => (
-                  <TreeLeaf
-                    key={signal.id}
-                    label={signal.name}
-                    meta={signal.type}
-                    icon={signalLayerPresentation[layer].icon}
-                    selected={selectedItemType === "signal" && selectedItemId === signal.id}
-                    onClick={() => {
-                      setActiveWorkspace("logic");
-                      selectItem("signal", signal.id);
-                    }}
-                  />
-                ))}
-              </TreeBranch>
-            ))}
-          </TreeBranch>
-
-          <TreeBranch
-            label="Blocks"
-            meta={String(project.blocks.length)}
-            icon="BLK"
-            open={tree.isOpen("blocks")}
-            onToggle={() => tree.toggle("blocks")}
-          >
-            {blocksByType.map(([type, blocks]) => {
-              const branchKey = `blocks:${type}`;
-
-              return (
+            <TreeBranch
+              label="System Links"
+              meta={String(project.compositionLinks.length)}
+              icon="LKS"
+              open={tree.isOpen("system-links")}
+              onToggle={() => tree.toggle("system-links")}
+            >
+              {linksByKind.map(([kind, links]) => (
                 <TreeBranch
-                  key={type}
-                  label={type}
-                  meta={String(blocks.length)}
-                  icon={getBlockIcon(blocks[0])}
-                  open={tree.isOpen(branchKey)}
-                  onToggle={() => tree.toggle(branchKey)}
+                  key={kind}
+                  label={linkKindPresentation[kind].label}
+                  meta={String(links.length)}
+                  icon={linkKindPresentation[kind].icon}
+                  open={tree.isOpen(`system-links:${kind}`)}
+                  onToggle={() => tree.toggle(`system-links:${kind}`)}
                 >
-                  {blocks.map((block) => (
+                  {links.map((link) => (
                     <TreeLeaf
-                      key={block.id}
-                      label={block.name}
-                      meta={`${block.inputs.length} in / ${block.outputs.length} out`}
-                      icon={getBlockIcon(block)}
-                      selected={selectedItemType === "block" && selectedItemId === block.id}
+                      key={link.id}
+                      label={link.label}
+                      meta={`${link.sourceObjectId} -> ${link.targetObjectId}`}
+                      icon="⇄"
+                      selected={selectedItemType === "object-link" && selectedItemId === link.id}
                       onClick={() => {
-                        setActiveWorkspace("logic");
-                        selectItem("block", block.id);
+                        setActiveWorkspace("machine");
+                        setMachineViewMode("topology");
+                        selectItem("object-link", link.id, {
+                          objectId: link.sourceObjectId
+                        });
                       }}
                     />
                   ))}
                 </TreeBranch>
-              );
-            })}
-          </TreeBranch>
+              ))}
+            </TreeBranch>
 
-          <TreeBranch
-            label="Bindings"
-            meta={String(project.bindings.length)}
-            icon="I/O"
-            open={tree.isOpen("bindings")}
-            onToggle={() => tree.toggle("bindings")}
-          >
-            {project.bindings.map((binding) => (
-              <TreeLeaf
-                key={binding.id}
-                label={binding.physicalSource}
-                meta={binding.signalId}
-                icon={binding.type === "analog" ? "AI" : "DI"}
-                selected={selectedItemType === "binding" && selectedItemId === binding.id}
-                onClick={() => {
-                  setActiveWorkspace("bind");
-                  selectItem("binding", binding.id);
-                }}
-              />
-            ))}
+            <TreeBranch
+              label="Signals"
+              meta={String(project.signals.length)}
+              icon="SIG"
+              open={tree.isOpen("signals")}
+              onToggle={() => tree.toggle("signals")}
+            >
+              {signalsByLayerAndScope.map(([layer, scopes]) => (
+                <TreeBranch
+                  key={layer}
+                  label={signalLayerPresentation[layer].label}
+                  meta={String(signalsByLayer[layer].length)}
+                  icon={signalLayerPresentation[layer].icon}
+                  open={tree.isOpen(`signals:${layer}`)}
+                  onToggle={() => tree.toggle(`signals:${layer}`)}
+                >
+                  {scopes.map(([scope, signals]) => (
+                    <TreeBranch
+                      key={`${layer}:${scope}`}
+                      label={getScopeLabel(scope)}
+                      meta={String(signals.length)}
+                      icon={signalLayerPresentation[layer].icon}
+                      open={tree.isOpen(`signals:${layer}:${scope}`)}
+                      onToggle={() => tree.toggle(`signals:${layer}:${scope}`)}
+                    >
+                      {signals.map((signal) => (
+                        <TreeLeaf
+                          key={signal.id}
+                          label={signal.name}
+                          meta={signal.type}
+                          icon={signalLayerPresentation[layer].icon}
+                          selected={selectedItemType === "signal" && selectedItemId === signal.id}
+                          onClick={() => {
+                            setActiveWorkspace("logic");
+                            selectItem("signal", signal.id);
+                          }}
+                        />
+                      ))}
+                    </TreeBranch>
+                  ))}
+                </TreeBranch>
+              ))}
+            </TreeBranch>
+
+            <TreeBranch
+              label="Blocks"
+              meta={String(project.blocks.length)}
+              icon="BLK"
+              open={tree.isOpen("blocks")}
+              onToggle={() => tree.toggle("blocks")}
+            >
+              {blocksByType.map(([type, blocks]) => {
+                const branchKey = `blocks:${type}`;
+
+                return (
+                  <TreeBranch
+                    key={type}
+                    label={type}
+                    meta={String(blocks.length)}
+                    icon={getBlockIcon(blocks[0])}
+                    open={tree.isOpen(branchKey)}
+                    onToggle={() => tree.toggle(branchKey)}
+                  >
+                    {blocks.map((block) => (
+                      <TreeLeaf
+                        key={block.id}
+                        label={block.name}
+                        meta={`${block.inputs.length} in / ${block.outputs.length} out`}
+                        icon={getBlockIcon(block)}
+                        selected={selectedItemType === "block" && selectedItemId === block.id}
+                        onClick={() => {
+                          setActiveWorkspace("logic");
+                          selectItem("block", block.id);
+                        }}
+                      />
+                    ))}
+                  </TreeBranch>
+                );
+              })}
+            </TreeBranch>
+
+            <TreeBranch
+              label="Bindings"
+              meta={String(project.bindings.length)}
+              icon="I/O"
+              open={tree.isOpen("bindings")}
+              onToggle={() => tree.toggle("bindings")}
+            >
+              {bindingsByScope.map(([scope, bindings]) => (
+                <TreeBranch
+                  key={scope}
+                  label={getScopeLabel(scope)}
+                  meta={String(bindings.length)}
+                  icon="I/O"
+                  open={tree.isOpen(`bindings:${scope}`)}
+                  onToggle={() => tree.toggle(`bindings:${scope}`)}
+                >
+                  {bindings.map((binding) => (
+                    <TreeLeaf
+                      key={binding.id}
+                      label={binding.physicalSource}
+                      meta={binding.signalId}
+                      icon={binding.type === "analog" ? "AI" : "DI"}
+                      selected={selectedItemType === "binding" && selectedItemId === binding.id}
+                      onClick={() => {
+                        setActiveWorkspace("bind");
+                        selectItem("binding", binding.id);
+                      }}
+                    />
+                  ))}
+                </TreeBranch>
+              ))}
+            </TreeBranch>
           </TreeBranch>
         </div>
       </section>
