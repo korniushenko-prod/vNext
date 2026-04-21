@@ -25,6 +25,7 @@ export interface ObjectStructureNodeDefinition {
   position: { x: number; y: number };
   inputs: ObjectInterfacePortDefinition[];
   outputs: ObjectInterfacePortDefinition[];
+  parameters?: Record<string, unknown>;
   relatedSignalIds?: string[];
   relatedBlockIds?: string[];
   relatedBindingIds?: string[];
@@ -206,7 +207,16 @@ export interface IoBindingDefinition {
 export interface LogicBlockDefinition {
   id: string;
   name: string;
-  type: "StartStopLatch" | "ThresholdMonitor" | "TimerOn" | "InterlockSet" | "PermissiveMatrix" | "Pid";
+  type:
+    | "StartStopLatch"
+    | "ThresholdMonitor"
+    | "TimerOn"
+    | "InterlockSet"
+    | "PermissiveMatrix"
+    | "Pid"
+    | "Selector"
+    | "Resolver"
+    | "CommandLogic";
   inputs: string[];
   outputs: string[];
   parameters?: Record<string, unknown>;
@@ -331,7 +341,8 @@ export const demoProject: UniversalPlcDemoProject = {
       ],
       status: [
         { id: "ops_status_mode", name: "burnerMode", kind: "status", dataType: "enum", summary: "AUTO or MANUAL operating mode." },
-        { id: "ops_status_lead", name: "leadFeedPump", kind: "status", dataType: "enum", summary: "Selected lead feedwater pump." }
+        { id: "ops_status_lead", name: "leadFeedPump", kind: "status", dataType: "enum", summary: "Selected lead feedwater pump." },
+        { id: "ops_status_fuel_lead", name: "leadFuelPump", kind: "status", dataType: "enum", summary: "Selected lead fuel pump." }
       ],
       permissions: [],
       alarms: []
@@ -401,34 +412,198 @@ export const demoProject: UniversalPlcDemoProject = {
       name: "FuelGroup",
       type: "FuelGroup",
       behaviorKind: "control",
-      summary: "Prepares fuel mode, circulation path and ready-to-burn confirmation.",
-      commands: [{ id: "fuel_cmd_prepare", name: "prepareFuel", kind: "command", dataType: "bool", summary: "Prepare fuel path for burner demand." }],
+      summary: "Lead/standby fuel pump group with local pressure evaluation and group-level ready/fault resolution.",
+      commands: [
+        { id: "fuel_cmd_prepare", name: "prepareFuel", kind: "command", dataType: "bool", summary: "Prepare selected lead fuel pump for burner demand." },
+        { id: "fuel_cmd_reset", name: "reset", kind: "command", dataType: "bool", summary: "Reset latched pump and group faults." }
+      ],
       inputs: [
-        { id: "fuel_in_request", name: "burnerRequest", kind: "input", dataType: "bool", summary: "Burner requests fuel availability." },
-        { id: "fuel_in_mode", name: "fuelModeSelect", kind: "input", dataType: "enum", summary: "Semantic fuel mode selection." }
+        { id: "fuel_in_selected_lead", name: "selectedLeadPump", kind: "input", dataType: "enum", summary: "Semantic lead pump selector: PUMP_A | PUMP_B | INVALID." },
+        { id: "fuel_in_pressure", name: "fuelPressure", kind: "input", dataType: "number", summary: "Measured fuel header pressure." },
+        { id: "fuel_in_pump_a_run", name: "pumpA.runFb", kind: "input", dataType: "bool", summary: "Pump A run feedback." },
+        { id: "fuel_in_pump_a_fault", name: "pumpA.faultFb", kind: "input", dataType: "bool", summary: "Pump A fault feedback." },
+        { id: "fuel_in_pump_b_run", name: "pumpB.runFb", kind: "input", dataType: "bool", summary: "Pump B run feedback." },
+        { id: "fuel_in_pump_b_fault", name: "pumpB.faultFb", kind: "input", dataType: "bool", summary: "Pump B fault feedback." }
       ],
-      outputs: [{ id: "fuel_out_ready", name: "fuelReady", kind: "output", dataType: "bool", summary: "Fuel train is ready." }],
+      outputs: [
+        { id: "fuel_out_ready", name: "fuelReady", kind: "output", dataType: "bool", summary: "Fuel group is ready for burner sequence." },
+        { id: "fuel_out_active_pump", name: "activePump", kind: "output", dataType: "enum", summary: "Currently active lead fuel pump." }
+      ],
       status: [
-        { id: "fuel_status_mode", name: "activeFuelMode", kind: "status", dataType: "enum", summary: "Current active fuel mode." },
-        { id: "fuel_status_temp", name: "fuelTemperatureOk", kind: "status", dataType: "bool", summary: "Fuel temperature within acceptable band." },
-        { id: "fuel_status_pressure", name: "fuelPressureOk", kind: "status", dataType: "bool", summary: "Fuel pressure within acceptable band." }
+        { id: "fuel_status_selected", name: "selectedLead", kind: "status", dataType: "enum", summary: "Lead pump selected by operator context." },
+        { id: "fuel_status_pump_a_ready", name: "pumpA.ready", kind: "status", dataType: "bool", summary: "Pump A is available and pressure-valid in context." },
+        { id: "fuel_status_pump_b_ready", name: "pumpB.ready", kind: "status", dataType: "bool", summary: "Pump B is available and pressure-valid in context." }
       ],
-      permissions: [{ id: "fuel_perm_ready", name: "ready", kind: "permission", dataType: "bool", summary: "Fuel subsystem is ready for burner sequence." }],
-      alarms: [{ id: "fuel_alarm_fault", name: "fuelFault", kind: "alarm", dataType: "bool", summary: "Any fuel preparation or circulation fault." }],
+      permissions: [{ id: "fuel_perm_ready", name: "ready", kind: "permission", dataType: "bool", summary: "Fuel subsystem permissive presented to burner." }],
+      alarms: [
+        { id: "fuel_alarm_pump_a_pressure", name: "pumpAPressureLow", kind: "alarm", dataType: "bool", summary: "Pump A pressure is low while pump A is expected to be running." },
+        { id: "fuel_alarm_pump_b_pressure", name: "pumpBPressureLow", kind: "alarm", dataType: "bool", summary: "Pump B pressure is low while pump B is expected to be running." },
+        { id: "fuel_alarm_pump_a_fault", name: "pumpAFault", kind: "alarm", dataType: "bool", summary: "Pump A reported a direct fault." },
+        { id: "fuel_alarm_pump_b_fault", name: "pumpBFault", kind: "alarm", dataType: "bool", summary: "Pump B reported a direct fault." },
+        { id: "fuel_alarm_group_not_ready", name: "fuelGroupNotReady", kind: "alarm", dataType: "bool", summary: "Selected lead pump did not become ready while fuel was requested." },
+        { id: "fuel_alarm_fault", name: "fuelFault", kind: "alarm", dataType: "bool", summary: "Any fuel preparation or circulation fault." }
+      ],
       structure: {
-        summary: "Internal fuel mode selection, pump/circulation control and ready evaluation.",
+        summary: "Selector, two pump objects, and ready/fault resolvers form the first real control-first authoring slice.",
         nodes: [
-          { id: "fuel_mode_selector", title: "FuelModeSelector", kind: "control", summary: "Determines active fuel path and mode.", position: { x: 180, y: 110 }, inputs: [{ id: "mode_sel", name: "fuelModeSelect", kind: "input", dataType: "enum", summary: "Selected fuel mode." }], outputs: [{ id: "mode_active", name: "activeMode", kind: "output", dataType: "enum", summary: "Active fuel mode." }], relatedSignalIds: ["sig.operator.burnerMode"], relatedBlockIds: ["block_interlock_set"], relatedBindingIds: [] },
-          { id: "fuel_pump_control", title: "FuelPumpControl", kind: "control", summary: "Starts circulation / fuel pump path for burner demand.", position: { x: 500, y: 110 }, inputs: [{ id: "pump_request", name: "burnerRequest", kind: "input", dataType: "bool", summary: "Burner demands fuel." }, { id: "pump_mode", name: "activeMode", kind: "input", dataType: "enum", summary: "Chosen mode." }], outputs: [{ id: "pump_running", name: "circulationActive", kind: "output", dataType: "bool", summary: "Fuel circulation path active." }], relatedSignalIds: ["sig.fuel.pumpRunFb"], relatedBlockIds: ["block_interlock_set"], relatedBindingIds: ["bind_fuel_pump_run"] },
-          { id: "fuel_ready_evaluator", title: "FuelReadyEvaluator", kind: "monitoring", summary: "Combines pump, temperature and pressure health into fuelReady.", position: { x: 820, y: 180 }, inputs: [{ id: "ready_pump", name: "circulationActive", kind: "input", dataType: "bool", summary: "Pump path active." }], outputs: [{ id: "ready_out", name: "fuelReady", kind: "output", dataType: "bool", summary: "Fuel ready for burner." }, { id: "ready_fault", name: "fuelFault", kind: "output", dataType: "bool", summary: "Fuel subsystem fault." }], relatedSignalIds: ["sig.fuel.pumpRunFb", "sig.fuel.fuelReady"], relatedBlockIds: ["block_permissive_matrix"], relatedBindingIds: ["bind_fuel_pump_run"] }
+          {
+            id: "fuel_lead_selector",
+            title: "LeadStandbySelector",
+            kind: "control",
+            summary: "Resolves selected lead/standby pump from semantic selector input.",
+            position: { x: 120, y: 120 },
+            inputs: [{ id: "selector_in", name: "selectedLeadPump", kind: "input", dataType: "enum", summary: "Selected lead fuel pump." }],
+            outputs: [
+              { id: "selector_lead", name: "leadPump", kind: "output", dataType: "enum", summary: "Resolved lead pump." },
+              { id: "selector_standby", name: "standbyPump", kind: "output", dataType: "enum", summary: "Resolved standby pump." }
+            ],
+            parameters: { allowedValues: ["PUMP_A", "PUMP_B", "INVALID"] },
+            relatedSignalIds: ["sig.operator.leadFuelPump", "sig.fuel.selectedLeadPump"],
+            relatedBlockIds: ["block_fuel_lead_selector"],
+            relatedBindingIds: ["bind_fuel_lead_a", "bind_fuel_lead_b"]
+          },
+          {
+            id: "fuel_pump_command_logic",
+            title: "PumpCommandLogic",
+            kind: "control",
+            summary: "Turns prepareFuel plus lead selection into start/stop intents for each pump.",
+            position: { x: 120, y: 360 },
+            inputs: [
+              { id: "cmd_prepare", name: "prepareFuel", kind: "input", dataType: "bool", summary: "Fuel preparation request." },
+              { id: "cmd_lead", name: "leadPump", kind: "input", dataType: "enum", summary: "Resolved lead pump." }
+            ],
+            outputs: [
+              { id: "cmd_pump_a_start", name: "pumpA.startCmd", kind: "output", dataType: "bool", summary: "Start command for pump A." },
+              { id: "cmd_pump_b_start", name: "pumpB.startCmd", kind: "output", dataType: "bool", summary: "Start command for pump B." }
+            ],
+            relatedSignalIds: ["sig.fuel.prepareFuel", "sig.fuel.selectedLeadPump"],
+            relatedBlockIds: ["block_fuel_pump_command_logic"],
+            relatedBindingIds: []
+          },
+          {
+            id: "fuel_pump_a",
+            title: "HFOPumpA",
+            kind: "subobject",
+            summary: "Context-aware pressure evaluation for pump A. Pressure low only matters while pump A is expected to run.",
+            position: { x: 470, y: 120 },
+            inputs: [
+              { id: "pump_a_start", name: "startCmd", kind: "input", dataType: "bool", summary: "Start intent for pump A." },
+              { id: "pump_a_pressure", name: "pressureValue", kind: "input", dataType: "number", summary: "Fuel header pressure." },
+              { id: "pump_a_run", name: "runFb", kind: "input", dataType: "bool", summary: "Pump A run feedback." },
+              { id: "pump_a_fault", name: "faultFb", kind: "input", dataType: "bool", summary: "Pump A fault feedback." }
+            ],
+            outputs: [
+              { id: "pump_a_running", name: "running", kind: "output", dataType: "bool", summary: "Pump A running." },
+              { id: "pump_a_ready", name: "ready", kind: "output", dataType: "bool", summary: "Pump A is available and pressure-valid." },
+              { id: "pump_a_pressure_ok", name: "pressureOk", kind: "output", dataType: "bool", summary: "Pump A pressure above setpoint while running." },
+              { id: "pump_a_pressure_low", name: "pressureLowAlarm", kind: "output", dataType: "bool", summary: "Pump A pressure low alarm." },
+              { id: "pump_a_fault_out", name: "fault", kind: "output", dataType: "bool", summary: "Pump A fault exported upward." }
+            ],
+            parameters: { pressureMinBar: 6, pressureLowDelayMs: 1500 },
+            relatedSignalIds: ["sig.fuel.headerPressure", "sig.fuel.pumpARunFb", "sig.fuel.pumpAFaultFb", "sig.fuel.pumpAReady", "sig.fuel.pumpAPressureLowAlarm"],
+            relatedBlockIds: ["block_pump_a_pressure_monitor"],
+            relatedBindingIds: ["bind_fuel_header_pressure", "bind_fuel_pump_a_run", "bind_fuel_pump_a_fault"]
+          },
+          {
+            id: "fuel_pump_b",
+            title: "HFOPumpB",
+            kind: "subobject",
+            summary: "Mirror of pump A with its own run/fault context and pressure evaluation.",
+            position: { x: 470, y: 400 },
+            inputs: [
+              { id: "pump_b_start", name: "startCmd", kind: "input", dataType: "bool", summary: "Start intent for pump B." },
+              { id: "pump_b_pressure", name: "pressureValue", kind: "input", dataType: "number", summary: "Fuel header pressure." },
+              { id: "pump_b_run", name: "runFb", kind: "input", dataType: "bool", summary: "Pump B run feedback." },
+              { id: "pump_b_fault", name: "faultFb", kind: "input", dataType: "bool", summary: "Pump B fault feedback." }
+            ],
+            outputs: [
+              { id: "pump_b_running", name: "running", kind: "output", dataType: "bool", summary: "Pump B running." },
+              { id: "pump_b_ready", name: "ready", kind: "output", dataType: "bool", summary: "Pump B is available and pressure-valid." },
+              { id: "pump_b_pressure_ok", name: "pressureOk", kind: "output", dataType: "bool", summary: "Pump B pressure above setpoint while running." },
+              { id: "pump_b_pressure_low", name: "pressureLowAlarm", kind: "output", dataType: "bool", summary: "Pump B pressure low alarm." },
+              { id: "pump_b_fault_out", name: "fault", kind: "output", dataType: "bool", summary: "Pump B fault exported upward." }
+            ],
+            parameters: { pressureMinBar: 6, pressureLowDelayMs: 1500 },
+            relatedSignalIds: ["sig.fuel.headerPressure", "sig.fuel.pumpBRunFb", "sig.fuel.pumpBFaultFb", "sig.fuel.pumpBReady", "sig.fuel.pumpBPressureLowAlarm"],
+            relatedBlockIds: ["block_pump_b_pressure_monitor"],
+            relatedBindingIds: ["bind_fuel_header_pressure", "bind_fuel_pump_b_run", "bind_fuel_pump_b_fault"]
+          },
+          {
+            id: "fuel_ready_resolver",
+            title: "FuelReadyResolver",
+            kind: "resolver",
+            summary: "Chooses the selected lead pump and decides whether the group is truly fuel-ready.",
+            position: { x: 860, y: 140 },
+            inputs: [
+              { id: "ready_prepare", name: "prepareFuel", kind: "input", dataType: "bool", summary: "Fuel preparation request." },
+              { id: "ready_lead", name: "leadPump", kind: "input", dataType: "enum", summary: "Lead pump selected for readiness evaluation." },
+              { id: "ready_a", name: "pumpA.ready", kind: "input", dataType: "bool", summary: "Pump A ready status." },
+              { id: "ready_b", name: "pumpB.ready", kind: "input", dataType: "bool", summary: "Pump B ready status." }
+            ],
+            outputs: [
+              { id: "ready_group", name: "fuelReady", kind: "output", dataType: "bool", summary: "Fuel group ready for burner sequence." },
+              { id: "ready_active", name: "activePump", kind: "output", dataType: "enum", summary: "Currently active pump." }
+            ],
+            relatedSignalIds: ["sig.fuel.prepareFuel", "sig.fuel.selectedLeadPump", "sig.fuel.pumpAReady", "sig.fuel.pumpBReady", "sig.fuel.fuelReady", "sig.fuel.activePump"],
+            relatedBlockIds: ["block_fuel_ready_resolver"],
+            relatedBindingIds: []
+          },
+          {
+            id: "fuel_fault_aggregator",
+            title: "FuelFaultAggregator",
+            kind: "monitoring",
+            summary: "Collects pump faults, pressure alarms and not-ready state into group alarms.",
+            position: { x: 860, y: 410 },
+            inputs: [
+              { id: "fault_prepare", name: "prepareFuel", kind: "input", dataType: "bool", summary: "Fuel preparation request." },
+              { id: "fault_ready", name: "fuelReady", kind: "input", dataType: "bool", summary: "Resolved group ready status." },
+              { id: "fault_a", name: "pumpA.fault", kind: "input", dataType: "bool", summary: "Pump A fault." },
+              { id: "fault_b", name: "pumpB.fault", kind: "input", dataType: "bool", summary: "Pump B fault." },
+              { id: "fault_a_pressure", name: "pumpA.pressureLowAlarm", kind: "input", dataType: "bool", summary: "Pump A pressure alarm." },
+              { id: "fault_b_pressure", name: "pumpB.pressureLowAlarm", kind: "input", dataType: "bool", summary: "Pump B pressure alarm." }
+            ],
+            outputs: [
+              { id: "fault_group_not_ready", name: "fuelGroupNotReady", kind: "output", dataType: "bool", summary: "Fuel requested but selected lead pump not ready." },
+              { id: "fault_group", name: "fuelFault", kind: "output", dataType: "bool", summary: "Any fuel group fault." }
+            ],
+            relatedSignalIds: ["sig.fuel.fuelReady", "sig.fuel.pumpAPressureLowAlarm", "sig.fuel.pumpBPressureLowAlarm", "sig.fuel.pumpAFault", "sig.fuel.pumpBFault", "sig.fuel.fuelFault"],
+            relatedBlockIds: ["block_fuel_fault_aggregator"],
+            relatedBindingIds: []
+          }
         ],
         routes: [
-          { id: "fuel_route_mode", label: "mode", from: { kind: "boundary", portId: "fuel_in_mode", portKind: "input" }, to: { kind: "node", nodeId: "fuel_mode_selector", portId: "mode_sel" } },
-          { id: "fuel_route_request", label: "burner request", from: { kind: "boundary", portId: "fuel_in_request", portKind: "input" }, to: { kind: "node", nodeId: "fuel_pump_control", portId: "pump_request" } },
-          { id: "fuel_route_mode_active", label: "active mode", from: { kind: "node", nodeId: "fuel_mode_selector", portId: "mode_active" }, to: { kind: "node", nodeId: "fuel_pump_control", portId: "pump_mode" } },
-          { id: "fuel_route_circ", label: "circulation", from: { kind: "node", nodeId: "fuel_pump_control", portId: "pump_running" }, to: { kind: "node", nodeId: "fuel_ready_evaluator", portId: "ready_pump" } },
-          { id: "fuel_route_ready", label: "fuelReady", from: { kind: "node", nodeId: "fuel_ready_evaluator", portId: "ready_out" }, to: { kind: "boundary", portId: "fuel_out_ready", portKind: "output" } },
-          { id: "fuel_route_fault", label: "fuelFault", from: { kind: "node", nodeId: "fuel_ready_evaluator", portId: "ready_fault" }, to: { kind: "boundary", portId: "fuel_alarm_fault", portKind: "alarm" } }
+          { id: "fuel_route_prepare_to_logic", label: "prepare", from: { kind: "boundary", portId: "fuel_cmd_prepare", portKind: "command" }, to: { kind: "node", nodeId: "fuel_pump_command_logic", portId: "cmd_prepare" } },
+          { id: "fuel_route_prepare_to_ready", label: "prepare", from: { kind: "boundary", portId: "fuel_cmd_prepare", portKind: "command" }, to: { kind: "node", nodeId: "fuel_ready_resolver", portId: "ready_prepare" } },
+          { id: "fuel_route_prepare_to_fault", label: "prepare", from: { kind: "boundary", portId: "fuel_cmd_prepare", portKind: "command" }, to: { kind: "node", nodeId: "fuel_fault_aggregator", portId: "fault_prepare" } },
+          { id: "fuel_route_selected_lead", label: "selected lead", from: { kind: "boundary", portId: "fuel_in_selected_lead", portKind: "input" }, to: { kind: "node", nodeId: "fuel_lead_selector", portId: "selector_in" } },
+          { id: "fuel_route_lead_to_logic", label: "lead pump", from: { kind: "node", nodeId: "fuel_lead_selector", portId: "selector_lead" }, to: { kind: "node", nodeId: "fuel_pump_command_logic", portId: "cmd_lead" } },
+          { id: "fuel_route_lead_to_ready", label: "lead pump", from: { kind: "node", nodeId: "fuel_lead_selector", portId: "selector_lead" }, to: { kind: "node", nodeId: "fuel_ready_resolver", portId: "ready_lead" } },
+          { id: "fuel_route_selected_boundary", label: "selected", from: { kind: "node", nodeId: "fuel_lead_selector", portId: "selector_lead" }, to: { kind: "boundary", portId: "fuel_status_selected", portKind: "status" } },
+          { id: "fuel_route_pressure_to_a", label: "pressure", from: { kind: "boundary", portId: "fuel_in_pressure", portKind: "input" }, to: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_pressure" } },
+          { id: "fuel_route_pressure_to_b", label: "pressure", from: { kind: "boundary", portId: "fuel_in_pressure", portKind: "input" }, to: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_pressure" } },
+          { id: "fuel_route_pump_a_run", label: "run fb", from: { kind: "boundary", portId: "fuel_in_pump_a_run", portKind: "input" }, to: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_run" } },
+          { id: "fuel_route_pump_a_fault", label: "fault fb", from: { kind: "boundary", portId: "fuel_in_pump_a_fault", portKind: "input" }, to: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_fault" } },
+          { id: "fuel_route_pump_b_run", label: "run fb", from: { kind: "boundary", portId: "fuel_in_pump_b_run", portKind: "input" }, to: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_run" } },
+          { id: "fuel_route_pump_b_fault", label: "fault fb", from: { kind: "boundary", portId: "fuel_in_pump_b_fault", portKind: "input" }, to: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_fault" } },
+          { id: "fuel_route_cmd_to_pump_a", label: "start A", from: { kind: "node", nodeId: "fuel_pump_command_logic", portId: "cmd_pump_a_start" }, to: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_start" } },
+          { id: "fuel_route_cmd_to_pump_b", label: "start B", from: { kind: "node", nodeId: "fuel_pump_command_logic", portId: "cmd_pump_b_start" }, to: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_start" } },
+          { id: "fuel_route_a_ready", label: "pumpA.ready", from: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_ready" }, to: { kind: "node", nodeId: "fuel_ready_resolver", portId: "ready_a" } },
+          { id: "fuel_route_b_ready", label: "pumpB.ready", from: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_ready" }, to: { kind: "node", nodeId: "fuel_ready_resolver", portId: "ready_b" } },
+          { id: "fuel_route_a_status", label: "pumpA.ready", from: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_ready" }, to: { kind: "boundary", portId: "fuel_status_pump_a_ready", portKind: "status" } },
+          { id: "fuel_route_b_status", label: "pumpB.ready", from: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_ready" }, to: { kind: "boundary", portId: "fuel_status_pump_b_ready", portKind: "status" } },
+          { id: "fuel_route_ready_to_fault", label: "fuelReady", from: { kind: "node", nodeId: "fuel_ready_resolver", portId: "ready_group" }, to: { kind: "node", nodeId: "fuel_fault_aggregator", portId: "fault_ready" } },
+          { id: "fuel_route_ready_boundary", label: "fuelReady", from: { kind: "node", nodeId: "fuel_ready_resolver", portId: "ready_group" }, to: { kind: "boundary", portId: "fuel_out_ready", portKind: "output" } },
+          { id: "fuel_route_active_boundary", label: "active pump", from: { kind: "node", nodeId: "fuel_ready_resolver", portId: "ready_active" }, to: { kind: "boundary", portId: "fuel_out_active_pump", portKind: "output" } },
+          { id: "fuel_route_a_fault", label: "pumpA fault", from: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_fault_out" }, to: { kind: "node", nodeId: "fuel_fault_aggregator", portId: "fault_a" } },
+          { id: "fuel_route_b_fault", label: "pumpB fault", from: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_fault_out" }, to: { kind: "node", nodeId: "fuel_fault_aggregator", portId: "fault_b" } },
+          { id: "fuel_route_a_pressure_alarm", label: "pumpA pressure low", from: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_pressure_low" }, to: { kind: "node", nodeId: "fuel_fault_aggregator", portId: "fault_a_pressure" } },
+          { id: "fuel_route_b_pressure_alarm", label: "pumpB pressure low", from: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_pressure_low" }, to: { kind: "node", nodeId: "fuel_fault_aggregator", portId: "fault_b_pressure" } },
+          { id: "fuel_route_a_pressure_boundary", label: "pumpA pressure low", from: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_pressure_low" }, to: { kind: "boundary", portId: "fuel_alarm_pump_a_pressure", portKind: "alarm" } },
+          { id: "fuel_route_b_pressure_boundary", label: "pumpB pressure low", from: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_pressure_low" }, to: { kind: "boundary", portId: "fuel_alarm_pump_b_pressure", portKind: "alarm" } },
+          { id: "fuel_route_a_fault_boundary", label: "pumpA fault", from: { kind: "node", nodeId: "fuel_pump_a", portId: "pump_a_fault_out" }, to: { kind: "boundary", portId: "fuel_alarm_pump_a_fault", portKind: "alarm" } },
+          { id: "fuel_route_b_fault_boundary", label: "pumpB fault", from: { kind: "node", nodeId: "fuel_pump_b", portId: "pump_b_fault_out" }, to: { kind: "boundary", portId: "fuel_alarm_pump_b_fault", portKind: "alarm" } },
+          { id: "fuel_route_group_not_ready", label: "group not ready", from: { kind: "node", nodeId: "fuel_fault_aggregator", portId: "fault_group_not_ready" }, to: { kind: "boundary", portId: "fuel_alarm_group_not_ready", portKind: "alarm" } },
+          { id: "fuel_route_group_fault", label: "fuelFault", from: { kind: "node", nodeId: "fuel_fault_aggregator", portId: "fault_group" }, to: { kind: "boundary", portId: "fuel_alarm_fault", portKind: "alarm" } }
         ]
       }
     },
@@ -537,7 +712,8 @@ export const demoProject: UniversalPlcDemoProject = {
     { id: "link_ops_reset", sourceObjectId: "operator_panel_selectors", targetObjectId: "burner", sourcePortId: "ops_out_reset", targetPortId: "burner_cmd_reset", kind: "command", label: "burnerResetCmd", summary: "Operator reset clears burner lockout." },
     { id: "link_ops_mode", sourceObjectId: "operator_panel_selectors", targetObjectId: "burner", sourcePortId: "ops_status_mode", targetPortId: "burner_in_mode", kind: "status", label: "burnerMode", summary: "Semantic burner mode enters burner object." },
     { id: "link_ops_lead_pump", sourceObjectId: "operator_panel_selectors", targetObjectId: "feedwater_and_level_group", sourcePortId: "ops_status_lead", targetPortId: "water_in_lead", kind: "status", label: "leadFeedPump", summary: "Lead pump selector feeds feedwater object." },
-    { id: "link_burner_to_fuel", sourceObjectId: "burner", targetObjectId: "fuel_group", sourcePortId: "burner_out_request_fuel", targetPortId: "fuel_in_request", kind: "command", label: "requestFuel", summary: "Burner asks fuel group to prepare the fuel train." },
+    { id: "link_ops_fuel_lead", sourceObjectId: "operator_panel_selectors", targetObjectId: "fuel_group", sourcePortId: "ops_status_fuel_lead", targetPortId: "fuel_in_selected_lead", kind: "status", label: "selectedLeadPump", summary: "Semantic lead fuel pump selector enters FuelGroup." },
+    { id: "link_burner_to_fuel", sourceObjectId: "burner", targetObjectId: "fuel_group", sourcePortId: "burner_out_request_fuel", targetPortId: "fuel_cmd_prepare", kind: "command", label: "requestFuel", summary: "Burner asks fuel group to prepare the selected lead pump." },
     { id: "link_fuel_to_burner", sourceObjectId: "fuel_group", targetObjectId: "burner", sourcePortId: "fuel_out_ready", targetPortId: "burner_in_fuel_ready", kind: "permission", label: "fuelReady", summary: "Fuel group grants ready permission to burner." },
     { id: "link_burner_to_air", sourceObjectId: "burner", targetObjectId: "combustion_air_group", sourcePortId: "burner_out_request_air", targetPortId: "air_in_request", kind: "command", label: "requestAir", summary: "Burner asks air group to prepare purge / combustion air." },
     { id: "link_air_to_burner", sourceObjectId: "combustion_air_group", targetObjectId: "burner", sourcePortId: "air_out_ready", targetPortId: "burner_in_air_ready", kind: "permission", label: "airReady", summary: "Air group confirms ready-for-purge / ready-for-combustion." },
@@ -571,6 +747,12 @@ export const demoProject: UniversalPlcDemoProject = {
     { id: "cond.operator.lead_pump_selector", name: "cond.operator.lead_pump_selector", layer: "conditioned", summary: "Validated lead-pump selector after conditioning.", type: "string", direction: "internal", value: "PUMP_A", derivedFromSignalIds: ["raw.operator.lead_pump_selector"] },
     { id: "sig.operator.leadFeedPump", name: "sig.operator.leadFeedPump", layer: "semantic", summary: "Semantic lead-pump selection for feedwater object.", type: "string", direction: "input", value: "PUMP_A", derivedFromSignalIds: ["cond.operator.lead_pump_selector"], consumerRefs: [{ objectId: "feedwater_and_level_group", portKind: "input", portName: "leadPumpSelector" }], producerRef: { objectId: "operator_panel_selectors", portKind: "status", portName: "leadFeedPump" } },
 
+    { id: "raw.di.fuel_lead_select_a", name: "raw.di.fuel_lead_select_a", layer: "raw", summary: "Physical selector contact for fuel pump A lead selection.", type: "bool", direction: "input", value: true, sourceBindingIds: ["bind_fuel_lead_a"] },
+    { id: "raw.di.fuel_lead_select_b", name: "raw.di.fuel_lead_select_b", layer: "raw", summary: "Physical selector contact for fuel pump B lead selection.", type: "bool", direction: "input", value: false, sourceBindingIds: ["bind_fuel_lead_b"] },
+    { id: "cond.operator.fuel_lead_a", name: "cond.operator.fuel_lead_a", layer: "conditioned", summary: "Debounced selector contact for pump A.", type: "bool", direction: "internal", value: true, derivedFromSignalIds: ["raw.di.fuel_lead_select_a"] },
+    { id: "cond.operator.fuel_lead_b", name: "cond.operator.fuel_lead_b", layer: "conditioned", summary: "Debounced selector contact for pump B.", type: "bool", direction: "internal", value: false, derivedFromSignalIds: ["raw.di.fuel_lead_select_b"] },
+    { id: "sig.operator.leadFuelPump", name: "sig.operator.leadFuelPump", layer: "semantic", summary: "Semantic selected lead pump for FuelGroup.", type: "string", direction: "input", value: "PUMP_A", derivedFromSignalIds: ["cond.operator.fuel_lead_a", "cond.operator.fuel_lead_b"], consumerRefs: [{ objectId: "fuel_group", portKind: "input", portName: "selectedLeadPump" }], producerRef: { objectId: "operator_panel_selectors", portKind: "status", portName: "leadFuelPump" } },
+
     { id: "raw.ai.steam_pressure", name: "raw.ai.steam_pressure", layer: "raw", summary: "Raw steam pressure analog input from transmitter.", type: "number", direction: "input", value: 7.8, sourceBindingIds: ["bind_steam_pressure"] },
     { id: "cond.steam.pressure_scaled", name: "cond.steam.pressure_scaled", layer: "conditioned", summary: "Scaled steam pressure after engineering-unit conversion.", type: "number", direction: "internal", value: 7.8, derivedFromSignalIds: ["raw.ai.steam_pressure"] },
     { id: "sig.steam.pressure", name: "sig.steam.pressure", layer: "semantic", summary: "Semantic steam pressure value for pressure control and burner run logic.", type: "number", direction: "input", value: 7.8, derivedFromSignalIds: ["cond.steam.pressure_scaled"], consumerRefs: [{ objectId: "steam_pressure_control", portKind: "input", portName: "pressure" }, { objectId: "burner", portKind: "status", portName: "loadDemand" }] },
@@ -583,10 +765,36 @@ export const demoProject: UniversalPlcDemoProject = {
     { id: "cond.flame.detected", name: "cond.flame.detected", layer: "conditioned", summary: "Flame detection after debounce and confidence conditioning.", type: "bool", direction: "internal", value: true, derivedFromSignalIds: ["raw.di.flame_scanner"] },
     { id: "sig.flame.detected", name: "sig.flame.detected", layer: "semantic", summary: "Semantic flame present signal for flame safety and burner proving.", type: "bool", direction: "input", value: true, derivedFromSignalIds: ["cond.flame.detected"], consumerRefs: [{ objectId: "flame_safety", portKind: "input", portName: "flameSignal" }, { objectId: "burner", portKind: "input", portName: "flameDetected" }] },
 
-    { id: "raw.di.fuel_pump_run_fb", name: "raw.di.fuel_pump_run_fb", layer: "raw", summary: "Physical fuel pump run feedback input.", type: "bool", direction: "input", value: true, sourceBindingIds: ["bind_fuel_pump_run"] },
-    { id: "cond.fuel.pump_run_fb", name: "cond.fuel.pump_run_fb", layer: "conditioned", summary: "Debounced fuel pump run feedback.", type: "bool", direction: "internal", value: true, derivedFromSignalIds: ["raw.di.fuel_pump_run_fb"] },
-    { id: "sig.fuel.pumpRunFb", name: "sig.fuel.pumpRunFb", layer: "semantic", summary: "Semantic fuel pump run feedback used by FuelGroup.", type: "bool", direction: "input", value: true, derivedFromSignalIds: ["cond.fuel.pump_run_fb"], consumerRefs: [{ objectId: "fuel_group", portKind: "status", portName: "fuelPressureOk" }] },
-    { id: "sig.fuel.fuelReady", name: "sig.fuel.fuelReady", layer: "semantic", summary: "FuelGroup exported ready permission for burner sequence.", type: "bool", direction: "output", value: true, derivedFromSignalIds: ["sig.fuel.pumpRunFb"], consumerRefs: [{ objectId: "burner", portKind: "input", portName: "fuelReady" }], producerRef: { objectId: "fuel_group", portKind: "output", portName: "fuelReady" } },
+    { id: "sig.fuel.prepareFuel", name: "sig.fuel.prepareFuel", layer: "semantic", summary: "Semantic command from burner requesting fuel preparation.", type: "bool", direction: "input", value: true, consumerRefs: [{ objectId: "fuel_group", portKind: "command", portName: "prepareFuel" }], producerRef: { objectId: "burner", portKind: "output", portName: "requestFuel" } },
+    { id: "raw.ai.fuel_header_pressure", name: "raw.ai.fuel_header_pressure", layer: "raw", summary: "Raw fuel header pressure analog input.", type: "number", direction: "input", value: 8.4, sourceBindingIds: ["bind_fuel_header_pressure"] },
+    { id: "cond.fuel.header_pressure_scaled", name: "cond.fuel.header_pressure_scaled", layer: "conditioned", summary: "Scaled fuel header pressure in engineering units.", type: "number", direction: "internal", value: 8.4, derivedFromSignalIds: ["raw.ai.fuel_header_pressure"] },
+    { id: "sig.fuel.headerPressure", name: "sig.fuel.headerPressure", layer: "semantic", summary: "Semantic fuel header pressure value used by both pump objects.", type: "number", direction: "input", value: 8.4, derivedFromSignalIds: ["cond.fuel.header_pressure_scaled"], consumerRefs: [{ objectId: "fuel_group", portKind: "input", portName: "fuelPressure" }] },
+
+    { id: "raw.di.fuel_pump_a_run_fb", name: "raw.di.fuel_pump_a_run_fb", layer: "raw", summary: "Physical pump A run feedback input.", type: "bool", direction: "input", value: true, sourceBindingIds: ["bind_fuel_pump_a_run"] },
+    { id: "cond.fuel.pump_a_run_fb", name: "cond.fuel.pump_a_run_fb", layer: "conditioned", summary: "Debounced pump A run feedback.", type: "bool", direction: "internal", value: true, derivedFromSignalIds: ["raw.di.fuel_pump_a_run_fb"] },
+    { id: "sig.fuel.pumpARunFb", name: "sig.fuel.pumpARunFb", layer: "semantic", summary: "Semantic run feedback for pump A.", type: "bool", direction: "input", value: true, derivedFromSignalIds: ["cond.fuel.pump_a_run_fb"], consumerRefs: [{ objectId: "fuel_group", portKind: "input", portName: "pumpA.runFb" }] },
+    { id: "raw.di.fuel_pump_a_fault_fb", name: "raw.di.fuel_pump_a_fault_fb", layer: "raw", summary: "Physical pump A fault feedback input.", type: "bool", direction: "input", value: false, sourceBindingIds: ["bind_fuel_pump_a_fault"] },
+    { id: "cond.fuel.pump_a_fault_fb", name: "cond.fuel.pump_a_fault_fb", layer: "conditioned", summary: "Debounced pump A fault feedback.", type: "bool", direction: "internal", value: false, derivedFromSignalIds: ["raw.di.fuel_pump_a_fault_fb"] },
+    { id: "sig.fuel.pumpAFaultFb", name: "sig.fuel.pumpAFaultFb", layer: "semantic", summary: "Semantic fault feedback for pump A.", type: "bool", direction: "input", value: false, derivedFromSignalIds: ["cond.fuel.pump_a_fault_fb"], consumerRefs: [{ objectId: "fuel_group", portKind: "input", portName: "pumpA.faultFb" }] },
+
+    { id: "raw.di.fuel_pump_b_run_fb", name: "raw.di.fuel_pump_b_run_fb", layer: "raw", summary: "Physical pump B run feedback input.", type: "bool", direction: "input", value: false, sourceBindingIds: ["bind_fuel_pump_b_run"] },
+    { id: "cond.fuel.pump_b_run_fb", name: "cond.fuel.pump_b_run_fb", layer: "conditioned", summary: "Debounced pump B run feedback.", type: "bool", direction: "internal", value: false, derivedFromSignalIds: ["raw.di.fuel_pump_b_run_fb"] },
+    { id: "sig.fuel.pumpBRunFb", name: "sig.fuel.pumpBRunFb", layer: "semantic", summary: "Semantic run feedback for pump B.", type: "bool", direction: "input", value: false, derivedFromSignalIds: ["cond.fuel.pump_b_run_fb"], consumerRefs: [{ objectId: "fuel_group", portKind: "input", portName: "pumpB.runFb" }] },
+    { id: "raw.di.fuel_pump_b_fault_fb", name: "raw.di.fuel_pump_b_fault_fb", layer: "raw", summary: "Physical pump B fault feedback input.", type: "bool", direction: "input", value: false, sourceBindingIds: ["bind_fuel_pump_b_fault"] },
+    { id: "cond.fuel.pump_b_fault_fb", name: "cond.fuel.pump_b_fault_fb", layer: "conditioned", summary: "Debounced pump B fault feedback.", type: "bool", direction: "internal", value: false, derivedFromSignalIds: ["raw.di.fuel_pump_b_fault_fb"] },
+    { id: "sig.fuel.pumpBFaultFb", name: "sig.fuel.pumpBFaultFb", layer: "semantic", summary: "Semantic fault feedback for pump B.", type: "bool", direction: "input", value: false, derivedFromSignalIds: ["cond.fuel.pump_b_fault_fb"], consumerRefs: [{ objectId: "fuel_group", portKind: "input", portName: "pumpB.faultFb" }] },
+
+    { id: "sig.fuel.selectedLeadPump", name: "sig.fuel.selectedLeadPump", layer: "semantic", summary: "FuelGroup internal selected lead pump after selector resolution.", type: "string", direction: "internal", value: "PUMP_A", derivedFromSignalIds: ["sig.operator.leadFuelPump"], producerRef: { objectId: "fuel_group", portKind: "status", portName: "selectedLead" } },
+    { id: "sig.fuel.pumpAReady", name: "sig.fuel.pumpAReady", layer: "semantic", summary: "Pump A is ready in context: available and pressure-valid while running.", type: "bool", direction: "output", value: true, derivedFromSignalIds: ["sig.fuel.headerPressure", "sig.fuel.pumpARunFb", "sig.fuel.pumpAFaultFb"], producerRef: { objectId: "fuel_group", portKind: "status", portName: "pumpA.ready" } },
+    { id: "sig.fuel.pumpBReady", name: "sig.fuel.pumpBReady", layer: "semantic", summary: "Pump B is ready in context: available and pressure-valid while running.", type: "bool", direction: "output", value: true, derivedFromSignalIds: ["sig.fuel.headerPressure", "sig.fuel.pumpBRunFb", "sig.fuel.pumpBFaultFb"], producerRef: { objectId: "fuel_group", portKind: "status", portName: "pumpB.ready" } },
+    { id: "sig.fuel.pumpAPressureLowAlarm", name: "sig.fuel.pumpAPressureLowAlarm", layer: "semantic", summary: "Pump A pressure is below setpoint while pump A is running.", type: "bool", direction: "output", value: false, derivedFromSignalIds: ["sig.fuel.headerPressure", "sig.fuel.pumpARunFb"], producerRef: { objectId: "fuel_group", portKind: "alarm", portName: "pumpAPressureLow" } },
+    { id: "sig.fuel.pumpBPressureLowAlarm", name: "sig.fuel.pumpBPressureLowAlarm", layer: "semantic", summary: "Pump B pressure is below setpoint while pump B is running.", type: "bool", direction: "output", value: false, derivedFromSignalIds: ["sig.fuel.headerPressure", "sig.fuel.pumpBRunFb"], producerRef: { objectId: "fuel_group", portKind: "alarm", portName: "pumpBPressureLow" } },
+    { id: "sig.fuel.pumpAFault", name: "sig.fuel.pumpAFault", layer: "semantic", summary: "Pump A fault exported to the fuel group alarm layer.", type: "bool", direction: "output", value: false, derivedFromSignalIds: ["sig.fuel.pumpAFaultFb"], producerRef: { objectId: "fuel_group", portKind: "alarm", portName: "pumpAFault" } },
+    { id: "sig.fuel.pumpBFault", name: "sig.fuel.pumpBFault", layer: "semantic", summary: "Pump B fault exported to the fuel group alarm layer.", type: "bool", direction: "output", value: false, derivedFromSignalIds: ["sig.fuel.pumpBFaultFb"], producerRef: { objectId: "fuel_group", portKind: "alarm", portName: "pumpBFault" } },
+    { id: "sig.fuel.activePump", name: "sig.fuel.activePump", layer: "semantic", summary: "Active fuel pump exported by FuelReadyResolver.", type: "string", direction: "output", value: "PUMP_A", derivedFromSignalIds: ["sig.fuel.selectedLeadPump"], producerRef: { objectId: "fuel_group", portKind: "output", portName: "activePump" } },
+    { id: "sig.fuel.fuelReady", name: "sig.fuel.fuelReady", layer: "semantic", summary: "FuelGroup exported ready permission for burner sequence.", type: "bool", direction: "output", value: true, derivedFromSignalIds: ["sig.fuel.prepareFuel", "sig.fuel.selectedLeadPump", "sig.fuel.pumpAReady", "sig.fuel.pumpBReady"], consumerRefs: [{ objectId: "burner", portKind: "input", portName: "fuelReady" }], producerRef: { objectId: "fuel_group", portKind: "output", portName: "fuelReady" } },
+    { id: "sig.fuel.fuelGroupNotReady", name: "sig.fuel.fuelGroupNotReady", layer: "semantic", summary: "Fuel was requested but the selected lead pump did not become ready.", type: "bool", direction: "output", value: false, derivedFromSignalIds: ["sig.fuel.prepareFuel", "sig.fuel.fuelReady"], producerRef: { objectId: "fuel_group", portKind: "alarm", portName: "fuelGroupNotReady" } },
+    { id: "sig.fuel.fuelFault", name: "sig.fuel.fuelFault", layer: "semantic", summary: "Aggregated fuel group fault exported to protection and diagnostics.", type: "bool", direction: "output", value: false, derivedFromSignalIds: ["sig.fuel.pumpAFault", "sig.fuel.pumpBFault", "sig.fuel.pumpAPressureLowAlarm", "sig.fuel.pumpBPressureLowAlarm", "sig.fuel.fuelGroupNotReady"], consumerRefs: [{ objectId: "boiler_protection", portKind: "alarm", portName: "protectionFault" }], producerRef: { objectId: "fuel_group", portKind: "alarm", portName: "fuelFault" } },
 
     { id: "raw.di.fan_run_fb", name: "raw.di.fan_run_fb", layer: "raw", summary: "Physical combustion fan run feedback input.", type: "bool", direction: "input", value: true, sourceBindingIds: ["bind_fan_run"] },
     { id: "cond.air.fan_run_fb", name: "cond.air.fan_run_fb", layer: "conditioned", summary: "Debounced combustion fan run feedback.", type: "bool", direction: "internal", value: true, derivedFromSignalIds: ["raw.di.fan_run_fb"] },
@@ -606,10 +814,16 @@ export const demoProject: UniversalPlcDemoProject = {
     { id: "bind_burner_start", signalId: "raw.operator.start_switch", physicalSource: "DI_START", direction: "input", type: "bool", status: false, debounceMs: 120, failSafeValue: false },
     { id: "bind_burner_stop", signalId: "raw.operator.stop_switch", physicalSource: "DI_STOP", direction: "input", type: "bool", status: false, debounceMs: 120, failSafeValue: false },
     { id: "bind_burner_reset", signalId: "raw.operator.reset_switch", physicalSource: "DI_RESET", direction: "input", type: "bool", status: false, debounceMs: 120, failSafeValue: false },
+    { id: "bind_fuel_lead_a", signalId: "raw.di.fuel_lead_select_a", physicalSource: "DI_FUEL_LEAD_A", direction: "input", type: "bool", status: true, debounceMs: 50, failSafeValue: false },
+    { id: "bind_fuel_lead_b", signalId: "raw.di.fuel_lead_select_b", physicalSource: "DI_FUEL_LEAD_B", direction: "input", type: "bool", status: false, debounceMs: 50, failSafeValue: false },
     { id: "bind_steam_pressure", signalId: "raw.ai.steam_pressure", physicalSource: "AI_STEAM_PRESSURE", direction: "input", type: "analog", status: 7.8, scale: "0..16 bar", failSafeValue: 0 },
+    { id: "bind_fuel_header_pressure", signalId: "raw.ai.fuel_header_pressure", physicalSource: "AI_FUEL_HEADER_PRESSURE", direction: "input", type: "analog", status: 8.4, scale: "0..16 bar", failSafeValue: 0 },
     { id: "bind_water_level", signalId: "raw.ai.boiler_water_level", physicalSource: "AI_DRUM_LEVEL", direction: "input", type: "analog", status: 52.4, scale: "0..100 %", failSafeValue: 0 },
     { id: "bind_flame_detected", signalId: "raw.di.flame_scanner", physicalSource: "DI_FLAME_SCANNER", direction: "input", type: "bool", status: true, debounceMs: 50, failSafeValue: false },
-    { id: "bind_fuel_pump_run", signalId: "raw.di.fuel_pump_run_fb", physicalSource: "DI_FUEL_PUMP_RUN", direction: "input", type: "bool", status: true, debounceMs: 100, failSafeValue: false },
+    { id: "bind_fuel_pump_a_run", signalId: "raw.di.fuel_pump_a_run_fb", physicalSource: "DI_FUEL_PUMP_A_RUN", direction: "input", type: "bool", status: true, debounceMs: 100, failSafeValue: false },
+    { id: "bind_fuel_pump_a_fault", signalId: "raw.di.fuel_pump_a_fault_fb", physicalSource: "DI_FUEL_PUMP_A_FAULT", direction: "input", type: "bool", status: false, debounceMs: 100, failSafeValue: false },
+    { id: "bind_fuel_pump_b_run", signalId: "raw.di.fuel_pump_b_run_fb", physicalSource: "DI_FUEL_PUMP_B_RUN", direction: "input", type: "bool", status: false, debounceMs: 100, failSafeValue: false },
+    { id: "bind_fuel_pump_b_fault", signalId: "raw.di.fuel_pump_b_fault_fb", physicalSource: "DI_FUEL_PUMP_B_FAULT", direction: "input", type: "bool", status: false, debounceMs: 100, failSafeValue: false },
     { id: "bind_fan_run", signalId: "raw.di.fan_run_fb", physicalSource: "DI_FAN_RUN", direction: "input", type: "bool", status: true, debounceMs: 100, failSafeValue: false },
     { id: "bind_trip_chain", signalId: "raw.di.trip_chain_healthy", physicalSource: "DI_TRIP_CHAIN_HEALTHY", direction: "input", type: "bool", status: true, debounceMs: 40, failSafeValue: false },
     { id: "bind_low_low_water_trip", signalId: "raw.di.low_low_water_trip", physicalSource: "DI_LOW_LOW_WATER", direction: "input", type: "bool", status: false, debounceMs: 20, failSafeValue: true }
@@ -618,9 +832,15 @@ export const demoProject: UniversalPlcDemoProject = {
     { id: "block_start_stop_latch", name: "StartStopLatch", type: "StartStopLatch", inputs: ["sig.operator.burnerStartCmd", "sig.operator.burnerStopCmd"], outputs: ["burner.start", "burner.stop"], parameters: { priority: "operator" } },
     { id: "block_timer_on", name: "TimerOn", type: "TimerOn", inputs: ["sig.air.fanRunFb"], outputs: ["purge_complete"], parameters: { presetMs: 15000 } },
     { id: "block_interlock_set", name: "InterlockSet", type: "InterlockSet", inputs: ["sig.protection.tripChainHealthy", "sig.feedwater.lowLowWaterTrip"], outputs: ["tripActive"], parameters: { tripLatching: true } },
-    { id: "block_permissive_matrix", name: "PermissiveMatrix", type: "PermissiveMatrix", inputs: ["sig.protection.tripChainHealthy", "sig.feedwater.waterLevel", "sig.fuel.pumpRunFb", "sig.air.fanRunFb"], outputs: ["startPermissive"], parameters: { strategy: "all_must_be_true" } },
+    { id: "block_permissive_matrix", name: "PermissiveMatrix", type: "PermissiveMatrix", inputs: ["sig.protection.tripChainHealthy", "sig.feedwater.waterLevel", "sig.fuel.fuelReady", "sig.air.fanRunFb"], outputs: ["startPermissive"], parameters: { strategy: "all_must_be_true" } },
     { id: "block_flame_prover", name: "FlameProver", type: "ThresholdMonitor", inputs: ["sig.flame.detected"], outputs: ["flameOk", "flameFail"], parameters: { proveMs: 3000 } },
-    { id: "block_pressure_pid", name: "PressurePid", type: "Pid", inputs: ["sig.steam.pressure"], outputs: ["firingDemand"], parameters: { setpointBar: 8.0, mode: "PI" } }
+    { id: "block_pressure_pid", name: "PressurePid", type: "Pid", inputs: ["sig.steam.pressure"], outputs: ["firingDemand"], parameters: { setpointBar: 8.0, mode: "PI" } },
+    { id: "block_fuel_lead_selector", name: "FuelLeadSelector", type: "Selector", inputs: ["sig.operator.leadFuelPump"], outputs: ["sig.fuel.selectedLeadPump"], parameters: { validSelections: ["PUMP_A", "PUMP_B"] } },
+    { id: "block_fuel_pump_command_logic", name: "FuelPumpCommandLogic", type: "CommandLogic", inputs: ["sig.fuel.prepareFuel", "sig.fuel.selectedLeadPump"], outputs: ["pumpA.startCmd", "pumpB.startCmd"], parameters: { standbyPolicy: "stop_unselected" } },
+    { id: "block_pump_a_pressure_monitor", name: "PumpAPressureMonitor", type: "ThresholdMonitor", inputs: ["sig.fuel.headerPressure", "sig.fuel.pumpARunFb"], outputs: ["sig.fuel.pumpAReady", "sig.fuel.pumpAPressureLowAlarm"], parameters: { pressureMinBar: 6, pressureLowDelayMs: 1500 } },
+    { id: "block_pump_b_pressure_monitor", name: "PumpBPressureMonitor", type: "ThresholdMonitor", inputs: ["sig.fuel.headerPressure", "sig.fuel.pumpBRunFb"], outputs: ["sig.fuel.pumpBReady", "sig.fuel.pumpBPressureLowAlarm"], parameters: { pressureMinBar: 6, pressureLowDelayMs: 1500 } },
+    { id: "block_fuel_ready_resolver", name: "FuelReadyResolver", type: "Resolver", inputs: ["sig.fuel.prepareFuel", "sig.fuel.selectedLeadPump", "sig.fuel.pumpAReady", "sig.fuel.pumpBReady"], outputs: ["sig.fuel.fuelReady", "sig.fuel.activePump"], parameters: { selectedLeadRequired: true } },
+    { id: "block_fuel_fault_aggregator", name: "FuelFaultAggregator", type: "Resolver", inputs: ["sig.fuel.pumpAFault", "sig.fuel.pumpBFault", "sig.fuel.pumpAPressureLowAlarm", "sig.fuel.pumpBPressureLowAlarm", "sig.fuel.fuelGroupNotReady"], outputs: ["sig.fuel.fuelFault"], parameters: { aggregateMode: "any_true" } }
   ],
   runtimeSnapshot: {
     activeMachineId: "boiler_sequence",

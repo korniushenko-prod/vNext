@@ -88,6 +88,13 @@ function StructureNodeCard({
         </div>
       </div>
       <p>{node.summary}</p>
+      {node.parameters ? (
+        <div className="structure-node-card__parameters">
+          {Object.entries(node.parameters).map(([key, value]) => (
+            <span key={key}>{key}: {String(value)}</span>
+          ))}
+        </div>
+      ) : null}
 
       <div className="structure-node-card__ports">
         <div className="structure-node-port-col">

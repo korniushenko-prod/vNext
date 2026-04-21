@@ -205,6 +205,7 @@ function renderSubobjectInspector(
         <SectionRow label="Summary" value={node.summary} />
         <SectionRow label="Inputs" value={node.inputs.map((port) => port.name).join(", ")} />
         <SectionRow label="Outputs" value={node.outputs.map((port) => port.name).join(", ")} />
+        <SectionRow label="Parameters" value={node.parameters ? JSON.stringify(node.parameters) : ""} />
       </dl>
       <div className="inspector-actions">
         <button
