@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { demoProject, type UniversalPlcDemoProject, type WorkspaceId } from "../model/demoProject";
+import { loadDemoProject, type UniversalPlcDemoProject, type WorkspaceId } from "../model/demoProject";
 
 export type SelectedItemType =
   | "object"
@@ -77,7 +77,7 @@ export const useStudioStore = create<StudioState>((set) => ({
   machineFilterMode: "focus",
   logicContext: null,
   bindContext: null,
-  project: demoProject,
+  project: loadDemoProject(),
   setActiveWorkspace: (workspace) => set({ activeWorkspace: workspace }),
   selectItem: (type, id, options) =>
     set((state) => ({

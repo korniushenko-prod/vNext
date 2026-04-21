@@ -40,6 +40,9 @@ Boundary:
 - composition links are limited to command, permission, status, or fault semantics
 - internal behavior stays inside the object boundary
 - object contracts are first-class: commands, inputs, outputs, status, permissions, and alarms
+- demo authoring data now lives in a document file:
+  - [`src/studio/model/demoProject.data.json`](./src/studio/model/demoProject.data.json)
+- [`src/studio/model/demoProject.ts`](./src/studio/model/demoProject.ts) now acts as a typed loader and model contract layer
 - `Object` view uses `React Flow` only for internal behavior visualization
 - `Object` also has a `Structure` lens inspired by the legacy Config Studio composition canvas:
   - boundary rails for object interface ports
