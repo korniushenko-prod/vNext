@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { WorkspaceId } from "./model/demoProject";
 import { BottomLivePanel } from "./panels/BottomLivePanel";
 import { InspectorPanel } from "./panels/InspectorPanel";
@@ -33,6 +34,14 @@ export function StudioShell() {
   const activeWorkspace = useStudioStore((state) => state.activeWorkspace);
   const setActiveWorkspace = useStudioStore((state) => state.setActiveWorkspace);
   const project = useStudioStore((state) => state.project);
+  const projectSource = useStudioStore((state) => state.projectSource);
+  const projectLoadState = useStudioStore((state) => state.projectLoadState);
+  const projectLoadError = useStudioStore((state) => state.projectLoadError);
+  const loadProject = useStudioStore((state) => state.loadProject);
+
+  useEffect(() => {
+    void loadProject();
+  }, [loadProject]);
 
   return (
     <div className="studio-shell">
@@ -60,7 +69,15 @@ export function StudioShell() {
 
         <div className="studio-status">
           <span className="status-chip">Graph-first shell</span>
+          <span className="status-chip">
+            {projectLoadState === "loading"
+              ? "Loading project.json"
+              : projectSource === "remote"
+                ? "project.json loaded"
+                : "Bundled fallback"}
+          </span>
           <span className={`status-chip health-${project.runtimeSnapshot.health}`}>Runtime {project.runtimeSnapshot.health}</span>
+          {projectLoadError ? <span className="status-chip">Loader fallback: {projectLoadError}</span> : null}
         </div>
       </header>
 

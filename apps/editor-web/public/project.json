@@ -1,0 +1,4647 @@
+{
+  "id": "saacke_marine_boiler",
+  "name": "SAACKE-style Marine Boiler",
+  "objects": [
+    {
+      "id": "boiler_supervisor",
+      "name": "BoilerSupervisor",
+      "type": "BoilerSupervisor",
+      "behaviorKind": "control",
+      "summary": "Plant-level orchestration and overview of demand, run-state and trips.",
+      "commands": [],
+      "inputs": [
+        {
+          "id": "sup_in_pressure",
+          "name": "steamDemand",
+          "kind": "input",
+          "dataType": "number",
+          "summary": "Desired steam pressure or demand reference."
+        }
+      ],
+      "outputs": [
+        {
+          "id": "sup_out_ready",
+          "name": "boilerReady",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Boiler package is ready for controlled firing."
+        }
+      ],
+      "status": [
+        {
+          "id": "sup_status_mode",
+          "name": "supervisorState",
+          "kind": "status",
+          "dataType": "enum",
+          "summary": "Current supervisory state."
+        }
+      ],
+      "permissions": [],
+      "alarms": [
+        {
+          "id": "sup_alarm_trip",
+          "name": "plantTrip",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Overall boiler trip state."
+        }
+      ]
+    },
+    {
+      "id": "operator_panel_selectors",
+      "name": "OperatorPanelSelectors",
+      "type": "OperatorPanelSelectors",
+      "behaviorKind": "control",
+      "summary": "Semantic operator commands and selector outputs after conditioning.",
+      "commands": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "id": "ops_out_start",
+          "name": "burnerStartCmd",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Operator requests burner start."
+        },
+        {
+          "id": "ops_out_stop",
+          "name": "burnerStopCmd",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Operator requests burner stop."
+        },
+        {
+          "id": "ops_out_reset",
+          "name": "burnerResetCmd",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Operator requests burner reset."
+        }
+      ],
+      "status": [
+        {
+          "id": "ops_status_mode",
+          "name": "burnerMode",
+          "kind": "status",
+          "dataType": "enum",
+          "summary": "AUTO or MANUAL operating mode."
+        },
+        {
+          "id": "ops_status_lead",
+          "name": "leadFeedPump",
+          "kind": "status",
+          "dataType": "enum",
+          "summary": "Selected lead feedwater pump."
+        },
+        {
+          "id": "ops_status_fuel_lead",
+          "name": "leadFuelPump",
+          "kind": "status",
+          "dataType": "enum",
+          "summary": "Selected lead fuel pump."
+        }
+      ],
+      "permissions": [],
+      "alarms": []
+    },
+    {
+      "id": "burner",
+      "name": "Burner",
+      "type": "Burner",
+      "behaviorKind": "sequence",
+      "summary": "Owns start sequence, ignition, flame proving, modulation and safe shutdown.",
+      "commands": [
+        {
+          "id": "burner_cmd_start",
+          "name": "start",
+          "kind": "command",
+          "dataType": "bool",
+          "summary": "Request burner start sequence."
+        },
+        {
+          "id": "burner_cmd_stop",
+          "name": "stop",
+          "kind": "command",
+          "dataType": "bool",
+          "summary": "Request controlled burner stop."
+        },
+        {
+          "id": "burner_cmd_reset",
+          "name": "reset",
+          "kind": "command",
+          "dataType": "bool",
+          "summary": "Reset burner lockout."
+        }
+      ],
+      "inputs": [
+        {
+          "id": "burner_in_fuel_ready",
+          "name": "fuelReady",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Fuel train is prepared and ready."
+        },
+        {
+          "id": "burner_in_air_ready",
+          "name": "airReady",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Combustion air train is ready."
+        },
+        {
+          "id": "burner_in_water_ok",
+          "name": "waterOk",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Feedwater and drum level are within safe limits."
+        },
+        {
+          "id": "burner_in_start_perm",
+          "name": "startPermissive",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Protection chain permits start."
+        },
+        {
+          "id": "burner_in_mode",
+          "name": "burnerMode",
+          "kind": "input",
+          "dataType": "enum",
+          "summary": "Semantic operating mode."
+        },
+        {
+          "id": "burner_in_flame",
+          "name": "flameDetected",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Flame scanner confirms flame."
+        }
+      ],
+      "outputs": [
+        {
+          "id": "burner_out_request_fuel",
+          "name": "requestFuel",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Ask fuel group to prepare fuel path."
+        },
+        {
+          "id": "burner_out_request_air",
+          "name": "requestAir",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Ask air group to provide purge and combustion air."
+        },
+        {
+          "id": "burner_out_running",
+          "name": "running",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Burner is in sustained run."
+        },
+        {
+          "id": "burner_out_ignition",
+          "name": "ignitionActive",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Ignition equipment should be energized."
+        }
+      ],
+      "status": [
+        {
+          "id": "burner_status_state",
+          "name": "state",
+          "kind": "status",
+          "dataType": "enum",
+          "summary": "Current burner sequence state."
+        },
+        {
+          "id": "burner_status_load",
+          "name": "loadDemand",
+          "kind": "status",
+          "dataType": "number",
+          "summary": "Demand handed to modulation / servo layer."
+        }
+      ],
+      "permissions": [
+        {
+          "id": "burner_perm_ready_to_ignite",
+          "name": "readyToIgnite",
+          "kind": "permission",
+          "dataType": "bool",
+          "summary": "All preconditions are satisfied for light-off."
+        }
+      ],
+      "alarms": [
+        {
+          "id": "burner_alarm_fault",
+          "name": "burnerFault",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Any burner lockout condition."
+        },
+        {
+          "id": "burner_alarm_flame_fail",
+          "name": "flameFail",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Flame did not establish or was lost."
+        },
+        {
+          "id": "burner_alarm_timeout",
+          "name": "startTimeout",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Start sequence timed out."
+        }
+      ],
+      "behavior": {
+        "machineId": "boiler_sequence",
+        "summary": "Sequence-first object: permissives, purge, ignition, flame proving, run, stop and lockout."
+      },
+      "structure": {
+        "summary": "Ports and internal units for burner sequence, ignition, flame supervision and fault handling.",
+        "nodes": [
+          {
+            "id": "burner_sequence_unit",
+            "title": "BurnerSequence",
+            "kind": "sequence",
+            "summary": "Owns start, purge, ignition and stop order.",
+            "position": {
+              "x": 180,
+              "y": 120
+            },
+            "inputs": [
+              {
+                "id": "seq_in_start",
+                "name": "start",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Start request."
+              },
+              {
+                "id": "seq_in_stop",
+                "name": "stop",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Stop request."
+              },
+              {
+                "id": "seq_in_perm",
+                "name": "startPerm",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Start permissive."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "seq_out_req_fuel",
+                "name": "requestFuel",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Prepare fuel train."
+              },
+              {
+                "id": "seq_out_req_air",
+                "name": "requestAir",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Prepare air path."
+              },
+              {
+                "id": "seq_out_ignite",
+                "name": "ignite",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Ignition demand."
+              },
+              {
+                "id": "seq_out_run",
+                "name": "running",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Sustained run."
+              }
+            ],
+            "relatedSignalIds": [
+              "sig.operator.burnerStartCmd",
+              "sig.operator.burnerStopCmd"
+            ],
+            "relatedBlockIds": [
+              "block_start_stop_latch"
+            ],
+            "relatedBindingIds": [
+              "bind_burner_start",
+              "bind_burner_stop"
+            ]
+          },
+          {
+            "id": "ignition_unit",
+            "title": "IgnitionUnit",
+            "kind": "control",
+            "summary": "Handles igniter and pilot demand timing.",
+            "position": {
+              "x": 520,
+              "y": 90
+            },
+            "inputs": [
+              {
+                "id": "ign_in_ignite",
+                "name": "ignite",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Light-off demand."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "ign_out_active",
+                "name": "ignitionActive",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Ignition output active."
+              }
+            ],
+            "relatedSignalIds": [
+              "sig.flame.detected"
+            ],
+            "relatedBlockIds": [
+              "block_timer_on"
+            ],
+            "relatedBindingIds": [
+              "bind_flame_detected"
+            ]
+          },
+          {
+            "id": "flame_supervision_unit",
+            "title": "FlameSupervision",
+            "kind": "monitoring",
+            "summary": "Proves flame and raises flame-fail if absent.",
+            "position": {
+              "x": 520,
+              "y": 300
+            },
+            "inputs": [
+              {
+                "id": "flame_in_detected",
+                "name": "flameDetected",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Scanner feedback."
+              },
+              {
+                "id": "flame_in_running",
+                "name": "running",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Burner run state."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "flame_out_ok",
+                "name": "flameOk",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Flame proved."
+              },
+              {
+                "id": "flame_out_fail",
+                "name": "flameFail",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Flame supervision failure."
+              }
+            ],
+            "relatedSignalIds": [
+              "sig.flame.detected"
+            ],
+            "relatedBlockIds": [
+              "block_flame_prover"
+            ],
+            "relatedBindingIds": [
+              "bind_flame_detected"
+            ]
+          },
+          {
+            "id": "fault_manager",
+            "title": "FaultManager",
+            "kind": "monitoring",
+            "summary": "Collects trips and latches burner lockout.",
+            "position": {
+              "x": 860,
+              "y": 180
+            },
+            "inputs": [
+              {
+                "id": "fault_in_flame_fail",
+                "name": "flameFail",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Flame supervision trip."
+              },
+              {
+                "id": "fault_in_reset",
+                "name": "reset",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Reset command."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "fault_out_lockout",
+                "name": "burnerFault",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Burner lockout."
+              }
+            ],
+            "relatedSignalIds": [
+              "sig.operator.burnerResetCmd",
+              "sig.feedwater.lowLowWaterTrip"
+            ],
+            "relatedBlockIds": [
+              "block_interlock_set"
+            ],
+            "relatedBindingIds": [
+              "bind_burner_reset",
+              "bind_low_low_water_trip"
+            ]
+          }
+        ],
+        "routes": [
+          {
+            "id": "route_start_to_seq",
+            "label": "start",
+            "from": {
+              "kind": "boundary",
+              "portId": "burner_cmd_start",
+              "portKind": "command"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "burner_sequence_unit",
+              "portId": "seq_in_start"
+            }
+          },
+          {
+            "id": "route_stop_to_seq",
+            "label": "stop",
+            "from": {
+              "kind": "boundary",
+              "portId": "burner_cmd_stop",
+              "portKind": "command"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "burner_sequence_unit",
+              "portId": "seq_in_stop"
+            }
+          },
+          {
+            "id": "route_perm_to_seq",
+            "label": "start permissive",
+            "from": {
+              "kind": "boundary",
+              "portId": "burner_in_start_perm",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "burner_sequence_unit",
+              "portId": "seq_in_perm"
+            }
+          },
+          {
+            "id": "route_seq_to_air",
+            "label": "requestAir",
+            "from": {
+              "kind": "node",
+              "nodeId": "burner_sequence_unit",
+              "portId": "seq_out_req_air"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "burner_out_request_air",
+              "portKind": "output"
+            }
+          },
+          {
+            "id": "route_seq_to_fuel",
+            "label": "requestFuel",
+            "from": {
+              "kind": "node",
+              "nodeId": "burner_sequence_unit",
+              "portId": "seq_out_req_fuel"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "burner_out_request_fuel",
+              "portKind": "output"
+            }
+          },
+          {
+            "id": "route_seq_to_ignite",
+            "label": "ignite",
+            "from": {
+              "kind": "node",
+              "nodeId": "burner_sequence_unit",
+              "portId": "seq_out_ignite"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "ignition_unit",
+              "portId": "ign_in_ignite"
+            }
+          },
+          {
+            "id": "route_ignite_to_boundary",
+            "label": "ignitionActive",
+            "from": {
+              "kind": "node",
+              "nodeId": "ignition_unit",
+              "portId": "ign_out_active"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "burner_out_ignition",
+              "portKind": "output"
+            }
+          },
+          {
+            "id": "route_run_to_flame",
+            "label": "running",
+            "from": {
+              "kind": "node",
+              "nodeId": "burner_sequence_unit",
+              "portId": "seq_out_run"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "flame_supervision_unit",
+              "portId": "flame_in_running"
+            }
+          },
+          {
+            "id": "route_flame_input",
+            "label": "scanner",
+            "from": {
+              "kind": "boundary",
+              "portId": "burner_in_flame",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "flame_supervision_unit",
+              "portId": "flame_in_detected"
+            }
+          },
+          {
+            "id": "route_flame_fail",
+            "label": "flameFail",
+            "from": {
+              "kind": "node",
+              "nodeId": "flame_supervision_unit",
+              "portId": "flame_out_fail"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fault_manager",
+              "portId": "fault_in_flame_fail"
+            }
+          },
+          {
+            "id": "route_reset_fault",
+            "label": "reset",
+            "from": {
+              "kind": "boundary",
+              "portId": "burner_cmd_reset",
+              "portKind": "command"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fault_manager",
+              "portId": "fault_in_reset"
+            }
+          },
+          {
+            "id": "route_fault_to_alarm",
+            "label": "burnerFault",
+            "from": {
+              "kind": "node",
+              "nodeId": "fault_manager",
+              "portId": "fault_out_lockout"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "burner_alarm_fault",
+              "portKind": "alarm"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "fuel_group",
+      "name": "FuelGroup",
+      "type": "FuelGroup",
+      "behaviorKind": "control",
+      "summary": "Lead/standby fuel pump group with local pressure evaluation and group-level ready/fault resolution.",
+      "commands": [
+        {
+          "id": "fuel_cmd_prepare",
+          "name": "prepareFuel",
+          "kind": "command",
+          "dataType": "bool",
+          "summary": "Prepare selected lead fuel pump for burner demand."
+        },
+        {
+          "id": "fuel_cmd_reset",
+          "name": "reset",
+          "kind": "command",
+          "dataType": "bool",
+          "summary": "Reset latched pump and group faults."
+        }
+      ],
+      "inputs": [
+        {
+          "id": "fuel_in_selected_lead",
+          "name": "selectedLeadPump",
+          "kind": "input",
+          "dataType": "enum",
+          "summary": "Semantic lead pump selector: PUMP_A | PUMP_B | INVALID."
+        },
+        {
+          "id": "fuel_in_pressure",
+          "name": "fuelPressure",
+          "kind": "input",
+          "dataType": "number",
+          "summary": "Measured fuel header pressure."
+        },
+        {
+          "id": "fuel_in_pump_a_run",
+          "name": "pumpA.runFb",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Pump A run feedback."
+        },
+        {
+          "id": "fuel_in_pump_a_fault",
+          "name": "pumpA.faultFb",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Pump A fault feedback."
+        },
+        {
+          "id": "fuel_in_pump_b_run",
+          "name": "pumpB.runFb",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Pump B run feedback."
+        },
+        {
+          "id": "fuel_in_pump_b_fault",
+          "name": "pumpB.faultFb",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Pump B fault feedback."
+        }
+      ],
+      "outputs": [
+        {
+          "id": "fuel_out_ready",
+          "name": "fuelReady",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Fuel group is ready for burner sequence."
+        },
+        {
+          "id": "fuel_out_active_pump",
+          "name": "activePump",
+          "kind": "output",
+          "dataType": "enum",
+          "summary": "Currently active lead fuel pump."
+        }
+      ],
+      "status": [
+        {
+          "id": "fuel_status_selected",
+          "name": "selectedLead",
+          "kind": "status",
+          "dataType": "enum",
+          "summary": "Lead pump selected by operator context."
+        },
+        {
+          "id": "fuel_status_pump_a_ready",
+          "name": "pumpA.ready",
+          "kind": "status",
+          "dataType": "bool",
+          "summary": "Pump A is available and pressure-valid in context."
+        },
+        {
+          "id": "fuel_status_pump_b_ready",
+          "name": "pumpB.ready",
+          "kind": "status",
+          "dataType": "bool",
+          "summary": "Pump B is available and pressure-valid in context."
+        }
+      ],
+      "permissions": [
+        {
+          "id": "fuel_perm_ready",
+          "name": "ready",
+          "kind": "permission",
+          "dataType": "bool",
+          "summary": "Fuel subsystem permissive presented to burner."
+        }
+      ],
+      "alarms": [
+        {
+          "id": "fuel_alarm_pump_a_pressure",
+          "name": "pumpAPressureLow",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Pump A pressure is low while pump A is expected to be running."
+        },
+        {
+          "id": "fuel_alarm_pump_b_pressure",
+          "name": "pumpBPressureLow",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Pump B pressure is low while pump B is expected to be running."
+        },
+        {
+          "id": "fuel_alarm_pump_a_fault",
+          "name": "pumpAFault",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Pump A reported a direct fault."
+        },
+        {
+          "id": "fuel_alarm_pump_b_fault",
+          "name": "pumpBFault",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Pump B reported a direct fault."
+        },
+        {
+          "id": "fuel_alarm_group_not_ready",
+          "name": "fuelGroupNotReady",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Selected lead pump did not become ready while fuel was requested."
+        },
+        {
+          "id": "fuel_alarm_fault",
+          "name": "fuelFault",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Any fuel preparation or circulation fault."
+        }
+      ],
+      "structure": {
+        "summary": "Selector, two pump objects, and ready/fault resolvers form the first real control-first authoring slice.",
+        "nodes": [
+          {
+            "id": "fuel_lead_selector",
+            "title": "LeadStandbySelector",
+            "kind": "control",
+            "summary": "Resolves selected lead/standby pump from semantic selector input.",
+            "position": {
+              "x": 120,
+              "y": 120
+            },
+            "inputs": [
+              {
+                "id": "selector_in",
+                "name": "selectedLeadPump",
+                "kind": "input",
+                "dataType": "enum",
+                "summary": "Selected lead fuel pump."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "selector_lead",
+                "name": "leadPump",
+                "kind": "output",
+                "dataType": "enum",
+                "summary": "Resolved lead pump."
+              },
+              {
+                "id": "selector_standby",
+                "name": "standbyPump",
+                "kind": "output",
+                "dataType": "enum",
+                "summary": "Resolved standby pump."
+              }
+            ],
+            "parameters": {
+              "allowedValues": [
+                "PUMP_A",
+                "PUMP_B",
+                "INVALID"
+              ]
+            },
+            "relatedSignalIds": [
+              "sig.operator.leadFuelPump",
+              "sig.fuel.selectedLeadPump"
+            ],
+            "relatedBlockIds": [
+              "block_fuel_lead_selector"
+            ],
+            "relatedBindingIds": [
+              "bind_fuel_lead_a",
+              "bind_fuel_lead_b"
+            ]
+          },
+          {
+            "id": "fuel_pump_command_logic",
+            "title": "PumpCommandLogic",
+            "kind": "control",
+            "summary": "Turns prepareFuel plus lead selection into start/stop intents for each pump.",
+            "position": {
+              "x": 120,
+              "y": 360
+            },
+            "inputs": [
+              {
+                "id": "cmd_prepare",
+                "name": "prepareFuel",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Fuel preparation request."
+              },
+              {
+                "id": "cmd_lead",
+                "name": "leadPump",
+                "kind": "input",
+                "dataType": "enum",
+                "summary": "Resolved lead pump."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "cmd_pump_a_start",
+                "name": "pumpA.startCmd",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Start command for pump A."
+              },
+              {
+                "id": "cmd_pump_b_start",
+                "name": "pumpB.startCmd",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Start command for pump B."
+              }
+            ],
+            "relatedSignalIds": [
+              "sig.fuel.prepareFuel",
+              "sig.fuel.selectedLeadPump"
+            ],
+            "relatedBlockIds": [
+              "block_fuel_pump_command_logic"
+            ],
+            "relatedBindingIds": []
+          },
+          {
+            "id": "fuel_pump_a",
+            "title": "HFOPumpA",
+            "kind": "subobject",
+            "summary": "Context-aware pressure evaluation for pump A. Pressure low only matters while pump A is expected to run.",
+            "position": {
+              "x": 470,
+              "y": 120
+            },
+            "inputs": [
+              {
+                "id": "pump_a_start",
+                "name": "startCmd",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Start intent for pump A."
+              },
+              {
+                "id": "pump_a_pressure",
+                "name": "pressureValue",
+                "kind": "input",
+                "dataType": "number",
+                "summary": "Fuel header pressure."
+              },
+              {
+                "id": "pump_a_run",
+                "name": "runFb",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump A run feedback."
+              },
+              {
+                "id": "pump_a_fault",
+                "name": "faultFb",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump A fault feedback."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "pump_a_running",
+                "name": "running",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump A running."
+              },
+              {
+                "id": "pump_a_ready",
+                "name": "ready",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump A is available and pressure-valid."
+              },
+              {
+                "id": "pump_a_pressure_ok",
+                "name": "pressureOk",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump A pressure above setpoint while running."
+              },
+              {
+                "id": "pump_a_pressure_low",
+                "name": "pressureLowAlarm",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump A pressure low alarm."
+              },
+              {
+                "id": "pump_a_fault_out",
+                "name": "fault",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump A fault exported upward."
+              }
+            ],
+            "parameters": {
+              "pressureMinBar": 6,
+              "pressureLowDelayMs": 1500
+            },
+            "relatedSignalIds": [
+              "sig.fuel.headerPressure",
+              "sig.fuel.pumpARunFb",
+              "sig.fuel.pumpAFaultFb",
+              "sig.fuel.pumpAReady",
+              "sig.fuel.pumpAPressureLowAlarm"
+            ],
+            "relatedBlockIds": [
+              "block_pump_a_pressure_monitor"
+            ],
+            "relatedBindingIds": [
+              "bind_fuel_header_pressure",
+              "bind_fuel_pump_a_run",
+              "bind_fuel_pump_a_fault"
+            ]
+          },
+          {
+            "id": "fuel_pump_b",
+            "title": "HFOPumpB",
+            "kind": "subobject",
+            "summary": "Mirror of pump A with its own run/fault context and pressure evaluation.",
+            "position": {
+              "x": 470,
+              "y": 400
+            },
+            "inputs": [
+              {
+                "id": "pump_b_start",
+                "name": "startCmd",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Start intent for pump B."
+              },
+              {
+                "id": "pump_b_pressure",
+                "name": "pressureValue",
+                "kind": "input",
+                "dataType": "number",
+                "summary": "Fuel header pressure."
+              },
+              {
+                "id": "pump_b_run",
+                "name": "runFb",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump B run feedback."
+              },
+              {
+                "id": "pump_b_fault",
+                "name": "faultFb",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump B fault feedback."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "pump_b_running",
+                "name": "running",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump B running."
+              },
+              {
+                "id": "pump_b_ready",
+                "name": "ready",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump B is available and pressure-valid."
+              },
+              {
+                "id": "pump_b_pressure_ok",
+                "name": "pressureOk",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump B pressure above setpoint while running."
+              },
+              {
+                "id": "pump_b_pressure_low",
+                "name": "pressureLowAlarm",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump B pressure low alarm."
+              },
+              {
+                "id": "pump_b_fault_out",
+                "name": "fault",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Pump B fault exported upward."
+              }
+            ],
+            "parameters": {
+              "pressureMinBar": 6,
+              "pressureLowDelayMs": 1500
+            },
+            "relatedSignalIds": [
+              "sig.fuel.headerPressure",
+              "sig.fuel.pumpBRunFb",
+              "sig.fuel.pumpBFaultFb",
+              "sig.fuel.pumpBReady",
+              "sig.fuel.pumpBPressureLowAlarm"
+            ],
+            "relatedBlockIds": [
+              "block_pump_b_pressure_monitor"
+            ],
+            "relatedBindingIds": [
+              "bind_fuel_header_pressure",
+              "bind_fuel_pump_b_run",
+              "bind_fuel_pump_b_fault"
+            ]
+          },
+          {
+            "id": "fuel_ready_resolver",
+            "title": "FuelReadyResolver",
+            "kind": "resolver",
+            "summary": "Chooses the selected lead pump and decides whether the group is truly fuel-ready.",
+            "position": {
+              "x": 860,
+              "y": 140
+            },
+            "inputs": [
+              {
+                "id": "ready_prepare",
+                "name": "prepareFuel",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Fuel preparation request."
+              },
+              {
+                "id": "ready_lead",
+                "name": "leadPump",
+                "kind": "input",
+                "dataType": "enum",
+                "summary": "Lead pump selected for readiness evaluation."
+              },
+              {
+                "id": "ready_a",
+                "name": "pumpA.ready",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump A ready status."
+              },
+              {
+                "id": "ready_b",
+                "name": "pumpB.ready",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump B ready status."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "ready_group",
+                "name": "fuelReady",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Fuel group ready for burner sequence."
+              },
+              {
+                "id": "ready_active",
+                "name": "activePump",
+                "kind": "output",
+                "dataType": "enum",
+                "summary": "Currently active pump."
+              }
+            ],
+            "relatedSignalIds": [
+              "sig.fuel.prepareFuel",
+              "sig.fuel.selectedLeadPump",
+              "sig.fuel.pumpAReady",
+              "sig.fuel.pumpBReady",
+              "sig.fuel.fuelReady",
+              "sig.fuel.activePump"
+            ],
+            "relatedBlockIds": [
+              "block_fuel_ready_resolver"
+            ],
+            "relatedBindingIds": []
+          },
+          {
+            "id": "fuel_fault_aggregator",
+            "title": "FuelFaultAggregator",
+            "kind": "monitoring",
+            "summary": "Collects pump faults, pressure alarms and not-ready state into group alarms.",
+            "position": {
+              "x": 860,
+              "y": 410
+            },
+            "inputs": [
+              {
+                "id": "fault_prepare",
+                "name": "prepareFuel",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Fuel preparation request."
+              },
+              {
+                "id": "fault_ready",
+                "name": "fuelReady",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Resolved group ready status."
+              },
+              {
+                "id": "fault_a",
+                "name": "pumpA.fault",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump A fault."
+              },
+              {
+                "id": "fault_b",
+                "name": "pumpB.fault",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump B fault."
+              },
+              {
+                "id": "fault_a_pressure",
+                "name": "pumpA.pressureLowAlarm",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump A pressure alarm."
+              },
+              {
+                "id": "fault_b_pressure",
+                "name": "pumpB.pressureLowAlarm",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Pump B pressure alarm."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "fault_group_not_ready",
+                "name": "fuelGroupNotReady",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Fuel requested but selected lead pump not ready."
+              },
+              {
+                "id": "fault_group",
+                "name": "fuelFault",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Any fuel group fault."
+              }
+            ],
+            "relatedSignalIds": [
+              "sig.fuel.fuelReady",
+              "sig.fuel.pumpAPressureLowAlarm",
+              "sig.fuel.pumpBPressureLowAlarm",
+              "sig.fuel.pumpAFault",
+              "sig.fuel.pumpBFault",
+              "sig.fuel.fuelFault"
+            ],
+            "relatedBlockIds": [
+              "block_fuel_fault_aggregator"
+            ],
+            "relatedBindingIds": []
+          }
+        ],
+        "routes": [
+          {
+            "id": "fuel_route_prepare_to_logic",
+            "label": "prepare",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_cmd_prepare",
+              "portKind": "command"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_command_logic",
+              "portId": "cmd_prepare"
+            }
+          },
+          {
+            "id": "fuel_route_prepare_to_ready",
+            "label": "prepare",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_cmd_prepare",
+              "portKind": "command"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_ready_resolver",
+              "portId": "ready_prepare"
+            }
+          },
+          {
+            "id": "fuel_route_prepare_to_fault",
+            "label": "prepare",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_cmd_prepare",
+              "portKind": "command"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_fault_aggregator",
+              "portId": "fault_prepare"
+            }
+          },
+          {
+            "id": "fuel_route_selected_lead",
+            "label": "selected lead",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_in_selected_lead",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_lead_selector",
+              "portId": "selector_in"
+            }
+          },
+          {
+            "id": "fuel_route_lead_to_logic",
+            "label": "lead pump",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_lead_selector",
+              "portId": "selector_lead"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_command_logic",
+              "portId": "cmd_lead"
+            }
+          },
+          {
+            "id": "fuel_route_lead_to_ready",
+            "label": "lead pump",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_lead_selector",
+              "portId": "selector_lead"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_ready_resolver",
+              "portId": "ready_lead"
+            }
+          },
+          {
+            "id": "fuel_route_selected_boundary",
+            "label": "selected",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_lead_selector",
+              "portId": "selector_lead"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_status_selected",
+              "portKind": "status"
+            }
+          },
+          {
+            "id": "fuel_route_pressure_to_a",
+            "label": "pressure",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_in_pressure",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_pressure"
+            }
+          },
+          {
+            "id": "fuel_route_pressure_to_b",
+            "label": "pressure",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_in_pressure",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_pressure"
+            }
+          },
+          {
+            "id": "fuel_route_pump_a_run",
+            "label": "run fb",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_in_pump_a_run",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_run"
+            }
+          },
+          {
+            "id": "fuel_route_pump_a_fault",
+            "label": "fault fb",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_in_pump_a_fault",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_fault"
+            }
+          },
+          {
+            "id": "fuel_route_pump_b_run",
+            "label": "run fb",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_in_pump_b_run",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_run"
+            }
+          },
+          {
+            "id": "fuel_route_pump_b_fault",
+            "label": "fault fb",
+            "from": {
+              "kind": "boundary",
+              "portId": "fuel_in_pump_b_fault",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_fault"
+            }
+          },
+          {
+            "id": "fuel_route_cmd_to_pump_a",
+            "label": "start A",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_command_logic",
+              "portId": "cmd_pump_a_start"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_start"
+            }
+          },
+          {
+            "id": "fuel_route_cmd_to_pump_b",
+            "label": "start B",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_command_logic",
+              "portId": "cmd_pump_b_start"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_start"
+            }
+          },
+          {
+            "id": "fuel_route_a_ready",
+            "label": "pumpA.ready",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_ready"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_ready_resolver",
+              "portId": "ready_a"
+            }
+          },
+          {
+            "id": "fuel_route_b_ready",
+            "label": "pumpB.ready",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_ready"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_ready_resolver",
+              "portId": "ready_b"
+            }
+          },
+          {
+            "id": "fuel_route_a_status",
+            "label": "pumpA.ready",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_ready"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_status_pump_a_ready",
+              "portKind": "status"
+            }
+          },
+          {
+            "id": "fuel_route_b_status",
+            "label": "pumpB.ready",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_ready"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_status_pump_b_ready",
+              "portKind": "status"
+            }
+          },
+          {
+            "id": "fuel_route_ready_to_fault",
+            "label": "fuelReady",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_ready_resolver",
+              "portId": "ready_group"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_fault_aggregator",
+              "portId": "fault_ready"
+            }
+          },
+          {
+            "id": "fuel_route_ready_boundary",
+            "label": "fuelReady",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_ready_resolver",
+              "portId": "ready_group"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_out_ready",
+              "portKind": "output"
+            }
+          },
+          {
+            "id": "fuel_route_active_boundary",
+            "label": "active pump",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_ready_resolver",
+              "portId": "ready_active"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_out_active_pump",
+              "portKind": "output"
+            }
+          },
+          {
+            "id": "fuel_route_a_fault",
+            "label": "pumpA fault",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_fault_out"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_fault_aggregator",
+              "portId": "fault_a"
+            }
+          },
+          {
+            "id": "fuel_route_b_fault",
+            "label": "pumpB fault",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_fault_out"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_fault_aggregator",
+              "portId": "fault_b"
+            }
+          },
+          {
+            "id": "fuel_route_a_pressure_alarm",
+            "label": "pumpA pressure low",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_pressure_low"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_fault_aggregator",
+              "portId": "fault_a_pressure"
+            }
+          },
+          {
+            "id": "fuel_route_b_pressure_alarm",
+            "label": "pumpB pressure low",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_pressure_low"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "fuel_fault_aggregator",
+              "portId": "fault_b_pressure"
+            }
+          },
+          {
+            "id": "fuel_route_a_pressure_boundary",
+            "label": "pumpA pressure low",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_pressure_low"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_alarm_pump_a_pressure",
+              "portKind": "alarm"
+            }
+          },
+          {
+            "id": "fuel_route_b_pressure_boundary",
+            "label": "pumpB pressure low",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_pressure_low"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_alarm_pump_b_pressure",
+              "portKind": "alarm"
+            }
+          },
+          {
+            "id": "fuel_route_a_fault_boundary",
+            "label": "pumpA fault",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_a",
+              "portId": "pump_a_fault_out"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_alarm_pump_a_fault",
+              "portKind": "alarm"
+            }
+          },
+          {
+            "id": "fuel_route_b_fault_boundary",
+            "label": "pumpB fault",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_pump_b",
+              "portId": "pump_b_fault_out"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_alarm_pump_b_fault",
+              "portKind": "alarm"
+            }
+          },
+          {
+            "id": "fuel_route_group_not_ready",
+            "label": "group not ready",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_fault_aggregator",
+              "portId": "fault_group_not_ready"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_alarm_group_not_ready",
+              "portKind": "alarm"
+            }
+          },
+          {
+            "id": "fuel_route_group_fault",
+            "label": "fuelFault",
+            "from": {
+              "kind": "node",
+              "nodeId": "fuel_fault_aggregator",
+              "portId": "fault_group"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "fuel_alarm_fault",
+              "portKind": "alarm"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "combustion_air_group",
+      "name": "CombustionAirGroup",
+      "type": "CombustionAirGroup",
+      "behaviorKind": "control",
+      "summary": "Provides purge air, damper position and air-ready confirmation.",
+      "commands": [
+        {
+          "id": "air_cmd_prepare",
+          "name": "prepareAir",
+          "kind": "command",
+          "dataType": "bool",
+          "summary": "Prepare combustion air path."
+        }
+      ],
+      "inputs": [
+        {
+          "id": "air_in_request",
+          "name": "burnerRequest",
+          "kind": "input",
+          "dataType": "bool",
+          "summary": "Burner requests purge or combustion air."
+        }
+      ],
+      "outputs": [
+        {
+          "id": "air_out_ready",
+          "name": "airReady",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Air path is ready."
+        }
+      ],
+      "status": [
+        {
+          "id": "air_status_fan",
+          "name": "fanRunning",
+          "kind": "status",
+          "dataType": "bool",
+          "summary": "Fan run confirmation."
+        },
+        {
+          "id": "air_status_damper",
+          "name": "damperPosition",
+          "kind": "status",
+          "dataType": "number",
+          "summary": "Current air damper position."
+        }
+      ],
+      "permissions": [
+        {
+          "id": "air_perm_ready",
+          "name": "ready",
+          "kind": "permission",
+          "dataType": "bool",
+          "summary": "Air subsystem ready for burner."
+        }
+      ],
+      "alarms": [
+        {
+          "id": "air_alarm_fault",
+          "name": "airFault",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Air system fault."
+        }
+      ]
+    },
+    {
+      "id": "feedwater_and_level_group",
+      "name": "FeedWaterAndLevelGroup",
+      "type": "FeedWaterAndLevelGroup",
+      "behaviorKind": "monitoring",
+      "summary": "Monitors boiler water level and commands feed pumps.",
+      "commands": [],
+      "inputs": [
+        {
+          "id": "water_in_level",
+          "name": "levelValue",
+          "kind": "input",
+          "dataType": "number",
+          "summary": "Measured boiler water level."
+        },
+        {
+          "id": "water_in_lead",
+          "name": "leadPumpSelector",
+          "kind": "input",
+          "dataType": "enum",
+          "summary": "Selected lead feed pump."
+        }
+      ],
+      "outputs": [
+        {
+          "id": "water_out_ok",
+          "name": "waterOk",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Water level is safe for burner run."
+        },
+        {
+          "id": "water_out_pump",
+          "name": "feedPumpStartCmd",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Command to start lead feed pump."
+        }
+      ],
+      "status": [
+        {
+          "id": "water_status_level",
+          "name": "levelState",
+          "kind": "status",
+          "dataType": "enum",
+          "summary": "Semantic level state."
+        },
+        {
+          "id": "water_status_selected",
+          "name": "selectedPump",
+          "kind": "status",
+          "dataType": "enum",
+          "summary": "Selected lead feed pump."
+        }
+      ],
+      "permissions": [
+        {
+          "id": "water_perm_run",
+          "name": "runAllowed",
+          "kind": "permission",
+          "dataType": "bool",
+          "summary": "Burner may continue to run."
+        }
+      ],
+      "alarms": [
+        {
+          "id": "water_alarm_trip",
+          "name": "lowLowWaterTrip",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Critical low-low water trip."
+        },
+        {
+          "id": "water_alarm_sensor",
+          "name": "levelSensorFault",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Level sensing is invalid."
+        }
+      ],
+      "structure": {
+        "summary": "Level monitoring and lead-pump selection condensed into one monitoring/control object.",
+        "nodes": [
+          {
+            "id": "level_monitor",
+            "title": "LevelMonitor",
+            "kind": "monitoring",
+            "summary": "Computes semantic level state and trips.",
+            "position": {
+              "x": 220,
+              "y": 160
+            },
+            "inputs": [
+              {
+                "id": "lvl_in_value",
+                "name": "levelValue",
+                "kind": "input",
+                "dataType": "number",
+                "summary": "Measured drum level."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "lvl_out_ok",
+                "name": "waterOk",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Level safe."
+              },
+              {
+                "id": "lvl_out_trip",
+                "name": "lowLowWaterTrip",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Critical trip."
+              }
+            ],
+            "relatedSignalIds": [
+              "sig.feedwater.waterLevel",
+              "sig.feedwater.lowLowWaterTrip"
+            ],
+            "relatedBlockIds": [
+              "block_permissive_matrix"
+            ],
+            "relatedBindingIds": [
+              "bind_water_level",
+              "bind_low_low_water_trip"
+            ]
+          },
+          {
+            "id": "feed_pump_selector",
+            "title": "FeedPumpSelector",
+            "kind": "control",
+            "summary": "Applies lead pump selector to feedwater pump command.",
+            "position": {
+              "x": 620,
+              "y": 160
+            },
+            "inputs": [
+              {
+                "id": "pump_sel_in",
+                "name": "leadPumpSelector",
+                "kind": "input",
+                "dataType": "enum",
+                "summary": "Selected lead pump."
+              },
+              {
+                "id": "pump_sel_ok",
+                "name": "waterOk",
+                "kind": "input",
+                "dataType": "bool",
+                "summary": "Need to maintain safe level."
+              }
+            ],
+            "outputs": [
+              {
+                "id": "pump_sel_cmd",
+                "name": "feedPumpStartCmd",
+                "kind": "output",
+                "dataType": "bool",
+                "summary": "Feed pump start command."
+              }
+            ],
+            "relatedSignalIds": [
+              "sig.operator.leadFeedPump"
+            ],
+            "relatedBlockIds": [
+              "block_interlock_set"
+            ],
+            "relatedBindingIds": []
+          }
+        ],
+        "routes": [
+          {
+            "id": "water_route_level",
+            "label": "level",
+            "from": {
+              "kind": "boundary",
+              "portId": "water_in_level",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "level_monitor",
+              "portId": "lvl_in_value"
+            }
+          },
+          {
+            "id": "water_route_ok",
+            "label": "waterOk",
+            "from": {
+              "kind": "node",
+              "nodeId": "level_monitor",
+              "portId": "lvl_out_ok"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "feed_pump_selector",
+              "portId": "pump_sel_ok"
+            }
+          },
+          {
+            "id": "water_route_selector",
+            "label": "lead pump",
+            "from": {
+              "kind": "boundary",
+              "portId": "water_in_lead",
+              "portKind": "input"
+            },
+            "to": {
+              "kind": "node",
+              "nodeId": "feed_pump_selector",
+              "portId": "pump_sel_in"
+            }
+          },
+          {
+            "id": "water_route_pump_cmd",
+            "label": "start cmd",
+            "from": {
+              "kind": "node",
+              "nodeId": "feed_pump_selector",
+              "portId": "pump_sel_cmd"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "water_out_pump",
+              "portKind": "output"
+            }
+          },
+          {
+            "id": "water_route_trip",
+            "label": "trip",
+            "from": {
+              "kind": "node",
+              "nodeId": "level_monitor",
+              "portId": "lvl_out_trip"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "water_alarm_trip",
+              "portKind": "alarm"
+            }
+          },
+          {
+            "id": "water_route_ok_boundary",
+            "label": "waterOk",
+            "from": {
+              "kind": "node",
+              "nodeId": "level_monitor",
+              "portId": "lvl_out_ok"
+            },
+            "to": {
+              "kind": "boundary",
+              "portId": "water_out_ok",
+              "portKind": "output"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "steam_pressure_control",
+      "name": "SteamPressureControl",
+      "type": "SteamPressureControl",
+      "behaviorKind": "control",
+      "summary": "Turns pressure error into firing demand / modulation request.",
+      "commands": [],
+      "inputs": [
+        {
+          "id": "press_in_value",
+          "name": "pressure",
+          "kind": "input",
+          "dataType": "number",
+          "summary": "Measured steam pressure."
+        }
+      ],
+      "outputs": [
+        {
+          "id": "press_out_demand",
+          "name": "firingDemand",
+          "kind": "output",
+          "dataType": "number",
+          "summary": "Demand sent to burner load control."
+        }
+      ],
+      "status": [
+        {
+          "id": "press_status_ok",
+          "name": "pressureOk",
+          "kind": "status",
+          "dataType": "bool",
+          "summary": "Pressure is within expected operating band."
+        }
+      ],
+      "permissions": [
+        {
+          "id": "press_perm_run",
+          "name": "runPermissive",
+          "kind": "permission",
+          "dataType": "bool",
+          "summary": "Pressure control still allows run."
+        }
+      ],
+      "alarms": []
+    },
+    {
+      "id": "flame_safety",
+      "name": "FlameSafety",
+      "type": "FlameSafety",
+      "behaviorKind": "monitoring",
+      "summary": "Independent flame supervision and flame quality diagnostics.",
+      "commands": [],
+      "inputs": [
+        {
+          "id": "flame_in_signal",
+          "name": "flameSignal",
+          "kind": "input",
+          "dataType": "number",
+          "summary": "Raw flame quality or detector signal."
+        }
+      ],
+      "outputs": [
+        {
+          "id": "flame_out_detected",
+          "name": "flameDetected",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Semantic flame detected signal."
+        }
+      ],
+      "status": [
+        {
+          "id": "flame_status_quality",
+          "name": "signalQuality",
+          "kind": "status",
+          "dataType": "number",
+          "summary": "Flame detector quality."
+        }
+      ],
+      "permissions": [],
+      "alarms": [
+        {
+          "id": "flame_alarm_fault",
+          "name": "flameFault",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Flame detector or proving fault."
+        }
+      ]
+    },
+    {
+      "id": "boiler_protection",
+      "name": "BoilerProtection",
+      "type": "BoilerProtection",
+      "behaviorKind": "monitoring",
+      "summary": "Collects trip causes and exports start/run permissives.",
+      "commands": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "id": "prot_out_trip",
+          "name": "tripActive",
+          "kind": "output",
+          "dataType": "bool",
+          "summary": "Trip chain has an active trip."
+        }
+      ],
+      "status": [
+        {
+          "id": "prot_status_trip_chain",
+          "name": "tripChainHealthy",
+          "kind": "status",
+          "dataType": "bool",
+          "summary": "Trip chain healthy state."
+        }
+      ],
+      "permissions": [
+        {
+          "id": "prot_perm_start",
+          "name": "startPermissive",
+          "kind": "permission",
+          "dataType": "bool",
+          "summary": "All start permissives satisfied."
+        },
+        {
+          "id": "prot_perm_run",
+          "name": "runPermissive",
+          "kind": "permission",
+          "dataType": "bool",
+          "summary": "All run permissives satisfied."
+        }
+      ],
+      "alarms": [
+        {
+          "id": "prot_alarm_fault",
+          "name": "protectionFault",
+          "kind": "alarm",
+          "dataType": "bool",
+          "summary": "Protection subsystem has invalid or missing input."
+        }
+      ]
+    }
+  ],
+  "compositionLinks": [
+    {
+      "id": "link_ops_start",
+      "sourceObjectId": "operator_panel_selectors",
+      "targetObjectId": "burner",
+      "sourcePortId": "ops_out_start",
+      "targetPortId": "burner_cmd_start",
+      "kind": "command",
+      "label": "burnerStartCmd",
+      "summary": "Operator start command enters burner sequence."
+    },
+    {
+      "id": "link_ops_stop",
+      "sourceObjectId": "operator_panel_selectors",
+      "targetObjectId": "burner",
+      "sourcePortId": "ops_out_stop",
+      "targetPortId": "burner_cmd_stop",
+      "kind": "command",
+      "label": "burnerStopCmd",
+      "summary": "Operator stop command initiates controlled stop."
+    },
+    {
+      "id": "link_ops_reset",
+      "sourceObjectId": "operator_panel_selectors",
+      "targetObjectId": "burner",
+      "sourcePortId": "ops_out_reset",
+      "targetPortId": "burner_cmd_reset",
+      "kind": "command",
+      "label": "burnerResetCmd",
+      "summary": "Operator reset clears burner lockout."
+    },
+    {
+      "id": "link_ops_mode",
+      "sourceObjectId": "operator_panel_selectors",
+      "targetObjectId": "burner",
+      "sourcePortId": "ops_status_mode",
+      "targetPortId": "burner_in_mode",
+      "kind": "status",
+      "label": "burnerMode",
+      "summary": "Semantic burner mode enters burner object."
+    },
+    {
+      "id": "link_ops_lead_pump",
+      "sourceObjectId": "operator_panel_selectors",
+      "targetObjectId": "feedwater_and_level_group",
+      "sourcePortId": "ops_status_lead",
+      "targetPortId": "water_in_lead",
+      "kind": "status",
+      "label": "leadFeedPump",
+      "summary": "Lead pump selector feeds feedwater object."
+    },
+    {
+      "id": "link_ops_fuel_lead",
+      "sourceObjectId": "operator_panel_selectors",
+      "targetObjectId": "fuel_group",
+      "sourcePortId": "ops_status_fuel_lead",
+      "targetPortId": "fuel_in_selected_lead",
+      "kind": "status",
+      "label": "selectedLeadPump",
+      "summary": "Semantic lead fuel pump selector enters FuelGroup."
+    },
+    {
+      "id": "link_burner_to_fuel",
+      "sourceObjectId": "burner",
+      "targetObjectId": "fuel_group",
+      "sourcePortId": "burner_out_request_fuel",
+      "targetPortId": "fuel_cmd_prepare",
+      "kind": "command",
+      "label": "requestFuel",
+      "summary": "Burner asks fuel group to prepare the selected lead pump."
+    },
+    {
+      "id": "link_fuel_to_burner",
+      "sourceObjectId": "fuel_group",
+      "targetObjectId": "burner",
+      "sourcePortId": "fuel_out_ready",
+      "targetPortId": "burner_in_fuel_ready",
+      "kind": "permission",
+      "label": "fuelReady",
+      "summary": "Fuel group grants ready permission to burner."
+    },
+    {
+      "id": "link_burner_to_air",
+      "sourceObjectId": "burner",
+      "targetObjectId": "combustion_air_group",
+      "sourcePortId": "burner_out_request_air",
+      "targetPortId": "air_in_request",
+      "kind": "command",
+      "label": "requestAir",
+      "summary": "Burner asks air group to prepare purge / combustion air."
+    },
+    {
+      "id": "link_air_to_burner",
+      "sourceObjectId": "combustion_air_group",
+      "targetObjectId": "burner",
+      "sourcePortId": "air_out_ready",
+      "targetPortId": "burner_in_air_ready",
+      "kind": "permission",
+      "label": "airReady",
+      "summary": "Air group confirms ready-for-purge / ready-for-combustion."
+    },
+    {
+      "id": "link_water_to_burner",
+      "sourceObjectId": "feedwater_and_level_group",
+      "targetObjectId": "burner",
+      "sourcePortId": "water_out_ok",
+      "targetPortId": "burner_in_water_ok",
+      "kind": "permission",
+      "label": "waterOk",
+      "summary": "Feedwater group keeps burner aware of safe level."
+    },
+    {
+      "id": "link_protection_to_burner",
+      "sourceObjectId": "boiler_protection",
+      "targetObjectId": "burner",
+      "sourcePortId": "prot_perm_start",
+      "targetPortId": "burner_in_start_perm",
+      "kind": "permission",
+      "label": "startPermissive",
+      "summary": "Protection chain grants or denies burner start."
+    },
+    {
+      "id": "link_flame_to_burner",
+      "sourceObjectId": "flame_safety",
+      "targetObjectId": "burner",
+      "sourcePortId": "flame_out_detected",
+      "targetPortId": "burner_in_flame",
+      "kind": "status",
+      "label": "flameDetected",
+      "summary": "Flame supervision exports semantic flame presence."
+    },
+    {
+      "id": "link_burner_run_to_protection",
+      "sourceObjectId": "burner",
+      "targetObjectId": "boiler_protection",
+      "sourcePortId": "burner_out_running",
+      "targetPortId": "prot_status_trip_chain",
+      "kind": "status",
+      "label": "running",
+      "summary": "Protection knows burner run state for trip context."
+    },
+    {
+      "id": "link_burner_fault_to_protection",
+      "sourceObjectId": "burner",
+      "targetObjectId": "boiler_protection",
+      "sourcePortId": "burner_alarm_fault",
+      "targetPortId": "prot_alarm_fault",
+      "kind": "fault",
+      "label": "burnerFault",
+      "summary": "Burner lockout propagates into protection aggregation."
+    },
+    {
+      "id": "link_fuel_fault_to_protection",
+      "sourceObjectId": "fuel_group",
+      "targetObjectId": "boiler_protection",
+      "sourcePortId": "fuel_alarm_fault",
+      "targetPortId": "prot_alarm_fault",
+      "kind": "fault",
+      "label": "fuelFault",
+      "summary": "Fuel fault contributes to global trip/protection context."
+    },
+    {
+      "id": "link_water_trip_to_protection",
+      "sourceObjectId": "feedwater_and_level_group",
+      "targetObjectId": "boiler_protection",
+      "sourcePortId": "water_alarm_trip",
+      "targetPortId": "prot_alarm_fault",
+      "kind": "fault",
+      "label": "lowLowWaterTrip",
+      "summary": "Low-low water trip escalates immediately into protection."
+    }
+  ],
+  "machines": [
+    {
+      "id": "boiler_sequence",
+      "name": "Burner Start / Run Sequence",
+      "behaviorKind": "sequence",
+      "behaviorSummary": {
+        "primaryStateIds": [
+          "idle",
+          "pre_start_checks",
+          "pre_purge",
+          "ignition",
+          "flame_proving",
+          "low_fire_stabilize",
+          "modulating_run"
+        ],
+        "faultStateIds": [
+          "fault_lockout"
+        ],
+        "recoveryTransitionIds": [
+          "trx_reset"
+        ]
+      },
+      "sections": [
+        {
+          "id": "sec_preparation",
+          "name": "Preparation",
+          "summary": "Pre-start permissives and purge preparation.",
+          "color": "#3f78ff",
+          "regionIds": [
+            "region_startup"
+          ],
+          "relatedSignalIds": [
+            "sig.operator.burnerStartCmd",
+            "sig.protection.tripChainHealthy"
+          ],
+          "relatedBlockIds": [
+            "block_permissive_matrix"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_start",
+            "bind_trip_chain"
+          ]
+        },
+        {
+          "id": "sec_lightoff",
+          "name": "Light-off",
+          "summary": "Ignition, flame proving and low-fire stabilization.",
+          "color": "#3ec6c0",
+          "regionIds": [
+            "region_lightoff"
+          ],
+          "relatedSignalIds": [
+            "sig.flame.detected"
+          ],
+          "relatedBlockIds": [
+            "block_flame_prover"
+          ],
+          "relatedBindingIds": [
+            "bind_flame_detected"
+          ]
+        },
+        {
+          "id": "sec_run",
+          "name": "Run",
+          "summary": "Sustained firing with pressure-driven demand.",
+          "color": "#56c38c",
+          "regionIds": [
+            "region_run"
+          ],
+          "relatedSignalIds": [
+            "sig.steam.pressure"
+          ],
+          "relatedBlockIds": [
+            "block_pressure_pid"
+          ],
+          "relatedBindingIds": [
+            "bind_steam_pressure"
+          ]
+        },
+        {
+          "id": "sec_shutdown",
+          "name": "Shutdown",
+          "summary": "Controlled stop and post-purge path.",
+          "color": "#7f9bc0",
+          "regionIds": [
+            "region_shutdown"
+          ],
+          "relatedSignalIds": [
+            "sig.operator.burnerStopCmd"
+          ],
+          "relatedBlockIds": [
+            "block_timer_on"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_stop"
+          ]
+        },
+        {
+          "id": "sec_fault",
+          "name": "Fault",
+          "summary": "Trip, lockout and reset handling.",
+          "color": "#ff6f7d",
+          "regionIds": [
+            "region_fault"
+          ],
+          "relatedSignalIds": [
+            "sig.feedwater.lowLowWaterTrip",
+            "sig.protection.tripChainHealthy"
+          ],
+          "relatedBlockIds": [
+            "block_interlock_set"
+          ],
+          "relatedBindingIds": [
+            "bind_low_low_water_trip",
+            "bind_trip_chain"
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "id": "region_startup",
+          "name": "Startup Path",
+          "type": "sequence",
+          "summary": "Start request, permissives and purge.",
+          "color": "#284c8a",
+          "stateIds": [
+            "idle",
+            "pre_start_checks",
+            "pre_purge"
+          ],
+          "relatedSignalIds": [
+            "sig.operator.burnerStartCmd",
+            "sig.protection.tripChainHealthy"
+          ],
+          "relatedBlockIds": [
+            "block_start_stop_latch",
+            "block_permissive_matrix"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_start",
+            "bind_trip_chain"
+          ]
+        },
+        {
+          "id": "region_lightoff",
+          "name": "Ignition Path",
+          "type": "sequence",
+          "summary": "Ignition and flame validation.",
+          "color": "#2f6f7b",
+          "stateIds": [
+            "ignition",
+            "flame_proving",
+            "low_fire_stabilize"
+          ],
+          "relatedSignalIds": [
+            "sig.flame.detected"
+          ],
+          "relatedBlockIds": [
+            "block_flame_prover"
+          ],
+          "relatedBindingIds": [
+            "bind_flame_detected"
+          ]
+        },
+        {
+          "id": "region_run",
+          "name": "Run Path",
+          "type": "sequence",
+          "summary": "Normal modulation under pressure demand.",
+          "color": "#256f57",
+          "stateIds": [
+            "modulating_run"
+          ],
+          "relatedSignalIds": [
+            "sig.steam.pressure"
+          ],
+          "relatedBlockIds": [
+            "block_pressure_pid"
+          ],
+          "relatedBindingIds": [
+            "bind_steam_pressure"
+          ]
+        },
+        {
+          "id": "region_shutdown",
+          "name": "Shutdown Path",
+          "type": "sequence",
+          "summary": "Normal stop and post-purge cleanup.",
+          "color": "#4c5f7a",
+          "stateIds": [
+            "normal_stop",
+            "post_purge"
+          ],
+          "relatedSignalIds": [
+            "sig.operator.burnerStopCmd"
+          ],
+          "relatedBlockIds": [
+            "block_timer_on"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_stop"
+          ]
+        },
+        {
+          "id": "region_fault",
+          "name": "Fault Path",
+          "type": "fault",
+          "summary": "Trip and lockout path until manual reset.",
+          "color": "#8d3f52",
+          "stateIds": [
+            "fault_lockout"
+          ],
+          "relatedSignalIds": [
+            "sig.feedwater.lowLowWaterTrip",
+            "sig.protection.tripChainHealthy"
+          ],
+          "relatedBlockIds": [
+            "block_interlock_set"
+          ],
+          "relatedBindingIds": [
+            "bind_low_low_water_trip",
+            "bind_trip_chain"
+          ]
+        }
+      ],
+      "sceneGroups": [
+        {
+          "id": "grp_startup",
+          "name": "Startup Envelope",
+          "summary": "Bring auxiliaries and permissives to a startable state.",
+          "color": "#3d7eff",
+          "stateIds": [
+            "idle",
+            "pre_start_checks",
+            "pre_purge"
+          ],
+          "sectionIds": [
+            "sec_preparation"
+          ],
+          "regionIds": [
+            "region_startup"
+          ],
+          "relatedSignalIds": [
+            "sig.operator.burnerStartCmd",
+            "sig.protection.tripChainHealthy"
+          ],
+          "relatedBlockIds": [
+            "block_start_stop_latch",
+            "block_permissive_matrix"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_start",
+            "bind_trip_chain"
+          ]
+        },
+        {
+          "id": "grp_lightoff",
+          "name": "Flame Establishment",
+          "summary": "Establish flame and stabilize at low fire.",
+          "color": "#45c8ba",
+          "stateIds": [
+            "ignition",
+            "flame_proving",
+            "low_fire_stabilize"
+          ],
+          "sectionIds": [
+            "sec_lightoff"
+          ],
+          "regionIds": [
+            "region_lightoff"
+          ],
+          "relatedSignalIds": [
+            "sig.flame.detected"
+          ],
+          "relatedBlockIds": [
+            "block_flame_prover"
+          ],
+          "relatedBindingIds": [
+            "bind_flame_detected"
+          ]
+        },
+        {
+          "id": "grp_run",
+          "name": "Normal Operation",
+          "summary": "Run under demand and pressure regulation.",
+          "color": "#53c686",
+          "stateIds": [
+            "modulating_run",
+            "normal_stop",
+            "post_purge"
+          ],
+          "sectionIds": [
+            "sec_run",
+            "sec_shutdown"
+          ],
+          "regionIds": [
+            "region_run",
+            "region_shutdown"
+          ],
+          "relatedSignalIds": [
+            "sig.steam.pressure",
+            "sig.operator.burnerStopCmd"
+          ],
+          "relatedBlockIds": [
+            "block_pressure_pid",
+            "block_timer_on"
+          ],
+          "relatedBindingIds": [
+            "bind_steam_pressure",
+            "bind_burner_stop"
+          ]
+        },
+        {
+          "id": "grp_fault",
+          "name": "Fault Handling",
+          "summary": "Trip containment and manual recovery.",
+          "color": "#ff7488",
+          "stateIds": [
+            "fault_lockout"
+          ],
+          "sectionIds": [
+            "sec_fault"
+          ],
+          "regionIds": [
+            "region_fault"
+          ],
+          "relatedSignalIds": [
+            "sig.feedwater.lowLowWaterTrip"
+          ],
+          "relatedBlockIds": [
+            "block_interlock_set"
+          ],
+          "relatedBindingIds": [
+            "bind_low_low_water_trip"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "kind": "initial",
+          "position": {
+            "x": 80,
+            "y": 300
+          },
+          "sectionId": "sec_preparation",
+          "regionId": "region_startup",
+          "entryActions": [
+            "clear start latch"
+          ],
+          "relatedSignalIds": [
+            "sig.operator.burnerStartCmd"
+          ],
+          "relatedBlockIds": [
+            "block_start_stop_latch"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_start"
+          ]
+        },
+        {
+          "id": "pre_start_checks",
+          "name": "PreStartChecks",
+          "kind": "normal",
+          "position": {
+            "x": 340,
+            "y": 300
+          },
+          "sectionId": "sec_preparation",
+          "regionId": "region_startup",
+          "entryActions": [
+            "verify permissives"
+          ],
+          "timeoutMs": 4000,
+          "relatedSignalIds": [
+            "sig.protection.startPermissive",
+            "sig.feedwater.waterOk"
+          ],
+          "relatedBlockIds": [
+            "block_permissive_matrix"
+          ],
+          "relatedBindingIds": [
+            "bind_trip_chain",
+            "bind_water_level"
+          ]
+        },
+        {
+          "id": "pre_purge",
+          "name": "PrePurge",
+          "kind": "normal",
+          "position": {
+            "x": 600,
+            "y": 300
+          },
+          "sectionId": "sec_preparation",
+          "regionId": "region_startup",
+          "entryActions": [
+            "fan start",
+            "damper open"
+          ],
+          "timeoutMs": 15000,
+          "relatedSignalIds": [
+            "sig.air.fanRunFb"
+          ],
+          "relatedBlockIds": [
+            "block_timer_on"
+          ],
+          "relatedBindingIds": [
+            "bind_fan_run"
+          ]
+        },
+        {
+          "id": "ignition",
+          "name": "Ignition",
+          "kind": "normal",
+          "position": {
+            "x": 860,
+            "y": 300
+          },
+          "sectionId": "sec_lightoff",
+          "regionId": "region_lightoff",
+          "entryActions": [
+            "igniter on",
+            "pilot fuel open"
+          ],
+          "timeoutMs": 5000,
+          "relatedSignalIds": [
+            "sig.flame.detected"
+          ],
+          "relatedBlockIds": [
+            "block_flame_prover"
+          ],
+          "relatedBindingIds": [
+            "bind_flame_detected"
+          ]
+        },
+        {
+          "id": "flame_proving",
+          "name": "FlameProving",
+          "kind": "normal",
+          "position": {
+            "x": 1120,
+            "y": 300
+          },
+          "sectionId": "sec_lightoff",
+          "regionId": "region_lightoff",
+          "entryActions": [
+            "prove flame"
+          ],
+          "timeoutMs": 3000,
+          "relatedSignalIds": [
+            "sig.flame.detected"
+          ],
+          "relatedBlockIds": [
+            "block_flame_prover"
+          ],
+          "relatedBindingIds": [
+            "bind_flame_detected"
+          ]
+        },
+        {
+          "id": "low_fire_stabilize",
+          "name": "LowFireStabilize",
+          "kind": "normal",
+          "position": {
+            "x": 1380,
+            "y": 300
+          },
+          "sectionId": "sec_lightoff",
+          "regionId": "region_lightoff",
+          "entryActions": [
+            "hold low fire"
+          ],
+          "timeoutMs": 8000,
+          "relatedSignalIds": [
+            "sig.steam.pressure"
+          ],
+          "relatedBlockIds": [
+            "block_pressure_pid"
+          ],
+          "relatedBindingIds": [
+            "bind_steam_pressure"
+          ]
+        },
+        {
+          "id": "modulating_run",
+          "name": "ModulatingRun",
+          "kind": "normal",
+          "active": true,
+          "position": {
+            "x": 1640,
+            "y": 300
+          },
+          "sectionId": "sec_run",
+          "regionId": "region_run",
+          "entryActions": [
+            "enable pressure loop"
+          ],
+          "relatedSignalIds": [
+            "sig.steam.pressure"
+          ],
+          "relatedBlockIds": [
+            "block_pressure_pid"
+          ],
+          "relatedBindingIds": [
+            "bind_steam_pressure"
+          ]
+        },
+        {
+          "id": "normal_stop",
+          "name": "NormalStop",
+          "kind": "final",
+          "position": {
+            "x": 1380,
+            "y": 540
+          },
+          "sectionId": "sec_shutdown",
+          "regionId": "region_shutdown",
+          "entryActions": [
+            "close main fuel"
+          ],
+          "timeoutMs": 4000,
+          "relatedSignalIds": [
+            "sig.operator.burnerStopCmd"
+          ],
+          "relatedBlockIds": [
+            "block_start_stop_latch"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_stop"
+          ]
+        },
+        {
+          "id": "post_purge",
+          "name": "PostPurge",
+          "kind": "final",
+          "position": {
+            "x": 1120,
+            "y": 540
+          },
+          "sectionId": "sec_shutdown",
+          "regionId": "region_shutdown",
+          "entryActions": [
+            "fan cool-down purge"
+          ],
+          "timeoutMs": 10000,
+          "relatedSignalIds": [
+            "sig.air.fanRunFb"
+          ],
+          "relatedBlockIds": [
+            "block_timer_on"
+          ],
+          "relatedBindingIds": [
+            "bind_fan_run"
+          ]
+        },
+        {
+          "id": "fault_lockout",
+          "name": "FaultLockout",
+          "kind": "fault",
+          "position": {
+            "x": 1120,
+            "y": 60
+          },
+          "sectionId": "sec_fault",
+          "regionId": "region_fault",
+          "entryActions": [
+            "trip fuel",
+            "latch fault"
+          ],
+          "relatedSignalIds": [
+            "sig.feedwater.lowLowWaterTrip",
+            "sig.protection.tripChainHealthy"
+          ],
+          "relatedBlockIds": [
+            "block_interlock_set"
+          ],
+          "relatedBindingIds": [
+            "bind_low_low_water_trip",
+            "bind_trip_chain"
+          ]
+        }
+      ],
+      "transitions": [
+        {
+          "id": "trx_start",
+          "source": "idle",
+          "target": "pre_start_checks",
+          "sectionId": "sec_preparation",
+          "event": "start",
+          "relatedSignalIds": [
+            "sig.operator.burnerStartCmd"
+          ],
+          "relatedBlockIds": [
+            "block_start_stop_latch"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_start"
+          ]
+        },
+        {
+          "id": "trx_permissives_ok",
+          "source": "pre_start_checks",
+          "target": "pre_purge",
+          "sectionId": "sec_preparation",
+          "guard": "permissives_ok",
+          "relatedSignalIds": [
+            "sig.protection.startPermissive",
+            "sig.feedwater.waterOk"
+          ],
+          "relatedBlockIds": [
+            "block_permissive_matrix"
+          ],
+          "relatedBindingIds": [
+            "bind_trip_chain",
+            "bind_water_level"
+          ]
+        },
+        {
+          "id": "trx_purge_complete",
+          "source": "pre_purge",
+          "target": "ignition",
+          "sectionId": "sec_lightoff",
+          "guard": "purge_complete",
+          "delayMs": 15000,
+          "relatedSignalIds": [
+            "sig.air.fanRunFb"
+          ],
+          "relatedBlockIds": [
+            "block_timer_on"
+          ],
+          "relatedBindingIds": [
+            "bind_fan_run"
+          ]
+        },
+        {
+          "id": "trx_ignition_started",
+          "source": "ignition",
+          "target": "flame_proving",
+          "sectionId": "sec_lightoff",
+          "event": "ignition_started",
+          "relatedSignalIds": [
+            "sig.flame.detected"
+          ],
+          "relatedBlockIds": [
+            "block_flame_prover"
+          ],
+          "relatedBindingIds": [
+            "bind_flame_detected"
+          ]
+        },
+        {
+          "id": "trx_flame_detected",
+          "source": "flame_proving",
+          "target": "low_fire_stabilize",
+          "sectionId": "sec_lightoff",
+          "guard": "flame_detected",
+          "relatedSignalIds": [
+            "sig.flame.detected"
+          ],
+          "relatedBlockIds": [
+            "block_flame_prover"
+          ],
+          "relatedBindingIds": [
+            "bind_flame_detected"
+          ]
+        },
+        {
+          "id": "trx_flame_proved",
+          "source": "low_fire_stabilize",
+          "target": "modulating_run",
+          "sectionId": "sec_run",
+          "event": "flame_proved",
+          "relatedSignalIds": [
+            "sig.steam.pressure"
+          ],
+          "relatedBlockIds": [
+            "block_pressure_pid"
+          ],
+          "relatedBindingIds": [
+            "bind_steam_pressure"
+          ]
+        },
+        {
+          "id": "trx_stop",
+          "source": "modulating_run",
+          "target": "normal_stop",
+          "sectionId": "sec_shutdown",
+          "event": "stop",
+          "relatedSignalIds": [
+            "sig.operator.burnerStopCmd"
+          ],
+          "relatedBlockIds": [
+            "block_start_stop_latch"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_stop"
+          ]
+        },
+        {
+          "id": "trx_postpurge",
+          "source": "normal_stop",
+          "target": "post_purge",
+          "sectionId": "sec_shutdown",
+          "guard": "fuel_closed",
+          "delayMs": 4000,
+          "relatedSignalIds": [
+            "sig.air.fanRunFb"
+          ],
+          "relatedBlockIds": [
+            "block_timer_on"
+          ],
+          "relatedBindingIds": [
+            "bind_fan_run"
+          ]
+        },
+        {
+          "id": "trx_postpurge_done",
+          "source": "post_purge",
+          "target": "idle",
+          "sectionId": "sec_shutdown",
+          "guard": "postpurge_done",
+          "delayMs": 10000,
+          "relatedSignalIds": [
+            "sig.air.fanRunFb"
+          ],
+          "relatedBlockIds": [
+            "block_timer_on"
+          ],
+          "relatedBindingIds": [
+            "bind_fan_run"
+          ]
+        },
+        {
+          "id": "trx_trip_from_checks",
+          "source": "pre_start_checks",
+          "target": "fault_lockout",
+          "sectionId": "sec_fault",
+          "guard": "trip",
+          "relatedSignalIds": [
+            "sig.feedwater.lowLowWaterTrip",
+            "sig.protection.tripChainHealthy"
+          ],
+          "relatedBlockIds": [
+            "block_interlock_set"
+          ],
+          "relatedBindingIds": [
+            "bind_low_low_water_trip",
+            "bind_trip_chain"
+          ]
+        },
+        {
+          "id": "trx_trip_from_purge",
+          "source": "pre_purge",
+          "target": "fault_lockout",
+          "sectionId": "sec_fault",
+          "guard": "timeout",
+          "delayMs": 15000,
+          "relatedSignalIds": [
+            "sig.air.fanRunFb"
+          ],
+          "relatedBlockIds": [
+            "block_timer_on"
+          ],
+          "relatedBindingIds": [
+            "bind_fan_run"
+          ]
+        },
+        {
+          "id": "trx_trip_from_ignition",
+          "source": "ignition",
+          "target": "fault_lockout",
+          "sectionId": "sec_fault",
+          "guard": "flame_fail",
+          "delayMs": 5000,
+          "relatedSignalIds": [
+            "sig.flame.detected"
+          ],
+          "relatedBlockIds": [
+            "block_flame_prover"
+          ],
+          "relatedBindingIds": [
+            "bind_flame_detected"
+          ]
+        },
+        {
+          "id": "trx_trip_from_run",
+          "source": "modulating_run",
+          "target": "fault_lockout",
+          "sectionId": "sec_fault",
+          "guard": "trip",
+          "relatedSignalIds": [
+            "sig.feedwater.lowLowWaterTrip"
+          ],
+          "relatedBlockIds": [
+            "block_interlock_set"
+          ],
+          "relatedBindingIds": [
+            "bind_low_low_water_trip"
+          ]
+        },
+        {
+          "id": "trx_reset",
+          "source": "fault_lockout",
+          "target": "idle",
+          "sectionId": "sec_fault",
+          "event": "reset",
+          "action": "clear lockout",
+          "relatedSignalIds": [
+            "sig.operator.burnerResetCmd"
+          ],
+          "relatedBlockIds": [
+            "block_interlock_set"
+          ],
+          "relatedBindingIds": [
+            "bind_burner_reset"
+          ]
+        }
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "id": "raw.operator.start_switch",
+      "name": "raw.operator.start_switch",
+      "layer": "raw",
+      "summary": "Physical burner start pushbutton input.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "sourceBindingIds": [
+        "bind_burner_start"
+      ]
+    },
+    {
+      "id": "cond.operator.start_cmd",
+      "name": "cond.operator.start_cmd",
+      "layer": "conditioned",
+      "summary": "Debounced burner start command after input conditioning.",
+      "type": "bool",
+      "direction": "internal",
+      "value": false,
+      "derivedFromSignalIds": [
+        "raw.operator.start_switch"
+      ]
+    },
+    {
+      "id": "sig.operator.burnerStartCmd",
+      "name": "sig.operator.burnerStartCmd",
+      "layer": "semantic",
+      "summary": "Semantic burner start command available to system objects.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "derivedFromSignalIds": [
+        "cond.operator.start_cmd"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "burner",
+          "portKind": "command",
+          "portName": "start"
+        }
+      ],
+      "producerRef": {
+        "objectId": "operator_panel_selectors",
+        "portKind": "output",
+        "portName": "burnerStartCmd"
+      }
+    },
+    {
+      "id": "raw.operator.stop_switch",
+      "name": "raw.operator.stop_switch",
+      "layer": "raw",
+      "summary": "Physical burner stop pushbutton input.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "sourceBindingIds": [
+        "bind_burner_stop"
+      ]
+    },
+    {
+      "id": "cond.operator.stop_cmd",
+      "name": "cond.operator.stop_cmd",
+      "layer": "conditioned",
+      "summary": "Debounced burner stop command after input conditioning.",
+      "type": "bool",
+      "direction": "internal",
+      "value": false,
+      "derivedFromSignalIds": [
+        "raw.operator.stop_switch"
+      ]
+    },
+    {
+      "id": "sig.operator.burnerStopCmd",
+      "name": "sig.operator.burnerStopCmd",
+      "layer": "semantic",
+      "summary": "Semantic burner stop command available to system objects.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "derivedFromSignalIds": [
+        "cond.operator.stop_cmd"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "burner",
+          "portKind": "command",
+          "portName": "stop"
+        }
+      ],
+      "producerRef": {
+        "objectId": "operator_panel_selectors",
+        "portKind": "output",
+        "portName": "burnerStopCmd"
+      }
+    },
+    {
+      "id": "raw.operator.reset_switch",
+      "name": "raw.operator.reset_switch",
+      "layer": "raw",
+      "summary": "Physical burner reset pushbutton input.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "sourceBindingIds": [
+        "bind_burner_reset"
+      ]
+    },
+    {
+      "id": "cond.operator.reset_cmd",
+      "name": "cond.operator.reset_cmd",
+      "layer": "conditioned",
+      "summary": "Debounced burner reset command after input conditioning.",
+      "type": "bool",
+      "direction": "internal",
+      "value": false,
+      "derivedFromSignalIds": [
+        "raw.operator.reset_switch"
+      ]
+    },
+    {
+      "id": "sig.operator.burnerResetCmd",
+      "name": "sig.operator.burnerResetCmd",
+      "layer": "semantic",
+      "summary": "Semantic burner reset command available to system objects.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "derivedFromSignalIds": [
+        "cond.operator.reset_cmd"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "burner",
+          "portKind": "command",
+          "portName": "reset"
+        }
+      ],
+      "producerRef": {
+        "objectId": "operator_panel_selectors",
+        "portKind": "output",
+        "portName": "burnerResetCmd"
+      }
+    },
+    {
+      "id": "raw.operator.mode_selector",
+      "name": "raw.operator.mode_selector",
+      "layer": "raw",
+      "summary": "Physical AUTO/MANUAL selector position.",
+      "type": "string",
+      "direction": "input",
+      "value": "AUTO"
+    },
+    {
+      "id": "cond.operator.mode_selector",
+      "name": "cond.operator.mode_selector",
+      "layer": "conditioned",
+      "summary": "Validated selector state after plausibility checks.",
+      "type": "string",
+      "direction": "internal",
+      "value": "AUTO",
+      "derivedFromSignalIds": [
+        "raw.operator.mode_selector"
+      ]
+    },
+    {
+      "id": "sig.operator.burnerMode",
+      "name": "sig.operator.burnerMode",
+      "layer": "semantic",
+      "summary": "Semantic burner mode used by Burner and FuelGroup.",
+      "type": "string",
+      "direction": "input",
+      "value": "AUTO",
+      "derivedFromSignalIds": [
+        "cond.operator.mode_selector"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "burner",
+          "portKind": "input",
+          "portName": "burnerMode"
+        },
+        {
+          "objectId": "fuel_group",
+          "portKind": "input",
+          "portName": "fuelModeSelect"
+        }
+      ],
+      "producerRef": {
+        "objectId": "operator_panel_selectors",
+        "portKind": "status",
+        "portName": "burnerMode"
+      }
+    },
+    {
+      "id": "raw.operator.lead_pump_selector",
+      "name": "raw.operator.lead_pump_selector",
+      "layer": "raw",
+      "summary": "Physical lead-pump selector position.",
+      "type": "string",
+      "direction": "input",
+      "value": "PUMP_A"
+    },
+    {
+      "id": "cond.operator.lead_pump_selector",
+      "name": "cond.operator.lead_pump_selector",
+      "layer": "conditioned",
+      "summary": "Validated lead-pump selector after conditioning.",
+      "type": "string",
+      "direction": "internal",
+      "value": "PUMP_A",
+      "derivedFromSignalIds": [
+        "raw.operator.lead_pump_selector"
+      ]
+    },
+    {
+      "id": "sig.operator.leadFeedPump",
+      "name": "sig.operator.leadFeedPump",
+      "layer": "semantic",
+      "summary": "Semantic lead-pump selection for feedwater object.",
+      "type": "string",
+      "direction": "input",
+      "value": "PUMP_A",
+      "derivedFromSignalIds": [
+        "cond.operator.lead_pump_selector"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "feedwater_and_level_group",
+          "portKind": "input",
+          "portName": "leadPumpSelector"
+        }
+      ],
+      "producerRef": {
+        "objectId": "operator_panel_selectors",
+        "portKind": "status",
+        "portName": "leadFeedPump"
+      }
+    },
+    {
+      "id": "raw.di.fuel_lead_select_a",
+      "name": "raw.di.fuel_lead_select_a",
+      "layer": "raw",
+      "summary": "Physical selector contact for fuel pump A lead selection.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "sourceBindingIds": [
+        "bind_fuel_lead_a"
+      ]
+    },
+    {
+      "id": "raw.di.fuel_lead_select_b",
+      "name": "raw.di.fuel_lead_select_b",
+      "layer": "raw",
+      "summary": "Physical selector contact for fuel pump B lead selection.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "sourceBindingIds": [
+        "bind_fuel_lead_b"
+      ]
+    },
+    {
+      "id": "cond.operator.fuel_lead_a",
+      "name": "cond.operator.fuel_lead_a",
+      "layer": "conditioned",
+      "summary": "Debounced selector contact for pump A.",
+      "type": "bool",
+      "direction": "internal",
+      "value": true,
+      "derivedFromSignalIds": [
+        "raw.di.fuel_lead_select_a"
+      ]
+    },
+    {
+      "id": "cond.operator.fuel_lead_b",
+      "name": "cond.operator.fuel_lead_b",
+      "layer": "conditioned",
+      "summary": "Debounced selector contact for pump B.",
+      "type": "bool",
+      "direction": "internal",
+      "value": false,
+      "derivedFromSignalIds": [
+        "raw.di.fuel_lead_select_b"
+      ]
+    },
+    {
+      "id": "sig.operator.leadFuelPump",
+      "name": "sig.operator.leadFuelPump",
+      "layer": "semantic",
+      "summary": "Semantic selected lead pump for FuelGroup.",
+      "type": "string",
+      "direction": "input",
+      "value": "PUMP_A",
+      "derivedFromSignalIds": [
+        "cond.operator.fuel_lead_a",
+        "cond.operator.fuel_lead_b"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "fuel_group",
+          "portKind": "input",
+          "portName": "selectedLeadPump"
+        }
+      ],
+      "producerRef": {
+        "objectId": "operator_panel_selectors",
+        "portKind": "status",
+        "portName": "leadFuelPump"
+      }
+    },
+    {
+      "id": "raw.ai.steam_pressure",
+      "name": "raw.ai.steam_pressure",
+      "layer": "raw",
+      "summary": "Raw steam pressure analog input from transmitter.",
+      "type": "number",
+      "direction": "input",
+      "value": 7.8,
+      "sourceBindingIds": [
+        "bind_steam_pressure"
+      ]
+    },
+    {
+      "id": "cond.steam.pressure_scaled",
+      "name": "cond.steam.pressure_scaled",
+      "layer": "conditioned",
+      "summary": "Scaled steam pressure after engineering-unit conversion.",
+      "type": "number",
+      "direction": "internal",
+      "value": 7.8,
+      "derivedFromSignalIds": [
+        "raw.ai.steam_pressure"
+      ]
+    },
+    {
+      "id": "sig.steam.pressure",
+      "name": "sig.steam.pressure",
+      "layer": "semantic",
+      "summary": "Semantic steam pressure value for pressure control and burner run logic.",
+      "type": "number",
+      "direction": "input",
+      "value": 7.8,
+      "derivedFromSignalIds": [
+        "cond.steam.pressure_scaled"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "steam_pressure_control",
+          "portKind": "input",
+          "portName": "pressure"
+        },
+        {
+          "objectId": "burner",
+          "portKind": "status",
+          "portName": "loadDemand"
+        }
+      ]
+    },
+    {
+      "id": "raw.ai.boiler_water_level",
+      "name": "raw.ai.boiler_water_level",
+      "layer": "raw",
+      "summary": "Raw boiler drum level analog input.",
+      "type": "number",
+      "direction": "input",
+      "value": 52.4,
+      "sourceBindingIds": [
+        "bind_water_level"
+      ]
+    },
+    {
+      "id": "cond.feedwater.level_scaled",
+      "name": "cond.feedwater.level_scaled",
+      "layer": "conditioned",
+      "summary": "Scaled water level after engineering-unit conversion.",
+      "type": "number",
+      "direction": "internal",
+      "value": 52.4,
+      "derivedFromSignalIds": [
+        "raw.ai.boiler_water_level"
+      ]
+    },
+    {
+      "id": "sig.feedwater.waterLevel",
+      "name": "sig.feedwater.waterLevel",
+      "layer": "semantic",
+      "summary": "Semantic boiler water level available to feedwater monitoring.",
+      "type": "number",
+      "direction": "input",
+      "value": 52.4,
+      "derivedFromSignalIds": [
+        "cond.feedwater.level_scaled"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "feedwater_and_level_group",
+          "portKind": "input",
+          "portName": "levelValue"
+        }
+      ]
+    },
+    {
+      "id": "raw.di.flame_scanner",
+      "name": "raw.di.flame_scanner",
+      "layer": "raw",
+      "summary": "Physical flame scanner discrete feedback.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "sourceBindingIds": [
+        "bind_flame_detected"
+      ]
+    },
+    {
+      "id": "cond.flame.detected",
+      "name": "cond.flame.detected",
+      "layer": "conditioned",
+      "summary": "Flame detection after debounce and confidence conditioning.",
+      "type": "bool",
+      "direction": "internal",
+      "value": true,
+      "derivedFromSignalIds": [
+        "raw.di.flame_scanner"
+      ]
+    },
+    {
+      "id": "sig.flame.detected",
+      "name": "sig.flame.detected",
+      "layer": "semantic",
+      "summary": "Semantic flame present signal for flame safety and burner proving.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "derivedFromSignalIds": [
+        "cond.flame.detected"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "flame_safety",
+          "portKind": "input",
+          "portName": "flameSignal"
+        },
+        {
+          "objectId": "burner",
+          "portKind": "input",
+          "portName": "flameDetected"
+        }
+      ]
+    },
+    {
+      "id": "sig.fuel.prepareFuel",
+      "name": "sig.fuel.prepareFuel",
+      "layer": "semantic",
+      "summary": "Semantic command from burner requesting fuel preparation.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "consumerRefs": [
+        {
+          "objectId": "fuel_group",
+          "portKind": "command",
+          "portName": "prepareFuel"
+        }
+      ],
+      "producerRef": {
+        "objectId": "burner",
+        "portKind": "output",
+        "portName": "requestFuel"
+      }
+    },
+    {
+      "id": "raw.ai.fuel_header_pressure",
+      "name": "raw.ai.fuel_header_pressure",
+      "layer": "raw",
+      "summary": "Raw fuel header pressure analog input.",
+      "type": "number",
+      "direction": "input",
+      "value": 8.4,
+      "sourceBindingIds": [
+        "bind_fuel_header_pressure"
+      ]
+    },
+    {
+      "id": "cond.fuel.header_pressure_scaled",
+      "name": "cond.fuel.header_pressure_scaled",
+      "layer": "conditioned",
+      "summary": "Scaled fuel header pressure in engineering units.",
+      "type": "number",
+      "direction": "internal",
+      "value": 8.4,
+      "derivedFromSignalIds": [
+        "raw.ai.fuel_header_pressure"
+      ]
+    },
+    {
+      "id": "sig.fuel.headerPressure",
+      "name": "sig.fuel.headerPressure",
+      "layer": "semantic",
+      "summary": "Semantic fuel header pressure value used by both pump objects.",
+      "type": "number",
+      "direction": "input",
+      "value": 8.4,
+      "derivedFromSignalIds": [
+        "cond.fuel.header_pressure_scaled"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "fuel_group",
+          "portKind": "input",
+          "portName": "fuelPressure"
+        }
+      ]
+    },
+    {
+      "id": "raw.di.fuel_pump_a_run_fb",
+      "name": "raw.di.fuel_pump_a_run_fb",
+      "layer": "raw",
+      "summary": "Physical pump A run feedback input.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "sourceBindingIds": [
+        "bind_fuel_pump_a_run"
+      ]
+    },
+    {
+      "id": "cond.fuel.pump_a_run_fb",
+      "name": "cond.fuel.pump_a_run_fb",
+      "layer": "conditioned",
+      "summary": "Debounced pump A run feedback.",
+      "type": "bool",
+      "direction": "internal",
+      "value": true,
+      "derivedFromSignalIds": [
+        "raw.di.fuel_pump_a_run_fb"
+      ]
+    },
+    {
+      "id": "sig.fuel.pumpARunFb",
+      "name": "sig.fuel.pumpARunFb",
+      "layer": "semantic",
+      "summary": "Semantic run feedback for pump A.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "derivedFromSignalIds": [
+        "cond.fuel.pump_a_run_fb"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "fuel_group",
+          "portKind": "input",
+          "portName": "pumpA.runFb"
+        }
+      ]
+    },
+    {
+      "id": "raw.di.fuel_pump_a_fault_fb",
+      "name": "raw.di.fuel_pump_a_fault_fb",
+      "layer": "raw",
+      "summary": "Physical pump A fault feedback input.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "sourceBindingIds": [
+        "bind_fuel_pump_a_fault"
+      ]
+    },
+    {
+      "id": "cond.fuel.pump_a_fault_fb",
+      "name": "cond.fuel.pump_a_fault_fb",
+      "layer": "conditioned",
+      "summary": "Debounced pump A fault feedback.",
+      "type": "bool",
+      "direction": "internal",
+      "value": false,
+      "derivedFromSignalIds": [
+        "raw.di.fuel_pump_a_fault_fb"
+      ]
+    },
+    {
+      "id": "sig.fuel.pumpAFaultFb",
+      "name": "sig.fuel.pumpAFaultFb",
+      "layer": "semantic",
+      "summary": "Semantic fault feedback for pump A.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "derivedFromSignalIds": [
+        "cond.fuel.pump_a_fault_fb"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "fuel_group",
+          "portKind": "input",
+          "portName": "pumpA.faultFb"
+        }
+      ]
+    },
+    {
+      "id": "raw.di.fuel_pump_b_run_fb",
+      "name": "raw.di.fuel_pump_b_run_fb",
+      "layer": "raw",
+      "summary": "Physical pump B run feedback input.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "sourceBindingIds": [
+        "bind_fuel_pump_b_run"
+      ]
+    },
+    {
+      "id": "cond.fuel.pump_b_run_fb",
+      "name": "cond.fuel.pump_b_run_fb",
+      "layer": "conditioned",
+      "summary": "Debounced pump B run feedback.",
+      "type": "bool",
+      "direction": "internal",
+      "value": false,
+      "derivedFromSignalIds": [
+        "raw.di.fuel_pump_b_run_fb"
+      ]
+    },
+    {
+      "id": "sig.fuel.pumpBRunFb",
+      "name": "sig.fuel.pumpBRunFb",
+      "layer": "semantic",
+      "summary": "Semantic run feedback for pump B.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "derivedFromSignalIds": [
+        "cond.fuel.pump_b_run_fb"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "fuel_group",
+          "portKind": "input",
+          "portName": "pumpB.runFb"
+        }
+      ]
+    },
+    {
+      "id": "raw.di.fuel_pump_b_fault_fb",
+      "name": "raw.di.fuel_pump_b_fault_fb",
+      "layer": "raw",
+      "summary": "Physical pump B fault feedback input.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "sourceBindingIds": [
+        "bind_fuel_pump_b_fault"
+      ]
+    },
+    {
+      "id": "cond.fuel.pump_b_fault_fb",
+      "name": "cond.fuel.pump_b_fault_fb",
+      "layer": "conditioned",
+      "summary": "Debounced pump B fault feedback.",
+      "type": "bool",
+      "direction": "internal",
+      "value": false,
+      "derivedFromSignalIds": [
+        "raw.di.fuel_pump_b_fault_fb"
+      ]
+    },
+    {
+      "id": "sig.fuel.pumpBFaultFb",
+      "name": "sig.fuel.pumpBFaultFb",
+      "layer": "semantic",
+      "summary": "Semantic fault feedback for pump B.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "derivedFromSignalIds": [
+        "cond.fuel.pump_b_fault_fb"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "fuel_group",
+          "portKind": "input",
+          "portName": "pumpB.faultFb"
+        }
+      ]
+    },
+    {
+      "id": "sig.fuel.selectedLeadPump",
+      "name": "sig.fuel.selectedLeadPump",
+      "layer": "semantic",
+      "summary": "FuelGroup internal selected lead pump after selector resolution.",
+      "type": "string",
+      "direction": "internal",
+      "value": "PUMP_A",
+      "derivedFromSignalIds": [
+        "sig.operator.leadFuelPump"
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "status",
+        "portName": "selectedLead"
+      }
+    },
+    {
+      "id": "sig.fuel.pumpAReady",
+      "name": "sig.fuel.pumpAReady",
+      "layer": "semantic",
+      "summary": "Pump A is ready in context: available and pressure-valid while running.",
+      "type": "bool",
+      "direction": "output",
+      "value": true,
+      "derivedFromSignalIds": [
+        "sig.fuel.headerPressure",
+        "sig.fuel.pumpARunFb",
+        "sig.fuel.pumpAFaultFb"
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "status",
+        "portName": "pumpA.ready"
+      }
+    },
+    {
+      "id": "sig.fuel.pumpBReady",
+      "name": "sig.fuel.pumpBReady",
+      "layer": "semantic",
+      "summary": "Pump B is ready in context: available and pressure-valid while running.",
+      "type": "bool",
+      "direction": "output",
+      "value": true,
+      "derivedFromSignalIds": [
+        "sig.fuel.headerPressure",
+        "sig.fuel.pumpBRunFb",
+        "sig.fuel.pumpBFaultFb"
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "status",
+        "portName": "pumpB.ready"
+      }
+    },
+    {
+      "id": "sig.fuel.pumpAPressureLowAlarm",
+      "name": "sig.fuel.pumpAPressureLowAlarm",
+      "layer": "semantic",
+      "summary": "Pump A pressure is below setpoint while pump A is running.",
+      "type": "bool",
+      "direction": "output",
+      "value": false,
+      "derivedFromSignalIds": [
+        "sig.fuel.headerPressure",
+        "sig.fuel.pumpARunFb"
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "alarm",
+        "portName": "pumpAPressureLow"
+      }
+    },
+    {
+      "id": "sig.fuel.pumpBPressureLowAlarm",
+      "name": "sig.fuel.pumpBPressureLowAlarm",
+      "layer": "semantic",
+      "summary": "Pump B pressure is below setpoint while pump B is running.",
+      "type": "bool",
+      "direction": "output",
+      "value": false,
+      "derivedFromSignalIds": [
+        "sig.fuel.headerPressure",
+        "sig.fuel.pumpBRunFb"
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "alarm",
+        "portName": "pumpBPressureLow"
+      }
+    },
+    {
+      "id": "sig.fuel.pumpAFault",
+      "name": "sig.fuel.pumpAFault",
+      "layer": "semantic",
+      "summary": "Pump A fault exported to the fuel group alarm layer.",
+      "type": "bool",
+      "direction": "output",
+      "value": false,
+      "derivedFromSignalIds": [
+        "sig.fuel.pumpAFaultFb"
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "alarm",
+        "portName": "pumpAFault"
+      }
+    },
+    {
+      "id": "sig.fuel.pumpBFault",
+      "name": "sig.fuel.pumpBFault",
+      "layer": "semantic",
+      "summary": "Pump B fault exported to the fuel group alarm layer.",
+      "type": "bool",
+      "direction": "output",
+      "value": false,
+      "derivedFromSignalIds": [
+        "sig.fuel.pumpBFaultFb"
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "alarm",
+        "portName": "pumpBFault"
+      }
+    },
+    {
+      "id": "sig.fuel.activePump",
+      "name": "sig.fuel.activePump",
+      "layer": "semantic",
+      "summary": "Active fuel pump exported by FuelReadyResolver.",
+      "type": "string",
+      "direction": "output",
+      "value": "PUMP_A",
+      "derivedFromSignalIds": [
+        "sig.fuel.selectedLeadPump"
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "output",
+        "portName": "activePump"
+      }
+    },
+    {
+      "id": "sig.fuel.fuelReady",
+      "name": "sig.fuel.fuelReady",
+      "layer": "semantic",
+      "summary": "FuelGroup exported ready permission for burner sequence.",
+      "type": "bool",
+      "direction": "output",
+      "value": true,
+      "derivedFromSignalIds": [
+        "sig.fuel.prepareFuel",
+        "sig.fuel.selectedLeadPump",
+        "sig.fuel.pumpAReady",
+        "sig.fuel.pumpBReady"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "burner",
+          "portKind": "input",
+          "portName": "fuelReady"
+        }
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "output",
+        "portName": "fuelReady"
+      }
+    },
+    {
+      "id": "sig.fuel.fuelGroupNotReady",
+      "name": "sig.fuel.fuelGroupNotReady",
+      "layer": "semantic",
+      "summary": "Fuel was requested but the selected lead pump did not become ready.",
+      "type": "bool",
+      "direction": "output",
+      "value": false,
+      "derivedFromSignalIds": [
+        "sig.fuel.prepareFuel",
+        "sig.fuel.fuelReady"
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "alarm",
+        "portName": "fuelGroupNotReady"
+      }
+    },
+    {
+      "id": "sig.fuel.fuelFault",
+      "name": "sig.fuel.fuelFault",
+      "layer": "semantic",
+      "summary": "Aggregated fuel group fault exported to protection and diagnostics.",
+      "type": "bool",
+      "direction": "output",
+      "value": false,
+      "derivedFromSignalIds": [
+        "sig.fuel.pumpAFault",
+        "sig.fuel.pumpBFault",
+        "sig.fuel.pumpAPressureLowAlarm",
+        "sig.fuel.pumpBPressureLowAlarm",
+        "sig.fuel.fuelGroupNotReady"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "boiler_protection",
+          "portKind": "alarm",
+          "portName": "protectionFault"
+        }
+      ],
+      "producerRef": {
+        "objectId": "fuel_group",
+        "portKind": "alarm",
+        "portName": "fuelFault"
+      }
+    },
+    {
+      "id": "raw.di.fan_run_fb",
+      "name": "raw.di.fan_run_fb",
+      "layer": "raw",
+      "summary": "Physical combustion fan run feedback input.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "sourceBindingIds": [
+        "bind_fan_run"
+      ]
+    },
+    {
+      "id": "cond.air.fan_run_fb",
+      "name": "cond.air.fan_run_fb",
+      "layer": "conditioned",
+      "summary": "Debounced combustion fan run feedback.",
+      "type": "bool",
+      "direction": "internal",
+      "value": true,
+      "derivedFromSignalIds": [
+        "raw.di.fan_run_fb"
+      ]
+    },
+    {
+      "id": "sig.air.fanRunFb",
+      "name": "sig.air.fanRunFb",
+      "layer": "semantic",
+      "summary": "Semantic fan run feedback used by purge and shutdown timing.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "derivedFromSignalIds": [
+        "cond.air.fan_run_fb"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "combustion_air_group",
+          "portKind": "status",
+          "portName": "fanRunning"
+        },
+        {
+          "objectId": "burner",
+          "portKind": "input",
+          "portName": "airReady"
+        }
+      ]
+    },
+    {
+      "id": "raw.di.trip_chain_healthy",
+      "name": "raw.di.trip_chain_healthy",
+      "layer": "raw",
+      "summary": "Physical trip-chain healthy feedback.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "sourceBindingIds": [
+        "bind_trip_chain"
+      ]
+    },
+    {
+      "id": "cond.protection.trip_chain_healthy",
+      "name": "cond.protection.trip_chain_healthy",
+      "layer": "conditioned",
+      "summary": "Validated trip-chain healthy signal.",
+      "type": "bool",
+      "direction": "internal",
+      "value": true,
+      "derivedFromSignalIds": [
+        "raw.di.trip_chain_healthy"
+      ]
+    },
+    {
+      "id": "sig.protection.tripChainHealthy",
+      "name": "sig.protection.tripChainHealthy",
+      "layer": "semantic",
+      "summary": "Semantic protection-chain healthy status.",
+      "type": "bool",
+      "direction": "input",
+      "value": true,
+      "derivedFromSignalIds": [
+        "cond.protection.trip_chain_healthy"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "boiler_protection",
+          "portKind": "status",
+          "portName": "tripChainHealthy"
+        },
+        {
+          "objectId": "burner",
+          "portKind": "input",
+          "portName": "startPermissive"
+        }
+      ]
+    },
+    {
+      "id": "sig.protection.startPermissive",
+      "name": "sig.protection.startPermissive",
+      "layer": "semantic",
+      "summary": "Protection exported start permissive for burner sequence.",
+      "type": "bool",
+      "direction": "output",
+      "value": true,
+      "derivedFromSignalIds": [
+        "sig.protection.tripChainHealthy",
+        "sig.feedwater.waterOk"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "burner",
+          "portKind": "input",
+          "portName": "startPermissive"
+        }
+      ],
+      "producerRef": {
+        "objectId": "boiler_protection",
+        "portKind": "permission",
+        "portName": "startPermissive"
+      }
+    },
+    {
+      "id": "raw.di.low_low_water_trip",
+      "name": "raw.di.low_low_water_trip",
+      "layer": "raw",
+      "summary": "Physical low-low water trip switch.",
+      "type": "bool",
+      "direction": "input",
+      "value": false,
+      "sourceBindingIds": [
+        "bind_low_low_water_trip"
+      ]
+    },
+    {
+      "id": "cond.feedwater.low_low_trip",
+      "name": "cond.feedwater.low_low_trip",
+      "layer": "conditioned",
+      "summary": "Validated low-low water trip after debounce.",
+      "type": "bool",
+      "direction": "internal",
+      "value": false,
+      "derivedFromSignalIds": [
+        "raw.di.low_low_water_trip"
+      ]
+    },
+    {
+      "id": "sig.feedwater.lowLowWaterTrip",
+      "name": "sig.feedwater.lowLowWaterTrip",
+      "layer": "semantic",
+      "summary": "Semantic low-low water trip signal exported by feedwater monitoring.",
+      "type": "bool",
+      "direction": "output",
+      "value": false,
+      "derivedFromSignalIds": [
+        "cond.feedwater.low_low_trip"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "boiler_protection",
+          "portKind": "alarm",
+          "portName": "protectionFault"
+        },
+        {
+          "objectId": "burner",
+          "portKind": "alarm",
+          "portName": "burnerFault"
+        }
+      ],
+      "producerRef": {
+        "objectId": "feedwater_and_level_group",
+        "portKind": "alarm",
+        "portName": "lowLowWaterTrip"
+      }
+    },
+    {
+      "id": "sig.feedwater.waterOk",
+      "name": "sig.feedwater.waterOk",
+      "layer": "semantic",
+      "summary": "Feedwater group exported water-ok permissive for burner.",
+      "type": "bool",
+      "direction": "output",
+      "value": true,
+      "derivedFromSignalIds": [
+        "sig.feedwater.waterLevel",
+        "sig.feedwater.lowLowWaterTrip"
+      ],
+      "consumerRefs": [
+        {
+          "objectId": "burner",
+          "portKind": "input",
+          "portName": "waterOk"
+        }
+      ],
+      "producerRef": {
+        "objectId": "feedwater_and_level_group",
+        "portKind": "output",
+        "portName": "waterOk"
+      }
+    }
+  ],
+  "bindings": [
+    {
+      "id": "bind_burner_start",
+      "signalId": "raw.operator.start_switch",
+      "physicalSource": "DI_START",
+      "direction": "input",
+      "type": "bool",
+      "status": false,
+      "debounceMs": 120,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_burner_stop",
+      "signalId": "raw.operator.stop_switch",
+      "physicalSource": "DI_STOP",
+      "direction": "input",
+      "type": "bool",
+      "status": false,
+      "debounceMs": 120,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_burner_reset",
+      "signalId": "raw.operator.reset_switch",
+      "physicalSource": "DI_RESET",
+      "direction": "input",
+      "type": "bool",
+      "status": false,
+      "debounceMs": 120,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_fuel_lead_a",
+      "signalId": "raw.di.fuel_lead_select_a",
+      "physicalSource": "DI_FUEL_LEAD_A",
+      "direction": "input",
+      "type": "bool",
+      "status": true,
+      "debounceMs": 50,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_fuel_lead_b",
+      "signalId": "raw.di.fuel_lead_select_b",
+      "physicalSource": "DI_FUEL_LEAD_B",
+      "direction": "input",
+      "type": "bool",
+      "status": false,
+      "debounceMs": 50,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_steam_pressure",
+      "signalId": "raw.ai.steam_pressure",
+      "physicalSource": "AI_STEAM_PRESSURE",
+      "direction": "input",
+      "type": "analog",
+      "status": 7.8,
+      "scale": "0..16 bar",
+      "failSafeValue": 0
+    },
+    {
+      "id": "bind_fuel_header_pressure",
+      "signalId": "raw.ai.fuel_header_pressure",
+      "physicalSource": "AI_FUEL_HEADER_PRESSURE",
+      "direction": "input",
+      "type": "analog",
+      "status": 8.4,
+      "scale": "0..16 bar",
+      "failSafeValue": 0
+    },
+    {
+      "id": "bind_water_level",
+      "signalId": "raw.ai.boiler_water_level",
+      "physicalSource": "AI_DRUM_LEVEL",
+      "direction": "input",
+      "type": "analog",
+      "status": 52.4,
+      "scale": "0..100 %",
+      "failSafeValue": 0
+    },
+    {
+      "id": "bind_flame_detected",
+      "signalId": "raw.di.flame_scanner",
+      "physicalSource": "DI_FLAME_SCANNER",
+      "direction": "input",
+      "type": "bool",
+      "status": true,
+      "debounceMs": 50,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_fuel_pump_a_run",
+      "signalId": "raw.di.fuel_pump_a_run_fb",
+      "physicalSource": "DI_FUEL_PUMP_A_RUN",
+      "direction": "input",
+      "type": "bool",
+      "status": true,
+      "debounceMs": 100,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_fuel_pump_a_fault",
+      "signalId": "raw.di.fuel_pump_a_fault_fb",
+      "physicalSource": "DI_FUEL_PUMP_A_FAULT",
+      "direction": "input",
+      "type": "bool",
+      "status": false,
+      "debounceMs": 100,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_fuel_pump_b_run",
+      "signalId": "raw.di.fuel_pump_b_run_fb",
+      "physicalSource": "DI_FUEL_PUMP_B_RUN",
+      "direction": "input",
+      "type": "bool",
+      "status": false,
+      "debounceMs": 100,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_fuel_pump_b_fault",
+      "signalId": "raw.di.fuel_pump_b_fault_fb",
+      "physicalSource": "DI_FUEL_PUMP_B_FAULT",
+      "direction": "input",
+      "type": "bool",
+      "status": false,
+      "debounceMs": 100,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_fan_run",
+      "signalId": "raw.di.fan_run_fb",
+      "physicalSource": "DI_FAN_RUN",
+      "direction": "input",
+      "type": "bool",
+      "status": true,
+      "debounceMs": 100,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_trip_chain",
+      "signalId": "raw.di.trip_chain_healthy",
+      "physicalSource": "DI_TRIP_CHAIN_HEALTHY",
+      "direction": "input",
+      "type": "bool",
+      "status": true,
+      "debounceMs": 40,
+      "failSafeValue": false
+    },
+    {
+      "id": "bind_low_low_water_trip",
+      "signalId": "raw.di.low_low_water_trip",
+      "physicalSource": "DI_LOW_LOW_WATER",
+      "direction": "input",
+      "type": "bool",
+      "status": false,
+      "debounceMs": 20,
+      "failSafeValue": true
+    }
+  ],
+  "blocks": [
+    {
+      "id": "block_start_stop_latch",
+      "name": "StartStopLatch",
+      "type": "StartStopLatch",
+      "inputs": [
+        "sig.operator.burnerStartCmd",
+        "sig.operator.burnerStopCmd"
+      ],
+      "outputs": [
+        "burner.start",
+        "burner.stop"
+      ],
+      "parameters": {
+        "priority": "operator"
+      }
+    },
+    {
+      "id": "block_timer_on",
+      "name": "TimerOn",
+      "type": "TimerOn",
+      "inputs": [
+        "sig.air.fanRunFb"
+      ],
+      "outputs": [
+        "purge_complete"
+      ],
+      "parameters": {
+        "presetMs": 15000
+      }
+    },
+    {
+      "id": "block_interlock_set",
+      "name": "InterlockSet",
+      "type": "InterlockSet",
+      "inputs": [
+        "sig.protection.tripChainHealthy",
+        "sig.feedwater.lowLowWaterTrip"
+      ],
+      "outputs": [
+        "tripActive"
+      ],
+      "parameters": {
+        "tripLatching": true
+      }
+    },
+    {
+      "id": "block_permissive_matrix",
+      "name": "PermissiveMatrix",
+      "type": "PermissiveMatrix",
+      "inputs": [
+        "sig.protection.tripChainHealthy",
+        "sig.feedwater.waterLevel",
+        "sig.fuel.fuelReady",
+        "sig.air.fanRunFb"
+      ],
+      "outputs": [
+        "startPermissive"
+      ],
+      "parameters": {
+        "strategy": "all_must_be_true"
+      }
+    },
+    {
+      "id": "block_flame_prover",
+      "name": "FlameProver",
+      "type": "ThresholdMonitor",
+      "inputs": [
+        "sig.flame.detected"
+      ],
+      "outputs": [
+        "flameOk",
+        "flameFail"
+      ],
+      "parameters": {
+        "proveMs": 3000
+      }
+    },
+    {
+      "id": "block_pressure_pid",
+      "name": "PressurePid",
+      "type": "Pid",
+      "inputs": [
+        "sig.steam.pressure"
+      ],
+      "outputs": [
+        "firingDemand"
+      ],
+      "parameters": {
+        "setpointBar": 8,
+        "mode": "PI"
+      }
+    },
+    {
+      "id": "block_fuel_lead_selector",
+      "name": "FuelLeadSelector",
+      "type": "Selector",
+      "inputs": [
+        "sig.operator.leadFuelPump"
+      ],
+      "outputs": [
+        "sig.fuel.selectedLeadPump"
+      ],
+      "parameters": {
+        "validSelections": [
+          "PUMP_A",
+          "PUMP_B"
+        ]
+      }
+    },
+    {
+      "id": "block_fuel_pump_command_logic",
+      "name": "FuelPumpCommandLogic",
+      "type": "CommandLogic",
+      "inputs": [
+        "sig.fuel.prepareFuel",
+        "sig.fuel.selectedLeadPump"
+      ],
+      "outputs": [
+        "pumpA.startCmd",
+        "pumpB.startCmd"
+      ],
+      "parameters": {
+        "standbyPolicy": "stop_unselected"
+      }
+    },
+    {
+      "id": "block_pump_a_pressure_monitor",
+      "name": "PumpAPressureMonitor",
+      "type": "ThresholdMonitor",
+      "inputs": [
+        "sig.fuel.headerPressure",
+        "sig.fuel.pumpARunFb"
+      ],
+      "outputs": [
+        "sig.fuel.pumpAReady",
+        "sig.fuel.pumpAPressureLowAlarm"
+      ],
+      "parameters": {
+        "pressureMinBar": 6,
+        "pressureLowDelayMs": 1500
+      }
+    },
+    {
+      "id": "block_pump_b_pressure_monitor",
+      "name": "PumpBPressureMonitor",
+      "type": "ThresholdMonitor",
+      "inputs": [
+        "sig.fuel.headerPressure",
+        "sig.fuel.pumpBRunFb"
+      ],
+      "outputs": [
+        "sig.fuel.pumpBReady",
+        "sig.fuel.pumpBPressureLowAlarm"
+      ],
+      "parameters": {
+        "pressureMinBar": 6,
+        "pressureLowDelayMs": 1500
+      }
+    },
+    {
+      "id": "block_fuel_ready_resolver",
+      "name": "FuelReadyResolver",
+      "type": "Resolver",
+      "inputs": [
+        "sig.fuel.prepareFuel",
+        "sig.fuel.selectedLeadPump",
+        "sig.fuel.pumpAReady",
+        "sig.fuel.pumpBReady"
+      ],
+      "outputs": [
+        "sig.fuel.fuelReady",
+        "sig.fuel.activePump"
+      ],
+      "parameters": {
+        "selectedLeadRequired": true
+      }
+    },
+    {
+      "id": "block_fuel_fault_aggregator",
+      "name": "FuelFaultAggregator",
+      "type": "Resolver",
+      "inputs": [
+        "sig.fuel.pumpAFault",
+        "sig.fuel.pumpBFault",
+        "sig.fuel.pumpAPressureLowAlarm",
+        "sig.fuel.pumpBPressureLowAlarm",
+        "sig.fuel.fuelGroupNotReady"
+      ],
+      "outputs": [
+        "sig.fuel.fuelFault"
+      ],
+      "parameters": {
+        "aggregateMode": "any_true"
+      }
+    }
+  ],
+  "runtimeSnapshot": {
+    "activeMachineId": "boiler_sequence",
+    "activeStateId": "modulating_run",
+    "health": "ok",
+    "lastEvent": "flame_proved",
+    "diagnostics": [
+      {
+        "id": "diag_flame_margin",
+        "severity": "warning",
+        "objectId": "flame_safety",
+        "cause": "Flame signal margin is trending lower than nominal.",
+        "hint": "Inspect burner head, scanner lens and atomization quality before next trip."
+      }
+    ]
+  }
+}

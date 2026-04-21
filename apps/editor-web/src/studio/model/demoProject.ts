@@ -254,7 +254,7 @@ export interface UniversalPlcDemoProject {
 
 export type UniversalPlcProjectDocument = UniversalPlcDemoProject;
 
-function cloneProjectDocument(project: UniversalPlcProjectDocument): UniversalPlcDemoProject {
+export function cloneProjectDocument(project: UniversalPlcProjectDocument): UniversalPlcDemoProject {
   return structuredClone(project) as UniversalPlcDemoProject;
 }
 

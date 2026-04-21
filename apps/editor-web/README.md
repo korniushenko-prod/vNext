@@ -43,6 +43,9 @@ Boundary:
 - demo authoring data now lives in a document file:
   - [`src/studio/model/demoProject.data.json`](./src/studio/model/demoProject.data.json)
 - [`src/studio/model/demoProject.ts`](./src/studio/model/demoProject.ts) now acts as a typed loader and model contract layer
+- the app loads a real runtime document from:
+  - [`public/project.json`](./public/project.json)
+- if `project.json` is missing or invalid, the UI falls back to the bundled demo document
 - `Object` view uses `React Flow` only for internal behavior visualization
 - `Object` also has a `Structure` lens inspired by the legacy Config Studio composition canvas:
   - boundary rails for object interface ports
