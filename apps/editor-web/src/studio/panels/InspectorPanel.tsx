@@ -1,8 +1,11 @@
 import type {
+  BehaviorKind,
+  DataType,
   IoBindingDefinition,
   LogicBlockDefinition,
   MachineDefinition,
   ObjectCompositionLinkDefinition,
+  ObjectContractFamily,
   MachineRegionDefinition,
   MachineSceneGroupDefinition,
   MachineSectionDefinition,
@@ -10,7 +13,8 @@ import type {
   MachineTransitionDefinition,
   ObjectStructureNodeDefinition,
   PlcObjectDefinition,
-  SignalDefinition
+  SignalDefinition,
+  UniversalPlcDemoProject
 } from "../model/demoProject";
 import { buildSignalTrace, getSignalById } from "../model/signalTrace";
 import type { LogicWorkspaceContext, SelectItemOptions, SelectedItemType } from "../store/studioStore";
@@ -30,6 +34,63 @@ function SectionRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function InspectorField({
+  label,
+  name,
+  defaultValue,
+  placeholder
+}: {
+  label: string;
+  name: string;
+  defaultValue?: string;
+  placeholder?: string;
+}) {
+  return (
+    <label className="inspector-form__field">
+      <span>{label}</span>
+      <input name={name} defaultValue={defaultValue} placeholder={placeholder} />
+    </label>
+  );
+}
+
+function InspectorSelect({
+  label,
+  name,
+  defaultValue,
+  options
+}: {
+  label: string;
+  name: string;
+  defaultValue: string;
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <label className="inspector-form__field">
+      <span>{label}</span>
+      <select name={name} defaultValue={defaultValue}>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+const behaviorKindOptions: Array<{ value: BehaviorKind; label: string }> = [
+  { value: "sequence", label: "Sequence" },
+  { value: "control", label: "Control" },
+  { value: "monitoring", label: "Monitoring" }
+];
+
+const dataTypeOptions: Array<{ value: DataType; label: string }> = [
+  { value: "bool", label: "Bool" },
+  { value: "number", label: "Number" },
+  { value: "string", label: "String" },
+  { value: "enum", label: "Enum" }
+];
 
 function renderReferenceActions(options: {
   sourceLabel: string;
@@ -97,6 +158,132 @@ function renderReferenceActions(options: {
   );
 }
 
+function renderProjectInspector(options: {
+  project: UniversalPlcDemoProject;
+  updateProjectMeta: (input: { name: string; id?: string }) => void;
+  addObject: (input: { name: string; type?: string; behaviorKind: BehaviorKind; summary?: string }) => void;
+}) {
+  const { project, updateProjectMeta, addObject } = options;
+  const quickCreate = (preset: { name: string; type: string; behaviorKind: BehaviorKind; summary: string }) => {
+    addObject(preset);
+  };
+
+  return (
+    <>
+      <h3>{project.name}</h3>
+      <details className="inspector-disclosure" open>
+        <summary>
+          <span>Project Metadata</span>
+          <strong>{project.id}</strong>
+        </summary>
+        <form
+          className="inspector-form inspector-form--compact"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            updateProjectMeta({
+              name: String(formData.get("name") ?? ""),
+              id: String(formData.get("id") ?? "")
+            });
+          }}
+        >
+          <div className="inspector-form__grid">
+            <InspectorField label="Name" name="name" defaultValue={project.name} placeholder="Untitled Project" />
+            <InspectorField label="Id" name="id" defaultValue={project.id} placeholder="untitled_project" />
+          </div>
+          <button type="submit" className="inspector-link">
+            Save Project
+          </button>
+        </form>
+      </details>
+
+      <details className="inspector-disclosure" open>
+        <summary>
+          <span>Quick Start</span>
+          <strong>{project.objects.length} objects</strong>
+        </summary>
+        <div className="inspector-form inspector-form--compact">
+          <div className="inspector-actions">
+            <button
+              type="button"
+              className="inspector-link"
+              onClick={() =>
+                quickCreate({
+                  name: "FuelGroup",
+                  type: "FuelGroup",
+                  behaviorKind: "control",
+                  summary: "Three-pump fuel group with AUTO, MANUAL RUN, OFF, pressure supervision and standby rotation."
+                })
+              }
+            >
+              Add FuelGroup
+            </button>
+            <button
+              type="button"
+              className="inspector-link"
+              onClick={() =>
+                quickCreate({
+                  name: "BoilerOledPanel",
+                  type: "OperatorHmiPanel",
+                  behaviorKind: "control",
+                  summary: "OLED panel with Up, Down, OK and Back for status, reset and parameter entry."
+                })
+              }
+            >
+              Add OLED Panel
+            </button>
+            <button
+              type="button"
+              className="inspector-link"
+              onClick={() =>
+                quickCreate({
+                  name: "BoilerProtection",
+                  type: "BoilerProtection",
+                  behaviorKind: "monitoring",
+                  summary: "Trip and permissive layer that collects unsafe conditions and reset paths."
+                })
+              }
+            >
+              Add Protection
+            </button>
+          </div>
+        </div>
+      </details>
+
+      <details className="inspector-disclosure">
+        <summary>
+          <span>Add Object</span>
+          <strong>Custom</strong>
+        </summary>
+        <form
+          className="inspector-form inspector-form--compact"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            addObject({
+              name: String(formData.get("name") ?? ""),
+              type: String(formData.get("type") ?? ""),
+              behaviorKind: String(formData.get("behaviorKind") ?? "control") as BehaviorKind,
+              summary: String(formData.get("summary") ?? "")
+            });
+            event.currentTarget.reset();
+          }}
+        >
+          <div className="inspector-form__grid">
+            <InspectorField label="Name" name="name" placeholder="FuelGroup" />
+            <InspectorField label="Type" name="type" placeholder="FuelGroup" />
+            <InspectorSelect label="Behavior Kind" name="behaviorKind" defaultValue="control" options={behaviorKindOptions} />
+            <InspectorField label="Summary" name="summary" placeholder="What this object owns and exports." />
+          </div>
+          <button type="submit" className="inspector-link">
+            Create Object
+          </button>
+        </form>
+      </details>
+    </>
+  );
+}
+
 function renderMachineInspector(machine: MachineDefinition) {
   return (
     <>
@@ -117,28 +304,173 @@ function renderObjectInspector(
   object: PlcObjectDefinition,
   setMachineViewMode: (mode: "topology" | "object") => void,
   setObjectViewLens: (lens: "behavior" | "structure") => void,
-  selectItem: SelectItemFn
+  selectItem: SelectItemFn,
+  openFullObjectEditor: (objectId: string) => void,
+  updateObjectMeta: (
+    objectId: string,
+    input: { name: string; type: string; behaviorKind: BehaviorKind; summary: string }
+  ) => void,
+  addObjectPort: (
+    objectId: string,
+    family: ObjectContractFamily,
+    input: { name: string; dataType: DataType; summary?: string }
+  ) => void,
+  updateObjectPort: (
+    objectId: string,
+    family: ObjectContractFamily,
+    portId: string,
+    input: { name: string; dataType: DataType; summary?: string }
+  ) => void,
+  deleteObjectPort: (objectId: string, family: ObjectContractFamily, portId: string) => void
 ) {
   const canOpenBehavior = Boolean(object.behavior?.machineId);
-  const canOpenControlBehavior = object.behaviorKind !== "sequence";
-  const canOpenStructure = Boolean(object.structure);
-  const defaultObjectLens =
-    canOpenBehavior ? "behavior" : canOpenStructure ? "structure" : canOpenControlBehavior ? "behavior" : null;
+  const canOpenStructure = true;
+  const defaultObjectLens = canOpenBehavior ? "behavior" : "structure";
+  const contractFamilies: Array<{ key: ObjectContractFamily; label: string; ports: typeof object.commands }> = [
+    { key: "commands", label: "Commands", ports: object.commands },
+    { key: "inputs", label: "Inputs", ports: object.inputs },
+    { key: "outputs", label: "Outputs", ports: object.outputs },
+    { key: "status", label: "Status", ports: object.status },
+    { key: "permissions", label: "Permissions", ports: object.permissions },
+    { key: "faults", label: "Faults", ports: object.faults }
+  ];
+
   return (
     <>
       <h3>{object.name}</h3>
-      <dl className="inspector-grid">
-        <SectionRow label="Selected" value="Object" />
-        <SectionRow label="Type" value={object.type} />
-        <SectionRow label="Behavior" value={object.behaviorKind} />
-        <SectionRow label="Commands" value={String(object.commands.length)} />
-        <SectionRow label="Inputs" value={String(object.inputs.length)} />
-        <SectionRow label="Outputs" value={String(object.outputs.length)} />
-        <SectionRow label="Status" value={String(object.status.length)} />
-        <SectionRow label="Permissions" value={String(object.permissions.length)} />
-        <SectionRow label="Alarms" value={String(object.alarms.length)} />
-      </dl>
+      <details className="inspector-disclosure" open>
+        <summary>
+          <span>Object Metadata</span>
+          <strong>{object.type}</strong>
+        </summary>
+        <form
+          key={`metadata-${object.id}`}
+          className="inspector-form inspector-form--compact"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            updateObjectMeta(object.id, {
+              name: String(formData.get("name") ?? object.name),
+              type: String(formData.get("type") ?? object.type),
+              behaviorKind: String(formData.get("behaviorKind") ?? object.behaviorKind) as BehaviorKind,
+              summary: String(formData.get("summary") ?? object.summary)
+            });
+          }}
+        >
+          <div className="inspector-form__grid">
+            <InspectorField label="Name" name="name" defaultValue={object.name} />
+            <InspectorField label="Type" name="type" defaultValue={object.type} />
+            <InspectorSelect
+              label="Behavior Kind"
+              name="behaviorKind"
+              defaultValue={object.behaviorKind}
+              options={behaviorKindOptions}
+            />
+            <InspectorField label="Summary" name="summary" defaultValue={object.summary} />
+          </div>
+          <button type="submit" className="inspector-link">
+            Save Metadata
+          </button>
+        </form>
+      </details>
+
+      <details className="inspector-disclosure" open>
+        <summary>
+          <span>Contract Ports</span>
+          <strong>
+            {contractFamilies.reduce((sum, family) => sum + family.ports.length, 0)}
+          </strong>
+        </summary>
+        <div className="inspector-contract-groups">
+          {contractFamilies.map((family) => (
+            <details key={family.key} className="inspector-disclosure inspector-disclosure--nested">
+              <summary>
+                <span>{family.label}</span>
+                <strong>{family.ports.length}</strong>
+              </summary>
+
+              <div className="inspector-port-list">
+                {family.ports.length ? (
+                  family.ports.map((port) => (
+                    <form
+                      key={port.id}
+                      className="inspector-port-item inspector-port-item--editable"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        const formData = new FormData(event.currentTarget);
+                        updateObjectPort(object.id, family.key, port.id, {
+                          name: String(formData.get("portName") ?? port.name),
+                          dataType: String(formData.get("dataType") ?? port.dataType) as DataType,
+                          summary: String(formData.get("portSummary") ?? port.summary)
+                        });
+                      }}
+                    >
+                      <div className="inspector-port-item__grid">
+                        <input name="portName" defaultValue={port.name} aria-label={`${port.name} name`} />
+                        <select name="dataType" defaultValue={port.dataType} aria-label={`${port.name} type`}>
+                          {dataTypeOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          name="portSummary"
+                          defaultValue={port.summary}
+                          placeholder="What this port means to other objects."
+                          aria-label={`${port.name} summary`}
+                        />
+                      </div>
+                      <div className="inspector-port-item__actions">
+                        <button type="submit" className="inspector-link">
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          className="overlay-port-delete"
+                          onClick={() => deleteObjectPort(object.id, family.key, port.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </form>
+                  ))
+                ) : (
+                  <p className="muted-copy">No ports yet.</p>
+                )}
+              </div>
+
+              <form
+                className="inspector-form inspector-form--compact"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const formData = new FormData(event.currentTarget);
+                  addObjectPort(object.id, family.key, {
+                    name: String(formData.get("portName") ?? ""),
+                    dataType: String(formData.get("dataType") ?? "bool") as DataType,
+                    summary: String(formData.get("portSummary") ?? "")
+                  });
+                  event.currentTarget.reset();
+                }}
+              >
+                <div className="inspector-form__grid">
+                  <InspectorField label="Port Name" name="portName" placeholder="fuelReady" />
+                  <InspectorSelect label="Data Type" name="dataType" defaultValue="bool" options={dataTypeOptions} />
+                  <InspectorField label="Summary" name="portSummary" placeholder="What this port means to other objects." />
+                </div>
+                <button type="submit" className="inspector-link">
+                  Add {family.label.slice(0, -1)}
+                </button>
+              </form>
+            </details>
+          ))}
+        </div>
+      </details>
+
       <div className="inspector-actions">
+        <button type="button" className="inspector-link" onClick={() => openFullObjectEditor(object.id)}>
+          Open Full Editor
+        </button>
         <button
           type="button"
           className="inspector-link"
@@ -149,7 +481,7 @@ function renderObjectInspector(
         >
           Focus in topology
         </button>
-        {canOpenBehavior || canOpenControlBehavior || canOpenStructure ? (
+        {canOpenBehavior || canOpenStructure ? (
           <button
             type="button"
             className="inspector-link"
@@ -518,23 +850,32 @@ export function InspectorPanel() {
   const focusLogicContext = useStudioStore((state) => state.focusLogicContext);
   const focusBindContext = useStudioStore((state) => state.focusBindContext);
   const selectItem = useStudioStore((state) => state.selectItem);
+  const createBlankProject = useStudioStore((state) => state.createBlankProject);
+  const updateProjectMeta = useStudioStore((state) => state.updateProjectMeta);
+  const addObject = useStudioStore((state) => state.addObject);
+  const updateObjectMeta = useStudioStore((state) => state.updateObjectMeta);
+  const addObjectPort = useStudioStore((state) => state.addObjectPort);
+  const updateObjectPort = useStudioStore((state) => state.updateObjectPort);
+  const deleteObjectPort = useStudioStore((state) => state.deleteObjectPort);
+  const openFullObjectEditor = useStudioStore((state) => state.openFullObjectEditor);
 
   const selectedObject = selectedItemType === "object" ? project.objects.find((item) => item.id === selectedItemId) ?? null : null;
-  const currentObject = project.objects.find((item) => item.id === (selectedObject?.id || selectedObjectId || project.objects[0]?.id)) ?? project.objects[0];
+  const currentObject =
+    project.objects.find((item) => item.id === (selectedObject?.id || selectedObjectId || project.objects[0]?.id)) ?? null;
   const selectedObjectLink =
     selectedItemType === "object-link" ? project.compositionLinks.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedSubobject =
     selectedItemType === "subobject" ? currentObject?.structure?.nodes.find((item) => item.id === selectedItemId) ?? null : null;
-  const machine = project.machines.find((item) => item.id === selectedMachineId) ?? project.machines[0];
+  const machine = project.machines.find((item) => item.id === selectedMachineId) ?? project.machines[0] ?? null;
   const selectedGroup =
-    selectedItemType === "group" ? machine.sceneGroups?.find((item) => item.id === selectedItemId) ?? null : null;
+    selectedItemType === "group" ? machine?.sceneGroups?.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedSection =
-    selectedItemType === "section" ? machine.sections.find((item) => item.id === selectedItemId) ?? null : null;
+    selectedItemType === "section" ? machine?.sections.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedRegion =
-    selectedItemType === "region" ? machine.regions?.find((item) => item.id === selectedItemId) ?? null : null;
-  const selectedState = selectedItemType === "state" ? machine.states.find((item) => item.id === selectedItemId) ?? null : null;
+    selectedItemType === "region" ? machine?.regions?.find((item) => item.id === selectedItemId) ?? null : null;
+  const selectedState = selectedItemType === "state" ? machine?.states.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedTransition =
-    selectedItemType === "transition" ? machine.transitions.find((item) => item.id === selectedItemId) ?? null : null;
+    selectedItemType === "transition" ? machine?.transitions.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedSignal =
     selectedItemType === "signal" ? project.signals.find((item) => item.id === selectedItemId) ?? null : null;
   const selectedBlock =
@@ -544,18 +885,38 @@ export function InspectorPanel() {
   const selectedBindingSignal = selectedBinding ? getSignalById(project, selectedBinding.signalId) : null;
   const selectedSignalTrace = selectedSignal ? buildSignalTrace(project, selectedSignal.id) : null;
   const selectedStateGroup =
-    selectedState ? machine.sceneGroups?.find((group) => group.stateIds.includes(selectedState.id)) ?? null : null;
+    selectedState ? machine?.sceneGroups?.find((group) => group.stateIds.includes(selectedState.id)) ?? null : null;
   const selectedLinkSource =
     selectedObjectLink ? project.objects.find((item) => item.id === selectedObjectLink.sourceObjectId) ?? null : null;
   const selectedLinkTarget =
     selectedObjectLink ? project.objects.find((item) => item.id === selectedObjectLink.targetObjectId) ?? null : null;
 
   return (
-    <aside className="studio-panel studio-panel--right">
-      <section className="panel-card">
+    <aside className="studio-panel studio-panel--right inspector-panel">
+      <section className="panel-card inspector-panel__card">
         <h2>Inspector</h2>
-        {selectedObject
-          ? renderObjectInspector(selectedObject, setMachineViewMode, setObjectViewLens, selectItem)
+        {selectedItemType === "project" || project.objects.length === 0
+          ? renderProjectInspector({
+              project,
+              updateProjectMeta,
+              addObject
+            })
+          : selectedObject
+          ? (
+            <div key={selectedObject.id}>
+              {renderObjectInspector(
+                selectedObject,
+                setMachineViewMode,
+                setObjectViewLens,
+                selectItem,
+                openFullObjectEditor,
+                updateObjectMeta,
+                addObjectPort,
+                updateObjectPort,
+                deleteObjectPort
+              )}
+            </div>
+          )
           : selectedObjectLink && selectedLinkSource && selectedLinkTarget
           ? renderObjectLinkInspector(selectedObjectLink, selectedLinkSource, selectedLinkTarget)
           : selectedSubobject && currentObject
@@ -569,9 +930,9 @@ export function InspectorPanel() {
               focusBindContext,
               selectItem
             )
-          : selectedItemType === "machine"
+          : selectedItemType === "machine" && machine
           ? renderMachineInspector(machine)
-          : selectedGroup
+          : selectedGroup && machine
           ? renderGroupInspector(
               selectedGroup,
               machine,
@@ -582,7 +943,7 @@ export function InspectorPanel() {
               focusBindContext,
               selectItem
             )
-          : selectedSection
+          : selectedSection && machine
           ? renderSectionInspector(
               selectedSection,
               machine.id,
@@ -592,7 +953,7 @@ export function InspectorPanel() {
               focusBindContext,
               selectItem
             )
-          : selectedRegion
+          : selectedRegion && machine
           ? renderRegionInspector(
               selectedRegion,
               machine,
@@ -603,7 +964,7 @@ export function InspectorPanel() {
               focusBindContext,
               selectItem
             )
-          : selectedState
+          : selectedState && machine
           ? renderStateInspector(
               selectedState,
               machine.id,
@@ -614,7 +975,7 @@ export function InspectorPanel() {
               focusBindContext,
               selectItem
             )
-          : selectedTransition
+          : selectedTransition && machine
           ? renderTransitionInspector(
               selectedTransition,
               machine,
@@ -633,7 +994,15 @@ export function InspectorPanel() {
           : (
             <div className="empty-state">
               <strong>Nothing selected</strong>
-              <p>Select an object, link, state, transition, signal, block or binding to inspect it here.</p>
+              <p>Start from the project root, create the first object, and the rest of the tree will grow from there.</p>
+              <div className="inspector-actions">
+                <button type="button" className="inspector-link" onClick={createBlankProject}>
+                  Reset to Blank Project
+                </button>
+                <button type="button" className="inspector-link" onClick={() => selectItem("project", "project-root")}>
+                  Select Project Root
+                </button>
+              </div>
             </div>
           )}
       </section>

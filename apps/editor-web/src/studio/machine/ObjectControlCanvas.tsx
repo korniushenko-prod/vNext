@@ -75,7 +75,16 @@ function renderPortGroup(
 export function ObjectControlCanvas() {
   const project = useStudioStore((state) => state.project);
   const selectedObjectId = useStudioStore((state) => state.selectedObjectId);
-  const selectedObject = project.objects.find((object) => object.id === selectedObjectId) ?? project.objects[0];
+  const selectedObject = project.objects.find((object) => object.id === selectedObjectId) ?? project.objects[0] ?? null;
+
+  if (!selectedObject) {
+    return (
+      <section className="panel-card empty-authoring-state">
+        <h3>No object selected</h3>
+        <p className="muted-copy">Create a control or monitoring object first, then we can explain its internal meaning here.</p>
+      </section>
+    );
+  }
 
   return (
     <div className="machine-canvas control-canvas">
@@ -108,16 +117,16 @@ export function ObjectControlCanvas() {
           <p>Commands or readiness signals this object exports to the rest of the system.</p>
         </section>
         <section className="summary-card behavior-card">
-          <span>Alarms</span>
-          <strong>{selectedObject.alarms.length}</strong>
-          <p>Fault and interlock conditions that explain why the object is not ready.</p>
+          <span>Faults</span>
+          <strong>{selectedObject.faults.length}</strong>
+          <p>Exported fault conditions that explain why the object is not ready or safe to continue.</p>
         </section>
       </div>
 
       <div className="control-layout-grid">
         {renderPortGroup("Commands & Inputs", selectedObject, [...selectedObject.commands, ...selectedObject.inputs], project)}
         {renderPortGroup("Mode & Permissions", selectedObject, [...selectedObject.status, ...selectedObject.permissions], project)}
-        {renderPortGroup("Outputs & Alarms", selectedObject, [...selectedObject.outputs, ...selectedObject.alarms], project)}
+        {renderPortGroup("Outputs & Faults", selectedObject, [...selectedObject.outputs, ...selectedObject.faults], project)}
       </div>
 
       {selectedObject.structure ? (

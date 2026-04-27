@@ -40,18 +40,25 @@ export function LogicWorkspace() {
       <div className="logic-grid">
         <section className="panel-card">
           <h3>Signals</h3>
-          <ul className="plain-list">
-            {semanticSignals.map((signal) => (
-              <li
-                key={signal.id}
-                className={logicContext ? "is-focused" : ""}
-                onClick={() => selectItem("signal", signal.id)}
-              >
-                <strong>{signal.name}</strong>
-                <span>{signal.layer} / {signal.type}</span>
-              </li>
-            ))}
-          </ul>
+          {semanticSignals.length === 0 ? (
+            <div className="empty-state">
+              <strong>No semantic signals yet</strong>
+              <p>Signals will appear after we define object contracts and start tracing meaning through the system.</p>
+            </div>
+          ) : (
+            <ul className="plain-list">
+              {semanticSignals.map((signal) => (
+                <li
+                  key={signal.id}
+                  className={logicContext ? "is-focused" : ""}
+                  onClick={() => selectItem("signal", signal.id)}
+                >
+                  <strong>{signal.name}</strong>
+                  <span>{signal.layer} / {signal.type}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="panel-card">
@@ -74,18 +81,25 @@ export function LogicWorkspace() {
 
         <section className="panel-card">
           <h3>Blocks</h3>
-          <ul className="plain-list">
-            {filteredBlocks.map((block) => (
-              <li
-                key={block.id}
-                className={logicContext ? "is-focused" : ""}
-                onClick={() => selectItem("block", block.id)}
-              >
-                <strong>{block.name}</strong>
-                <span>{block.type}</span>
-              </li>
-            ))}
-          </ul>
+          {filteredBlocks.length === 0 ? (
+            <div className="empty-state">
+              <strong>No blocks yet</strong>
+              <p>Detail logic is intentionally postponed until the object contracts are in place.</p>
+            </div>
+          ) : (
+            <ul className="plain-list">
+              {filteredBlocks.map((block) => (
+                <li
+                  key={block.id}
+                  className={logicContext ? "is-focused" : ""}
+                  onClick={() => selectItem("block", block.id)}
+                >
+                  <strong>{block.name}</strong>
+                  <span>{block.type}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="panel-card logic-placeholder">

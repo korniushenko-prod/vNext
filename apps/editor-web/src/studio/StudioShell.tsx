@@ -1,8 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { parseProjectDocument } from "./model/projectLoader";
 import type { WorkspaceId } from "./model/demoProject";
 import { BottomLivePanel } from "./panels/BottomLivePanel";
 import { InspectorPanel } from "./panels/InspectorPanel";
 import { LeftProjectPanel } from "./panels/LeftProjectPanel";
+import { ObjectEditorOverlay } from "./machine/ObjectEditorOverlay";
+import { ObjectFullEditorModal } from "./machine/ObjectFullEditorModal";
 import { useStudioStore } from "./store/studioStore";
 import { BindWorkspace } from "./workspace/BindWorkspace";
 import { LogicWorkspace } from "./workspace/LogicWorkspace";
@@ -38,6 +41,41 @@ export function StudioShell() {
   const projectLoadState = useStudioStore((state) => state.projectLoadState);
   const projectLoadError = useStudioStore((state) => state.projectLoadError);
   const loadProject = useStudioStore((state) => state.loadProject);
+  const importProject = useStudioStore((state) => state.importProject);
+  const createBlankProject = useStudioStore((state) => state.createBlankProject);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  function saveProject() {
+    const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${project.id || "untitled_project"}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function openProjectPicker() {
+    fileInputRef.current?.click();
+  }
+
+  async function handleProjectFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    try {
+      const contents = await file.text();
+      const document = JSON.parse(contents) as unknown;
+      const nextProject = parseProjectDocument(document);
+      importProject(nextProject, file.name);
+    } catch (error) {
+      window.alert(error instanceof Error ? `Open Project failed: ${error.message}` : "Open Project failed.");
+    } finally {
+      event.target.value = "";
+    }
+  }
 
   useEffect(() => {
     void loadProject();
@@ -67,14 +105,36 @@ export function StudioShell() {
           ))}
         </nav>
 
+        <div className="studio-actions">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            onChange={handleProjectFileChange}
+            hidden
+          />
+          <button type="button" className="topbar-button" onClick={createBlankProject}>
+            New Project
+          </button>
+          <button type="button" className="topbar-button" onClick={openProjectPicker}>
+            Open Project
+          </button>
+          <button type="button" className="topbar-button" onClick={saveProject}>
+            Save Project
+          </button>
+        </div>
+
         <div className="studio-status">
-          <span className="status-chip">Graph-first shell</span>
           <span className="status-chip">
             {projectLoadState === "loading"
               ? "Loading project.json"
               : projectSource === "remote"
                 ? "project.json loaded"
-                : "Bundled fallback"}
+                : projectSource === "local"
+                  ? "Local file opened"
+                : projectSource === "authoring"
+                  ? "Working copy"
+                  : "Bundled fallback"}
           </span>
           <span className={`status-chip health-${project.runtimeSnapshot.health}`}>Runtime {project.runtimeSnapshot.health}</span>
           {projectLoadError ? <span className="status-chip">Loader fallback: {projectLoadError}</span> : null}
@@ -87,7 +147,9 @@ export function StudioShell() {
         <InspectorPanel />
       </main>
 
-      <BottomLivePanel />
+      <ObjectEditorOverlay />
+      <ObjectFullEditorModal />
+      {activeWorkspace === "observe" ? <BottomLivePanel /> : null}
     </div>
   );
 }

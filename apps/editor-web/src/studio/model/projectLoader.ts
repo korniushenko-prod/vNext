@@ -31,6 +31,14 @@ function isProjectDocument(value: unknown): value is UniversalPlcProjectDocument
   );
 }
 
+export function parseProjectDocument(document: unknown): UniversalPlcDemoProject {
+  if (!isProjectDocument(document)) {
+    throw new Error("Project document shape is invalid");
+  }
+
+  return cloneProjectDocument(document);
+}
+
 export async function loadProjectDocument(
   path = `${import.meta.env.BASE_URL}project.json`
 ): Promise<ProjectLoadResult> {
@@ -46,12 +54,8 @@ export async function loadProjectDocument(
     }
 
     const document = (await response.json()) as unknown;
-    if (!isProjectDocument(document)) {
-      throw new Error("Project document shape is invalid");
-    }
-
     return {
-      project: cloneProjectDocument(document),
+      project: parseProjectDocument(document),
       source: "remote",
       path
     };

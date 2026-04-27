@@ -36,40 +36,54 @@ export function ObserveWorkspace() {
       <div className="logic-grid">
         <section className="panel-card">
           <h3>Signal Values</h3>
-          <ul className="plain-list">
-            {semanticSignals.map((signal) => (
-              <li key={signal.id}>
-                <strong>{signal.id}</strong>
-                <span>{String(signal.value)}</span>
-              </li>
-            ))}
-          </ul>
+          {semanticSignals.length === 0 ? (
+            <div className="empty-state">
+              <strong>No live semantic values yet</strong>
+              <p>Observe becomes useful after the project has objects, signals and runtime meaning.</p>
+            </div>
+          ) : (
+            <ul className="plain-list">
+              {semanticSignals.map((signal) => (
+                <li key={signal.id}>
+                  <strong>{signal.id}</strong>
+                  <span>{String(signal.value)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="panel-card" style={{ gridColumn: "span 2" }}>
           <h3>Diagnostics</h3>
-          <div className="card-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Severity</th>
-                  <th>Object</th>
-                  <th>Cause</th>
-                  <th>Hint</th>
-                </tr>
-              </thead>
-              <tbody>
-                {snapshot.diagnostics.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.severity}</td>
-                    <td>{item.objectId}</td>
-                    <td>{item.cause}</td>
-                    <td>{item.hint}</td>
+          {snapshot.diagnostics.length === 0 ? (
+            <div className="empty-state">
+              <strong>No diagnostics yet</strong>
+              <p>Once the project gains runtime logic, diagnostics will explain faults and recovery paths here.</p>
+            </div>
+          ) : (
+            <div className="card-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Severity</th>
+                    <th>Object</th>
+                    <th>Cause</th>
+                    <th>Hint</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {snapshot.diagnostics.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.severity}</td>
+                      <td>{item.objectId}</td>
+                      <td>{item.cause}</td>
+                      <td>{item.hint}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
       </div>
     </div>

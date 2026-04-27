@@ -36,37 +36,45 @@ export function BindWorkspace() {
       ) : null}
 
       <div className="card-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Raw</th>
-              <th>Conditioned</th>
-              <th>Semantic</th>
-              <th>Direction</th>
-              <th>Physical Source</th>
-              <th>Type</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBindings.map((binding) => {
-              const rawSignal = signals.find((signal) => signal.id === binding.signalId) ?? null;
-              const conditionedSignal = rawSignal ? findNextSignal(signals, rawSignal.id) : null;
-              const semanticSignal = conditionedSignal ? findNextSignal(signals, conditionedSignal.id) : null;
-
-              return (
-              <tr key={binding.id} className={bindContext ? "is-contextual" : ""} onClick={() => selectItem("binding", binding.id)}>
-                <td>{rawSignal?.name ?? binding.signalId}</td>
-                <td>{conditionedSignal?.name ?? "—"}</td>
-                <td>{semanticSignal?.name ?? "—"}</td>
-                <td>{binding.direction}</td>
-                <td>{binding.physicalSource}</td>
-                <td>{binding.type}</td>
-                <td>{String(binding.status)}</td>
+        {filteredBindings.length === 0 ? (
+          <div className="empty-state">
+            <strong>No bindings yet</strong>
+            <p>Create object contracts and signals first. Physical binding can come after semantic meaning exists.</p>
+          </div>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Raw</th>
+                <th>Conditioned</th>
+                <th>Semantic</th>
+                <th>Direction</th>
+                <th>Physical Source</th>
+                <th>Type</th>
+                <th>Status</th>
               </tr>
-            )})}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredBindings.map((binding) => {
+                const rawSignal = signals.find((signal) => signal.id === binding.signalId) ?? null;
+                const conditionedSignal = rawSignal ? findNextSignal(signals, rawSignal.id) : null;
+                const semanticSignal = conditionedSignal ? findNextSignal(signals, conditionedSignal.id) : null;
+
+                return (
+                  <tr key={binding.id} className={bindContext ? "is-contextual" : ""} onClick={() => selectItem("binding", binding.id)}>
+                    <td>{rawSignal?.name ?? binding.signalId}</td>
+                    <td>{conditionedSignal?.name ?? "—"}</td>
+                    <td>{semanticSignal?.name ?? "—"}</td>
+                    <td>{binding.direction}</td>
+                    <td>{binding.physicalSource}</td>
+                    <td>{binding.type}</td>
+                    <td>{String(binding.status)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

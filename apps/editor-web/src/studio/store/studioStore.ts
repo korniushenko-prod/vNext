@@ -1,8 +1,25 @@
 import { create } from "zustand";
-import { loadDemoProject, type UniversalPlcDemoProject, type WorkspaceId } from "../model/demoProject";
+import {
+  createEmptyProjectDocument,
+  createObjectDefinition,
+  createObjectCompositionLinkDefinition,
+  cloneProjectDocument,
+  createObjectStructureRouteDefinition,
+  createObjectStructureDefinition,
+  createObjectStructureNodeDefinition,
+  createObjectPortDefinition,
+  createProjectId,
+  loadDemoProject,
+  type BehaviorKind,
+  type DataType,
+  type ObjectContractFamily,
+  type UniversalPlcDemoProject,
+  type WorkspaceId
+} from "../model/demoProject";
 import { loadProjectDocument } from "../model/projectLoader";
 
 export type SelectedItemType =
+  | "project"
   | "object"
   | "object-link"
   | "subobject"
@@ -39,6 +56,11 @@ export interface BindWorkspaceContext {
   bindingIds: string[];
 }
 
+export interface OverlayAnchorPoint {
+  left: number;
+  top: number;
+}
+
 interface StudioState {
   activeWorkspace: WorkspaceId;
   selectedItemId: string | null;
@@ -53,7 +75,7 @@ interface StudioState {
   machineFilterMode: MachineFilterMode;
   logicContext: LogicWorkspaceContext | null;
   bindContext: BindWorkspaceContext | null;
-  projectSource: "bundled" | "remote";
+  projectSource: "bundled" | "remote" | "authoring" | "local";
   projectPath: string | null;
   projectLoadState: "idle" | "loading" | "ready";
   projectLoadError: string | null;
@@ -66,18 +88,110 @@ interface StudioState {
   focusLogicContext: (context: LogicWorkspaceContext | null) => void;
   focusBindContext: (context: BindWorkspaceContext | null) => void;
   loadProject: (path?: string) => Promise<void>;
+  importProject: (project: UniversalPlcDemoProject, path?: string | null) => void;
+  createBlankProject: () => void;
+  updateProjectMeta: (input: { name: string; id?: string }) => void;
+  addObject: (input: {
+    name: string;
+    type?: string;
+    behaviorKind: BehaviorKind;
+    summary?: string;
+    parentObjectId?: string | null;
+  }, anchorPoint?: OverlayAnchorPoint | null) => void;
+  updateObjectMeta: (
+    objectId: string,
+    input: { name: string; type: string; behaviorKind: BehaviorKind; summary: string; parentObjectId?: string | null }
+  ) => void;
+  addObjectPort: (
+    objectId: string,
+    family: ObjectContractFamily,
+    input: { name: string; dataType: DataType; summary?: string }
+  ) => void;
+  updateObjectPort: (
+    objectId: string,
+    family: ObjectContractFamily,
+    portId: string,
+    input: { name: string; dataType: DataType; summary?: string }
+  ) => void;
+  deleteObjectPort: (objectId: string, family: ObjectContractFamily, portId: string) => void;
+  addCompositionLink: (input: {
+    sourceObjectId: string;
+    sourcePortId: string;
+    targetObjectId: string;
+    targetPortId: string;
+  }) => void;
+  updateObjectTopologyPosition: (objectId: string, position: { x: number; y: number }) => void;
+  ensureObjectStructure: (objectId: string, summary?: string) => void;
+  addStructureNode: (
+    objectId: string,
+    input: {
+      title: string;
+      kind: string;
+      summary?: string;
+      position?: { x: number; y: number };
+      inputs?: Array<{ name: string; dataType?: DataType; summary?: string }>;
+      outputs?: Array<{ name: string; dataType?: DataType; summary?: string }>;
+    }
+  ) => void;
+  addStructureRoute: (
+    objectId: string,
+    input: {
+      label: string;
+      from: {
+        kind: "boundary" | "node";
+        nodeId?: string;
+        portId: string;
+        portKind?: "command" | "input" | "output" | "status" | "permission" | "fault";
+      };
+      to: {
+        kind: "boundary" | "node";
+        nodeId?: string;
+        portId: string;
+        portKind?: "command" | "input" | "output" | "status" | "permission" | "fault";
+      };
+    }
+  ) => void;
+  deleteStructureRoute: (objectId: string, routeId: string) => void;
+  objectEditorObjectId: string | null;
+  objectEditorAnchor: OverlayAnchorPoint | null;
+  openObjectEditor: (objectId: string, anchorPoint?: OverlayAnchorPoint | null) => void;
+  closeObjectEditor: () => void;
+  fullObjectEditorObjectId: string | null;
+  openFullObjectEditor: (objectId: string) => void;
+  closeFullObjectEditor: () => void;
   updateMachineNodePosition: (machineId: string, stateId: string, position: { x: number; y: number }) => void;
+}
+
+const PROJECT_SELECTION_ID = "project-root";
+
+function buildProjectSelection(project: UniversalPlcDemoProject) {
+  const firstObject = project.objects[0];
+  if (!firstObject) {
+    return {
+      selectedItemType: "project" as const,
+      selectedItemId: PROJECT_SELECTION_ID,
+      selectedObjectId: null,
+      selectedMachineId: null
+    };
+  }
+
+  return {
+    selectedItemType: "object" as const,
+    selectedItemId: firstObject.id,
+    selectedObjectId: firstObject.id,
+    selectedMachineId: firstObject.behavior?.machineId ?? null
+  };
 }
 
 export const useStudioStore = create<StudioState>((set) => ({
   activeWorkspace: "machine",
-  selectedItemId: "burner",
-  selectedItemType: "object",
-  selectedObjectId: "burner",
-  selectedMachineId: "boiler_sequence",
-  selectedGroupId: "grp_run",
-  selectedSectionId: "sec_run",
-  selectedRegionId: "region_run",
+  selectedItemId: PROJECT_SELECTION_ID,
+  selectedItemType: "project",
+  selectedObjectId: null,
+  selectedMachineId: null,
+  selectedGroupId: null,
+  selectedSectionId: null,
+  selectedRegionId: null,
   machineViewMode: "topology",
   objectViewLens: "behavior",
   machineFilterMode: "focus",
@@ -88,16 +202,20 @@ export const useStudioStore = create<StudioState>((set) => ({
   projectLoadState: "idle",
   projectLoadError: null,
   project: loadDemoProject(),
+  objectEditorObjectId: null,
+  objectEditorAnchor: null,
+  fullObjectEditorObjectId: null,
   setActiveWorkspace: (workspace) => set({ activeWorkspace: workspace }),
   selectItem: (type, id, options) =>
     set((state) => ({
       selectedItemType: type,
       selectedItemId: id,
-      selectedObjectId: options?.objectId ?? (type === "object" ? id : state.selectedObjectId),
-      selectedMachineId: options?.machineId ?? state.selectedMachineId,
-      selectedGroupId: options?.groupId ?? state.selectedGroupId,
-      selectedSectionId: options?.sectionId ?? state.selectedSectionId,
-      selectedRegionId: options?.regionId ?? state.selectedRegionId
+      selectedObjectId:
+        type === "project" ? null : options?.objectId ?? (type === "object" ? id : state.selectedObjectId),
+      selectedMachineId: type === "project" ? null : options?.machineId ?? state.selectedMachineId,
+      selectedGroupId: type === "project" ? null : options?.groupId ?? state.selectedGroupId,
+      selectedSectionId: type === "project" ? null : options?.sectionId ?? state.selectedSectionId,
+      selectedRegionId: type === "project" ? null : options?.regionId ?? state.selectedRegionId
     })),
   setMachineViewMode: (mode) => set({ machineViewMode: mode }),
   setObjectViewLens: (lens) => set({ objectViewLens: lens }),
@@ -112,9 +230,288 @@ export const useStudioStore = create<StudioState>((set) => ({
       projectSource: result.source,
       projectPath: result.path,
       projectLoadState: "ready",
-      projectLoadError: result.error ?? null
+      projectLoadError: result.error ?? null,
+      objectEditorObjectId: null,
+      objectEditorAnchor: null,
+      fullObjectEditorObjectId: null,
+      ...buildProjectSelection(result.project)
     });
   },
+  importProject: (project, path) => {
+    const nextProject = cloneProjectDocument(project);
+    set({
+      project: nextProject,
+      projectSource: "local",
+      projectPath: path ?? null,
+      projectLoadError: null,
+      projectLoadState: "ready",
+      objectEditorObjectId: null,
+      objectEditorAnchor: null,
+      fullObjectEditorObjectId: null,
+      logicContext: null,
+      bindContext: null,
+      ...buildProjectSelection(nextProject)
+    });
+  },
+  createBlankProject: () => {
+    const project = createEmptyProjectDocument();
+    set({
+      project,
+      projectSource: "authoring",
+      projectPath: null,
+      projectLoadError: null,
+      projectLoadState: "ready",
+      objectEditorObjectId: null,
+      objectEditorAnchor: null,
+      fullObjectEditorObjectId: null,
+      logicContext: null,
+      bindContext: null,
+      ...buildProjectSelection(project)
+    });
+  },
+  updateProjectMeta: (input) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        name: input.name.trim() || "Untitled Project",
+        id: input.id?.trim() || createProjectId(input.name)
+      }
+    })),
+  addObject: (input, anchorPoint) =>
+    set((state) => {
+      const nextObject = createObjectDefinition(state.project, input);
+      return {
+        project: {
+          ...state.project,
+          objects: [...state.project.objects, nextObject]
+        },
+        activeWorkspace: "machine",
+        machineViewMode: "topology",
+        selectedItemType: "object" as const,
+        selectedItemId: nextObject.id,
+        selectedObjectId: nextObject.id,
+        selectedMachineId: null,
+        selectedGroupId: null,
+        selectedSectionId: null,
+        selectedRegionId: null,
+        objectEditorObjectId: nextObject.id,
+        objectEditorAnchor: anchorPoint ?? null
+      };
+    }),
+  updateObjectMeta: (objectId, input) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) =>
+          object.id !== objectId
+            ? object
+            : {
+                ...object,
+                name: input.name.trim() || object.name,
+                type: input.type.trim() || object.type,
+                behaviorKind: input.behaviorKind,
+                summary: input.summary.trim() || object.summary,
+                parentObjectId: input.parentObjectId === undefined ? object.parentObjectId ?? null : input.parentObjectId
+              }
+        )
+      }
+    })),
+  addObjectPort: (objectId, family, input) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) => {
+          if (object.id !== objectId) {
+            return object;
+          }
+
+          const nextPort = createObjectPortDefinition(object, family, input);
+          return {
+            ...object,
+            [family]: [...object[family], nextPort]
+          };
+        })
+      }
+    })),
+  updateObjectPort: (objectId, family, portId, input) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) => {
+          if (object.id !== objectId) {
+            return object;
+          }
+
+          return {
+            ...object,
+            [family]: object[family].map((port) =>
+              port.id !== portId
+                ? port
+                : {
+                    ...port,
+                    name: input.name.trim() || port.name,
+                    dataType: input.dataType,
+                    summary: input.summary?.trim() || ""
+                  }
+            )
+          };
+        })
+      }
+    })),
+  deleteObjectPort: (objectId, family, portId) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) => {
+          if (object.id !== objectId) {
+            return object;
+          }
+
+          return {
+            ...object,
+            [family]: object[family].filter((port) => port.id !== portId)
+          };
+        })
+      }
+    })),
+  addCompositionLink: (input) =>
+    set((state) => {
+      const nextLink = createObjectCompositionLinkDefinition(state.project, {
+        source: {
+          objectId: input.sourceObjectId,
+          portId: input.sourcePortId
+        },
+        target: {
+          objectId: input.targetObjectId,
+          portId: input.targetPortId
+        }
+      });
+
+      if (!nextLink) {
+        return state;
+      }
+
+      return {
+        project: {
+          ...state.project,
+          compositionLinks: [...state.project.compositionLinks, nextLink]
+        },
+        selectedItemType: "object-link" as const,
+        selectedItemId: nextLink.id
+      };
+    }),
+  updateObjectTopologyPosition: (objectId, position) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) =>
+          object.id !== objectId
+            ? object
+            : {
+                ...object,
+                topologyPosition: position
+              }
+        )
+      }
+    })),
+  ensureObjectStructure: (objectId, summary) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) =>
+          object.id !== objectId
+            ? object
+            : {
+                ...object,
+                structure: object.structure ?? createObjectStructureDefinition(summary)
+              }
+        )
+      }
+    })),
+  addStructureNode: (objectId, input) =>
+    set((state) => {
+      let createdNodeId: string | null = null;
+
+      return {
+        project: {
+          ...state.project,
+          objects: state.project.objects.map((object) => {
+            if (object.id !== objectId) {
+              return object;
+            }
+
+            const structure = object.structure ?? createObjectStructureDefinition();
+            const nextNode = createObjectStructureNodeDefinition({ ...object, structure }, input);
+            createdNodeId = nextNode.id;
+            return {
+              ...object,
+              structure: {
+                ...structure,
+                nodes: [...structure.nodes, nextNode]
+              }
+            };
+          })
+        },
+        activeWorkspace: "machine",
+        machineViewMode: "object",
+        objectViewLens: "structure",
+        selectedItemType: "subobject",
+        selectedItemId: createdNodeId,
+        selectedObjectId: objectId
+      };
+    }),
+  addStructureRoute: (objectId, input) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) => {
+          if (object.id !== objectId) {
+            return object;
+          }
+
+          const structure = object.structure ?? createObjectStructureDefinition();
+          const nextRoute = createObjectStructureRouteDefinition({ ...object, structure }, input);
+          if (!nextRoute) {
+            return object;
+          }
+          return {
+            ...object,
+            structure: {
+              ...structure,
+              routes: [...structure.routes, nextRoute]
+            }
+          };
+        })
+      }
+    })),
+  deleteStructureRoute: (objectId, routeId) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) => {
+          if (object.id !== objectId || !object.structure) {
+            return object;
+          }
+
+          return {
+            ...object,
+            structure: {
+              ...object.structure,
+              routes: object.structure.routes.filter((route) => route.id !== routeId)
+            }
+          };
+        })
+      }
+    })),
+  openObjectEditor: (objectId, anchorPoint) => set({ objectEditorObjectId: objectId, objectEditorAnchor: anchorPoint ?? null }),
+  closeObjectEditor: () => set({ objectEditorObjectId: null, objectEditorAnchor: null }),
+  openFullObjectEditor: (objectId) =>
+    set({
+      fullObjectEditorObjectId: objectId,
+      objectEditorObjectId: null,
+      objectEditorAnchor: null
+    }),
+  closeFullObjectEditor: () => set({ fullObjectEditorObjectId: null }),
   updateMachineNodePosition: (machineId, stateId, position) =>
     set((state) => ({
       project: {

@@ -1,7 +1,9 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type {
   ObjectInterfacePortDefinition,
+  ObjectPortKind,
   ObjectStructureNodeDefinition,
+  ObjectStructureRouteEndpointDefinition,
   ObjectStructureRouteDefinition,
   PlcObjectDefinition
 } from "../model/demoProject";
@@ -13,6 +15,12 @@ interface RouteGeometry {
   d: string;
   labelX: number;
   labelY: number;
+}
+
+interface PendingEndpoint {
+  endpoint: ObjectStructureRouteEndpointDefinition;
+  key: string;
+  label: string;
 }
 
 function endpointKeyForBoundary(portKind: string, portId: string) {
@@ -29,6 +37,14 @@ function endpointKey(routeEndpoint: ObjectStructureRouteDefinition["from"]) {
     : endpointKeyForNode(routeEndpoint.nodeId || "", routeEndpoint.portId);
 }
 
+function endpointLabelForBoundary(port: ObjectInterfacePortDefinition) {
+  return port.name;
+}
+
+function endpointLabelForNode(node: ObjectStructureNodeDefinition, portName: string) {
+  return `${node.title}.${portName}`;
+}
+
 function groupBoundaryPorts(object: PlcObjectDefinition) {
   return {
     left: [
@@ -39,28 +55,70 @@ function groupBoundaryPorts(object: PlcObjectDefinition) {
     right: [
       { title: "Outputs", kind: "output" as const, ports: object.outputs },
       { title: "Status", kind: "status" as const, ports: object.status },
-      { title: "Alarms", kind: "alarm" as const, ports: object.alarms }
+      { title: "Faults", kind: "fault" as const, ports: object.faults }
     ].filter((group) => group.ports.length > 0)
   };
 }
 
+function countBoundaryPorts(object: PlcObjectDefinition) {
+  return (
+    object.commands.length +
+    object.inputs.length +
+    object.outputs.length +
+    object.status.length +
+    object.permissions.length +
+    object.faults.length
+  );
+}
+
+
 function StructureBoundaryPort({
   port,
   portKind,
-  side
+  side,
+  isPending,
+  onPick
 }: {
   port: ObjectInterfacePortDefinition;
-  portKind: string;
+  portKind: ObjectPortKind;
   side: "left" | "right";
+  isPending: boolean;
+  onPick: (endpoint: ObjectStructureRouteEndpointDefinition, label: string) => void;
 }) {
   return (
-    <div className={`structure-port-card is-${side}`} data-endpoint-id={endpointKeyForBoundary(portKind, port.id)}>
-      {side === "right" ? null : <span className="structure-port-handle is-source" />}
-      <div className="structure-port-card__text">
-        <strong>{port.name}</strong>
-        <span>{port.summary}</span>
-      </div>
-      {side === "right" ? <span className="structure-port-handle is-target" /> : null}
+    <div className={`structure-boundary-port-row is-${side}`}>
+      {side === "left" ? (
+        <div className="structure-boundary-port-label" title={port.summary || port.name}>
+          <strong>{port.name}</strong>
+        </div>
+      ) : null}
+
+      <button
+        type="button"
+        className={`structure-port-card is-${side}${isPending ? " is-pending" : ""}`}
+        data-endpoint-id={endpointKeyForBoundary(portKind, port.id)}
+        title={port.summary || port.name}
+        onClick={() =>
+          onPick(
+            {
+              kind: "boundary",
+              portKind,
+              portId: port.id
+            },
+            endpointLabelForBoundary(port)
+          )
+        }
+      >
+        {side === "right" ? null : <span className="structure-port-handle is-source" />}
+        <div className="structure-port-card__slot" />
+        {side === "right" ? <span className="structure-port-handle is-target" /> : null}
+      </button>
+
+      {side === "right" ? (
+        <div className="structure-boundary-port-label is-right" title={port.summary || port.name}>
+          <strong>{port.name}</strong>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -68,18 +126,30 @@ function StructureBoundaryPort({
 function StructureNodeCard({
   node,
   isSelected,
-  onSelect
+  onSelect,
+  pendingEndpointKey,
+  onPickEndpoint
 }: {
   node: ObjectStructureNodeDefinition;
   isSelected: boolean;
   onSelect: () => void;
+  pendingEndpointKey: string | null;
+  onPickEndpoint: (endpoint: ObjectStructureRouteEndpointDefinition, label: string) => void;
 }) {
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className={`structure-node-card${isSelected ? " is-selected" : ""}`}
       style={{ left: node.position.x, top: node.position.y }}
+      title={node.summary}
       onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
     >
       <div className="structure-node-card__header">
         <div>
@@ -87,34 +157,58 @@ function StructureNodeCard({
           <span>{node.kind}</span>
         </div>
       </div>
-      <p>{node.summary}</p>
-      {node.parameters ? (
-        <div className="structure-node-card__parameters">
-          {Object.entries(node.parameters).map(([key, value]) => (
-            <span key={key}>{key}: {String(value)}</span>
-          ))}
-        </div>
-      ) : null}
 
       <div className="structure-node-card__ports">
         <div className="structure-node-port-col">
           {node.inputs.map((port) => (
-            <div key={port.id} className="structure-node-port is-input" data-endpoint-id={endpointKeyForNode(node.id, port.id)}>
+            <button
+              key={port.id}
+              type="button"
+              className={`structure-node-port is-input${pendingEndpointKey === endpointKeyForNode(node.id, port.id) ? " is-pending" : ""}`}
+              data-endpoint-id={endpointKeyForNode(node.id, port.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onPickEndpoint(
+                  {
+                    kind: "node",
+                    nodeId: node.id,
+                    portId: port.id
+                  },
+                  endpointLabelForNode(node, port.name)
+                );
+              }}
+            >
               <span className="structure-port-handle is-target" />
               <span>{port.name}</span>
-            </div>
+            </button>
           ))}
         </div>
         <div className="structure-node-port-col">
           {node.outputs.map((port) => (
-            <div key={port.id} className="structure-node-port is-output" data-endpoint-id={endpointKeyForNode(node.id, port.id)}>
+            <button
+              key={port.id}
+              type="button"
+              className={`structure-node-port is-output${pendingEndpointKey === endpointKeyForNode(node.id, port.id) ? " is-pending" : ""}`}
+              data-endpoint-id={endpointKeyForNode(node.id, port.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onPickEndpoint(
+                  {
+                    kind: "node",
+                    nodeId: node.id,
+                    portId: port.id
+                  },
+                  endpointLabelForNode(node, port.name)
+                );
+              }}
+            >
               <span>{port.name}</span>
               <span className="structure-port-handle is-source" />
-            </div>
+            </button>
           ))}
         </div>
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -152,18 +246,45 @@ function resolveRouteGeometry(root: HTMLDivElement, routes: ObjectStructureRoute
   return next;
 }
 
+function getStructureCanvasHeight(nodes: ObjectStructureNodeDefinition[]) {
+  if (!nodes.length) {
+    return 440;
+  }
+
+  const maxY = Math.max(...nodes.map((node) => node.position.y + 210));
+  return Math.max(440, maxY + 48);
+}
+
 export function ObjectStructureCanvas() {
   const project = useStudioStore((state) => state.project);
   const selectedObjectId = useStudioStore((state) => state.selectedObjectId);
   const selectedItemId = useStudioStore((state) => state.selectedItemId);
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectItem = useStudioStore((state) => state.selectItem);
+  const ensureObjectStructure = useStudioStore((state) => state.ensureObjectStructure);
+  const addStructureRoute = useStudioStore((state) => state.addStructureRoute);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [routeGeometry, setRouteGeometry] = useState<RouteGeometry[]>([]);
+  const [pendingEndpoint, setPendingEndpoint] = useState<PendingEndpoint | null>(null);
 
-  const object = project.objects.find((item) => item.id === selectedObjectId) ?? project.objects[0];
+  const object = project.objects.find((item) => item.id === selectedObjectId) ?? project.objects[0] ?? null;
+  if (!object) {
+    return (
+      <section className="panel-card empty-authoring-state">
+        <h3>No object selected</h3>
+        <p className="muted-copy">Create an object first, then define its ports, internal parts and local routes here.</p>
+      </section>
+    );
+  }
+
   const structure = object.structure ?? null;
   const boundary = useMemo(() => groupBoundaryPorts(object), [object]);
+
+  useEffect(() => {
+    if (!object.structure) {
+      ensureObjectStructure(object.id, `Internal view for ${object.name}.`);
+    }
+  }, [ensureObjectStructure, object]);
 
   useLayoutEffect(() => {
     if (!rootRef.current || !structure) {
@@ -190,79 +311,136 @@ export function ObjectStructureCanvas() {
 
   if (!structure) {
     return (
-      <div className="machine-canvas topology-canvas">
-        <section className="panel-card">
-          <h3>No structure view</h3>
-          <p className="muted-copy">Selected object does not yet expose a structure lens.</p>
+      <div className="machine-canvas structure-canvas">
+        <section className="panel-card structure-empty-state">
+          <h3>Opening {object.name}</h3>
+          <p className="muted-copy">
+            Preparing the object canvas so you can add nested objects, logic blocks and connections directly inside it.
+          </p>
         </section>
       </div>
     );
   }
 
+  const currentStructure = structure;
+  const structureHeight = getStructureCanvasHeight(currentStructure.nodes);
+
+  function handlePickEndpoint(endpoint: ObjectStructureRouteEndpointDefinition, label: string) {
+    const key = endpoint.kind === "boundary"
+      ? endpointKeyForBoundary(endpoint.portKind || "input", endpoint.portId)
+      : endpointKeyForNode(endpoint.nodeId || "", endpoint.portId);
+
+    if (!pendingEndpoint) {
+      setPendingEndpoint({ endpoint, key, label });
+      return;
+    }
+
+    if (pendingEndpoint.key === key) {
+      setPendingEndpoint(null);
+      return;
+    }
+
+    addStructureRoute(object.id, {
+      label: `${pendingEndpoint.label} -> ${label}`,
+      from: pendingEndpoint.endpoint,
+      to: endpoint
+    });
+    setPendingEndpoint(null);
+  }
+
   return (
-    <div className="machine-canvas structure-canvas" ref={rootRef}>
+    <div className="machine-canvas structure-canvas">
       <div className="structure-canvas__header">
-        <div>
-          <span className="topology-eyebrow">Structure Lens</span>
-          <h3>{object.name}</h3>
-          <p>{structure.summary}</p>
+        <div className="structure-canvas__hint">
+          <strong>Use Library on the left</strong>
+          <span>
+            Place blocks into the canvas, then click one pin and another pin to create a connection
+            {pendingEndpoint ? ` (${pendingEndpoint.label} selected)` : "."}
+          </span>
         </div>
       </div>
 
-      <div className="structure-shell">
-        <div className="structure-boundary-rails">
-          <div className="structure-boundary-rail">
+      <div className="structure-inline-canvas">
+        <div className="structure-canvas-object-chip">
+          <span className="system-object-node__type">{object.type}</span>
+          <strong>{object.name}</strong>
+          <span>{countBoundaryPorts(object)} ports</span>
+          <span>{currentStructure.nodes.length} internal</span>
+        </div>
+
+        <div className="structure-object-canvas structure-object-canvas--schematic" style={{ minHeight: structureHeight }} ref={rootRef}>
+          <svg className="structure-routes" aria-hidden="true">
+            {routeGeometry.map((route) => (
+              <g key={route.id}>
+                <path d={route.d} className="structure-route-path" />
+                <text x={route.labelX} y={route.labelY} className="structure-route-label">
+                  {route.label}
+                </text>
+              </g>
+            ))}
+          </svg>
+
+          <div className="structure-boundary-side structure-boundary-side--left">
             {boundary.left.map((group) => (
-              <section key={group.title} className="structure-boundary-group">
-                <h4>{group.title}</h4>
+              <section key={group.title} className="structure-boundary-group structure-boundary-group--flat">
                 {group.ports.map((port) => (
-                  <StructureBoundaryPort key={port.id} port={port} portKind={group.kind} side="left" />
+                  <StructureBoundaryPort
+                    key={port.id}
+                    port={port}
+                    portKind={group.kind}
+                    side="left"
+                    isPending={pendingEndpoint?.key === endpointKeyForBoundary(group.kind, port.id)}
+                    onPick={handlePickEndpoint}
+                  />
                 ))}
               </section>
             ))}
           </div>
 
-          <div className="structure-center-pane">
-            <svg className="structure-routes" aria-hidden="true">
-              {routeGeometry.map((route) => (
-                <g key={route.id}>
-                  <path d={route.d} className="structure-route-path" />
-                  <text x={route.labelX} y={route.labelY} className="structure-route-label">
-                    {route.label}
-                  </text>
-                </g>
-              ))}
-            </svg>
-
-            <div className="structure-node-layer">
-              {structure.nodes.map((node) => (
-                <StructureNodeCard
-                  key={node.id}
-                  node={node}
-                  isSelected={selectedItemType === "subobject" && selectedItemId === node.id}
-                  onSelect={() =>
-                    selectItem("subobject", node.id, {
-                      objectId: object.id,
+          <div className="structure-node-layer structure-node-layer--schematic">
+            {structure.nodes.length ? (
+                  structure.nodes.map((node) => (
+                    <StructureNodeCard
+                      key={node.id}
+                      node={node}
+                      isSelected={selectedItemType === "subobject" && selectedItemId === node.id}
+                      pendingEndpointKey={pendingEndpoint?.key ?? null}
+                      onPickEndpoint={handlePickEndpoint}
+                      onSelect={() =>
+                        selectItem("subobject", node.id, {
+                          objectId: object.id,
                       machineId: object.behavior?.machineId ?? null
                     })
                   }
                 />
-              ))}
-            </div>
+              ))
+            ) : (
+              <div className="structure-center-empty">
+                <strong>No internal parts yet</strong>
+                <span>Add nested objects or logic blocks directly inside this object.</span>
+              </div>
+            )}
           </div>
 
-          <div className="structure-boundary-rail">
+          <div className="structure-boundary-side structure-boundary-side--right">
             {boundary.right.map((group) => (
-              <section key={group.title} className="structure-boundary-group">
-                <h4>{group.title}</h4>
+              <section key={group.title} className="structure-boundary-group structure-boundary-group--flat">
                 {group.ports.map((port) => (
-                  <StructureBoundaryPort key={port.id} port={port} portKind={group.kind} side="right" />
+                  <StructureBoundaryPort
+                    key={port.id}
+                    port={port}
+                    portKind={group.kind}
+                    side="right"
+                    isPending={pendingEndpoint?.key === endpointKeyForBoundary(group.kind, port.id)}
+                    onPick={handlePickEndpoint}
+                  />
                 ))}
               </section>
             ))}
           </div>
         </div>
       </div>
+
     </div>
   );
 }
