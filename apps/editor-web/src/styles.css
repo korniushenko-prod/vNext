@@ -2022,10 +2022,10 @@ textarea {
 
 .structure-route-path {
   fill: none;
-  stroke: rgba(151, 190, 228, 0.6);
-  stroke-width: 2;
+  stroke: rgba(151, 190, 228, 0.82);
+  stroke-width: 1.7;
   stroke-linecap: round;
-  stroke-dasharray: 6 6;
+  stroke-linejoin: round;
 }
 
 .structure-route-label {
@@ -2175,7 +2175,9 @@ textarea {
   padding: 7px 8px;
   color: var(--text);
   text-align: left;
-  cursor: pointer;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
 }
 
 .structure-node-card:focus-visible {
@@ -2186,6 +2188,10 @@ textarea {
 .structure-node-card.is-selected {
   border-color: rgba(90, 177, 255, 0.55);
   box-shadow: 0 0 0 2px rgba(90, 177, 255, 0.18), 0 14px 32px rgba(2, 7, 14, 0.28);
+}
+
+.structure-node-card:active {
+  cursor: grabbing;
 }
 
 .structure-node-card__header {

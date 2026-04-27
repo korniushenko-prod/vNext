@@ -151,6 +151,7 @@ interface StudioState {
       };
     }
   ) => void;
+  updateStructureNodePosition: (objectId: string, nodeId: string, position: { x: number; y: number }) => void;
   deleteStructureRoute: (objectId: string, routeId: string) => void;
   objectEditorObjectId: string | null;
   objectEditorAnchor: OverlayAnchorPoint | null;
@@ -479,6 +480,25 @@ export const useStudioStore = create<StudioState>((set) => ({
             structure: {
               ...structure,
               routes: [...structure.routes, nextRoute]
+            }
+          };
+        })
+      }
+    })),
+  updateStructureNodePosition: (objectId, nodeId, position) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) => {
+          if (object.id !== objectId || !object.structure) {
+            return object;
+          }
+
+          return {
+            ...object,
+            structure: {
+              ...object.structure,
+              nodes: object.structure.nodes.map((node) => (node.id === nodeId ? { ...node, position } : node))
             }
           };
         })

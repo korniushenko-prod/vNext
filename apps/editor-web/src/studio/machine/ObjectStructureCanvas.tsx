@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type {
   ObjectInterfacePortDefinition,
   ObjectPortKind,
@@ -21,6 +21,16 @@ interface PendingEndpoint {
   endpoint: ObjectStructureRouteEndpointDefinition;
   key: string;
   label: string;
+}
+
+interface DragState {
+  nodeId: string;
+  startX: number;
+  startY: number;
+  originX: number;
+  originY: number;
+  nodeWidth: number;
+  nodeHeight: number;
 }
 
 function endpointKeyForBoundary(portKind: string, portId: string) {
@@ -128,13 +138,15 @@ function StructureNodeCard({
   isSelected,
   onSelect,
   pendingEndpointKey,
-  onPickEndpoint
+  onPickEndpoint,
+  onStartDrag
 }: {
   node: ObjectStructureNodeDefinition;
   isSelected: boolean;
   onSelect: () => void;
   pendingEndpointKey: string | null;
   onPickEndpoint: (endpoint: ObjectStructureRouteEndpointDefinition, label: string) => void;
+  onStartDrag: (event: ReactPointerEvent<HTMLDivElement>, node: ObjectStructureNodeDefinition) => void;
 }) {
   return (
     <div
@@ -144,6 +156,7 @@ function StructureNodeCard({
       style={{ left: node.position.x, top: node.position.y }}
       title={node.summary}
       onClick={onSelect}
+      onPointerDown={(event) => onStartDrag(event, node)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
@@ -230,14 +243,16 @@ function resolveRouteGeometry(root: HTMLDivElement, routes: ObjectStructureRoute
     const y1 = sourceRect.top - rootRect.top + sourceRect.height / 2;
     const x2 = targetRect.left - rootRect.left + targetRect.width / 2;
     const y2 = targetRect.top - rootRect.top + targetRect.height / 2;
-    const midX = (x1 + x2) / 2;
+    const delta = Math.max(36, Math.abs(x2 - x1) * 0.28);
+    const a = x2 >= x1 ? x1 + delta : x1 - delta;
+    const b = x2 >= x1 ? x2 - delta : x2 + delta;
+    const midX = (a + b) / 2;
     const midY = (y1 + y2) / 2;
-    const delta = Math.max(80, Math.abs(x2 - x1) * 0.35);
 
     next.push({
       id: route.id,
       label: route.label,
-      d: `M ${x1} ${y1} C ${x1 + delta} ${y1}, ${x2 - delta} ${y2}, ${x2} ${y2}`,
+      d: `M ${x1} ${y1} L ${a} ${y1} L ${b} ${y2} L ${x2} ${y2}`,
       labelX: midX,
       labelY: midY - 8
     });
@@ -246,12 +261,12 @@ function resolveRouteGeometry(root: HTMLDivElement, routes: ObjectStructureRoute
   return next;
 }
 
-function getStructureCanvasHeight(nodes: ObjectStructureNodeDefinition[]) {
+function getStructureCanvasHeight(nodes: ObjectStructureNodeDefinition[], positions: Record<string, { x: number; y: number }>) {
   if (!nodes.length) {
     return 440;
   }
 
-  const maxY = Math.max(...nodes.map((node) => node.position.y + 210));
+  const maxY = Math.max(...nodes.map((node) => (positions[node.id]?.y ?? node.position.y) + 210));
   return Math.max(440, maxY + 48);
 }
 
@@ -263,9 +278,12 @@ export function ObjectStructureCanvas() {
   const selectItem = useStudioStore((state) => state.selectItem);
   const ensureObjectStructure = useStudioStore((state) => state.ensureObjectStructure);
   const addStructureRoute = useStudioStore((state) => state.addStructureRoute);
+  const updateStructureNodePosition = useStudioStore((state) => state.updateStructureNodePosition);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [routeGeometry, setRouteGeometry] = useState<RouteGeometry[]>([]);
   const [pendingEndpoint, setPendingEndpoint] = useState<PendingEndpoint | null>(null);
+  const [livePositions, setLivePositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [dragState, setDragState] = useState<DragState | null>(null);
 
   const object = project.objects.find((item) => item.id === selectedObjectId) ?? project.objects[0] ?? null;
   if (!object) {
@@ -285,6 +303,20 @@ export function ObjectStructureCanvas() {
       ensureObjectStructure(object.id, `Internal view for ${object.name}.`);
     }
   }, [ensureObjectStructure, object]);
+
+  useEffect(() => {
+    if (!structure) {
+      setLivePositions({});
+      return;
+    }
+
+    setLivePositions(
+      structure.nodes.reduce<Record<string, { x: number; y: number }>>((acc, node) => {
+        acc[node.id] = node.position;
+        return acc;
+      }, {})
+    );
+  }, [structure]);
 
   useLayoutEffect(() => {
     if (!rootRef.current || !structure) {
@@ -307,7 +339,51 @@ export function ObjectStructureCanvas() {
       window.clearTimeout(timer);
       window.removeEventListener("resize", update);
     };
-  }, [structure, selectedItemId, selectedItemType]);
+  }, [livePositions, selectedItemId, selectedItemType, structure]);
+
+  useEffect(() => {
+    if (!dragState) {
+      return;
+    }
+
+    const activeDrag = dragState;
+
+    function handlePointerMove(event: PointerEvent) {
+      const root = rootRef.current;
+      if (!root) {
+        return;
+      }
+
+      const nextX = activeDrag.originX + (event.clientX - activeDrag.startX);
+      const nextY = activeDrag.originY + (event.clientY - activeDrag.startY);
+      const maxX = Math.max(16, root.clientWidth - activeDrag.nodeWidth - 16);
+      const maxY = Math.max(16, root.clientHeight - activeDrag.nodeHeight - 16);
+
+      setLivePositions((current) => ({
+        ...current,
+        [activeDrag.nodeId]: {
+          x: Math.min(Math.max(16, nextX), maxX),
+          y: Math.min(Math.max(16, nextY), maxY)
+        }
+      }));
+    }
+
+    function handlePointerUp() {
+      const finalPosition = livePositions[activeDrag.nodeId];
+      if (finalPosition) {
+        updateStructureNodePosition(object.id, activeDrag.nodeId, finalPosition);
+      }
+      setDragState(null);
+    }
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp, { once: true });
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, [dragState, livePositions, object.id, updateStructureNodePosition]);
 
   if (!structure) {
     return (
@@ -323,7 +399,25 @@ export function ObjectStructureCanvas() {
   }
 
   const currentStructure = structure;
-  const structureHeight = getStructureCanvasHeight(currentStructure.nodes);
+  const structureHeight = getStructureCanvasHeight(currentStructure.nodes, livePositions);
+
+  function handleStartDrag(event: ReactPointerEvent<HTMLDivElement>, node: ObjectStructureNodeDefinition) {
+    if ((event.target as HTMLElement).closest("button")) {
+      return;
+    }
+
+    const target = event.currentTarget.getBoundingClientRect();
+    const position = livePositions[node.id] ?? node.position;
+    setDragState({
+      nodeId: node.id,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: position.x,
+      originY: position.y,
+      nodeWidth: target.width,
+      nodeHeight: target.height
+    });
+  }
 
   function handlePickEndpoint(endpoint: ObjectStructureRouteEndpointDefinition, label: string) {
     const key = endpoint.kind === "boundary"
@@ -402,10 +496,14 @@ export function ObjectStructureCanvas() {
                   structure.nodes.map((node) => (
                     <StructureNodeCard
                       key={node.id}
-                      node={node}
+                      node={{
+                        ...node,
+                        position: livePositions[node.id] ?? node.position
+                      }}
                       isSelected={selectedItemType === "subobject" && selectedItemId === node.id}
                       pendingEndpointKey={pendingEndpoint?.key ?? null}
                       onPickEndpoint={handlePickEndpoint}
+                      onStartDrag={handleStartDrag}
                       onSelect={() =>
                         selectItem("subobject", node.id, {
                           objectId: object.id,

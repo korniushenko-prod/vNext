@@ -1,5 +1,3 @@
-import { MachineCanvas } from "../machine/MachineCanvas";
-import { ObjectControlCanvas } from "../machine/ObjectControlCanvas";
 import { ObjectPortComposer } from "../machine/ObjectPortComposer";
 import { ObjectTopologyCanvas } from "../machine/ObjectTopologyCanvas";
 import { ObjectStructureCanvas } from "../machine/ObjectStructureCanvas";
@@ -13,11 +11,7 @@ export function MachineWorkspace() {
   const selectedSectionId = useStudioStore((state) => state.selectedSectionId);
   const selectedRegionId = useStudioStore((state) => state.selectedRegionId);
   const machineViewMode = useStudioStore((state) => state.machineViewMode);
-  const objectViewLens = useStudioStore((state) => state.objectViewLens);
-  const machineFilterMode = useStudioStore((state) => state.machineFilterMode);
   const setMachineViewMode = useStudioStore((state) => state.setMachineViewMode);
-  const setObjectViewLens = useStudioStore((state) => state.setObjectViewLens);
-  const setMachineFilterMode = useStudioStore((state) => state.setMachineFilterMode);
   const selectItem = useStudioStore((state) => state.selectItem);
   const createBlankProject = useStudioStore((state) => state.createBlankProject);
 
@@ -67,10 +61,6 @@ export function MachineWorkspace() {
   const machine = selectedObject.behavior?.machineId
     ? project.machines.find((item) => item.id === selectedObject.behavior?.machineId) ?? null
     : null;
-  const supportsBehaviorLens = Boolean(machine || selectedObject.behaviorKind !== "sequence");
-  const resolvedObjectViewLens =
-    objectViewLens === "behavior" && !supportsBehaviorLens && selectedObject.structure ? "structure" : objectViewLens;
-  const preferredObjectLens = machine ? "behavior" : "structure";
 
   const selectedSection =
     machine?.sections.find((item) => item.id === (selectedItemType === "section" ? selectedItemId : selectedSectionId)) ?? null;
@@ -147,20 +137,12 @@ export function MachineWorkspace() {
   const stageTitle =
     machineViewMode === "topology"
       ? "Objects and Links"
-      : resolvedObjectViewLens === "structure"
-        ? `${selectedObject.name} / Structure`
-        : machine
-          ? `${selectedObject.name} / Behavior`
-          : `${selectedObject.name} / ${selectedObject.behaviorKind}`;
+      : selectedObject.name;
 
   const stageSummary =
     machineViewMode === "topology"
       ? "Main canvas shows large objects and the contract-level links between them."
-      : resolvedObjectViewLens === "structure"
-        ? "Boundary ports, internal nodes and local routes stay inside the object."
-        : machine
-          ? "Sequence stays inside the object boundary and does not leak into the system layer."
-          : "Control and monitoring logic stay inside the object boundary with their own local meaning.";
+      : "Drill into the object on the same authoring flow: boundary ports stay on the edges, internal logic stays inside.";
 
   return (
     <div className="workspace workspace-machine">
@@ -192,44 +174,6 @@ export function MachineWorkspace() {
               </button>
             </div>
           ) : null}
-
-          {machineViewMode === "object" ? (
-            <div className="machine-filter-switcher" aria-label="Object lens">
-              {[
-                { id: "behavior", label: "Behavior", disabled: !supportsBehaviorLens || !machine },
-                { id: "structure", label: "Structure", disabled: false }
-              ].map((lens) => (
-                <button
-                  key={lens.id}
-                  type="button"
-                  disabled={lens.disabled}
-                  className={(resolvedObjectViewLens ?? preferredObjectLens) === lens.id ? "is-active" : ""}
-                  onClick={() => setObjectViewLens(lens.id as "behavior" | "structure")}
-                >
-                  {lens.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
-
-          {machineViewMode === "object" && resolvedObjectViewLens === "behavior" && machine ? (
-            <div className="machine-filter-switcher" aria-label="Behavior filter">
-              {[
-                { id: "all", label: "All" },
-                { id: "focus", label: "Focus" },
-                { id: "region", label: "Region" }
-              ].map((mode) => (
-                <button
-                  key={mode.id}
-                  type="button"
-                  className={machineFilterMode === mode.id ? "is-active" : ""}
-                  onClick={() => setMachineFilterMode(mode.id as "all" | "focus" | "region")}
-                >
-                  {mode.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
         </div>
       </div>
 
@@ -238,17 +182,8 @@ export function MachineWorkspace() {
       <div className="machine-stage">
         {machineViewMode === "topology" ? (
           <ObjectTopologyCanvas />
-        ) : resolvedObjectViewLens === "structure" ? (
-          <ObjectStructureCanvas />
-        ) : machine ? (
-          <MachineCanvas />
-        ) : resolvedObjectViewLens === "behavior" && supportsBehaviorLens ? (
-          <ObjectControlCanvas />
         ) : (
-          <section className="panel-card">
-            <h3>No object view</h3>
-            <p className="muted-copy">Selected object does not yet expose the requested internal view.</p>
-          </section>
+          <ObjectStructureCanvas />
         )}
       </div>
     </div>

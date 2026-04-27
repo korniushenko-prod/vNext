@@ -135,9 +135,7 @@ function ObjectTopologyCanvasInner() {
       const machine = object.behavior?.machineId
         ? project.machines.find((item) => item.id === object.behavior?.machineId) ?? null
         : null;
-      const defaultObjectLens =
-        machine ? "behavior" : "structure";
-      const canOpenInternalView = Boolean(defaultObjectLens);
+      const canOpenInternalView = true;
       const childCount = project.objects.filter((item) => item.parentObjectId === object.id).length;
       const incomingCount = project.compositionLinks.filter((link) => link.targetObjectId === object.id).length;
       const outgoingCount = project.compositionLinks.filter((link) => link.sourceObjectId === object.id).length;
@@ -176,7 +174,7 @@ function ObjectTopologyCanvasInner() {
             if (!canOpenInternalView) {
               return;
             }
-            setObjectViewLens(defaultObjectLens === "behavior" ? "behavior" : "structure");
+            setObjectViewLens("structure");
             setMachineViewMode("object");
             selectItem(machine ? "machine" : "object", machine?.id ?? object.id, {
               objectId: object.id,
@@ -209,13 +207,8 @@ function ObjectTopologyCanvasInner() {
     const machine = object.behavior?.machineId
       ? project.machines.find((item) => item.id === object.behavior?.machineId) ?? null
       : null;
-    const defaultObjectLens = machine ? "behavior" : "structure";
 
-    if (!defaultObjectLens) {
-      return;
-    }
-
-    setObjectViewLens(defaultObjectLens === "behavior" ? "behavior" : "structure");
+    setObjectViewLens("structure");
     setMachineViewMode("object");
     selectItem(machine ? "machine" : "object", machine?.id ?? object.id, {
       objectId: object.id,
