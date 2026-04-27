@@ -209,6 +209,19 @@ function getContextLabel(selectedObject: PlcObjectDefinition | null) {
   return selectedObject ? `Add to ${selectedObject.name}` : "Add System Object";
 }
 
+function collectExpandedObjectIds(objects: PlcObjectDefinition[], startObjectId: string | null) {
+  const byId = new Map(objects.map((object) => [object.id, object]));
+  const expanded = new Set<string>();
+
+  let cursor = startObjectId ? byId.get(startObjectId) ?? null : null;
+  while (cursor) {
+    expanded.add(cursor.id);
+    cursor = cursor.parentObjectId ? byId.get(cursor.parentObjectId) ?? null : null;
+  }
+
+  return expanded;
+}
+
 function createObjectPreset(type: "fuel" | "oled" | "protection" | "custom", parentObjectId?: string | null): {
   name: string;
   type?: string;
@@ -284,6 +297,12 @@ export function LeftProjectPanel() {
   const topLevelObjects = childrenByParent.get(null) ?? [];
   const currentGraphObjectId = graphScopeStack[graphScopeStack.length - 1] ?? null;
   const selectedObject = project.objects.find((item) => item.id === (currentGraphObjectId ?? selectedObjectId)) ?? null;
+  const treeFocusObjectId =
+    currentGraphObjectId ?? (selectedItemType === "object" && selectedItemId ? selectedItemId : selectedObjectId);
+  const expandedObjectIds = useMemo(
+    () => collectExpandedObjectIds(project.objects, treeFocusObjectId),
+    [project.objects, treeFocusObjectId]
+  );
   const libraryEnabled = activeWorkspace === "machine" && Boolean(currentGraphObjectId) && Boolean(selectedObject);
 
   function addLibraryItem(item: LibraryItemDefinition) {
@@ -350,9 +369,9 @@ export function LeftProjectPanel() {
   function renderObjectBranch(object: PlcObjectDefinition): React.ReactNode {
     const objectKey = `object:${object.id}`;
     const childObjects = childrenByParent.get(object.id) ?? [];
-    const objectOpen = tree.isOpen(objectKey) || selectedObjectId === object.id;
-    const hasChildren = childObjects.length > 0;
     const machineSelected = selectedItemType === "object" && selectedItemId === object.id;
+    const objectOpen = tree.isOpen(objectKey) || expandedObjectIds.has(object.id) || machineSelected;
+    const hasChildren = childObjects.length > 0;
 
     return (
       <TreeBranch
