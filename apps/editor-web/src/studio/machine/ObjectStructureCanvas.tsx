@@ -184,7 +184,7 @@ function StructureInternalNode(props: NodeProps) {
   const selected = props.selected;
   const rowCount = Math.max(node.inputs.length, node.outputs.length, 1);
   const nodeHeight = getStructureNodeHeight(node);
-  const isObjectNode = node.kind === "Object";
+  const isObjectNode = Boolean(node.refObjectId);
 
   if (isObjectNode) {
     return (
@@ -259,6 +259,7 @@ function ObjectStructureCanvasInner() {
   const selectItem = useStudioStore((state) => state.selectItem);
   const ensureObjectStructure = useStudioStore((state) => state.ensureObjectStructure);
   const addStructureRoute = useStudioStore((state) => state.addStructureRoute);
+  const enterGraphScope = useStudioStore((state) => state.enterGraphScope);
   const updateStructureNodePosition = useStudioStore((state) => state.updateStructureNodePosition);
 
   const object = project.objects.find((item) => item.id === selectedObjectId) ?? project.objects[0] ?? null;
@@ -477,6 +478,20 @@ function ObjectStructureCanvasInner() {
                 selectItem("subobject", data.node.id, {
                   objectId: object.id,
                   machineId: object.behavior?.machineId ?? null
+                });
+              }}
+              onNodeDoubleClick={(_, node) => {
+                const data = node.data as StructureFlowNodeData;
+                if (data.entityType !== "internal" || !data.node.refObjectId) {
+                  return;
+                }
+
+                const nestedObject =
+                  project.objects.find((item) => item.id === data.node.refObjectId) ?? null;
+                enterGraphScope(data.node.refObjectId, { machineId: nestedObject?.behavior?.machineId ?? null });
+                selectItem("object", data.node.refObjectId, {
+                  objectId: data.node.refObjectId,
+                  machineId: nestedObject?.behavior?.machineId ?? null
                 });
               }}
               onConnect={handleConnect}

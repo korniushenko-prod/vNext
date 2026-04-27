@@ -132,9 +132,28 @@ interface StudioState {
       title: string;
       kind: string;
       summary?: string;
+      refObjectId?: string | null;
       position?: { x: number; y: number };
       inputs?: Array<{ name: string; dataType?: DataType; summary?: string }>;
       outputs?: Array<{ name: string; dataType?: DataType; summary?: string }>;
+    }
+  ) => void;
+  addStructureObjectNode: (
+    objectId: string,
+    input: {
+      object: {
+        name: string;
+        type?: string;
+        behaviorKind: BehaviorKind;
+        summary?: string;
+      };
+      node: {
+        title: string;
+        summary?: string;
+        position?: { x: number; y: number };
+        inputs?: Array<{ name: string; dataType?: DataType; summary?: string }>;
+        outputs?: Array<{ name: string; dataType?: DataType; summary?: string }>;
+      };
     }
   ) => void;
   addStructureRoute: (
@@ -501,6 +520,61 @@ export const useStudioStore = create<StudioState>((set) => ({
         machineViewMode: "object",
         objectViewLens: "structure",
         selectedItemType: "subobject",
+        selectedItemId: createdNodeId,
+        selectedObjectId: objectId
+      };
+    }),
+  addStructureObjectNode: (objectId, input) =>
+    set((state) => {
+      const parentObject = state.project.objects.find((item) => item.id === objectId);
+      if (!parentObject) {
+        return state;
+      }
+
+      const nextObject = createObjectDefinition(state.project, {
+        ...input.object,
+        parentObjectId: objectId
+      });
+
+      let createdNodeId: string | null = null;
+      const nextObjects = state.project.objects.map((object) => {
+        if (object.id !== objectId) {
+          return object;
+        }
+
+        const structure = object.structure ?? createObjectStructureDefinition();
+        const nextNode = createObjectStructureNodeDefinition(
+          { ...object, structure },
+          {
+            title: input.node.title,
+            kind: "Object",
+            summary: input.node.summary,
+            refObjectId: nextObject.id,
+            position: input.node.position,
+            inputs: input.node.inputs,
+            outputs: input.node.outputs
+          }
+        );
+        createdNodeId = nextNode.id;
+        return {
+          ...object,
+          structure: {
+            ...structure,
+            nodes: [...structure.nodes, nextNode]
+          }
+        };
+      });
+
+      return {
+        project: {
+          ...state.project,
+          objects: [...nextObjects, nextObject]
+        },
+        activeWorkspace: "machine",
+        graphScopeStack: [...state.graphScopeStack.filter((id) => id !== objectId), objectId],
+        machineViewMode: "object",
+        objectViewLens: "structure",
+        selectedItemType: "subobject" as const,
         selectedItemId: createdNodeId,
         selectedObjectId: objectId
       };

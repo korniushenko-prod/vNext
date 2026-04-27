@@ -25,6 +25,7 @@ export interface ObjectStructureNodeDefinition {
   title: string;
   kind: string;
   summary: string;
+  refObjectId?: string | null;
   position: { x: number; y: number };
   inputs: ObjectInterfacePortDefinition[];
   outputs: ObjectInterfacePortDefinition[];
@@ -278,6 +279,52 @@ function normalizePortList(
     }));
 }
 
+function normalizeStructureNodeList(value: unknown): ObjectStructureNodeDefinition[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+    .map((item, index) => ({
+      id: typeof item.id === "string" ? item.id : `node_${index + 1}`,
+      title: typeof item.title === "string" ? item.title : `Node ${index + 1}`,
+      kind: typeof item.kind === "string" ? item.kind : "Block",
+      summary: typeof item.summary === "string" ? item.summary : "",
+      refObjectId:
+        typeof item.refObjectId === "string" || item.refObjectId === null ? (item.refObjectId as string | null) : null,
+      position:
+        typeof item.position === "object" &&
+        item.position !== null &&
+        typeof (item.position as Record<string, unknown>).x === "number" &&
+        typeof (item.position as Record<string, unknown>).y === "number"
+          ? {
+              x: (item.position as Record<string, number>).x,
+              y: (item.position as Record<string, number>).y
+            }
+          : { x: 80, y: 80 },
+      inputs: normalizePortList(item.inputs, "input"),
+      outputs: normalizePortList(item.outputs, "output"),
+      parameters: typeof item.parameters === "object" && item.parameters !== null ? (item.parameters as Record<string, unknown>) : undefined,
+      relatedSignalIds: Array.isArray(item.relatedSignalIds) ? (item.relatedSignalIds as string[]) : undefined,
+      relatedBlockIds: Array.isArray(item.relatedBlockIds) ? (item.relatedBlockIds as string[]) : undefined,
+      relatedBindingIds: Array.isArray(item.relatedBindingIds) ? (item.relatedBindingIds as string[]) : undefined
+    }));
+}
+
+function normalizeStructureDefinition(value: unknown): ObjectStructureDefinition | undefined {
+  if (typeof value !== "object" || value === null) {
+    return undefined;
+  }
+
+  const raw = value as Record<string, unknown>;
+  return {
+    summary: typeof raw.summary === "string" ? raw.summary : "Internal parts, ports and local routes inside this object.",
+    nodes: normalizeStructureNodeList(raw.nodes),
+    routes: Array.isArray(raw.routes) ? (raw.routes as ObjectStructureRouteDefinition[]) : []
+  };
+}
+
 function normalizeProjectDocument(project: UniversalPlcProjectDocument): UniversalPlcDemoProject {
   return {
     ...project,
@@ -308,7 +355,12 @@ function normalizeProjectDocument(project: UniversalPlcProjectDocument): Univers
         outputs: normalizePortList(rawObject.outputs, "output"),
         status: normalizePortList(rawObject.status, "status"),
         permissions: normalizePortList(rawObject.permissions, "permission"),
-        faults: normalizePortList(rawObject.faults ?? rawObject.alarms, "fault")
+        faults: normalizePortList(rawObject.faults ?? rawObject.alarms, "fault"),
+        structure: normalizeStructureDefinition(rawObject.structure),
+        behavior:
+          typeof rawObject.behavior === "object" && rawObject.behavior !== null
+            ? (rawObject.behavior as ObjectBehaviorDefinition)
+            : undefined
       };
     }),
     compositionLinks: project.compositionLinks ?? [],
@@ -584,6 +636,7 @@ export function createObjectStructureNodeDefinition(
     title: string;
     kind: string;
     summary?: string;
+    refObjectId?: string | null;
     position?: { x: number; y: number };
     inputs?: StructurePortSeed[];
     outputs?: StructurePortSeed[];
@@ -605,6 +658,7 @@ export function createObjectStructureNodeDefinition(
     title: input.title.trim() || "New Internal Part",
     kind: input.kind.trim() || "Subobject",
     summary: input.summary?.trim() || "Describe what this internal part is responsible for.",
+    refObjectId: input.refObjectId ?? null,
     position: input.position ?? { x: 80, y: 80 },
     inputs: createPorts(input.inputs, "input"),
     outputs: createPorts(input.outputs, "output")

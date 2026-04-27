@@ -8,6 +8,8 @@ interface LibraryItemDefinition {
   label: string;
   kind: string;
   summary: string;
+  behaviorKind?: BehaviorKind;
+  objectType?: string;
   inputs?: Array<{ name: string; dataType?: "bool" | "number" | "string" | "enum"; summary?: string }>;
   outputs?: Array<{ name: string; dataType?: "bool" | "number" | "string" | "enum"; summary?: string }>;
 }
@@ -73,6 +75,8 @@ const LIBRARY_GROUPS: Array<{ id: string; label: string; items: LibraryItemDefin
         id: "pump-unit",
         label: "PumpUnit",
         kind: "Object",
+        objectType: "PumpUnit",
+        behaviorKind: "control",
         summary: "Pump object with command, feedback and ready/fault outputs.",
         inputs: [{ name: "startCmd" }, { name: "runFb" }, { name: "faultFb" }, { name: "pressureValue", dataType: "number" }],
         outputs: [{ name: "running" }, { name: "ready" }, { name: "fault" }]
@@ -81,6 +85,8 @@ const LIBRARY_GROUPS: Array<{ id: string; label: string; items: LibraryItemDefin
         id: "ready-resolver",
         label: "ReadyResolver",
         kind: "Object",
+        objectType: "ReadyResolver",
+        behaviorKind: "control",
         summary: "Resolves several conditions into one engineering-ready signal.",
         inputs: [{ name: "inA" }, { name: "inB" }, { name: "inC" }],
         outputs: [{ name: "ready" }]
@@ -89,6 +95,8 @@ const LIBRARY_GROUPS: Array<{ id: string; label: string; items: LibraryItemDefin
         id: "fault-aggregator",
         label: "FaultAggregator",
         kind: "Object",
+        objectType: "FaultAggregator",
+        behaviorKind: "monitoring",
         summary: "Combines several fault conditions into one alarm output.",
         inputs: [{ name: "faultA" }, { name: "faultB" }, { name: "faultC" }],
         outputs: [{ name: "fault" }]
@@ -257,6 +265,7 @@ export function LeftProjectPanel() {
   const addObject = useStudioStore((state) => state.addObject);
   const ensureObjectStructure = useStudioStore((state) => state.ensureObjectStructure);
   const addStructureNode = useStudioStore((state) => state.addStructureNode);
+  const addStructureObjectNode = useStudioStore((state) => state.addStructureObjectNode);
 
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const tree = useTreeState(["project-root", "system-objects"]);
@@ -287,14 +296,35 @@ export function LeftProjectPanel() {
     const column = nodeIndex % 3;
     const row = Math.floor(nodeIndex / 3);
 
+    const position = {
+      x: 200 + column * 250,
+      y: 120 + row * 180
+    };
+
+    if (item.kind === "Object") {
+      addStructureObjectNode(selectedObject.id, {
+        object: {
+          name: item.label,
+          type: item.objectType ?? item.label,
+          behaviorKind: item.behaviorKind ?? "control",
+          summary: item.summary
+        },
+        node: {
+          title: item.label,
+          summary: item.summary,
+          position,
+          inputs: item.inputs,
+          outputs: item.outputs
+        }
+      });
+      return;
+    }
+
     addStructureNode(selectedObject.id, {
       title: item.label,
       kind: item.kind,
       summary: item.summary,
-      position: {
-        x: 200 + column * 250,
-        y: 120 + row * 180
-      },
+      position,
       inputs: item.inputs,
       outputs: item.outputs
     });
