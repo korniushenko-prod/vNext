@@ -1,4 +1,5 @@
 import demoProjectDocument from "./demoProject.data.json";
+import { getBuiltinBlockByKind } from "./blockCatalog";
 
 export type WorkspaceId = "bind" | "logic" | "machine" | "observe";
 export type BehaviorKind = "sequence" | "control" | "monitoring";
@@ -758,13 +759,14 @@ function applyBuiltinTemplateSeed(object: PlcObjectDefinition) {
   const nodeIdByKey = new Map<string, string>();
 
   for (const nodeSeed of seed.structure.nodes) {
+    const builtinBlock = getBuiltinBlockByKind(nodeSeed.kind);
     const nextNode = createObjectStructureNodeDefinition(structuredObject, {
       title: nodeSeed.title,
       kind: nodeSeed.kind,
       summary: nodeSeed.summary,
       position: nodeSeed.position,
-      inputs: nodeSeed.inputs,
-      outputs: nodeSeed.outputs
+      inputs: nodeSeed.inputs ?? builtinBlock?.inputs,
+      outputs: nodeSeed.outputs ?? builtinBlock?.outputs
     });
 
     nodeIdByKey.set(nodeSeed.key, nextNode.id);

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { BUILTIN_BLOCK_LIBRARY_GROUPS } from "../model/blockCatalog";
 import type { BehaviorKind, PlcObjectDefinition } from "../model/demoProject";
 import type { OverlayAnchorPoint } from "../store/studioStore";
 import { useStudioStore } from "../store/studioStore";
@@ -15,81 +16,18 @@ interface LibraryItemDefinition {
 }
 
 const LIBRARY_GROUPS: Array<{ id: string; label: string; items: LibraryItemDefinition[] }> = [
-  {
-    id: "simple-blocks",
-    label: "Simple Blocks",
-    items: [
-      {
-        id: "and",
-        label: "AND",
-        kind: "Block",
-        summary: "Boolean AND gate.",
-        inputs: [{ name: "in1" }, { name: "in2" }],
-        outputs: [{ name: "out" }]
-      },
-      {
-        id: "or",
-        label: "OR",
-        kind: "Block",
-        summary: "Boolean OR gate.",
-        inputs: [{ name: "in1" }, { name: "in2" }],
-        outputs: [{ name: "out" }]
-      },
-      {
-        id: "not",
-        label: "NOT",
-        kind: "Block",
-        summary: "Boolean inversion gate.",
-        inputs: [{ name: "in" }],
-        outputs: [{ name: "out" }]
-      },
-      {
-        id: "comparator",
-        label: "Comparator",
-        kind: "Block",
-        summary: "Compares values against a threshold or another signal.",
-        inputs: [{ name: "value", dataType: "number" }, { name: "setpoint", dataType: "number" }],
-        outputs: [{ name: "ok" }]
-      },
-      {
-        id: "setpoint",
-        label: "Setpoint",
-        kind: "Block",
-        summary: "Provides a named engineering setpoint inside the object.",
-        outputs: [{ name: "value", dataType: "number" }]
-      }
-    ]
-  },
-  {
-    id: "function-blocks",
-    label: "Function Blocks",
-    items: [
-      {
-        id: "ton",
-        label: "TON",
-        kind: "Function Block",
-        summary: "On-delay timer.",
-        inputs: [{ name: "in" }, { name: "pt", dataType: "number" }],
-        outputs: [{ name: "q" }, { name: "et", dataType: "number" }]
-      },
-      {
-        id: "selector",
-        label: "Selector",
-        kind: "Function Block",
-        summary: "Selects one result from multiple candidates.",
-        inputs: [{ name: "inA" }, { name: "inB" }, { name: "select", dataType: "enum" }],
-        outputs: [{ name: "out" }]
-      },
-      {
-        id: "latch",
-        label: "Latch",
-        kind: "Function Block",
-        summary: "Stores a command until reset.",
-        inputs: [{ name: "set" }, { name: "reset" }],
-        outputs: [{ name: "out" }]
-      }
-    ]
-  },
+  ...BUILTIN_BLOCK_LIBRARY_GROUPS.map((group) => ({
+    id: group.id,
+    label: group.label,
+    items: group.items.map((item) => ({
+      id: item.id,
+      label: item.label,
+      kind: item.kind,
+      summary: item.summary,
+      inputs: item.inputs,
+      outputs: item.outputs
+    }))
+  })),
   {
     id: "objects",
     label: "Objects / Templates",
