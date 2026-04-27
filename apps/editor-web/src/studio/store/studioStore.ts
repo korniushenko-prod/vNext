@@ -188,6 +188,35 @@ interface StudioState {
 
 const PROJECT_SELECTION_ID = "project-root";
 
+function createNodePosition(index: number) {
+  const column = index % 3;
+  const row = Math.floor(index / 3);
+
+  return {
+    x: 200 + column * 250,
+    y: 120 + row * 180
+  };
+}
+
+function createStructureNodeInputFromObject(object: UniversalPlcDemoProject["objects"][number]) {
+  return {
+    title: object.name,
+    kind: "Object",
+    summary: object.summary,
+    refObjectId: object.id,
+    inputs: [...object.commands, ...object.inputs, ...object.permissions].map((port) => ({
+      name: port.name,
+      dataType: port.dataType,
+      summary: port.summary
+    })),
+    outputs: [...object.outputs, ...object.status, ...object.faults].map((port) => ({
+      name: port.name,
+      dataType: port.dataType,
+      summary: port.summary
+    }))
+  };
+}
+
 function buildProjectSelection(project: UniversalPlcDemoProject) {
   const firstObject = project.objects[0];
   if (!firstObject) {
@@ -342,17 +371,41 @@ export const useStudioStore = create<StudioState>((set) => ({
   addObject: (input, anchorPoint) =>
     set((state) => {
       const nextObject = createObjectDefinition(state.project, input);
+      const parentObjectId = input.parentObjectId ?? null;
+      const nextObjects = state.project.objects.map((object) => {
+        if (!parentObjectId || object.id !== parentObjectId) {
+          return object;
+        }
+
+        const structure = object.structure ?? createObjectStructureDefinition();
+        const nextNode = createObjectStructureNodeDefinition(
+          { ...object, structure },
+          {
+            ...createStructureNodeInputFromObject(nextObject),
+            position: createNodePosition(structure.nodes.length)
+          }
+        );
+
+        return {
+          ...object,
+          structure: {
+            ...structure,
+            nodes: [...structure.nodes, nextNode]
+          }
+        };
+      });
+
       return {
         project: {
           ...state.project,
-          objects: [...state.project.objects, nextObject]
+          objects: [...nextObjects, nextObject]
         },
         activeWorkspace: "machine",
-        graphScopeStack: [],
-        machineViewMode: "topology",
+        graphScopeStack: parentObjectId ? [...state.graphScopeStack.filter((id) => id !== parentObjectId), parentObjectId] : [],
+        machineViewMode: parentObjectId ? "object" : "topology",
         selectedItemType: "object" as const,
         selectedItemId: nextObject.id,
-        selectedObjectId: nextObject.id,
+        selectedObjectId: parentObjectId ?? nextObject.id,
         selectedMachineId: null,
         selectedGroupId: null,
         selectedSectionId: null,
@@ -481,14 +534,34 @@ export const useStudioStore = create<StudioState>((set) => ({
     set((state) => ({
       project: {
         ...state.project,
-        objects: state.project.objects.map((object) =>
-          object.id !== objectId
-            ? object
-            : {
-                ...object,
-                structure: object.structure ?? createObjectStructureDefinition(summary)
+        objects: state.project.objects.map((object) => {
+          if (object.id !== objectId) {
+            return object;
+          }
+
+          const structure = object.structure ?? createObjectStructureDefinition(summary);
+          const linkedObjectIds = new Set(structure.nodes.map((node) => node.refObjectId).filter(Boolean));
+          const childObjects = state.project.objects.filter(
+            (child) => child.parentObjectId === objectId && !linkedObjectIds.has(child.id)
+          );
+          const appendedNodes = childObjects.map((child, index) =>
+            createObjectStructureNodeDefinition(
+              { ...object, structure: { ...structure, nodes: [...structure.nodes] } },
+              {
+                ...createStructureNodeInputFromObject(child),
+                position: createNodePosition(structure.nodes.length + index)
               }
-        )
+            )
+          );
+
+          return {
+            ...object,
+            structure: {
+              ...structure,
+              nodes: [...structure.nodes, ...appendedNodes]
+            }
+          };
+        })
       }
     })),
   addStructureNode: (objectId, input) =>
