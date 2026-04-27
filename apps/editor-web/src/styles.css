@@ -1026,6 +1026,42 @@ textarea {
   cursor: not-allowed;
 }
 
+.system-object-node--nested {
+  min-width: 220px;
+  max-width: 260px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(4, 10, 18, 0.2);
+}
+
+.system-object-node__ports--nested {
+  gap: 10px;
+}
+
+.system-object-node--nested .system-object-node__body {
+  gap: 0;
+}
+
+.system-object-node--nested .system-object-node__body p,
+.system-object-node--nested .system-object-node__stats,
+.system-object-node--nested .system-object-node__actions {
+  display: none;
+}
+
+.system-object-node--nested .system-object-node__body strong {
+  font-size: 18px;
+}
+
+.system-object-node--nested .system-object-node__port {
+  min-height: 30px;
+  padding: 6px 9px;
+  border-radius: 10px;
+}
+
+.system-object-node--nested .system-object-node__port-name {
+  font-size: 12px;
+}
+
 .topology-system-header {
   display: flex;
   justify-content: space-between;

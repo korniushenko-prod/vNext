@@ -183,6 +183,70 @@ function StructureInternalNode(props: NodeProps) {
   const selected = props.selected;
   const rowCount = Math.max(node.inputs.length, node.outputs.length, 1);
   const nodeHeight = getStructureNodeHeight(node);
+  const isObjectNode = node.kind.toLowerCase().includes("object");
+
+  if (isObjectNode) {
+    return (
+      <div className={`system-object-node system-object-node--nested${selected ? " is-selected" : ""}`}>
+        <div className="system-object-node__header">
+          <span className="system-object-node__type">{node.kind}</span>
+          <span className="system-object-node__behavior">nested</span>
+        </div>
+
+        <div className="system-object-node__body">
+          <strong>{node.title}</strong>
+        </div>
+
+        <div className="system-object-node__ports system-object-node__ports--nested">
+          <div className="system-object-node__port-column system-object-node__port-column--incoming">
+            <span className="system-object-node__port-title">In</span>
+            <div className="system-object-node__port-list">
+              {node.inputs.length ? (
+                node.inputs.map((port: ObjectInterfacePortDefinition) => (
+                  <div key={port.id} className="system-object-node__port-row system-object-node__port-row--incoming">
+                    <div className="system-object-node__port system-object-node__port--inputs">
+                      <Handle
+                        id={port.id}
+                        type="target"
+                        position={Position.Left}
+                        className="system-object-node__handle system-object-node__handle--inline"
+                      />
+                      <span className="system-object-node__port-name">{port.name}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <span className="system-object-node__port-empty">No ports</span>
+              )}
+            </div>
+          </div>
+
+          <div className="system-object-node__port-column system-object-node__port-column--outgoing">
+            <span className="system-object-node__port-title">Out</span>
+            <div className="system-object-node__port-list">
+              {node.outputs.length ? (
+                node.outputs.map((port: ObjectInterfacePortDefinition) => (
+                  <div key={port.id} className="system-object-node__port-row system-object-node__port-row--outgoing">
+                    <div className="system-object-node__port system-object-node__port--outputs">
+                      <span className="system-object-node__port-name">{port.name}</span>
+                      <Handle
+                        id={port.id}
+                        type="source"
+                        position={Position.Right}
+                        className="system-object-node__handle system-object-node__handle--inline"
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <span className="system-object-node__port-empty">No ports</span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`structure-node-card structure-node-card--flow${selected ? " is-selected" : ""}`} style={{ height: nodeHeight }}>
