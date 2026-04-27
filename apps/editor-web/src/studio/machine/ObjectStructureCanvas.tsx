@@ -312,6 +312,14 @@ function ObjectStructureCanvasInner() {
   }
 
   const structure = object.structure ?? null;
+  const boundary = groupBoundaryPorts(object);
+  const safeStructure =
+    structure ??
+    ({
+      summary: "",
+      nodes: [],
+      routes: []
+    } as NonNullable<PlcObjectDefinition["structure"]>);
 
   useEffect(() => {
     if (!object.structure) {
@@ -319,22 +327,8 @@ function ObjectStructureCanvasInner() {
     }
   }, [ensureObjectStructure, object]);
 
-  if (!structure) {
-    return (
-      <div className="machine-canvas structure-canvas">
-        <section className="panel-card structure-empty-state">
-          <h3>Opening {object.name}</h3>
-          <p className="muted-copy">
-            Preparing the object canvas so you can add nested objects, logic blocks and connections directly inside it.
-          </p>
-        </section>
-      </div>
-    );
-  }
-
-  const boundary = groupBoundaryPorts(object);
-  const sceneHeight = getStructureSceneHeight(boundary, structure);
-  const nodeLookup = new Map(structure.nodes.map((node) => [node.id, node]));
+  const sceneHeight = getStructureSceneHeight(boundary, safeStructure);
+  const nodeLookup = new Map(safeStructure.nodes.map((node) => [node.id, node]));
   const boundaryLookup = new Map(
     [...boundary.left, ...boundary.right].map((entry) => [flowNodeIdForBoundary(entry.kind, entry.port.id), entry])
   );
@@ -385,7 +379,7 @@ function ObjectStructureCanvasInner() {
       }))
     ] as Array<Node<StructureBoundaryNodeData>>;
 
-    const internalNodes = structure.nodes.map((node) => ({
+    const internalNodes = safeStructure.nodes.map((node) => ({
       id: flowNodeIdForInternal(node.id),
       type: "structureInternal",
       position: node.position,
@@ -404,11 +398,11 @@ function ObjectStructureCanvasInner() {
     })) as Array<Node<StructureInternalNodeData>>;
 
     return [...boundaryNodes, ...internalNodes];
-  }, [boundary.left, boundary.right, selectedItemId, selectedItemType, structure.nodes]);
+  }, [boundary.left, boundary.right, safeStructure.nodes, selectedItemId, selectedItemType]);
 
   const edges = useMemo<Array<Edge>>(
     () =>
-      structure.routes.map((route) => ({
+      safeStructure.routes.map((route) => ({
         id: route.id,
         source: flowNodeIdForEndpoint(route.from),
         target: flowNodeIdForEndpoint(route.to),
@@ -433,7 +427,7 @@ function ObjectStructureCanvasInner() {
           stroke: "rgba(192, 210, 230, 0.1)"
         }
       })),
-    [structure.routes]
+    [safeStructure.routes]
   );
 
   function getEndpointLabel(nodeId: string, handleId: string) {
@@ -477,6 +471,19 @@ function ObjectStructureCanvasInner() {
     });
   }
 
+  if (!structure) {
+    return (
+      <div className="machine-canvas structure-canvas">
+        <section className="panel-card structure-empty-state">
+          <h3>Opening {object.name}</h3>
+          <p className="muted-copy">
+            Preparing the object canvas so you can add nested objects, logic blocks and connections directly inside it.
+          </p>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="machine-canvas structure-canvas">
       <div className="structure-canvas__header">
@@ -491,7 +498,7 @@ function ObjectStructureCanvasInner() {
           <span className="system-object-node__type">{object.type}</span>
           <strong>{object.name}</strong>
           <span>{countBoundaryPorts(object)} ports</span>
-          <span>{structure.nodes.length} internal</span>
+          <span>{safeStructure.nodes.length} internal</span>
         </div>
 
         <div className="structure-object-canvas structure-object-canvas--schematic">
