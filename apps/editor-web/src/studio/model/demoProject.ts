@@ -61,6 +61,42 @@ export interface StructurePortSeed {
   summary?: string;
 }
 
+interface BuiltinTemplatePortSeed extends StructurePortSeed {
+  family: ObjectContractFamily;
+}
+
+interface BuiltinTemplateStructureNodeSeed {
+  key: string;
+  title: string;
+  kind: string;
+  summary?: string;
+  position?: { x: number; y: number };
+  inputs?: StructurePortSeed[];
+  outputs?: StructurePortSeed[];
+}
+
+interface BuiltinTemplateStructureEndpointSeed {
+  kind: "boundary" | "node";
+  family?: ObjectContractFamily;
+  nodeKey?: string;
+  portName: string;
+}
+
+interface BuiltinTemplateStructureRouteSeed {
+  label?: string;
+  from: BuiltinTemplateStructureEndpointSeed;
+  to: BuiltinTemplateStructureEndpointSeed;
+}
+
+interface BuiltinTemplateSeed {
+  ports: BuiltinTemplatePortSeed[];
+  structure?: {
+    summary: string;
+    nodes: BuiltinTemplateStructureNodeSeed[];
+    routes: BuiltinTemplateStructureRouteSeed[];
+  };
+}
+
 export interface PlcObjectDefinition {
   id: string;
   name: string;
@@ -258,6 +294,197 @@ export interface UniversalPlcDemoProject {
   runtimeSnapshot: RuntimeSnapshot;
 }
 
+const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
+  PumpUnit: {
+    ports: [
+      { family: "commands", name: "startCmd", summary: "Run request for this pump unit." },
+      { family: "commands", name: "reset", summary: "Reset command for local alarms and latches." },
+      { family: "inputs", name: "runFb", summary: "Physical run feedback from the pump." },
+      { family: "inputs", name: "faultFb", summary: "Physical fault feedback from the pump." },
+      {
+        family: "inputs",
+        name: "pressureValue",
+        dataType: "number",
+        summary: "Measured pressure value used to validate the running pump."
+      },
+      { family: "status", name: "running", summary: "Pump is confirmed as running." },
+      { family: "status", name: "ready", summary: "Pump is available and pressure conditions are satisfied." },
+      { family: "faults", name: "fault", summary: "Combined pump fault output." }
+    ],
+    structure: {
+      summary: "Pump unit assembled from simple feedback, compare and fault blocks.",
+      nodes: [
+        {
+          key: "pressureCompare",
+          title: "PressureOk",
+          kind: "Compare",
+          summary: "Checks that measured pressure satisfies the pump requirement.",
+          position: { x: 280, y: 150 },
+          inputs: [
+            { name: "value", dataType: "number" },
+            { name: "setpoint", dataType: "number" }
+          ],
+          outputs: [{ name: "ok" }]
+        },
+        {
+          key: "readyAnd",
+          title: "ReadyLogic",
+          kind: "AND",
+          summary: "Combines running feedback with pressure confirmation.",
+          position: { x: 560, y: 130 },
+          inputs: [{ name: "in1" }, { name: "in2" }],
+          outputs: [{ name: "out" }]
+        },
+        {
+          key: "faultOr",
+          title: "FaultLogic",
+          kind: "OR",
+          summary: "Provides a starter point for fault aggregation.",
+          position: { x: 560, y: 290 },
+          inputs: [{ name: "in1" }, { name: "in2" }],
+          outputs: [{ name: "out" }]
+        }
+      ],
+      routes: [
+        {
+          from: { kind: "boundary", family: "inputs", portName: "pressureValue" },
+          to: { kind: "node", nodeKey: "pressureCompare", portName: "value" }
+        },
+        {
+          from: { kind: "boundary", family: "inputs", portName: "runFb" },
+          to: { kind: "node", nodeKey: "readyAnd", portName: "in1" }
+        },
+        {
+          from: { kind: "node", nodeKey: "pressureCompare", portName: "ok" },
+          to: { kind: "node", nodeKey: "readyAnd", portName: "in2" }
+        },
+        {
+          from: { kind: "node", nodeKey: "readyAnd", portName: "out" },
+          to: { kind: "boundary", family: "status", portName: "ready" }
+        },
+        {
+          from: { kind: "boundary", family: "inputs", portName: "runFb" },
+          to: { kind: "boundary", family: "status", portName: "running" }
+        },
+        {
+          from: { kind: "boundary", family: "inputs", portName: "faultFb" },
+          to: { kind: "node", nodeKey: "faultOr", portName: "in1" }
+        },
+        {
+          from: { kind: "node", nodeKey: "faultOr", portName: "out" },
+          to: { kind: "boundary", family: "faults", portName: "fault" }
+        }
+      ]
+    }
+  },
+  ReadyResolver: {
+    ports: [
+      { family: "inputs", name: "inA", summary: "First ready condition." },
+      { family: "inputs", name: "inB", summary: "Second ready condition." },
+      { family: "inputs", name: "inC", summary: "Third ready condition." },
+      { family: "outputs", name: "ready", summary: "Resolved ready output." }
+    ],
+    structure: {
+      summary: "Ready resolver chains simple AND blocks into one engineering-ready output.",
+      nodes: [
+        {
+          key: "gateAB",
+          title: "GateAB",
+          kind: "AND",
+          summary: "Combines the first two conditions.",
+          position: { x: 300, y: 160 },
+          inputs: [{ name: "in1" }, { name: "in2" }],
+          outputs: [{ name: "out" }]
+        },
+        {
+          key: "gateReady",
+          title: "GateReady",
+          kind: "AND",
+          summary: "Combines the intermediate result with the final condition.",
+          position: { x: 560, y: 160 },
+          inputs: [{ name: "in1" }, { name: "in2" }],
+          outputs: [{ name: "out" }]
+        }
+      ],
+      routes: [
+        {
+          from: { kind: "boundary", family: "inputs", portName: "inA" },
+          to: { kind: "node", nodeKey: "gateAB", portName: "in1" }
+        },
+        {
+          from: { kind: "boundary", family: "inputs", portName: "inB" },
+          to: { kind: "node", nodeKey: "gateAB", portName: "in2" }
+        },
+        {
+          from: { kind: "node", nodeKey: "gateAB", portName: "out" },
+          to: { kind: "node", nodeKey: "gateReady", portName: "in1" }
+        },
+        {
+          from: { kind: "boundary", family: "inputs", portName: "inC" },
+          to: { kind: "node", nodeKey: "gateReady", portName: "in2" }
+        },
+        {
+          from: { kind: "node", nodeKey: "gateReady", portName: "out" },
+          to: { kind: "boundary", family: "outputs", portName: "ready" }
+        }
+      ]
+    }
+  },
+  FaultAggregator: {
+    ports: [
+      { family: "inputs", name: "faultA", summary: "First fault input." },
+      { family: "inputs", name: "faultB", summary: "Second fault input." },
+      { family: "inputs", name: "faultC", summary: "Third fault input." },
+      { family: "faults", name: "fault", summary: "Aggregated fault output." }
+    ],
+    structure: {
+      summary: "Fault aggregator combines multiple inputs into one exported fault.",
+      nodes: [
+        {
+          key: "faultPair",
+          title: "FaultPair",
+          kind: "OR",
+          summary: "Combines the first two fault conditions.",
+          position: { x: 300, y: 160 },
+          inputs: [{ name: "in1" }, { name: "in2" }],
+          outputs: [{ name: "out" }]
+        },
+        {
+          key: "faultAny",
+          title: "FaultAny",
+          kind: "OR",
+          summary: "Combines the intermediate result with the final fault input.",
+          position: { x: 560, y: 160 },
+          inputs: [{ name: "in1" }, { name: "in2" }],
+          outputs: [{ name: "out" }]
+        }
+      ],
+      routes: [
+        {
+          from: { kind: "boundary", family: "inputs", portName: "faultA" },
+          to: { kind: "node", nodeKey: "faultPair", portName: "in1" }
+        },
+        {
+          from: { kind: "boundary", family: "inputs", portName: "faultB" },
+          to: { kind: "node", nodeKey: "faultPair", portName: "in2" }
+        },
+        {
+          from: { kind: "node", nodeKey: "faultPair", portName: "out" },
+          to: { kind: "node", nodeKey: "faultAny", portName: "in1" }
+        },
+        {
+          from: { kind: "boundary", family: "inputs", portName: "faultC" },
+          to: { kind: "node", nodeKey: "faultAny", portName: "in2" }
+        },
+        {
+          from: { kind: "node", nodeKey: "faultAny", portName: "out" },
+          to: { kind: "boundary", family: "faults", portName: "fault" }
+        }
+      ]
+    }
+  }
+};
+
 export type UniversalPlcProjectDocument = UniversalPlcDemoProject;
 
 function normalizePortList(
@@ -422,6 +649,134 @@ function createUniqueId(base: string, existingIds: string[]) {
   return candidate;
 }
 
+function findPortByNameForFamily(
+  object: PlcObjectDefinition,
+  family: ObjectContractFamily,
+  portName: string
+) {
+  return object[family].find((port) => port.name === portName) ?? null;
+}
+
+function applyBuiltinTemplateSeed(object: PlcObjectDefinition) {
+  const seed = BUILTIN_OBJECT_TEMPLATE_SEEDS[object.type];
+  if (!seed) {
+    return object;
+  }
+
+  let nextObject = { ...object };
+
+  for (const portSeed of seed.ports) {
+    const alreadyExists = nextObject[portSeed.family].some((port) => port.name === portSeed.name);
+    if (alreadyExists) {
+      continue;
+    }
+
+    const nextPort = createObjectPortDefinition(nextObject, portSeed.family, {
+      name: portSeed.name,
+      dataType: portSeed.dataType ?? "bool",
+      summary: portSeed.summary
+    });
+
+    nextObject = {
+      ...nextObject,
+      [portSeed.family]: [...nextObject[portSeed.family], nextPort]
+    };
+  }
+
+  if (!seed.structure) {
+    return nextObject;
+  }
+
+  let structuredObject: PlcObjectDefinition = {
+    ...nextObject,
+    structure: createObjectStructureDefinition(seed.structure.summary)
+  };
+
+  const nodeIdByKey = new Map<string, string>();
+
+  for (const nodeSeed of seed.structure.nodes) {
+    const nextNode = createObjectStructureNodeDefinition(structuredObject, {
+      title: nodeSeed.title,
+      kind: nodeSeed.kind,
+      summary: nodeSeed.summary,
+      position: nodeSeed.position,
+      inputs: nodeSeed.inputs,
+      outputs: nodeSeed.outputs
+    });
+
+    nodeIdByKey.set(nodeSeed.key, nextNode.id);
+    structuredObject = {
+      ...structuredObject,
+      structure: {
+        ...structuredObject.structure!,
+        nodes: [...structuredObject.structure!.nodes, nextNode]
+      }
+    };
+  }
+
+  const routes = seed.structure.routes
+    .map((routeSeed) => {
+      const resolveEndpoint = (
+        endpoint: BuiltinTemplateStructureEndpointSeed
+      ): ObjectStructureRouteEndpointDefinition | null => {
+        if (endpoint.kind === "boundary") {
+          if (!endpoint.family) {
+            return null;
+          }
+
+          const port = findPortByNameForFamily(structuredObject, endpoint.family, endpoint.portName);
+          if (!port) {
+            return null;
+          }
+
+          return {
+            kind: "boundary",
+            portKind: port.kind,
+            portId: port.id
+          };
+        }
+
+        const nodeId = endpoint.nodeKey ? nodeIdByKey.get(endpoint.nodeKey) ?? null : null;
+        const node = nodeId ? structuredObject.structure?.nodes.find((item) => item.id === nodeId) ?? null : null;
+        const port =
+          node?.inputs.find((item) => item.name === endpoint.portName) ??
+          node?.outputs.find((item) => item.name === endpoint.portName) ??
+          null;
+
+        if (!node || !port) {
+          return null;
+        }
+
+        return {
+          kind: "node",
+          nodeId: node.id,
+          portId: port.id
+        };
+      };
+
+      const from = resolveEndpoint(routeSeed.from);
+      const to = resolveEndpoint(routeSeed.to);
+      if (!from || !to) {
+        return null;
+      }
+
+      return createObjectStructureRouteDefinition(structuredObject, {
+        label: routeSeed.label ?? "",
+        from,
+        to
+      });
+    })
+    .filter((route): route is ObjectStructureRouteDefinition => Boolean(route));
+
+  return {
+    ...structuredObject,
+    structure: {
+      ...structuredObject.structure!,
+      routes
+    }
+  };
+}
+
 export function createProjectId(name: string) {
   return sanitizeIdFragment(name) || "untitled_project";
 }
@@ -437,7 +792,7 @@ export function createObjectDefinition(
   }
 ): PlcObjectDefinition {
   const id = createUniqueId(input.name || input.type || "object", project.objects.map((object) => object.id));
-  return {
+  return applyBuiltinTemplateSeed({
     id,
     name: input.name.trim() || "New Object",
     type: input.type?.trim() || "CustomObject",
@@ -451,7 +806,7 @@ export function createObjectDefinition(
     status: [],
     permissions: [],
     faults: []
-  };
+  });
 }
 
 export function createObjectPortDefinition(

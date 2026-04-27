@@ -608,6 +608,7 @@ export const useStudioStore = create<StudioState>((set) => ({
         ...input.object,
         parentObjectId: objectId
       });
+      const nextNodeTemplate = createStructureNodeInputFromObject(nextObject);
 
       let createdNodeId: string | null = null;
       const nextObjects = state.project.objects.map((object) => {
@@ -619,13 +620,10 @@ export const useStudioStore = create<StudioState>((set) => ({
         const nextNode = createObjectStructureNodeDefinition(
           { ...object, structure },
           {
+            ...nextNodeTemplate,
             title: input.node.title,
-            kind: "Object",
-            summary: input.node.summary,
-            refObjectId: nextObject.id,
-            position: input.node.position,
-            inputs: input.node.inputs,
-            outputs: input.node.outputs
+            summary: input.node.summary ?? nextNodeTemplate.summary,
+            position: input.node.position
           }
         );
         createdNodeId = nextNode.id;
