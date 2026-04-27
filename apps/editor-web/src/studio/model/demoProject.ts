@@ -312,14 +312,40 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
       { family: "faults", name: "fault", summary: "Combined pump fault output." }
     ],
     structure: {
-      summary: "Pump unit assembled from simple feedback, compare and fault blocks.",
+      summary: "Pump unit assembled from starter command, compare, ready and fault blocks.",
       nodes: [
+        {
+          key: "runLatch",
+          title: "RunLatch",
+          kind: "Latch",
+          summary: "Stores run demand until reset is applied.",
+          position: { x: 220, y: 120 },
+          inputs: [{ name: "set" }, { name: "reset" }],
+          outputs: [{ name: "out" }]
+        },
+        {
+          key: "runConfirm",
+          title: "RunConfirm",
+          kind: "AND",
+          summary: "Combines stored command with physical run feedback.",
+          position: { x: 500, y: 120 },
+          inputs: [{ name: "in1" }, { name: "in2" }],
+          outputs: [{ name: "out" }]
+        },
+        {
+          key: "pressureMin",
+          title: "PressureMin",
+          kind: "Setpoint",
+          summary: "Starter setpoint node for minimum pressure.",
+          position: { x: 220, y: 290 },
+          outputs: [{ name: "value", dataType: "number" }]
+        },
         {
           key: "pressureCompare",
           title: "PressureOk",
           kind: "Compare",
           summary: "Checks that measured pressure satisfies the pump requirement.",
-          position: { x: 280, y: 150 },
+          position: { x: 500, y: 270 },
           inputs: [
             { name: "value", dataType: "number" },
             { name: "setpoint", dataType: "number" }
@@ -331,7 +357,7 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
           title: "ReadyLogic",
           kind: "AND",
           summary: "Combines running feedback with pressure confirmation.",
-          position: { x: 560, y: 130 },
+          position: { x: 790, y: 180 },
           inputs: [{ name: "in1" }, { name: "in2" }],
           outputs: [{ name: "out" }]
         },
@@ -339,19 +365,52 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
           key: "faultOr",
           title: "FaultLogic",
           kind: "OR",
-          summary: "Provides a starter point for fault aggregation.",
-          position: { x: 560, y: 290 },
+          summary: "Provides a starter point for local and external fault aggregation.",
+          position: { x: 790, y: 340 },
           inputs: [{ name: "in1" }, { name: "in2" }],
+          outputs: [{ name: "out" }]
+        },
+        {
+          key: "readyNot",
+          title: "ReadyNot",
+          kind: "NOT",
+          summary: "Inverts ready output to expose missing-ready as a starter local fault.",
+          position: { x: 1080, y: 180 },
+          inputs: [{ name: "in" }],
           outputs: [{ name: "out" }]
         }
       ],
       routes: [
         {
+          from: { kind: "boundary", family: "commands", portName: "startCmd" },
+          to: { kind: "node", nodeKey: "runLatch", portName: "set" }
+        },
+        {
+          from: { kind: "boundary", family: "commands", portName: "reset" },
+          to: { kind: "node", nodeKey: "runLatch", portName: "reset" }
+        },
+        {
+          from: { kind: "node", nodeKey: "runLatch", portName: "out" },
+          to: { kind: "node", nodeKey: "runConfirm", portName: "in1" }
+        },
+        {
+          from: { kind: "boundary", family: "inputs", portName: "runFb" },
+          to: { kind: "node", nodeKey: "runConfirm", portName: "in2" }
+        },
+        {
+          from: { kind: "node", nodeKey: "runConfirm", portName: "out" },
+          to: { kind: "boundary", family: "status", portName: "running" }
+        },
+        {
           from: { kind: "boundary", family: "inputs", portName: "pressureValue" },
           to: { kind: "node", nodeKey: "pressureCompare", portName: "value" }
         },
         {
-          from: { kind: "boundary", family: "inputs", portName: "runFb" },
+          from: { kind: "node", nodeKey: "pressureMin", portName: "value" },
+          to: { kind: "node", nodeKey: "pressureCompare", portName: "setpoint" }
+        },
+        {
+          from: { kind: "node", nodeKey: "runConfirm", portName: "out" },
           to: { kind: "node", nodeKey: "readyAnd", portName: "in1" }
         },
         {
@@ -363,12 +422,16 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
           to: { kind: "boundary", family: "status", portName: "ready" }
         },
         {
-          from: { kind: "boundary", family: "inputs", portName: "runFb" },
-          to: { kind: "boundary", family: "status", portName: "running" }
+          from: { kind: "node", nodeKey: "readyAnd", portName: "out" },
+          to: { kind: "node", nodeKey: "readyNot", portName: "in" }
         },
         {
           from: { kind: "boundary", family: "inputs", portName: "faultFb" },
           to: { kind: "node", nodeKey: "faultOr", portName: "in1" }
+        },
+        {
+          from: { kind: "node", nodeKey: "readyNot", portName: "out" },
+          to: { kind: "node", nodeKey: "faultOr", portName: "in2" }
         },
         {
           from: { kind: "node", nodeKey: "faultOr", portName: "out" },

@@ -369,23 +369,11 @@ function ObjectStructureCanvasInner() {
         target: flowNodeIdForEndpoint(route.to),
         sourceHandle: route.from.portId,
         targetHandle: route.to.portId,
-        label: route.label,
-        labelShowBg: true,
-        labelBgPadding: [8, 4],
-        labelBgBorderRadius: 999,
-        labelStyle: {
-          fill: "#cfddef",
-          fontSize: 11
-        },
         type: "smoothstep",
         pathOptions: { borderRadius: 18, offset: 24 },
         style: {
           stroke: "rgba(132, 189, 236, 0.9)",
           strokeWidth: 1.8
-        },
-        labelBgStyle: {
-          fill: "rgba(7, 15, 25, 0.9)",
-          stroke: "rgba(192, 210, 230, 0.1)"
         }
       })),
     [safeStructure.routes]
@@ -465,6 +453,7 @@ function ObjectStructureCanvasInner() {
         <div className="structure-object-canvas structure-object-canvas--schematic">
           <div className="structure-flow-shell" style={{ height: sceneHeight }}>
             <ReactFlow
+              key={object.id}
               nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
