@@ -185,6 +185,7 @@ function StructureInternalNode(props: NodeProps) {
   const rowCount = Math.max(node.inputs.length, node.outputs.length, 1);
   const nodeHeight = getStructureNodeHeight(node);
   const isObjectNode = Boolean(node.refObjectId);
+  const hasAlias = node.title.trim().toLowerCase() !== node.kind.trim().toLowerCase();
 
   if (isObjectNode) {
     return (
@@ -212,8 +213,8 @@ function StructureInternalNode(props: NodeProps) {
     <div className={`structure-node-card structure-node-card--flow${selected ? " is-selected" : ""}`} style={{ height: nodeHeight }}>
       <div className="structure-node-card__header">
         <div>
-          <strong>{node.title}</strong>
-          <span>{node.kind}</span>
+          <strong>{node.kind}</strong>
+          {hasAlias ? <span>{node.title}</span> : null}
         </div>
       </div>
 

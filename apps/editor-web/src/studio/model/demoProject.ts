@@ -316,7 +316,7 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
       nodes: [
         {
           key: "runLatch",
-          title: "RunLatch",
+          title: "Run",
           kind: "Latch",
           summary: "Stores run demand until reset is applied.",
           position: { x: 220, y: 120 },
@@ -342,8 +342,8 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
         },
         {
           key: "pressureCompare",
-          title: "PressureOk",
-          kind: "Compare",
+          title: "PressureCheck",
+          kind: "Comparator",
           summary: "Checks that measured pressure satisfies the pump requirement.",
           position: { x: 500, y: 270 },
           inputs: [
@@ -354,7 +354,7 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
         },
         {
           key: "readyAnd",
-          title: "ReadyLogic",
+          title: "Ready",
           kind: "AND",
           summary: "Combines running feedback with pressure confirmation.",
           position: { x: 790, y: 180 },
@@ -363,7 +363,7 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
         },
         {
           key: "faultOr",
-          title: "FaultLogic",
+          title: "Fault",
           kind: "OR",
           summary: "Provides a starter point for local and external fault aggregation.",
           position: { x: 790, y: 340 },
@@ -372,7 +372,7 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
         },
         {
           key: "readyNot",
-          title: "ReadyNot",
+          title: "MissingReady",
           kind: "NOT",
           summary: "Inverts ready output to expose missing-ready as a starter local fault.",
           position: { x: 1080, y: 180 },
@@ -452,7 +452,7 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
       nodes: [
         {
           key: "gateAB",
-          title: "GateAB",
+          title: "StageAB",
           kind: "AND",
           summary: "Combines the first two conditions.",
           position: { x: 300, y: 160 },
@@ -461,7 +461,7 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
         },
         {
           key: "gateReady",
-          title: "GateReady",
+          title: "Ready",
           kind: "AND",
           summary: "Combines the intermediate result with the final condition.",
           position: { x: 560, y: 160 },
@@ -505,7 +505,7 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
       nodes: [
         {
           key: "faultPair",
-          title: "FaultPair",
+          title: "StageAB",
           kind: "OR",
           summary: "Combines the first two fault conditions.",
           position: { x: 300, y: 160 },
@@ -514,7 +514,7 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
         },
         {
           key: "faultAny",
-          title: "FaultAny",
+          title: "Fault",
           kind: "OR",
           summary: "Combines the intermediate result with the final fault input.",
           position: { x: 560, y: 160 },

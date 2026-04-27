@@ -36,12 +36,27 @@ const LIBRARY_GROUPS: Array<{ id: string; label: string; items: LibraryItemDefin
         outputs: [{ name: "out" }]
       },
       {
-        id: "compare",
-        label: "Compare",
+        id: "not",
+        label: "NOT",
+        kind: "Block",
+        summary: "Boolean inversion gate.",
+        inputs: [{ name: "in" }],
+        outputs: [{ name: "out" }]
+      },
+      {
+        id: "comparator",
+        label: "Comparator",
         kind: "Block",
         summary: "Compares values against a threshold or another signal.",
         inputs: [{ name: "value", dataType: "number" }, { name: "setpoint", dataType: "number" }],
         outputs: [{ name: "ok" }]
+      },
+      {
+        id: "setpoint",
+        label: "Setpoint",
+        kind: "Block",
+        summary: "Provides a named engineering setpoint inside the object.",
+        outputs: [{ name: "value", dataType: "number" }]
       }
     ]
   },
@@ -63,6 +78,14 @@ const LIBRARY_GROUPS: Array<{ id: string; label: string; items: LibraryItemDefin
         kind: "Function Block",
         summary: "Selects one result from multiple candidates.",
         inputs: [{ name: "inA" }, { name: "inB" }, { name: "select", dataType: "enum" }],
+        outputs: [{ name: "out" }]
+      },
+      {
+        id: "latch",
+        label: "Latch",
+        kind: "Function Block",
+        summary: "Stores a command until reset.",
+        inputs: [{ name: "set" }, { name: "reset" }],
         outputs: [{ name: "out" }]
       }
     ]
@@ -341,7 +364,7 @@ export function LeftProjectPanel() {
 
     addStructureNode(selectedObject.id, {
       title: item.label,
-      kind: item.kind,
+      kind: item.label,
       summary: item.summary,
       position,
       inputs: item.inputs,
