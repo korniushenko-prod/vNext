@@ -63,6 +63,7 @@ export interface OverlayAnchorPoint {
 
 interface StudioState {
   activeWorkspace: WorkspaceId;
+  graphScopeStack: string[];
   selectedItemId: string | null;
   selectedItemType: SelectedItemType;
   selectedObjectId: string | null;
@@ -81,6 +82,9 @@ interface StudioState {
   projectLoadError: string | null;
   project: UniversalPlcDemoProject;
   setActiveWorkspace: (workspace: WorkspaceId) => void;
+  enterGraphScope: (objectId: string, options?: { machineId?: string | null }) => void;
+  exitGraphScope: () => void;
+  clearGraphScope: () => void;
   selectItem: (type: SelectedItemType, id: string | null, options?: SelectItemOptions) => void;
   setMachineViewMode: (mode: MachineViewMode) => void;
   setObjectViewLens: (lens: ObjectViewLens) => void;
@@ -186,6 +190,7 @@ function buildProjectSelection(project: UniversalPlcDemoProject) {
 
 export const useStudioStore = create<StudioState>((set) => ({
   activeWorkspace: "machine",
+  graphScopeStack: [],
   selectedItemId: PROJECT_SELECTION_ID,
   selectedItemType: "project",
   selectedObjectId: null,
@@ -207,6 +212,40 @@ export const useStudioStore = create<StudioState>((set) => ({
   objectEditorAnchor: null,
   fullObjectEditorObjectId: null,
   setActiveWorkspace: (workspace) => set({ activeWorkspace: workspace }),
+  enterGraphScope: (objectId, options) =>
+    set((state) => {
+      const existingIndex = state.graphScopeStack.indexOf(objectId);
+      const nextStack =
+        existingIndex >= 0 ? state.graphScopeStack.slice(0, existingIndex + 1) : [...state.graphScopeStack, objectId];
+
+      return {
+        graphScopeStack: nextStack,
+        machineViewMode: "object",
+        objectViewLens: "structure",
+        selectedObjectId: objectId,
+        selectedMachineId: options?.machineId ?? state.selectedMachineId
+      };
+    }),
+  exitGraphScope: () =>
+    set((state) => {
+      if (!state.graphScopeStack.length) {
+        return state;
+      }
+
+      const nextStack = state.graphScopeStack.slice(0, -1);
+      return {
+        graphScopeStack: nextStack,
+        machineViewMode: nextStack.length ? "object" : "topology",
+        objectViewLens: "structure",
+        selectedObjectId: nextStack[nextStack.length - 1] ?? state.selectedObjectId
+      };
+    }),
+  clearGraphScope: () =>
+    set({
+      graphScopeStack: [],
+      machineViewMode: "topology",
+      objectViewLens: "structure"
+    }),
   selectItem: (type, id, options) =>
     set((state) => ({
       selectedItemType: type,
@@ -235,6 +274,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       objectEditorObjectId: null,
       objectEditorAnchor: null,
       fullObjectEditorObjectId: null,
+      graphScopeStack: [],
       ...buildProjectSelection(result.project)
     });
   },
@@ -251,6 +291,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       fullObjectEditorObjectId: null,
       logicContext: null,
       bindContext: null,
+      graphScopeStack: [],
       ...buildProjectSelection(nextProject)
     });
   },
@@ -267,6 +308,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       fullObjectEditorObjectId: null,
       logicContext: null,
       bindContext: null,
+      graphScopeStack: [],
       ...buildProjectSelection(project)
     });
   },
@@ -287,6 +329,7 @@ export const useStudioStore = create<StudioState>((set) => ({
           objects: [...state.project.objects, nextObject]
         },
         activeWorkspace: "machine",
+        graphScopeStack: [],
         machineViewMode: "topology",
         selectedItemType: "object" as const,
         selectedItemId: nextObject.id,
@@ -454,6 +497,7 @@ export const useStudioStore = create<StudioState>((set) => ({
           })
         },
         activeWorkspace: "machine",
+        graphScopeStack: [...state.graphScopeStack.filter((id) => id !== objectId), objectId],
         machineViewMode: "object",
         objectViewLens: "structure",
         selectedItemType: "subobject",

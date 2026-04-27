@@ -247,12 +247,12 @@ function createObjectPreset(type: "fuel" | "oled" | "protection" | "custom", par
 export function LeftProjectPanel() {
   const project = useStudioStore((state) => state.project);
   const activeWorkspace = useStudioStore((state) => state.activeWorkspace);
+  const graphScopeStack = useStudioStore((state) => state.graphScopeStack);
   const selectedItemId = useStudioStore((state) => state.selectedItemId);
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedObjectId = useStudioStore((state) => state.selectedObjectId);
-  const machineViewMode = useStudioStore((state) => state.machineViewMode);
   const setActiveWorkspace = useStudioStore((state) => state.setActiveWorkspace);
-  const setMachineViewMode = useStudioStore((state) => state.setMachineViewMode);
+  const clearGraphScope = useStudioStore((state) => state.clearGraphScope);
   const selectItem = useStudioStore((state) => state.selectItem);
   const addObject = useStudioStore((state) => state.addObject);
   const ensureObjectStructure = useStudioStore((state) => state.ensureObjectStructure);
@@ -273,8 +273,9 @@ export function LeftProjectPanel() {
   }, [project.objects]);
 
   const topLevelObjects = childrenByParent.get(null) ?? [];
-  const selectedObject = project.objects.find((item) => item.id === selectedObjectId) ?? null;
-  const libraryEnabled = activeWorkspace === "machine" && machineViewMode === "object" && Boolean(selectedObject);
+  const currentGraphObjectId = graphScopeStack[graphScopeStack.length - 1] ?? null;
+  const selectedObject = project.objects.find((item) => item.id === (currentGraphObjectId ?? selectedObjectId)) ?? null;
+  const libraryEnabled = activeWorkspace === "machine" && Boolean(currentGraphObjectId) && Boolean(selectedObject);
 
   function addLibraryItem(item: LibraryItemDefinition) {
     if (!selectedObject) {
@@ -334,7 +335,7 @@ export function LeftProjectPanel() {
         onToggle={() => tree.toggle(objectKey)}
         onSelect={() => {
           setActiveWorkspace("machine");
-          setMachineViewMode("topology");
+          clearGraphScope();
           selectItem("object", object.id, {
             objectId: object.id
           });
@@ -399,6 +400,7 @@ export function LeftProjectPanel() {
             onToggle={() => tree.toggle("project-root")}
             onSelect={() => {
               setActiveWorkspace("machine");
+              clearGraphScope();
               selectItem("project", "project-root");
             }}
           >

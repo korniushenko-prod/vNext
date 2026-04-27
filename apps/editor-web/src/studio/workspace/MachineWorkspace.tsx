@@ -8,14 +8,18 @@ export function MachineWorkspace() {
   const selectedItemId = useStudioStore((state) => state.selectedItemId);
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedObjectId = useStudioStore((state) => state.selectedObjectId);
+  const graphScopeStack = useStudioStore((state) => state.graphScopeStack);
   const selectedSectionId = useStudioStore((state) => state.selectedSectionId);
   const selectedRegionId = useStudioStore((state) => state.selectedRegionId);
-  const machineViewMode = useStudioStore((state) => state.machineViewMode);
-  const setMachineViewMode = useStudioStore((state) => state.setMachineViewMode);
+  const exitGraphScope = useStudioStore((state) => state.exitGraphScope);
+  const clearGraphScope = useStudioStore((state) => state.clearGraphScope);
   const selectItem = useStudioStore((state) => state.selectItem);
   const createBlankProject = useStudioStore((state) => state.createBlankProject);
 
-  const selectedObject = project.objects.find((item) => item.id === selectedObjectId) ?? project.objects[0] ?? null;
+  const currentGraphObjectId = graphScopeStack[graphScopeStack.length - 1] ?? null;
+  const inObjectScope = Boolean(currentGraphObjectId);
+  const selectedObject =
+    project.objects.find((item) => item.id === (currentGraphObjectId ?? selectedObjectId)) ?? project.objects[0] ?? null;
   if (!selectedObject) {
     return (
       <div className="workspace workspace-machine">
@@ -70,11 +74,11 @@ export function MachineWorkspace() {
     machine?.states.find((item) => item.id === (selectedItemType === "state" ? selectedItemId : "")) ?? null;
 
   const breadcrumbs =
-    machineViewMode === "topology"
+    !inObjectScope
       ? [
           {
             label: "System",
-            onClick: () => setMachineViewMode("topology")
+            onClick: clearGraphScope
           },
           {
             label: selectedObject.name,
@@ -88,16 +92,24 @@ export function MachineWorkspace() {
       : [
           {
             label: "System",
-            onClick: () => setMachineViewMode("topology")
+            onClick: clearGraphScope
           },
-          {
-            label: selectedObject.name,
-            onClick: () =>
-              selectItem("object", selectedObject.id, {
-                objectId: selectedObject.id,
-                machineId: machine?.id ?? null
-              })
-          },
+          ...graphScopeStack
+            .map((objectId) => {
+              const crumbObject = project.objects.find((item) => item.id === objectId);
+              if (!crumbObject) {
+                return null;
+              }
+              return {
+                label: crumbObject.name,
+                onClick: () =>
+                  selectItem("object", crumbObject.id, {
+                    objectId: crumbObject.id,
+                    machineId: crumbObject.behavior?.machineId ?? null
+                  })
+              };
+            })
+            .filter(Boolean),
           selectedSection
             ? {
                 label: selectedSection.name,
@@ -135,12 +147,12 @@ export function MachineWorkspace() {
         ].filter(Boolean) as Array<{ label: string; onClick: () => void }>;
 
   const stageTitle =
-    machineViewMode === "topology"
+    !inObjectScope
       ? "Objects and Links"
       : selectedObject.name;
 
   const stageSummary =
-    machineViewMode === "topology"
+    !inObjectScope
       ? "Main canvas shows large objects and the contract-level links between them."
       : "Drill into the object on the same authoring flow: boundary ports stay on the edges, internal logic stays inside.";
 
@@ -167,9 +179,9 @@ export function MachineWorkspace() {
         </div>
 
         <div className="machine-toolbar__controls">
-          {machineViewMode === "object" ? (
+          {inObjectScope ? (
             <div className="machine-filter-switcher" aria-label="Object navigation">
-              <button type="button" onClick={() => setMachineViewMode("topology")}>
+              <button type="button" onClick={exitGraphScope}>
                 Back to System
               </button>
             </div>
@@ -177,10 +189,10 @@ export function MachineWorkspace() {
         </div>
       </div>
 
-      {selectedObject && machineViewMode === "topology" ? <ObjectPortComposer object={selectedObject} /> : null}
+      {selectedObject && !inObjectScope ? <ObjectPortComposer object={selectedObject} /> : null}
 
       <div className="machine-stage">
-        {machineViewMode === "topology" ? (
+        {!inObjectScope ? (
           <ObjectTopologyCanvas />
         ) : (
           <ObjectStructureCanvas />

@@ -121,8 +121,8 @@ function ObjectTopologyCanvasInner() {
   const selectedObjectId = useStudioStore((state) => state.selectedObjectId);
   const selectedItemId = useStudioStore((state) => state.selectedItemId);
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
-  const setMachineViewMode = useStudioStore((state) => state.setMachineViewMode);
-  const setObjectViewLens = useStudioStore((state) => state.setObjectViewLens);
+  const clearGraphScope = useStudioStore((state) => state.clearGraphScope);
+  const enterGraphScope = useStudioStore((state) => state.enterGraphScope);
   const selectItem = useStudioStore((state) => state.selectItem);
   const openObjectEditor = useStudioStore((state) => state.openObjectEditor);
   const addCompositionLink = useStudioStore((state) => state.addCompositionLink);
@@ -174,8 +174,8 @@ function ObjectTopologyCanvasInner() {
             if (!canOpenInternalView) {
               return;
             }
-            setObjectViewLens("structure");
-            setMachineViewMode("object");
+            clearGraphScope();
+            enterGraphScope(object.id, { machineId: machine?.id ?? null });
             selectItem(machine ? "machine" : "object", machine?.id ?? object.id, {
               objectId: object.id,
               machineId: machine?.id ?? null
@@ -193,8 +193,8 @@ function ObjectTopologyCanvasInner() {
     selectItem,
     selectedItemType,
     selectedObjectId,
-    setMachineViewMode,
-    setObjectViewLens,
+    clearGraphScope,
+    enterGraphScope,
     topLevelObjects
   ]);
 
@@ -208,8 +208,8 @@ function ObjectTopologyCanvasInner() {
       ? project.machines.find((item) => item.id === object.behavior?.machineId) ?? null
       : null;
 
-    setObjectViewLens("structure");
-    setMachineViewMode("object");
+    clearGraphScope();
+    enterGraphScope(object.id, { machineId: machine?.id ?? null });
     selectItem(machine ? "machine" : "object", machine?.id ?? object.id, {
       objectId: object.id,
       machineId: machine?.id ?? null

@@ -302,8 +302,8 @@ function renderMachineInspector(machine: MachineDefinition) {
 
 function renderObjectInspector(
   object: PlcObjectDefinition,
-  setMachineViewMode: (mode: "topology" | "object") => void,
-  setObjectViewLens: (lens: "behavior" | "structure") => void,
+  clearGraphScope: () => void,
+  enterGraphScope: (objectId: string, options?: { machineId?: string | null }) => void,
   selectItem: SelectItemFn,
   openFullObjectEditor: (objectId: string) => void,
   updateObjectMeta: (
@@ -325,7 +325,6 @@ function renderObjectInspector(
 ) {
   const canOpenBehavior = Boolean(object.behavior?.machineId);
   const canOpenStructure = true;
-  const defaultObjectLens = canOpenBehavior ? "behavior" : "structure";
   const contractFamilies: Array<{ key: ObjectContractFamily; label: string; ports: typeof object.commands }> = [
     { key: "commands", label: "Commands", ports: object.commands },
     { key: "inputs", label: "Inputs", ports: object.inputs },
@@ -475,7 +474,7 @@ function renderObjectInspector(
           type="button"
           className="inspector-link"
           onClick={() => {
-            setMachineViewMode("topology");
+            clearGraphScope();
             selectItem("object", object.id, { objectId: object.id, machineId: object.behavior?.machineId ?? null });
           }}
         >
@@ -486,8 +485,7 @@ function renderObjectInspector(
             type="button"
             className="inspector-link"
             onClick={() => {
-              setObjectViewLens(defaultObjectLens === "behavior" ? "behavior" : "structure");
-              setMachineViewMode("object");
+              enterGraphScope(object.id, { machineId: object.behavior?.machineId ?? null });
               selectItem(canOpenBehavior ? "machine" : "object", object.behavior?.machineId ?? object.id, {
                 objectId: object.id,
                 machineId: object.behavior?.machineId ?? null
@@ -522,8 +520,6 @@ function renderObjectLinkInspector(link: ObjectCompositionLinkDefinition, source
 function renderSubobjectInspector(
   object: PlcObjectDefinition,
   node: ObjectStructureNodeDefinition,
-  setMachineViewMode: (mode: "topology" | "object") => void,
-  setObjectViewLens: (lens: "behavior" | "structure") => void,
   setActiveWorkspace: (workspace: "bind" | "logic" | "machine" | "observe") => void,
   focusLogicContext: (context: LogicWorkspaceContext | null) => void,
   focusBindContext: (context: { title: string; bindingIds: string[] } | null) => void,
@@ -546,8 +542,6 @@ function renderSubobjectInspector(
           type="button"
           className="inspector-link"
           onClick={() => {
-            setMachineViewMode("object");
-            setObjectViewLens("structure");
             selectItem("subobject", node.id, { objectId: object.id, machineId: object.behavior?.machineId ?? null });
           }}
         >
@@ -844,8 +838,8 @@ export function InspectorPanel() {
   const selectedObjectId = useStudioStore((state) => state.selectedObjectId);
   const selectedMachineId = useStudioStore((state) => state.selectedMachineId);
   const setActiveWorkspace = useStudioStore((state) => state.setActiveWorkspace);
-  const setMachineViewMode = useStudioStore((state) => state.setMachineViewMode);
-  const setObjectViewLens = useStudioStore((state) => state.setObjectViewLens);
+  const clearGraphScope = useStudioStore((state) => state.clearGraphScope);
+  const enterGraphScope = useStudioStore((state) => state.enterGraphScope);
   const setMachineFilterMode = useStudioStore((state) => state.setMachineFilterMode);
   const focusLogicContext = useStudioStore((state) => state.focusLogicContext);
   const focusBindContext = useStudioStore((state) => state.focusBindContext);
@@ -906,8 +900,8 @@ export function InspectorPanel() {
             <div key={selectedObject.id}>
               {renderObjectInspector(
                 selectedObject,
-                setMachineViewMode,
-                setObjectViewLens,
+                clearGraphScope,
+                enterGraphScope,
                 selectItem,
                 openFullObjectEditor,
                 updateObjectMeta,
@@ -923,8 +917,6 @@ export function InspectorPanel() {
           ? renderSubobjectInspector(
               currentObject,
               selectedSubobject,
-              setMachineViewMode,
-              setObjectViewLens,
               setActiveWorkspace,
               focusLogicContext,
               focusBindContext,
