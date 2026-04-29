@@ -2779,6 +2779,21 @@ tbody tr.is-contextual {
   color: var(--muted);
 }
 
+.code-block {
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(6, 10, 18, 0.78);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow: auto;
+  max-height: 360px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .bottom-live-panel {
   border-radius: 16px;
   padding: 10px 12px;

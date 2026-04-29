@@ -1,9 +1,12 @@
 import { useStudioStore } from "../store/studioStore";
+import { exportProjectToShipcontrollerConfig } from "../model/shipcontrollerExport";
 
 export function ObserveWorkspace() {
+  const project = useStudioStore((state) => state.project);
   const snapshot = useStudioStore((state) => state.project.runtimeSnapshot);
   const signals = useStudioStore((state) => state.project.signals);
   const semanticSignals = signals.filter((signal) => signal.layer === "semantic");
+  const runtimeExport = exportProjectToShipcontrollerConfig(project);
 
   return (
     <div className="workspace">
@@ -51,6 +54,15 @@ export function ObserveWorkspace() {
               ))}
             </ul>
           )}
+        </section>
+
+        <section className="panel-card" style={{ gridColumn: "span 2" }}>
+          <h3>Shipcontroller Export Preview</h3>
+          <div className="empty-state" style={{ alignItems: "stretch" }}>
+            <strong>Runtime-shaped JSON preview</strong>
+            <p>This is the authoring-side export for the current board, OLED, bindings and blink primitive.</p>
+            <pre className="code-block">{JSON.stringify(runtimeExport, null, 2)}</pre>
+          </div>
         </section>
 
         <section className="panel-card" style={{ gridColumn: "span 2" }}>
