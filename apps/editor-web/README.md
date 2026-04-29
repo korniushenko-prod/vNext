@@ -4,12 +4,34 @@
 
 Graph-first `universal_plc` engineering studio shell for v1.
 
+This package is the canonical frontend source for the controller-hosted editor
+direction in `vNext`.
+
+The product direction is:
+
+- one engineering editor
+- hosted by the controller
+- built from `apps/editor-web`
+- gradually absorbing stable commissioning and runtime-facing surfaces from
+  `targets/shipcontroller-esp32/data`
+
+Reference roadmap:
+
+- [`../../docs/merge/controller-hosted-editor-unification-roadmap.md`](../../docs/merge/controller-hosted-editor-unification-roadmap.md)
+
 ## Workspaces
 
 - `Bind`: logical to physical I/O binding
 - `Logic`: signals and block logic skeleton
 - `Machine`: system objects at the top level, object internals one level deeper
 - `Observe`: runtime truth, diagnostics, live snapshot
+
+Global shell actions are expected to grow around these workspaces:
+
+- `Validate`
+- `Build`
+- `Preview Runtime`
+- `Apply`
 
 ## Main architectural rule
 
@@ -62,18 +84,35 @@ Boundary:
 - forms live in the right inspector
 - live JSON/debug state lives in the bottom panel
 
-This step does not integrate runtime execution, materialization, or firmware APIs.
+For the controller-hosted direction:
+
+- `Bind` must grow into the main commissioning surface for board/chip/GPIO
+  configuration
+- `Observe` must become the main runtime truth surface
+- `Machine` remains the default engineering home screen
+- `Logic` remains the home of neutral interpretation blocks
+- materialization and apply/download stay explicit shell actions rather than a
+  hidden side effect
+
+The project model remains independent from runtime rendering and transport
+mechanics even as the controller-hosted bundle grows richer.
 
 ## Non-goals for this step
 
-- no firmware work
-- no Modbus
-- no runtime execution engine
+Historical non-goals from the first shell prototype included:
+
+- no runtime execution integration
 - no materializer integration
+- no `shipcontroller-esp32` integration
+
+Those boundaries were useful for the first standalone shell pass, but are no
+longer the long-term product direction.
+
+Current hard non-goals still remain:
+
 - no OpenPLC clone
 - no `Rete.js`
 - no destructive rewrite of `apps/config-studio`
-- no changes to `shipcontroller-esp32`
 
 ## Scripts
 
