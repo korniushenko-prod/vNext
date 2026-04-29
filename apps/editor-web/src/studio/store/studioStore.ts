@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import {
   createEmptyProjectDocument,
+  createDefaultDeploymentConfig,
   createObjectDefinition,
   createObjectCompositionLinkDefinition,
   cloneProjectDocument,
@@ -10,6 +11,7 @@ import {
   createObjectPortDefinition,
   createProjectId,
   loadDemoProject,
+  type DeploymentConfig,
   type BehaviorKind,
   type DataType,
   type ObjectContractFamily,
@@ -95,6 +97,7 @@ interface StudioState {
   importProject: (project: UniversalPlcDemoProject, path?: string | null) => void;
   createBlankProject: () => void;
   updateProjectMeta: (input: { name: string; id?: string }) => void;
+  updateProjectDeployment: (input: DeploymentConfig) => void;
   addObject: (input: {
     name: string;
     type?: string;
@@ -366,6 +369,36 @@ export const useStudioStore = create<StudioState>((set) => ({
         ...state.project,
         name: input.name.trim() || "Untitled Project",
         id: input.id?.trim() || createProjectId(input.name)
+      }
+    })),
+  updateProjectDeployment: (input) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        deployment: {
+          ...createDefaultDeploymentConfig(),
+          ...input,
+          controller: {
+            ...createDefaultDeploymentConfig().controller,
+            ...input.controller
+          },
+          wifi: {
+            ...createDefaultDeploymentConfig().wifi,
+            ...input.wifi
+          },
+          oled: {
+            ...createDefaultDeploymentConfig().oled,
+            ...input.oled
+          },
+          led: {
+            ...createDefaultDeploymentConfig().led,
+            ...input.led
+          },
+          debug: {
+            ...createDefaultDeploymentConfig().debug,
+            ...input.debug
+          }
+        }
       }
     })),
   addObject: (input, anchorPoint) =>

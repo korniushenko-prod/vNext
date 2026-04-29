@@ -1,6 +1,7 @@
 import type {
   BehaviorKind,
   DataType,
+  DeploymentConfig,
   IoBindingDefinition,
   LogicBlockDefinition,
   MachineDefinition,
@@ -161,9 +162,10 @@ function renderReferenceActions(options: {
 function renderProjectInspector(options: {
   project: UniversalPlcDemoProject;
   updateProjectMeta: (input: { name: string; id?: string }) => void;
+  updateProjectDeployment: (input: DeploymentConfig) => void;
   addObject: (input: { name: string; type?: string; behaviorKind: BehaviorKind; summary?: string }) => void;
 }) {
-  const { project, updateProjectMeta, addObject } = options;
+  const { project, updateProjectMeta, updateProjectDeployment, addObject } = options;
   const quickCreate = (preset: { name: string; type: string; behaviorKind: BehaviorKind; summary: string }) => {
     addObject(preset);
   };
@@ -193,6 +195,206 @@ function renderProjectInspector(options: {
           </div>
           <button type="submit" className="inspector-link">
             Save Project
+          </button>
+        </form>
+      </details>
+
+      <details className="inspector-disclosure" open>
+        <summary>
+          <span>Deployment</span>
+          <strong>{project.deployment.controller.target}</strong>
+        </summary>
+        <form
+          className="inspector-form inspector-form--compact"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            updateProjectDeployment({
+              controller: {
+                target: String(formData.get("deployment_controller_target") ?? ""),
+                activeBoard: String(formData.get("deployment_active_board") ?? ""),
+                activeBoardTemplate: String(formData.get("deployment_active_board_template") ?? ""),
+                activeChipTemplate: String(formData.get("deployment_active_chip_template") ?? "")
+              },
+              wifi: {
+                mode: String(formData.get("deployment_wifi_mode") ?? ""),
+                ssid: String(formData.get("deployment_wifi_ssid") ?? ""),
+                password: String(formData.get("deployment_wifi_password") ?? ""),
+                apSsid: String(formData.get("deployment_wifi_ap_ssid") ?? ""),
+                apPassword: String(formData.get("deployment_wifi_ap_password") ?? ""),
+                startupPolicy: String(formData.get("deployment_wifi_startup_policy") ?? "")
+              },
+              oled: {
+                enabled: String(formData.get("deployment_oled_enabled") ?? "") === "true",
+                showIpOnFallback: String(formData.get("deployment_oled_show_ip") ?? "") === "true",
+                width: Number(formData.get("deployment_oled_width") ?? 128),
+                height: Number(formData.get("deployment_oled_height") ?? 64),
+                sda: Number(formData.get("deployment_oled_sda") ?? 21),
+                scl: Number(formData.get("deployment_oled_scl") ?? 22),
+                address: String(formData.get("deployment_oled_address") ?? "")
+              },
+              led: {
+                enabled: String(formData.get("deployment_led_enabled") ?? "") === "true",
+                pin: Number(formData.get("deployment_led_pin") ?? 25)
+              },
+              debug: {
+                serialEnabled: String(formData.get("deployment_debug_serial") ?? "") === "true",
+                webEnabled: String(formData.get("deployment_debug_web") ?? "") === "true",
+                livePreviewEnabled: String(formData.get("deployment_debug_live_preview") ?? "") === "true"
+              },
+              displayScreens: project.deployment.displayScreens
+            });
+          }}
+        >
+          <div className="inspector-form__grid">
+            <InspectorField
+              label="Controller Target"
+              name="deployment_controller_target"
+              defaultValue={project.deployment.controller.target}
+              placeholder="shipcontroller-esp32"
+            />
+            <InspectorField
+              label="Active Board"
+              name="deployment_active_board"
+              defaultValue={project.deployment.controller.activeBoard}
+              placeholder="default"
+            />
+            <InspectorField
+              label="Board Template"
+              name="deployment_active_board_template"
+              defaultValue={project.deployment.controller.activeBoardTemplate}
+              placeholder="lilygo_t3_v1_6_1"
+            />
+            <InspectorField
+              label="Chip Template"
+              name="deployment_active_chip_template"
+              defaultValue={project.deployment.controller.activeChipTemplate}
+              placeholder="esp32"
+            />
+            <InspectorField
+              label="Wi-Fi Mode"
+              name="deployment_wifi_mode"
+              defaultValue={project.deployment.wifi.mode}
+              placeholder="sta"
+            />
+            <InspectorField
+              label="Wi-Fi SSID"
+              name="deployment_wifi_ssid"
+              defaultValue={project.deployment.wifi.ssid}
+              placeholder="MyWiFi"
+            />
+            <InspectorField
+              label="Wi-Fi Password"
+              name="deployment_wifi_password"
+              defaultValue={project.deployment.wifi.password}
+              placeholder="password"
+            />
+            <InspectorField
+              label="AP SSID"
+              name="deployment_wifi_ap_ssid"
+              defaultValue={project.deployment.wifi.apSsid}
+              placeholder="ShipController"
+            />
+            <InspectorField
+              label="AP Password"
+              name="deployment_wifi_ap_password"
+              defaultValue={project.deployment.wifi.apPassword}
+              placeholder="12345678"
+            />
+            <InspectorField
+              label="Startup Policy"
+              name="deployment_wifi_startup_policy"
+              defaultValue={project.deployment.wifi.startupPolicy}
+              placeholder="sta_fallback_ap"
+            />
+            <InspectorSelect
+              label="OLED Enabled"
+              name="deployment_oled_enabled"
+              defaultValue={String(project.deployment.oled.enabled)}
+              options={[
+                { value: "true", label: "Enabled" },
+                { value: "false", label: "Disabled" }
+              ]}
+            />
+            <InspectorSelect
+              label="Show IP On Fallback"
+              name="deployment_oled_show_ip"
+              defaultValue={String(project.deployment.oled.showIpOnFallback)}
+              options={[
+                { value: "true", label: "Yes" },
+                { value: "false", label: "No" }
+              ]}
+            />
+            <InspectorField
+              label="OLED Width"
+              name="deployment_oled_width"
+              defaultValue={String(project.deployment.oled.width)}
+            />
+            <InspectorField
+              label="OLED Height"
+              name="deployment_oled_height"
+              defaultValue={String(project.deployment.oled.height)}
+            />
+            <InspectorField
+              label="OLED SDA"
+              name="deployment_oled_sda"
+              defaultValue={String(project.deployment.oled.sda)}
+            />
+            <InspectorField
+              label="OLED SCL"
+              name="deployment_oled_scl"
+              defaultValue={String(project.deployment.oled.scl)}
+            />
+            <InspectorField
+              label="OLED Address"
+              name="deployment_oled_address"
+              defaultValue={project.deployment.oled.address}
+              placeholder="0x3C"
+            />
+            <InspectorSelect
+              label="LED Enabled"
+              name="deployment_led_enabled"
+              defaultValue={String(project.deployment.led.enabled)}
+              options={[
+                { value: "true", label: "Enabled" },
+                { value: "false", label: "Disabled" }
+              ]}
+            />
+            <InspectorField
+              label="LED Pin"
+              name="deployment_led_pin"
+              defaultValue={String(project.deployment.led.pin)}
+            />
+            <InspectorSelect
+              label="Serial Debug"
+              name="deployment_debug_serial"
+              defaultValue={String(project.deployment.debug.serialEnabled)}
+              options={[
+                { value: "true", label: "Enabled" },
+                { value: "false", label: "Disabled" }
+              ]}
+            />
+            <InspectorSelect
+              label="Web Debug"
+              name="deployment_debug_web"
+              defaultValue={String(project.deployment.debug.webEnabled)}
+              options={[
+                { value: "true", label: "Enabled" },
+                { value: "false", label: "Disabled" }
+              ]}
+            />
+            <InspectorSelect
+              label="Live Preview"
+              name="deployment_debug_live_preview"
+              defaultValue={String(project.deployment.debug.livePreviewEnabled)}
+              options={[
+                { value: "true", label: "Enabled" },
+                { value: "false", label: "Disabled" }
+              ]}
+            />
+          </div>
+          <button type="submit" className="inspector-link">
+            Save Deployment
           </button>
         </form>
       </details>
@@ -846,6 +1048,7 @@ export function InspectorPanel() {
   const selectItem = useStudioStore((state) => state.selectItem);
   const createBlankProject = useStudioStore((state) => state.createBlankProject);
   const updateProjectMeta = useStudioStore((state) => state.updateProjectMeta);
+  const updateProjectDeployment = useStudioStore((state) => state.updateProjectDeployment);
   const addObject = useStudioStore((state) => state.addObject);
   const updateObjectMeta = useStudioStore((state) => state.updateObjectMeta);
   const addObjectPort = useStudioStore((state) => state.addObjectPort);
@@ -893,6 +1096,7 @@ export function InspectorPanel() {
           ? renderProjectInspector({
               project,
               updateProjectMeta,
+              updateProjectDeployment,
               addObject
             })
           : selectedObject

@@ -8,6 +8,70 @@ export type ObjectContractFamily = "commands" | "inputs" | "outputs" | "status" 
 export type DataType = "bool" | "number" | "string" | "enum";
 export type SignalLayer = "raw" | "conditioned" | "semantic";
 
+export interface DeploymentControllerConfig {
+  target: string;
+  activeBoard: string;
+  activeBoardTemplate: string;
+  activeChipTemplate: string;
+}
+
+export interface DeploymentWifiConfig {
+  mode: string;
+  ssid: string;
+  password: string;
+  apSsid: string;
+  apPassword: string;
+  startupPolicy: string;
+}
+
+export interface DeploymentOledConfig {
+  enabled: boolean;
+  showIpOnFallback: boolean;
+  width: number;
+  height: number;
+  sda: number;
+  scl: number;
+  address: string;
+}
+
+export interface DeploymentLedConfig {
+  enabled: boolean;
+  pin: number;
+}
+
+export interface DeploymentDebugConfig {
+  serialEnabled: boolean;
+  webEnabled: boolean;
+  livePreviewEnabled: boolean;
+}
+
+export interface DeploymentDisplayWidgetConfig {
+  id: string;
+  type: string;
+  label: string;
+  signalKey: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface DeploymentDisplayScreenConfig {
+  id: string;
+  label: string;
+  refreshMs: number;
+  widgets: DeploymentDisplayWidgetConfig[];
+}
+
+export interface DeploymentConfig {
+  controller: DeploymentControllerConfig;
+  wifi: DeploymentWifiConfig;
+  oled: DeploymentOledConfig;
+  led: DeploymentLedConfig;
+  debug: DeploymentDebugConfig;
+  displayScreens: DeploymentDisplayScreenConfig[];
+}
+
 export interface ObjectInterfacePortDefinition {
   id: string;
   name: string;
@@ -286,6 +350,7 @@ export interface RuntimeSnapshot {
 export interface UniversalPlcDemoProject {
   id: string;
   name: string;
+  deployment: DeploymentConfig;
   objects: PlcObjectDefinition[];
   compositionLinks: ObjectCompositionLinkDefinition[];
   machines: MachineDefinition[];
@@ -551,6 +616,119 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
 
 export type UniversalPlcProjectDocument = UniversalPlcDemoProject;
 
+export function createDefaultDeploymentConfig(): DeploymentConfig {
+  return {
+    controller: {
+      target: "shipcontroller-esp32",
+      activeBoard: "default",
+      activeBoardTemplate: "",
+      activeChipTemplate: ""
+    },
+    wifi: {
+      mode: "sta",
+      ssid: "Infinity-Starlink",
+      password: "",
+      apSsid: "ShipController",
+      apPassword: "12345678",
+      startupPolicy: "sta_fallback_ap"
+    },
+    oled: {
+      enabled: true,
+      showIpOnFallback: true,
+      width: 128,
+      height: 64,
+      sda: 21,
+      scl: 22,
+      address: "0x3C"
+    },
+    led: {
+      enabled: true,
+      pin: 25
+    },
+    debug: {
+      serialEnabled: true,
+      webEnabled: true,
+      livePreviewEnabled: true
+    },
+    displayScreens: []
+  };
+}
+
+function normalizeDeploymentConfig(value: unknown): DeploymentConfig {
+  const defaults = createDefaultDeploymentConfig();
+  const raw = typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
+  const controller = typeof raw.controller === "object" && raw.controller !== null ? (raw.controller as Record<string, unknown>) : {};
+  const wifi = typeof raw.wifi === "object" && raw.wifi !== null ? (raw.wifi as Record<string, unknown>) : {};
+  const oled = typeof raw.oled === "object" && raw.oled !== null ? (raw.oled as Record<string, unknown>) : {};
+  const led = typeof raw.led === "object" && raw.led !== null ? (raw.led as Record<string, unknown>) : {};
+  const debug = typeof raw.debug === "object" && raw.debug !== null ? (raw.debug as Record<string, unknown>) : {};
+  const rawScreens = Array.isArray(raw.displayScreens) ? raw.displayScreens : [];
+
+  return {
+    controller: {
+      target: typeof controller.target === "string" ? controller.target : defaults.controller.target,
+      activeBoard: typeof controller.activeBoard === "string" ? controller.activeBoard : defaults.controller.activeBoard,
+      activeBoardTemplate:
+        typeof controller.activeBoardTemplate === "string"
+          ? controller.activeBoardTemplate
+          : defaults.controller.activeBoardTemplate,
+      activeChipTemplate:
+        typeof controller.activeChipTemplate === "string"
+          ? controller.activeChipTemplate
+          : defaults.controller.activeChipTemplate
+    },
+    wifi: {
+      mode: typeof wifi.mode === "string" ? wifi.mode : defaults.wifi.mode,
+      ssid: typeof wifi.ssid === "string" ? wifi.ssid : defaults.wifi.ssid,
+      password: typeof wifi.password === "string" ? wifi.password : defaults.wifi.password,
+      apSsid: typeof wifi.apSsid === "string" ? wifi.apSsid : defaults.wifi.apSsid,
+      apPassword: typeof wifi.apPassword === "string" ? wifi.apPassword : defaults.wifi.apPassword,
+      startupPolicy: typeof wifi.startupPolicy === "string" ? wifi.startupPolicy : defaults.wifi.startupPolicy
+    },
+    oled: {
+      enabled: typeof oled.enabled === "boolean" ? oled.enabled : defaults.oled.enabled,
+      showIpOnFallback:
+        typeof oled.showIpOnFallback === "boolean" ? oled.showIpOnFallback : defaults.oled.showIpOnFallback,
+      width: typeof oled.width === "number" ? oled.width : defaults.oled.width,
+      height: typeof oled.height === "number" ? oled.height : defaults.oled.height,
+      sda: typeof oled.sda === "number" ? oled.sda : defaults.oled.sda,
+      scl: typeof oled.scl === "number" ? oled.scl : defaults.oled.scl,
+      address: typeof oled.address === "string" ? oled.address : defaults.oled.address
+    },
+    led: {
+      enabled: typeof led.enabled === "boolean" ? led.enabled : defaults.led.enabled,
+      pin: typeof led.pin === "number" ? led.pin : defaults.led.pin
+    },
+    debug: {
+      serialEnabled: typeof debug.serialEnabled === "boolean" ? debug.serialEnabled : defaults.debug.serialEnabled,
+      webEnabled: typeof debug.webEnabled === "boolean" ? debug.webEnabled : defaults.debug.webEnabled,
+      livePreviewEnabled:
+        typeof debug.livePreviewEnabled === "boolean" ? debug.livePreviewEnabled : defaults.debug.livePreviewEnabled
+    },
+    displayScreens: rawScreens
+      .filter((screen): screen is Record<string, unknown> => typeof screen === "object" && screen !== null)
+      .map((screen, index) => ({
+        id: typeof screen.id === "string" ? screen.id : `screen_${index + 1}`,
+        label: typeof screen.label === "string" ? screen.label : `Screen ${index + 1}`,
+        refreshMs: typeof screen.refreshMs === "number" ? screen.refreshMs : 1000,
+        widgets: Array.isArray(screen.widgets)
+          ? screen.widgets
+              .filter((widget): widget is Record<string, unknown> => typeof widget === "object" && widget !== null)
+              .map((widget, widgetIndex) => ({
+                id: typeof widget.id === "string" ? widget.id : `widget_${widgetIndex + 1}`,
+                type: typeof widget.type === "string" ? widget.type : "value",
+                label: typeof widget.label === "string" ? widget.label : "",
+                signalKey: typeof widget.signalKey === "string" ? widget.signalKey : "",
+                x: typeof widget.x === "number" ? widget.x : 0,
+                y: typeof widget.y === "number" ? widget.y : 0,
+                w: typeof widget.w === "number" ? widget.w : 0,
+                h: typeof widget.h === "number" ? widget.h : 0
+              }))
+          : []
+      }))
+  };
+}
+
 function normalizePortList(
   value: unknown,
   fallbackKind: ObjectPortKind
@@ -619,6 +797,7 @@ function normalizeStructureDefinition(value: unknown): ObjectStructureDefinition
 function normalizeProjectDocument(project: UniversalPlcProjectDocument): UniversalPlcDemoProject {
   return {
     ...project,
+    deployment: normalizeDeploymentConfig((project as unknown as Record<string, unknown>).deployment),
     objects: (project.objects ?? []).map((object) => {
       const rawObject = object as unknown as Record<string, unknown>;
 
@@ -677,6 +856,7 @@ export function createEmptyProjectDocument(): UniversalPlcProjectDocument {
   return {
     id: "untitled_project",
     name: "Untitled Project",
+    deployment: createDefaultDeploymentConfig(),
     objects: [],
     compositionLinks: [],
     machines: [],
@@ -1214,8 +1394,8 @@ export function createObjectStructureRouteDefinition(
 }
 
 export function loadDemoProject(): UniversalPlcDemoProject {
-  return cloneProjectDocument(demoProjectDocument as UniversalPlcProjectDocument);
+  return cloneProjectDocument(demoProjectDocument as unknown as UniversalPlcProjectDocument);
 }
 
-export const demoProjectSource = demoProjectDocument as UniversalPlcProjectDocument;
+export const demoProjectSource = demoProjectDocument as unknown as UniversalPlcProjectDocument;
 export const demoProject = loadDemoProject();
