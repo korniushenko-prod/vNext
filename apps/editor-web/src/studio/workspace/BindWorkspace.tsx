@@ -3,7 +3,6 @@ import type { IoBindingDefinition } from "../model/demoProject";
 import {
   buildBoardPinRuntimeState,
   findSuggestedGpio,
-  getBoardTemplateById,
   getBoardTemplateOptions,
   getChipTemplateOptions,
   getControllerTargetOptions,
@@ -20,32 +19,49 @@ function findNextSignal(
   return signals.find((signal) => signal.derivedFromSignalIds?.includes(signalId)) ?? null;
 }
 
-function createBindingLabel(binding: IoBindingDefinition) {
+function getBindingDisplayName(binding: IoBindingDefinition) {
   return binding.signalId || binding.id;
 }
 
-function inferBindingKindLabel(binding: IoBindingDefinition) {
-  return binding.bindingKind ?? "digital_out";
+function getBindingStatus(binding: IoBindingDefinition, pin: BoardPinRuntimeState | null) {
+  if (binding.gpio === undefined || binding.gpio === null) {
+    return "Unbound";
+  }
+  if (!pin) {
+    return "Invalid GPIO";
+  }
+  if (!isBindingCompatibleWithPin(binding, pin)) {
+    return "Invalid";
+  }
+  return "Bound";
 }
 
-function renderBoardSummaryLabel(pin: BoardPinRuntimeState) {
+function describeAvailability(pin: BoardPinRuntimeState) {
   switch (pin.availability) {
     case "assigned":
-      return "Assigned";
+      return "assigned";
     case "shared":
-      return "Shared";
+      return "shared";
     case "warning":
-      return "Warning";
+      return "warning";
     case "exclusive":
-      return "Reserved";
+      return "reserved";
     case "forbidden":
-      return "Forbidden";
+      return "forbidden";
     case "conflict":
-      return "Conflict";
+      return "conflict";
     case "free":
     default:
-      return "Free";
+      return "free";
   }
+}
+
+function makeBindingPreset(bindingKind: NonNullable<IoBindingDefinition["bindingKind"]>) {
+  return {
+    direction: bindingKind.includes("_in") ? ("input" as const) : ("output" as const),
+    type: bindingKind.includes("analog") ? ("analog" as const) : ("bool" as const),
+    bindingKind
+  };
 }
 
 export function BindWorkspace() {
@@ -54,10 +70,16 @@ export function BindWorkspace() {
   const bindings = useStudioStore((state) => state.project.bindings);
   const bindContext = useStudioStore((state) => state.bindContext);
   const focusBindContext = useStudioStore((state) => state.focusBindContext);
+  const selectedItemId = useStudioStore((state) => state.selectedItemId);
+  const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectItem = useStudioStore((state) => state.selectItem);
   const addBinding = useStudioStore((state) => state.addBinding);
   const updateBinding = useStudioStore((state) => state.updateBinding);
+  const deleteBinding = useStudioStore((state) => state.deleteBinding);
   const updateProjectDeployment = useStudioStore((state) => state.updateProjectDeployment);
+
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [selectedPinGpio, setSelectedPinGpio] = useState<number | null>(null);
 
   const filteredBindings = bindContext
     ? bindings.filter((binding) => bindContext.bindingIds.includes(binding.id))
@@ -66,31 +88,30 @@ export function BindWorkspace() {
   const controllerTargets = useMemo(() => getControllerTargetOptions(), []);
   const boardTemplates = useMemo(() => getBoardTemplateOptions(), []);
   const chipTemplates = useMemo(() => getChipTemplateOptions(), []);
-  const [selectedPinGpio, setSelectedPinGpio] = useState<number | null>(null);
 
   const boardRuntime = useMemo(
     () => buildBoardPinRuntimeState(project.deployment, filteredBindings),
     [filteredBindings, project.deployment]
   );
-  const selectedPin =
-    boardRuntime.pins.find((pin) => pin.gpio === selectedPinGpio) ??
-    boardRuntime.pins.find((pin) => pin.assignments.length > 0) ??
-    boardRuntime.pins[0] ??
-    null;
   const boardIssues = useMemo(
     () => summarizeBoardIssues(filteredBindings, boardRuntime.pins),
     [filteredBindings, boardRuntime.pins]
   );
 
   const activeTarget = controllerTargets.find((target) => target.id === project.deployment.controller.target) ?? null;
-  const activeBoardTemplate = getBoardTemplateById(project.deployment.controller.activeBoardTemplate);
   const availableBoardTemplates = activeTarget
     ? boardTemplates.filter((template) => activeTarget.boardTemplateIds.includes(template.id))
     : boardTemplates;
-  const activeChipTemplate =
-    chipTemplates.find((template) => template.id === project.deployment.controller.activeChipTemplate) ??
-    (activeBoardTemplate
-      ? chipTemplates.find((template) => template.id === activeBoardTemplate.chipTemplateId) ?? null
+
+  const selectedBinding =
+    (selectedItemType === "binding"
+      ? filteredBindings.find((binding) => binding.id === selectedItemId) ?? null
+      : null) ?? filteredBindings[0] ?? null;
+
+  const selectedPin =
+    boardRuntime.pins.find((pin) => pin.gpio === selectedPinGpio) ??
+    (selectedBinding?.gpio !== undefined
+      ? boardRuntime.pins.find((pin) => pin.gpio === selectedBinding.gpio) ?? null
       : null);
 
   function updateControllerField(
@@ -121,34 +142,38 @@ export function BindWorkspace() {
     updateProjectDeployment(nextDeployment);
   }
 
-  function toggleDeviceFlag(flag: "enabled", section: "oled" | "led") {
+  function toggleModuleFlag(section: "oled" | "led") {
     updateProjectDeployment({
       ...project.deployment,
       [section]: {
         ...project.deployment[section],
-        [flag]: !project.deployment[section][flag]
+        enabled: !project.deployment[section].enabled
       }
     });
   }
 
   function addQuickBinding(bindingKind: NonNullable<IoBindingDefinition["bindingKind"]>) {
-    const tempBinding: IoBindingDefinition = {
-      id: "",
-      signalId: "",
-      physicalSource: "",
-      direction: bindingKind.includes("_in") ? "input" : "output",
-      type: bindingKind.includes("analog") ? "analog" : "bool",
-      bindingKind,
-      inverted: false,
-      initialState: false
-    };
-    const suggestedGpio = findSuggestedGpio(tempBinding, boardRuntime.pins);
+    const preset = makeBindingPreset(bindingKind);
+    const suggestedGpio = findSuggestedGpio(
+      {
+        id: "",
+        signalId: "",
+        physicalSource: "",
+        direction: preset.direction,
+        type: preset.type,
+        bindingKind,
+        inverted: false,
+        initialState: false
+      },
+      boardRuntime.pins
+    );
+
     addBinding({
-      direction: tempBinding.direction,
-      type: tempBinding.type,
+      direction: preset.direction,
+      type: preset.type,
       bindingKind,
-      resourceId: suggestedGpio !== undefined ? `gpio_${suggestedGpio}` : "",
       gpio: suggestedGpio,
+      resourceId: suggestedGpio !== undefined ? `gpio_${suggestedGpio}` : "",
       physicalSource: suggestedGpio !== undefined ? `GPIO${suggestedGpio}` : "",
       initialState: false,
       inverted: false
@@ -164,18 +189,18 @@ export function BindWorkspace() {
         <div>
           <h2>Bind</h2>
           <p className="muted-copy">
-            Commissioning workspace for controller, board, chip and real I/O. Keep the first interaction short and safe.
+            Choose a ready board preset first. Then bind signals to real pins with as few steps as possible.
           </p>
         </div>
         <div className="inspector-actions">
           <button type="button" className="inspector-link" onClick={() => addQuickBinding("digital_out")}>
-            Add DO
+            New DO
           </button>
           <button type="button" className="inspector-link" onClick={() => addQuickBinding("digital_in")}>
-            Add DI
+            New DI
           </button>
           <button type="button" className="inspector-link" onClick={() => addQuickBinding("analog_in")}>
-            Add AI
+            New AI
           </button>
         </div>
       </div>
@@ -192,174 +217,320 @@ export function BindWorkspace() {
         </div>
       ) : null}
 
-      <div className="observe-grid bind-summary-grid">
-        <section className="summary-card">
-          <span>Controller</span>
-          <strong>{activeTarget?.label ?? project.deployment.controller.target}</strong>
-        </section>
-        <section className="summary-card">
-          <span>Board Template</span>
-          <strong>{activeBoardTemplate?.label ?? project.deployment.controller.activeBoardTemplate}</strong>
-        </section>
-        <section className="summary-card">
-          <span>Chip Template</span>
-          <strong>{activeChipTemplate?.label ?? project.deployment.controller.activeChipTemplate}</strong>
-        </section>
-        <section className="summary-card">
-          <span>Issues</span>
-          <strong>{boardIssues.length}</strong>
-        </section>
-      </div>
+      <section className="panel-card bind-preset-strip">
+        <div className="bind-preset-strip__grid">
+          <label className="bind-inline-field">
+            <span>Controller</span>
+            <select
+              value={project.deployment.controller.target}
+              onChange={(event) => updateControllerField("target", event.target.value)}
+            >
+              {controllerTargets.map((target) => (
+                <option key={target.id} value={target.id}>
+                  {target.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-      <div className="bind-layout">
-        <section className="panel-card bind-stack">
-          <div className="bind-card">
-            <h3>Device</h3>
-            <div className="bind-form-grid">
-              <label className="bind-field">
-                <span>Controller</span>
-                <select
-                  value={project.deployment.controller.target}
-                  onChange={(event) => updateControllerField("target", event.target.value)}
-                >
-                  {controllerTargets.map((target) => (
-                    <option key={target.id} value={target.id}>
-                      {target.label}
-                    </option>
+          <label className="bind-inline-field">
+            <span>Board Preset</span>
+            <select
+              value={project.deployment.controller.activeBoardTemplate}
+              onChange={(event) => updateControllerField("activeBoardTemplate", event.target.value)}
+            >
+              {availableBoardTemplates.map((template) => (
+                <option key={template.id} value={template.id}>
+                  {template.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="bind-inline-field">
+            <span>Chip</span>
+            <select
+              value={project.deployment.controller.activeChipTemplate}
+              onChange={(event) => updateControllerField("activeChipTemplate", event.target.value)}
+            >
+              {chipTemplates.map((template) => (
+                <option key={template.id} value={template.id}>
+                  {template.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="bind-inline-field">
+            <span>Board Instance</span>
+            <input
+              value={project.deployment.controller.activeBoard}
+              onChange={(event) => updateControllerField("activeBoard", event.target.value)}
+            />
+          </label>
+        </div>
+
+        <div className="bind-preset-strip__actions">
+          <button type="button" className="inspector-link" onClick={() => setShowAdvanced((current) => !current)}>
+            {showAdvanced ? "Hide Advanced" : "Advanced Hardware"}
+          </button>
+          <span className="machine-stage-chip">{boardIssues.length ? `${boardIssues.length} issues` : "Ready to bind"}</span>
+        </div>
+      </section>
+
+      {showAdvanced ? (
+        <section className="panel-card bind-advanced-strip">
+          <div className="bind-advanced-strip__grid">
+            <div className="bind-advanced-box">
+              <strong>Reserved Modules</strong>
+              <div className="bind-advanced-toggles">
+                <label className="bind-toggle">
+                  <span>OLED bus</span>
+                  <input type="checkbox" checked={project.deployment.oled.enabled} onChange={() => toggleModuleFlag("oled")} />
+                </label>
+                <label className="bind-toggle">
+                  <span>Status LED</span>
+                  <input type="checkbox" checked={project.deployment.led.enabled} onChange={() => toggleModuleFlag("led")} />
+                </label>
+              </div>
+            </div>
+
+            <div className="bind-advanced-box">
+              <strong>Warnings</strong>
+              {boardIssues.length === 0 ? (
+                <p className="muted-copy">No structural bind issues right now.</p>
+              ) : (
+                <ul className="plain-list bind-issue-list">
+                  {boardIssues.slice(0, 4).map((issue, index) => (
+                    <li key={`${issue.message}-${index}`} className={`bind-issue bind-issue--${issue.severity}`}>
+                      <strong>{issue.severity === "fault" ? "Fault" : "Warning"}</strong>
+                      <span>{issue.message}</span>
+                    </li>
                   ))}
-                </select>
-              </label>
-              <label className="bind-field">
-                <span>Board Instance</span>
-                <input
-                  value={project.deployment.controller.activeBoard}
-                  onChange={(event) => updateControllerField("activeBoard", event.target.value)}
-                />
-              </label>
-              <label className="bind-field">
-                <span>Board Template</span>
-                <select
-                  value={project.deployment.controller.activeBoardTemplate}
-                  onChange={(event) => updateControllerField("activeBoardTemplate", event.target.value)}
-                >
-                  {availableBoardTemplates.map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="bind-field">
-                <span>Chip Template</span>
-                <select
-                  value={project.deployment.controller.activeChipTemplate}
-                  onChange={(event) => updateControllerField("activeChipTemplate", event.target.value)}
-                >
-                  {chipTemplates.map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                </ul>
+              )}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      <div className="bind-layout bind-layout--compact">
+        <section className="panel-card bind-main-panel">
+          <div className="workspace-header">
+            <div>
+              <h3>I/O Bindings</h3>
+              <p className="muted-copy">This is the main working list. Assign GPIO, inspect status, then move to Observe.</p>
             </div>
           </div>
 
-          <div className="bind-card">
-            <h3>Reserved Modules</h3>
-            <div className="bind-toggle-grid">
-              <label className="bind-toggle">
-                <span>OLED bus</span>
-                <input
-                  type="checkbox"
-                  checked={project.deployment.oled.enabled}
-                  onChange={() => toggleDeviceFlag("enabled", "oled")}
-                />
-              </label>
-              <label className="bind-toggle">
-                <span>Status LED</span>
-                <input
-                  type="checkbox"
-                  checked={project.deployment.led.enabled}
-                  onChange={() => toggleDeviceFlag("enabled", "led")}
-                />
-              </label>
-            </div>
-            <p className="muted-copy">
-              This is the commissioning shortcut for reservations that directly change pin availability on the active board.
-            </p>
-          </div>
-
-          <div className="bind-card">
-            <h3>Warnings</h3>
-            {boardIssues.length === 0 ? (
+          <div className="card-table">
+            {filteredBindings.length === 0 ? (
               <div className="empty-state">
-                <strong>No immediate bind issues</strong>
-                <p>GPIO assignments look structurally valid for the selected board and chip.</p>
+                <strong>No bindings yet</strong>
+                <p>Create the first DI, DO or AI binding from the buttons above.</p>
               </div>
             ) : (
-              <ul className="plain-list bind-issue-list">
-                {boardIssues.map((issue, index) => (
-                  <li key={`${issue.message}-${index}`} className={`bind-issue bind-issue--${issue.severity}`}>
-                    <strong>{issue.severity === "fault" ? "Fault" : "Warning"}</strong>
-                    <span>{issue.message}</span>
-                  </li>
-                ))}
-              </ul>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Signal</th>
+                    <th>Kind</th>
+                    <th>GPIO</th>
+                    <th>Direction</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredBindings.map((binding) => {
+                    const rawSignal = signals.find((signal) => signal.id === binding.signalId) ?? null;
+                    const conditionedSignal = rawSignal ? findNextSignal(signals, rawSignal.id) : null;
+                    const semanticSignal = conditionedSignal ? findNextSignal(signals, conditionedSignal.id) : null;
+                    const pin = binding.gpio !== undefined
+                      ? boardRuntime.pins.find((candidate) => candidate.gpio === binding.gpio) ?? null
+                      : null;
+                    const suggestedGpio = findSuggestedGpio(binding, boardRuntime.pins);
+                    const isSelected = selectedBinding?.id === binding.id;
+
+                    return (
+                      <tr
+                        key={binding.id}
+                        className={`${bindContext ? "is-contextual " : ""}${isSelected ? "is-selected-row" : ""}`.trim()}
+                        onClick={() => {
+                          selectItem("binding", binding.id);
+                          if (binding.gpio !== undefined) {
+                            setSelectedPinGpio(binding.gpio);
+                          }
+                        }}
+                      >
+                        <td>
+                          <div className="bind-binding-title">
+                            <strong>{getBindingDisplayName(binding)}</strong>
+                            <span>{semanticSignal?.name ?? rawSignal?.name ?? binding.id}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <select
+                            value={binding.bindingKind ?? "digital_out"}
+                            onClick={(event) => event.stopPropagation()}
+                            onChange={(event) => {
+                              const nextKind = event.target.value as IoBindingDefinition["bindingKind"];
+                              updateBinding(binding.id, {
+                                bindingKind: nextKind,
+                                direction: nextKind?.includes("_in") ? "input" : "output",
+                                type: nextKind?.includes("analog") ? "analog" : "bool"
+                              });
+                            }}
+                          >
+                            <option value="digital_out">DO</option>
+                            <option value="digital_in">DI</option>
+                            <option value="analog_in">AI</option>
+                            <option value="analog_out">AO</option>
+                            <option value="counter">Counter</option>
+                            <option value="pwm">PWM</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select
+                            value={binding.gpio !== undefined ? String(binding.gpio) : ""}
+                            onClick={(event) => event.stopPropagation()}
+                            onChange={(event) => {
+                              const gpio = event.target.value ? Number(event.target.value) : undefined;
+                              updateBinding(binding.id, {
+                                gpio,
+                                resourceId: gpio !== undefined ? `gpio_${gpio}` : "",
+                                physicalSource: gpio !== undefined ? `GPIO${gpio}` : ""
+                              });
+                              if (gpio !== undefined) {
+                                setSelectedPinGpio(gpio);
+                              }
+                            }}
+                          >
+                            <option value="">Unbound</option>
+                            {boardRuntime.pins.map((candidate) => (
+                              <option
+                                key={candidate.gpio}
+                                value={candidate.gpio}
+                                disabled={!isBindingCompatibleWithPin(binding, candidate)}
+                              >
+                                {`GPIO${candidate.gpio} — ${describeAvailability(candidate)}`}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>{binding.direction}</td>
+                        <td>
+                          <span className={`bind-flag-status bind-flag-status--${pin?.availability ?? "free"}`}>
+                            {getBindingStatus(binding, pin)}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="bind-row-actions">
+                            <button
+                              type="button"
+                              className="inspector-link"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                selectItem("binding", binding.id);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="inspector-link"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                if (suggestedGpio === undefined) {
+                                  return;
+                                }
+                                updateBinding(binding.id, {
+                                  gpio: suggestedGpio,
+                                  resourceId: `gpio_${suggestedGpio}`,
+                                  physicalSource: `GPIO${suggestedGpio}`
+                                });
+                                setSelectedPinGpio(suggestedGpio);
+                              }}
+                              disabled={suggestedGpio === undefined}
+                            >
+                              Suggest
+                            </button>
+                            <button
+                              type="button"
+                              className="bind-delete-button"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                deleteBinding(binding.id);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             )}
           </div>
         </section>
 
-        <section className="panel-card bind-board-map">
+        <section className="panel-card bind-side-panel">
           <div className="workspace-header">
             <div>
-              <h3>Board Map</h3>
-              <p className="muted-copy">Pick a pin first, then assign or adjust bindings in the quick bind list.</p>
+              <h3>Pin List</h3>
+              <p className="muted-copy">Use this list for fast orientation. Deep board editing can stay advanced.</p>
             </div>
           </div>
 
-          <div className="bind-legend">
-            {["free", "assigned", "shared", "warning", "exclusive", "forbidden", "conflict"].map((tone) => (
-              <span key={tone} className={`bind-legend__item bind-pin--${tone}`}>
-                {tone}
-              </span>
-            ))}
-          </div>
-
-          <div className="bind-board-grid">
-            {boardRuntime.pins.map((pin) => (
-              <button
-                key={pin.gpio}
-                type="button"
-                className={`bind-pin bind-pin--${pin.availability}${selectedPin?.gpio === pin.gpio ? " is-selected" : ""}`}
-                onClick={() => setSelectedPinGpio(pin.gpio)}
-                title={pin.summary}
-              >
-                <strong>GPIO{pin.gpio}</strong>
-                <span>{renderBoardSummaryLabel(pin)}</span>
-                <small>{pin.assignments[0]?.label ?? pin.note ?? pin.capabilities.join("/")}</small>
-              </button>
-            ))}
+          <div className="card-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>GPIO</th>
+                  <th>Caps</th>
+                  <th>Owner</th>
+                  <th>Assigned</th>
+                </tr>
+              </thead>
+              <tbody>
+                {boardRuntime.pins.map((pin) => (
+                  <tr
+                    key={pin.gpio}
+                    className={selectedPin?.gpio === pin.gpio ? "is-selected-row" : ""}
+                    onClick={() => setSelectedPinGpio(pin.gpio)}
+                  >
+                    <td>
+                      <strong>{`GPIO${pin.gpio}`}</strong>
+                    </td>
+                    <td>{pin.capabilities.join("/") || "—"}</td>
+                    <td>{pin.rules.map((rule) => rule.owner).join(", ") || "free"}</td>
+                    <td>{pin.assignments.map((assignment) => assignment.label).join(", ") || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {selectedPin ? (
             <div className="bind-pin-details">
-              <h4>GPIO{selectedPin.gpio}</h4>
+              <h4>{`GPIO${selectedPin.gpio}`}</h4>
               <div className="inspector-grid">
                 <div>
-                  <dt>Availability</dt>
-                  <dd>{renderBoardSummaryLabel(selectedPin)}</dd>
+                  <dt>Status</dt>
+                  <dd>{describeAvailability(selectedPin)}</dd>
                 </div>
                 <div>
                   <dt>Capabilities</dt>
                   <dd>{selectedPin.capabilities.join(", ") || "—"}</dd>
                 </div>
                 <div>
-                  <dt>Rules</dt>
-                  <dd>{selectedPin.rules.map((rule) => rule.feature).join(", ") || "—"}</dd>
+                  <dt>Assignments</dt>
+                  <dd>{selectedPin.assignments.map((assignment) => assignment.label).join(", ") || "—"}</dd>
                 </div>
                 <div>
-                  <dt>Summary</dt>
+                  <dt>Note</dt>
                   <dd>{selectedPin.summary}</dd>
                 </div>
               </div>
@@ -367,153 +538,6 @@ export function BindWorkspace() {
           ) : null}
         </section>
       </div>
-
-      <section className="panel-card bind-quick-bind">
-        <div className="workspace-header">
-          <div>
-            <h3>Quick Bind</h3>
-            <p className="muted-copy">Logical signal meaning is already decided elsewhere. Here we just bind it to safe real hardware.</p>
-          </div>
-        </div>
-
-        <div className="card-table">
-          {filteredBindings.length === 0 ? (
-            <div className="empty-state">
-              <strong>No bindings yet</strong>
-              <p>Add a first DI, DO or AI binding above. This screen is the first commissioning step, not the logic editor.</p>
-            </div>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Binding</th>
-                  <th>Kind</th>
-                  <th>GPIO</th>
-                  <th>Resource</th>
-                  <th>Direction</th>
-                  <th>Type</th>
-                  <th>Raw</th>
-                  <th>Semantic</th>
-                  <th>Flags</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredBindings.map((binding) => {
-                  const rawSignal = signals.find((signal) => signal.id === binding.signalId) ?? null;
-                  const conditionedSignal = rawSignal ? findNextSignal(signals, rawSignal.id) : null;
-                  const semanticSignal = conditionedSignal ? findNextSignal(signals, conditionedSignal.id) : null;
-                  const assignedPin = boardRuntime.pins.find((pin) => pin.gpio === binding.gpio) ?? null;
-
-                  return (
-                    <tr
-                      key={binding.id}
-                      className={bindContext ? "is-contextual" : ""}
-                      onClick={() => {
-                        selectItem("binding", binding.id);
-                        if (binding.gpio !== undefined) {
-                          setSelectedPinGpio(binding.gpio);
-                        }
-                      }}
-                    >
-                      <td>
-                        <div className="bind-binding-title">
-                          <strong>{createBindingLabel(binding)}</strong>
-                          <span>{binding.id}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <select
-                          value={inferBindingKindLabel(binding)}
-                          onChange={(event) =>
-                            updateBinding(binding.id, {
-                              bindingKind: event.target.value as IoBindingDefinition["bindingKind"],
-                              direction: event.target.value.includes("_in") ? "input" : "output",
-                              type: event.target.value.includes("analog") ? "analog" : "bool"
-                            })
-                          }
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          <option value="digital_out">digital_out</option>
-                          <option value="digital_in">digital_in</option>
-                          <option value="analog_in">analog_in</option>
-                          <option value="analog_out">analog_out</option>
-                          <option value="counter">counter</option>
-                          <option value="pwm">pwm</option>
-                        </select>
-                      </td>
-                      <td>
-                        <select
-                          value={binding.gpio !== undefined ? String(binding.gpio) : ""}
-                          onChange={(event) => {
-                            const gpioValue = event.target.value ? Number(event.target.value) : undefined;
-                            updateBinding(binding.id, {
-                              gpio: gpioValue,
-                              physicalSource: gpioValue !== undefined ? `GPIO${gpioValue}` : "",
-                              resourceId: gpioValue !== undefined ? `gpio_${gpioValue}` : binding.resourceId
-                            });
-                            if (gpioValue !== undefined) {
-                              setSelectedPinGpio(gpioValue);
-                            }
-                          }}
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          <option value="">Unbound</option>
-                          {boardRuntime.pins.map((pin) => {
-                            const allowed = isBindingCompatibleWithPin(binding, pin);
-                            return (
-                              <option key={pin.gpio} value={pin.gpio} disabled={!allowed}>
-                                {`GPIO${pin.gpio} — ${renderBoardSummaryLabel(pin)}`}
-                              </option>
-                            );
-                          })}
-                        </select>
-                      </td>
-                      <td>
-                        <input
-                          value={binding.resourceId ?? ""}
-                          onChange={(event) => updateBinding(binding.id, { resourceId: event.target.value })}
-                          onClick={(event) => event.stopPropagation()}
-                        />
-                      </td>
-                      <td>{binding.direction}</td>
-                      <td>{binding.type}</td>
-                      <td>{rawSignal?.name ?? binding.signalId ?? "—"}</td>
-                      <td>{semanticSignal?.name ?? "—"}</td>
-                      <td>
-                        <div className="bind-flags">
-                          <label>
-                            <input
-                              type="checkbox"
-                              checked={Boolean(binding.inverted)}
-                              onChange={(event) => updateBinding(binding.id, { inverted: event.target.checked })}
-                              onClick={(event) => event.stopPropagation()}
-                            />
-                            inv
-                          </label>
-                          {binding.direction === "output" ? (
-                            <label>
-                              <input
-                                type="checkbox"
-                                checked={Boolean(binding.initialState)}
-                                onChange={(event) => updateBinding(binding.id, { initialState: event.target.checked })}
-                                onClick={(event) => event.stopPropagation()}
-                              />
-                              init high
-                            </label>
-                          ) : null}
-                          <span className={`bind-flag-status bind-flag-status--${assignedPin?.availability ?? "free"}`}>
-                            {assignedPin ? renderBoardSummaryLabel(assignedPin) : "Unbound"}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </section>
     </div>
   );
 }

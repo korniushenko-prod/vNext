@@ -102,6 +102,7 @@ interface StudioState {
   updateProjectDeployment: (input: DeploymentConfig) => void;
   addBinding: (input?: Partial<IoBindingDefinition>) => void;
   updateBinding: (bindingId: string, input: Partial<IoBindingDefinition>) => void;
+  deleteBinding: (bindingId: string) => void;
   addObject: (input: {
     name: string;
     type?: string;
@@ -460,6 +461,22 @@ export const useStudioStore = create<StudioState>((set) => ({
         )
       }
     })),
+  deleteBinding: (bindingId) =>
+    set((state) => {
+      const nextBindings = state.project.bindings.filter((binding) => binding.id !== bindingId);
+      const nextSelectedId = state.selectedItemId === bindingId ? nextBindings[0]?.id ?? null : state.selectedItemId;
+      const nextSelectedType =
+        state.selectedItemId === bindingId ? (nextBindings[0] ? "binding" : null) : state.selectedItemType;
+
+      return {
+        project: {
+          ...state.project,
+          bindings: nextBindings
+        },
+        selectedItemId: nextSelectedId,
+        selectedItemType: nextSelectedType
+      };
+    }),
   addObject: (input, anchorPoint) =>
     set((state) => {
       const nextObject = createObjectDefinition(state.project, input);
