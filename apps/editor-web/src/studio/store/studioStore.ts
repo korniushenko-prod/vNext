@@ -2,6 +2,7 @@ import { create } from "zustand";
 import {
   createEmptyProjectDocument,
   createDefaultDeploymentConfig,
+  ensureBlinkOledScreenPreset,
   createObjectDefinition,
   createObjectCompositionLinkDefinition,
   cloneProjectDocument,
@@ -14,6 +15,7 @@ import {
   type DeploymentConfig,
   type BehaviorKind,
   type DataType,
+  type IoBindingDefinition,
   type ObjectContractFamily,
   type UniversalPlcDemoProject,
   type WorkspaceId
@@ -98,6 +100,8 @@ interface StudioState {
   createBlankProject: () => void;
   updateProjectMeta: (input: { name: string; id?: string }) => void;
   updateProjectDeployment: (input: DeploymentConfig) => void;
+  addBinding: (input?: Partial<IoBindingDefinition>) => void;
+  updateBinding: (bindingId: string, input: Partial<IoBindingDefinition>) => void;
   addObject: (input: {
     name: string;
     type?: string;
@@ -109,6 +113,7 @@ interface StudioState {
     objectId: string,
     input: { name: string; type: string; behaviorKind: BehaviorKind; summary: string; parentObjectId?: string | null }
   ) => void;
+  updateObjectNativeConfig: (objectId: string, input: Record<string, unknown>) => void;
   addObjectPort: (
     objectId: string,
     family: ObjectContractFamily,
@@ -237,6 +242,17 @@ function buildProjectSelection(project: UniversalPlcDemoProject) {
     selectedObjectId: firstObject.id,
     selectedMachineId: firstObject.behavior?.machineId ?? null
   };
+}
+
+function createBindingId(project: UniversalPlcDemoProject) {
+  const existingIds = project.bindings.map((binding) => binding.id);
+  let counter = project.bindings.length + 1;
+  let candidate = `binding_${counter}`;
+  while (existingIds.includes(candidate)) {
+    counter += 1;
+    candidate = `binding_${counter}`;
+  }
+  return candidate;
 }
 
 export const useStudioStore = create<StudioState>((set) => ({
@@ -401,10 +417,60 @@ export const useStudioStore = create<StudioState>((set) => ({
         }
       }
     })),
+  addBinding: (input) =>
+    set((state) => {
+      const nextBinding: IoBindingDefinition = {
+        id: createBindingId(state.project),
+        signalId: input?.signalId ?? "",
+        physicalSource: input?.physicalSource ?? "",
+        direction: input?.direction ?? "output",
+        type: input?.type ?? "bool",
+        bindingKind: input?.bindingKind ?? "digital_out",
+        resourceId: input?.resourceId,
+        gpio: input?.gpio,
+        status: input?.status,
+        debounceMs: input?.debounceMs,
+        inverted: input?.inverted ?? false,
+        initialState: input?.initialState ?? false,
+        scale: input?.scale,
+        failSafeValue: input?.failSafeValue
+      };
+
+      return {
+        project: {
+          ...state.project,
+          bindings: [...state.project.bindings, nextBinding]
+        },
+        activeWorkspace: "bind",
+        selectedItemType: "binding",
+        selectedItemId: nextBinding.id
+      };
+    }),
+  updateBinding: (bindingId, input) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        bindings: state.project.bindings.map((binding) =>
+          binding.id !== bindingId
+            ? binding
+            : {
+                ...binding,
+                ...input
+              }
+        )
+      }
+    })),
   addObject: (input, anchorPoint) =>
     set((state) => {
       const nextObject = createObjectDefinition(state.project, input);
       const parentObjectId = input.parentObjectId ?? null;
+      const nextDeployment =
+        nextObject.type === "BlinkRelayPrimitive"
+          ? {
+              ...state.project.deployment,
+              displayScreens: ensureBlinkOledScreenPreset(state.project.deployment.displayScreens)
+            }
+          : state.project.deployment;
       const nextObjects = state.project.objects.map((object) => {
         if (!parentObjectId || object.id !== parentObjectId) {
           return object;
@@ -431,6 +497,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       return {
         project: {
           ...state.project,
+          deployment: nextDeployment,
           objects: [...nextObjects, nextObject]
         },
         activeWorkspace: "machine",
@@ -461,6 +528,23 @@ export const useStudioStore = create<StudioState>((set) => ({
                 behaviorKind: input.behaviorKind,
                 summary: input.summary.trim() || object.summary,
                 parentObjectId: input.parentObjectId === undefined ? object.parentObjectId ?? null : input.parentObjectId
+              }
+        )
+      }
+    })),
+  updateObjectNativeConfig: (objectId, input) =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        objects: state.project.objects.map((object) =>
+          object.id !== objectId
+            ? object
+            : {
+                ...object,
+                nativeConfig: {
+                  ...(object.nativeConfig ?? {}),
+                  ...input
+                }
               }
         )
       }
@@ -641,6 +725,13 @@ export const useStudioStore = create<StudioState>((set) => ({
         ...input.object,
         parentObjectId: objectId
       });
+      const nextDeployment =
+        nextObject.type === "BlinkRelayPrimitive"
+          ? {
+              ...state.project.deployment,
+              displayScreens: ensureBlinkOledScreenPreset(state.project.deployment.displayScreens)
+            }
+          : state.project.deployment;
       const nextNodeTemplate = createStructureNodeInputFromObject(nextObject);
 
       let createdNodeId: string | null = null;
@@ -672,6 +763,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       return {
         project: {
           ...state.project,
+          deployment: nextDeployment,
           objects: [...nextObjects, nextObject]
         },
         activeWorkspace: "machine",

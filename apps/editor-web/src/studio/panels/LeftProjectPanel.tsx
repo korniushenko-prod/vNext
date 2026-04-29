@@ -33,6 +33,21 @@ const LIBRARY_GROUPS: Array<{ id: string; label: string; items: LibraryItemDefin
     label: "Objects / Templates",
     items: [
       {
+        id: "blink-relay-primitive",
+        label: "BlinkRelayPrimitive",
+        kind: "Object",
+        objectType: "BlinkRelayPrimitive",
+        behaviorKind: "control",
+        summary: "Native relay blink primitive with ON/OFF durations and OLED-ready status outputs.",
+        inputs: [{ name: "enable" }],
+        outputs: [
+          { name: "relayOut" },
+          { name: "relayState" },
+          { name: "phase", dataType: "string" },
+          { name: "remainingSeconds", dataType: "number" }
+        ]
+      },
+      {
         id: "pump-unit",
         label: "PumpUnit",
         kind: "Object",

@@ -17,6 +17,7 @@ import type {
   SignalDefinition,
   UniversalPlcDemoProject
 } from "../model/demoProject";
+import { ensureBlinkOledScreenPreset } from "../model/demoProject";
 import { buildSignalTrace, getSignalById } from "../model/signalTrace";
 import type { LogicWorkspaceContext, SelectItemOptions, SelectedItemType } from "../store/studioStore";
 import { useStudioStore } from "../store/studioStore";
@@ -452,6 +453,45 @@ function renderProjectInspector(options: {
         </div>
       </details>
 
+      <details className="inspector-disclosure" open>
+        <summary>
+          <span>OLED Screens</span>
+          <strong>{project.deployment.displayScreens.length}</strong>
+        </summary>
+        <div className="inspector-form inspector-form--compact">
+          <div className="inspector-actions">
+            <button
+              type="button"
+              className="inspector-link"
+              onClick={() =>
+                updateProjectDeployment({
+                  ...project.deployment,
+                  displayScreens: ensureBlinkOledScreenPreset(project.deployment.displayScreens)
+                })
+              }
+            >
+              Seed Blink OLED Screen
+            </button>
+          </div>
+          {project.deployment.displayScreens.length ? (
+            <div className="inspector-stack inspector-stack--compact">
+              {project.deployment.displayScreens.map((screen) => (
+                <div key={screen.id} className="inspector-card">
+                  <SectionRow label="Screen" value={screen.label} />
+                  <SectionRow label="Refresh" value={`${screen.refreshMs} ms`} />
+                  <SectionRow
+                    label="Widgets"
+                    value={screen.widgets.map((widget) => `${widget.label} -> ${widget.signalKey}`).join(", ")}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="muted-copy">No OLED screen presets yet.</p>
+          )}
+        </div>
+      </details>
+
       <details className="inspector-disclosure">
         <summary>
           <span>Add Object</span>
@@ -512,6 +552,7 @@ function renderObjectInspector(
     objectId: string,
     input: { name: string; type: string; behaviorKind: BehaviorKind; summary: string }
   ) => void,
+  updateObjectNativeConfig: (objectId: string, input: Record<string, unknown>) => void,
   addObjectPort: (
     objectId: string,
     family: ObjectContractFamily,
@@ -574,6 +615,70 @@ function renderObjectInspector(
           </button>
         </form>
       </details>
+
+      {object.type === "BlinkRelayPrimitive" ? (
+        <details className="inspector-disclosure" open>
+          <summary>
+            <span>Native Settings</span>
+            <strong>Blink</strong>
+          </summary>
+          <form
+            key={`native-${object.id}`}
+            className="inspector-form inspector-form--compact"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              updateObjectNativeConfig(object.id, {
+                primitiveType: "blink_relay",
+                enabled: String(formData.get("enabled") ?? "true") === "true",
+                onDurationS: Number(formData.get("onDurationS") ?? 5),
+                offDurationS: Number(formData.get("offDurationS") ?? 10),
+                outputBindingId: String(formData.get("outputBindingId") ?? ""),
+                oledScreenId: String(formData.get("oledScreenId") ?? "oled_blink_status")
+              });
+            }}
+          >
+            <div className="inspector-form__grid">
+              <InspectorSelect
+                label="Enabled"
+                name="enabled"
+                defaultValue={String(object.nativeConfig?.enabled ?? true)}
+                options={[
+                  { value: "true", label: "Enabled" },
+                  { value: "false", label: "Disabled" }
+                ]}
+              />
+              <InspectorField
+                label="On Duration (s)"
+                name="onDurationS"
+                defaultValue={String(object.nativeConfig?.onDurationS ?? 5)}
+                placeholder="5"
+              />
+              <InspectorField
+                label="Off Duration (s)"
+                name="offDurationS"
+                defaultValue={String(object.nativeConfig?.offDurationS ?? 10)}
+                placeholder="10"
+              />
+              <InspectorField
+                label="Output Binding Id"
+                name="outputBindingId"
+                defaultValue={String(object.nativeConfig?.outputBindingId ?? "")}
+                placeholder="binding_1"
+              />
+              <InspectorField
+                label="OLED Screen Id"
+                name="oledScreenId"
+                defaultValue={String(object.nativeConfig?.oledScreenId ?? "oled_blink_status")}
+                placeholder="oled_blink_status"
+              />
+            </div>
+            <button type="submit" className="inspector-link">
+              Save Native Settings
+            </button>
+          </form>
+        </details>
+      ) : null}
 
       <details className="inspector-disclosure" open>
         <summary>
@@ -978,7 +1083,11 @@ function renderTransitionInspector(
   );
 }
 
-function renderBindingInspector(binding: IoBindingDefinition, logicalSignal: SignalDefinition | null) {
+function renderBindingInspector(
+  binding: IoBindingDefinition,
+  logicalSignal: SignalDefinition | null,
+  updateBinding: (bindingId: string, input: Partial<IoBindingDefinition>) => void
+) {
   return (
     <>
       <h3>{binding.id}</h3>
@@ -986,14 +1095,115 @@ function renderBindingInspector(binding: IoBindingDefinition, logicalSignal: Sig
         <SectionRow label="Selected" value="Binding" />
         <SectionRow label="Raw signal" value={binding.signalId} />
         <SectionRow label="Signal layer" value={logicalSignal?.layer || ""} />
+        <SectionRow label="Binding Kind" value={binding.bindingKind || ""} />
+        <SectionRow label="Resource Id" value={binding.resourceId || ""} />
+        <SectionRow label="GPIO" value={binding.gpio !== undefined ? String(binding.gpio) : ""} />
         <SectionRow label="Physical channel" value={binding.physicalSource} />
         <SectionRow label="Direction" value={binding.direction} />
         <SectionRow label="Type" value={binding.type} />
         <SectionRow label="Debounce" value={binding.debounceMs ? `${binding.debounceMs} ms` : ""} />
         <SectionRow label="Inversion" value={binding.inverted ? "true" : "false"} />
+        <SectionRow label="Initial State" value={binding.initialState ? "true" : "false"} />
         <SectionRow label="Scaling" value={binding.scale ? String(binding.scale) : ""} />
         <SectionRow label="Fail-safe value" value={binding.failSafeValue !== undefined ? String(binding.failSafeValue) : ""} />
       </dl>
+      <details className="inspector-disclosure" open>
+        <summary>
+          <span>Edit Binding</span>
+          <strong>{binding.bindingKind ?? "binding"}</strong>
+        </summary>
+        <form
+          className="inspector-form inspector-form--compact"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            updateBinding(binding.id, {
+              signalId: String(formData.get("binding_signal_id") ?? ""),
+              bindingKind: String(formData.get("binding_kind") ?? "") as IoBindingDefinition["bindingKind"],
+              resourceId: String(formData.get("binding_resource_id") ?? ""),
+              gpio: Number(formData.get("binding_gpio") ?? -1),
+              physicalSource: String(formData.get("binding_physical_source") ?? ""),
+              direction: String(formData.get("binding_direction") ?? "output") as IoBindingDefinition["direction"],
+              type: String(formData.get("binding_type") ?? "bool") as IoBindingDefinition["type"],
+              inverted: String(formData.get("binding_inverted") ?? "") === "true",
+              initialState: String(formData.get("binding_initial_state") ?? "") === "true",
+              debounceMs: Number(formData.get("binding_debounce_ms") ?? 0) || undefined,
+              scale: String(formData.get("binding_scale") ?? "") || undefined
+            });
+          }}
+        >
+          <div className="inspector-form__grid">
+            <InspectorField label="Signal Id" name="binding_signal_id" defaultValue={binding.signalId} placeholder="sig.blink.relay" />
+            <InspectorSelect
+              label="Binding Kind"
+              name="binding_kind"
+              defaultValue={binding.bindingKind ?? "digital_out"}
+              options={[
+                { value: "digital_out", label: "digital_out" },
+                { value: "digital_in", label: "digital_in" },
+                { value: "analog_out", label: "analog_out" },
+                { value: "analog_in", label: "analog_in" },
+                { value: "counter", label: "counter" },
+                { value: "pwm", label: "pwm" }
+              ]}
+            />
+            <InspectorField label="Resource Id" name="binding_resource_id" defaultValue={binding.resourceId} placeholder="led_builtin" />
+            <InspectorField label="GPIO" name="binding_gpio" defaultValue={binding.gpio !== undefined ? String(binding.gpio) : ""} placeholder="25" />
+            <InspectorField
+              label="Physical Source"
+              name="binding_physical_source"
+              defaultValue={binding.physicalSource}
+              placeholder="GPIO25"
+            />
+            <InspectorSelect
+              label="Direction"
+              name="binding_direction"
+              defaultValue={binding.direction}
+              options={[
+                { value: "output", label: "Output" },
+                { value: "input", label: "Input" }
+              ]}
+            />
+            <InspectorSelect
+              label="Type"
+              name="binding_type"
+              defaultValue={binding.type}
+              options={[
+                { value: "bool", label: "Bool" },
+                { value: "analog", label: "Analog" }
+              ]}
+            />
+            <InspectorSelect
+              label="Inverted"
+              name="binding_inverted"
+              defaultValue={String(binding.inverted ?? false)}
+              options={[
+                { value: "false", label: "False" },
+                { value: "true", label: "True" }
+              ]}
+            />
+            <InspectorSelect
+              label="Initial State"
+              name="binding_initial_state"
+              defaultValue={String(binding.initialState ?? false)}
+              options={[
+                { value: "false", label: "False" },
+                { value: "true", label: "True" }
+              ]}
+            />
+            <InspectorField
+              label="Debounce ms"
+              name="binding_debounce_ms"
+              defaultValue={binding.debounceMs !== undefined ? String(binding.debounceMs) : ""}
+              placeholder="0"
+            />
+            <InspectorField label="Scale" name="binding_scale" defaultValue={binding.scale} placeholder="4-20mA" />
+          </div>
+          <button type="submit" className="inspector-link">
+            Save Binding
+          </button>
+        </form>
+      </details>
     </>
   );
 }
@@ -1049,8 +1259,10 @@ export function InspectorPanel() {
   const createBlankProject = useStudioStore((state) => state.createBlankProject);
   const updateProjectMeta = useStudioStore((state) => state.updateProjectMeta);
   const updateProjectDeployment = useStudioStore((state) => state.updateProjectDeployment);
+  const updateBinding = useStudioStore((state) => state.updateBinding);
   const addObject = useStudioStore((state) => state.addObject);
   const updateObjectMeta = useStudioStore((state) => state.updateObjectMeta);
+  const updateObjectNativeConfig = useStudioStore((state) => state.updateObjectNativeConfig);
   const addObjectPort = useStudioStore((state) => state.addObjectPort);
   const updateObjectPort = useStudioStore((state) => state.updateObjectPort);
   const deleteObjectPort = useStudioStore((state) => state.deleteObjectPort);
@@ -1109,6 +1321,7 @@ export function InspectorPanel() {
                 selectItem,
                 openFullObjectEditor,
                 updateObjectMeta,
+                updateObjectNativeConfig,
                 addObjectPort,
                 updateObjectPort,
                 deleteObjectPort
@@ -1186,7 +1399,7 @@ export function InspectorPanel() {
           : selectedBlock
           ? renderBlockInspector(selectedBlock)
           : selectedBinding
-          ? renderBindingInspector(selectedBinding, selectedBindingSignal)
+          ? renderBindingInspector(selectedBinding, selectedBindingSignal, updateBinding)
           : (
             <div className="empty-state">
               <strong>Nothing selected</strong>

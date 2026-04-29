@@ -10,6 +10,7 @@ export function BindWorkspace() {
   const bindContext = useStudioStore((state) => state.bindContext);
   const focusBindContext = useStudioStore((state) => state.focusBindContext);
   const selectItem = useStudioStore((state) => state.selectItem);
+  const addBinding = useStudioStore((state) => state.addBinding);
   const filteredBindings = bindContext
     ? bindings.filter((binding) => bindContext.bindingIds.includes(binding.id))
     : bindings;
@@ -20,6 +21,26 @@ export function BindWorkspace() {
         <div>
           <h2>Bind</h2>
           <p className="muted-copy">Quick physical/logical I/O setup. Fast, visible, and intentionally not the main logic editor.</p>
+        </div>
+        <div className="inspector-actions">
+          <button
+            type="button"
+            className="inspector-link"
+            onClick={() =>
+              addBinding({
+                direction: "output",
+                type: "bool",
+                bindingKind: "digital_out",
+                physicalSource: "GPIO25",
+                resourceId: "led_builtin",
+                gpio: 25,
+                initialState: false,
+                inverted: false
+              })
+            }
+          >
+            Add DO Binding
+          </button>
         </div>
       </div>
 
@@ -45,10 +66,13 @@ export function BindWorkspace() {
           <table>
             <thead>
               <tr>
+                <th>Binding Kind</th>
                 <th>Raw</th>
                 <th>Conditioned</th>
                 <th>Semantic</th>
                 <th>Direction</th>
+                <th>Resource</th>
+                <th>GPIO</th>
                 <th>Physical Source</th>
                 <th>Type</th>
                 <th>Status</th>
@@ -62,10 +86,13 @@ export function BindWorkspace() {
 
                 return (
                   <tr key={binding.id} className={bindContext ? "is-contextual" : ""} onClick={() => selectItem("binding", binding.id)}>
+                    <td>{binding.bindingKind ?? "—"}</td>
                     <td>{rawSignal?.name ?? binding.signalId}</td>
                     <td>{conditionedSignal?.name ?? "—"}</td>
                     <td>{semanticSignal?.name ?? "—"}</td>
                     <td>{binding.direction}</td>
+                    <td>{binding.resourceId ?? "—"}</td>
+                    <td>{binding.gpio ?? "—"}</td>
                     <td>{binding.physicalSource}</td>
                     <td>{binding.type}</td>
                     <td>{String(binding.status)}</td>

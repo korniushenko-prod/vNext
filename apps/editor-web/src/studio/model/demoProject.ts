@@ -155,6 +155,7 @@ interface BuiltinTemplateStructureRouteSeed {
 
 interface BuiltinTemplateSeed {
   ports: BuiltinTemplatePortSeed[];
+  nativeConfig?: Record<string, unknown>;
   structure?: {
     summary: string;
     nodes: BuiltinTemplateStructureNodeSeed[];
@@ -168,6 +169,7 @@ export interface PlcObjectDefinition {
   type: string;
   behaviorKind: BehaviorKind;
   summary: string;
+  nativeConfig?: Record<string, unknown>;
   parentObjectId?: string | null;
   topologyPosition?: { x: number; y: number } | null;
   commands: ObjectInterfacePortDefinition[];
@@ -306,9 +308,13 @@ export interface IoBindingDefinition {
   physicalSource: string;
   direction: "input" | "output";
   type: "bool" | "analog";
+  bindingKind?: "digital_in" | "digital_out" | "analog_in" | "analog_out" | "counter" | "pwm";
+  resourceId?: string;
+  gpio?: number;
   status?: boolean | number;
   debounceMs?: number;
   inverted?: boolean;
+  initialState?: boolean;
   scale?: string;
   failSafeValue?: boolean | number;
 }
@@ -361,6 +367,69 @@ export interface UniversalPlcDemoProject {
 }
 
 const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
+  BlinkRelayPrimitive: {
+    ports: [
+      { family: "commands", name: "enable", summary: "Enables the blinking relay cycle." },
+      { family: "outputs", name: "relayOut", summary: "Physical relay command output for the bound digital output." },
+      { family: "status", name: "relayState", summary: "Current relay state after runtime evaluation." },
+      { family: "status", name: "phase", dataType: "string", summary: "Current blink phase: ON or OFF." },
+      {
+        family: "status",
+        name: "remainingSeconds",
+        dataType: "number",
+        summary: "Seconds remaining before the current phase finishes."
+      }
+    ],
+    nativeConfig: {
+      primitiveType: "blink_relay",
+      enabled: true,
+      onDurationS: 5,
+      offDurationS: 10,
+      outputBindingId: "",
+      oledScreenId: "oled_blink_status"
+    },
+    structure: {
+      summary: "Native blink relay primitive with one runtime engine and exported status outputs.",
+      nodes: [
+        {
+          key: "blinkEngine",
+          title: "Engine",
+          kind: "BlinkRelay",
+          summary: "Runtime primitive that alternates relay ON and OFF phases.",
+          position: { x: 420, y: 180 },
+          inputs: [{ name: "enable" }],
+          outputs: [
+            { name: "relayOut" },
+            { name: "relayState" },
+            { name: "phase", dataType: "string" },
+            { name: "remainingSeconds", dataType: "number" }
+          ]
+        }
+      ],
+      routes: [
+        {
+          from: { kind: "boundary", family: "commands", portName: "enable" },
+          to: { kind: "node", nodeKey: "blinkEngine", portName: "enable" }
+        },
+        {
+          from: { kind: "node", nodeKey: "blinkEngine", portName: "relayOut" },
+          to: { kind: "boundary", family: "outputs", portName: "relayOut" }
+        },
+        {
+          from: { kind: "node", nodeKey: "blinkEngine", portName: "relayState" },
+          to: { kind: "boundary", family: "status", portName: "relayState" }
+        },
+        {
+          from: { kind: "node", nodeKey: "blinkEngine", portName: "phase" },
+          to: { kind: "boundary", family: "status", portName: "phase" }
+        },
+        {
+          from: { kind: "node", nodeKey: "blinkEngine", portName: "remainingSeconds" },
+          to: { kind: "boundary", family: "status", portName: "remainingSeconds" }
+        }
+      ]
+    }
+  },
   PumpUnit: {
     ports: [
       { family: "commands", name: "startCmd", summary: "Run request for this pump unit." },
@@ -654,6 +723,41 @@ export function createDefaultDeploymentConfig(): DeploymentConfig {
   };
 }
 
+export function createBlinkOledScreenPreset(): DeploymentDisplayScreenConfig {
+  return {
+    id: "oled_blink_status",
+    label: "Blink Status",
+    refreshMs: 1000,
+    widgets: [
+      { id: "widget_ip", type: "text", label: "IP", signalKey: "system.ipAddress", x: 0, y: 0, w: 128, h: 14 },
+      { id: "widget_relay", type: "bool", label: "Relay", signalKey: "blink.relayState", x: 0, y: 16, w: 128, h: 14 },
+      { id: "widget_phase", type: "text", label: "Phase", signalKey: "blink.phase", x: 0, y: 32, w: 128, h: 14 },
+      {
+        id: "widget_remaining",
+        type: "number",
+        label: "Remain",
+        signalKey: "blink.remainingSeconds",
+        x: 0,
+        y: 48,
+        w: 128,
+        h: 14
+      }
+    ]
+  };
+}
+
+export function ensureBlinkOledScreenPreset(
+  screens: DeploymentDisplayScreenConfig[]
+): DeploymentDisplayScreenConfig[] {
+  const preset = createBlinkOledScreenPreset();
+  const existing = screens.find((screen) => screen.id === preset.id);
+  if (!existing) {
+    return [...screens, preset];
+  }
+
+  return screens.map((screen) => (screen.id === preset.id ? preset : screen));
+}
+
 function normalizeDeploymentConfig(value: unknown): DeploymentConfig {
   const defaults = createDefaultDeploymentConfig();
   const raw = typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
@@ -805,6 +909,10 @@ function normalizeProjectDocument(project: UniversalPlcProjectDocument): Univers
         ...object,
         type: typeof object.type === "string" ? object.type : "CustomObject",
         summary: typeof object.summary === "string" ? object.summary : "",
+        nativeConfig:
+          typeof rawObject.nativeConfig === "object" && rawObject.nativeConfig !== null
+            ? (rawObject.nativeConfig as Record<string, unknown>)
+            : undefined,
         parentObjectId:
           typeof rawObject.parentObjectId === "string" || rawObject.parentObjectId === null
             ? (rawObject.parentObjectId as string | null)
@@ -836,7 +944,32 @@ function normalizeProjectDocument(project: UniversalPlcProjectDocument): Univers
     compositionLinks: project.compositionLinks ?? [],
     machines: project.machines ?? [],
     signals: project.signals ?? [],
-    bindings: project.bindings ?? [],
+    bindings: (project.bindings ?? []).map((binding, index) => {
+      const rawBinding = binding as unknown as Record<string, unknown>;
+      return {
+        id: typeof binding.id === "string" ? binding.id : `binding_${index + 1}`,
+        signalId: typeof binding.signalId === "string" ? binding.signalId : "",
+        physicalSource: typeof binding.physicalSource === "string" ? binding.physicalSource : "",
+        direction: binding.direction === "output" ? "output" : "input",
+        type: binding.type === "analog" ? "analog" : "bool",
+        bindingKind:
+          typeof rawBinding.bindingKind === "string"
+            ? (rawBinding.bindingKind as IoBindingDefinition["bindingKind"])
+            : undefined,
+        resourceId: typeof rawBinding.resourceId === "string" ? rawBinding.resourceId : undefined,
+        gpio: typeof rawBinding.gpio === "number" ? rawBinding.gpio : undefined,
+        status:
+          typeof binding.status === "boolean" || typeof binding.status === "number" ? binding.status : undefined,
+        debounceMs: typeof binding.debounceMs === "number" ? binding.debounceMs : undefined,
+        inverted: typeof binding.inverted === "boolean" ? binding.inverted : undefined,
+        initialState: typeof rawBinding.initialState === "boolean" ? rawBinding.initialState : undefined,
+        scale: typeof binding.scale === "string" ? binding.scale : undefined,
+        failSafeValue:
+          typeof binding.failSafeValue === "boolean" || typeof binding.failSafeValue === "number"
+            ? binding.failSafeValue
+            : undefined
+      };
+    }),
     blocks: project.blocks ?? [],
     runtimeSnapshot: {
       activeMachineId: project.runtimeSnapshot?.activeMachineId ?? "",
@@ -908,6 +1041,13 @@ function applyBuiltinTemplateSeed(object: PlcObjectDefinition) {
   }
 
   let nextObject = { ...object };
+
+  if (seed.nativeConfig) {
+    nextObject = {
+      ...nextObject,
+      nativeConfig: structuredClone(seed.nativeConfig)
+    };
+  }
 
   for (const portSeed of seed.ports) {
     const alreadyExists = nextObject[portSeed.family].some((port) => port.name === portSeed.name);
@@ -1033,6 +1173,7 @@ export function createObjectDefinition(
     type?: string;
     behaviorKind: BehaviorKind;
     summary?: string;
+    nativeConfig?: Record<string, unknown>;
     parentObjectId?: string | null;
   }
 ): PlcObjectDefinition {
@@ -1043,6 +1184,7 @@ export function createObjectDefinition(
     type: input.type?.trim() || "CustomObject",
     behaviorKind: input.behaviorKind,
     summary: input.summary?.trim() || "Describe what this object owns and exports.",
+    nativeConfig: input.nativeConfig ? structuredClone(input.nativeConfig) : undefined,
     parentObjectId: input.parentObjectId ?? null,
     topologyPosition: null,
     commands: [],
