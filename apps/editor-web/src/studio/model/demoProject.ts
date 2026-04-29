@@ -729,7 +729,7 @@ export function createBlinkOledScreenPreset(): DeploymentDisplayScreenConfig {
     label: "Blink Status",
     refreshMs: 1000,
     widgets: [
-      { id: "widget_ip", type: "text", label: "IP", signalKey: "system.ipAddress", x: 0, y: 0, w: 128, h: 14 },
+      { id: "widget_ip", type: "text", label: "IP", signalKey: "system.ip", x: 0, y: 0, w: 128, h: 14 },
       { id: "widget_relay", type: "bool", label: "Relay", signalKey: "blink.relayState", x: 0, y: 16, w: 128, h: 14 },
       { id: "widget_phase", type: "text", label: "Phase", signalKey: "blink.phase", x: 0, y: 32, w: 128, h: 14 },
       {

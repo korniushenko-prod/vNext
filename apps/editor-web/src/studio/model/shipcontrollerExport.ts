@@ -52,6 +52,17 @@ export interface ShipControllerExportConfig {
       units?: string;
     }
   >;
+  blocks: Record<
+    string,
+    {
+      type: string;
+      mode: string;
+      output: string;
+      period_ms: number;
+      duration_ms: number;
+      start_immediately: boolean;
+    }
+  >;
   display: {
     enabled: boolean;
     driver: string;
@@ -141,7 +152,49 @@ function mapDisplayWidgetType(widget: DeploymentDisplayWidgetConfig) {
   }
 }
 
-function exportDisplayScreens(screens: DeploymentDisplayScreenConfig[]) {
+function findBlinkOutputChannelId(
+  blinkObject: PlcObjectDefinition,
+  bindings: IoBindingDefinition[]
+) {
+  const explicitBindingId = String(blinkObject.nativeConfig?.outputBindingId ?? "");
+  if (explicitBindingId.length > 0 && bindings.some((binding) => binding.id === explicitBindingId)) {
+    return explicitBindingId;
+  }
+
+  const fallback = bindings.find((binding) => binding.bindingKind === "digital_out");
+  return fallback?.id ?? "";
+}
+
+function resolveBlinkSignalKey(
+  signalKey: string,
+  blinkObject: PlcObjectDefinition | null,
+  bindings: IoBindingDefinition[],
+  timerOrdinal: number
+) {
+  if (!blinkObject) {
+    return signalKey;
+  }
+
+  const channelId = findBlinkOutputChannelId(blinkObject, bindings);
+  const timerPrefix = `timer.${timerOrdinal}`;
+  switch (signalKey) {
+    case "blink.relayState":
+      return channelId || signalKey;
+    case "blink.phase":
+      return `${timerPrefix}.active`;
+    case "blink.remainingSeconds":
+      return `${timerPrefix}.phase_remaining`;
+    default:
+      return signalKey;
+  }
+}
+
+function exportDisplayScreens(
+  screens: DeploymentDisplayScreenConfig[],
+  blinkObjects: PlcObjectDefinition[],
+  bindings: IoBindingDefinition[]
+) {
+  const primaryBlink = blinkObjects[0] ?? null;
   return Object.fromEntries(
     screens.map((screen) => [
       screen.id,
@@ -157,7 +210,7 @@ function exportDisplayScreens(screens: DeploymentDisplayScreenConfig[]) {
             {
               type: mapDisplayWidgetType(widget),
               label: widget.label,
-              signal: widget.signalKey,
+              signal: resolveBlinkSignalKey(widget.signalKey, primaryBlink, bindings, 1),
               visible_if: "",
               x: widget.x,
               y: widget.y,
@@ -166,7 +219,7 @@ function exportDisplayScreens(screens: DeploymentDisplayScreenConfig[]) {
               format: {
                 units: widget.signalKey.toLowerCase().includes("remaining") ? "s" : "",
                 precision: 0,
-                duration_style: widget.signalKey.toLowerCase().includes("remaining") ? "seconds" : "",
+                duration_style: widget.signalKey.toLowerCase().includes("remaining") ? "mm:ss" : "",
                 true_text: "ON",
                 false_text: "OFF",
                 prefix: "",
@@ -204,31 +257,32 @@ function exportChannels(bindings: IoBindingDefinition[]) {
   );
 }
 
-function exportBlinkSignals(blinkObjects: PlcObjectDefinition[]) {
-  const signals: ShipControllerExportConfig["signals"] = {
-    "system.ipAddress": {
-      label: "IP Address",
-      type: "substitute"
-    }
-  };
+function exportBlinkSignals() {
+  return {} as ShipControllerExportConfig["signals"];
+}
 
-  for (const object of blinkObjects) {
-    signals[`${object.id}.relayState`] = {
-      label: `${object.name} Relay`,
-      type: "substitute"
-    };
-    signals[`${object.id}.phase`] = {
-      label: `${object.name} Phase`,
-      type: "substitute"
-    };
-    signals[`${object.id}.remainingSeconds`] = {
-      label: `${object.name} Remaining`,
-      type: "substitute",
-      units: "s"
-    };
-  }
-
-  return signals;
+function exportBlinkBlocks(
+  blinkObjects: PlcObjectDefinition[],
+  bindings: IoBindingDefinition[]
+): ShipControllerExportConfig["blocks"] {
+  return Object.fromEntries(
+    blinkObjects
+      .filter((object) => Boolean(object.nativeConfig?.enabled ?? true))
+      .map((object) => {
+        const outputChannelId = findBlinkOutputChannelId(object, bindings);
+        return [
+          `${object.id}_timer`,
+          {
+            type: "timer",
+            mode: "interval",
+            output: outputChannelId,
+            period_ms: (Number(object.nativeConfig?.onDurationS ?? 5) + Number(object.nativeConfig?.offDurationS ?? 10)) * 1000,
+            duration_ms: Number(object.nativeConfig?.onDurationS ?? 5) * 1000,
+            start_immediately: true
+          }
+        ];
+      })
+  );
 }
 
 function exportBlinkPrimitives(blinkObjects: PlcObjectDefinition[]) {
@@ -282,7 +336,8 @@ export function exportProjectToShipcontrollerConfig(
       pin: project.deployment.led.pin
     },
     channels: exportChannels(project.bindings),
-    signals: exportBlinkSignals(blinkObjects),
+    signals: exportBlinkSignals(),
+    blocks: exportBlinkBlocks(blinkObjects, project.bindings),
     display: {
       enabled: project.deployment.oled.enabled,
       driver: `ssd1306_${project.deployment.oled.width}x${project.deployment.oled.height}`,
@@ -291,7 +346,7 @@ export function exportProjectToShipcontrollerConfig(
       rotation: 0,
       startup_screen: startupScreenId,
       default_language: "ru",
-      screens: exportDisplayScreens(project.deployment.displayScreens)
+      screens: exportDisplayScreens(project.deployment.displayScreens, blinkObjects, project.bindings)
     },
     native_primitives: {
       blink_relays: exportBlinkPrimitives(blinkObjects)
