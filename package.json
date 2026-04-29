@@ -6,7 +6,6 @@
   "packageManager": "pnpm@10.11.0",
   "scripts": {
     "check": "echo workspace skeleton ready",
-    "test": "echo tests not configured yet",
-    "editor-web:publish-shipcontroller": "powershell -ExecutionPolicy Bypass -File ./tools/publish-editor-web-to-shipcontroller.ps1"
+    "test": "echo tests not configured yet"
   }
 }

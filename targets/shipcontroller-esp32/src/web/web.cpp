@@ -4890,17 +4890,6 @@ static void handleRoot()
 )rawliteral";
     server.send_P(200, "text/html", html);
 }
-
-static void handleEditorRoot()
-{
-    if (tryServeStaticFile("/editor/index.html"))
-    {
-        return;
-    }
-
-    server.send(404, "text/plain", "Editor bundle not found. Publish apps/editor-web to LittleFS.");
-}
-
 static void handleStaticFallback()
 {
     String uri = server.uri();
@@ -4910,20 +4899,8 @@ static void handleStaticFallback()
         return;
     }
 
-    if (uri == "/editor" || uri == "/editor/")
-    {
-        handleEditorRoot();
-        return;
-    }
-
     if (tryServeStaticFile(uri))
     {
-        return;
-    }
-
-    if (uri.startsWith("/editor/"))
-    {
-        handleEditorRoot();
         return;
     }
 
@@ -4933,8 +4910,6 @@ static void handleStaticFallback()
 void webInit()
 {
     server.on("/", handleRoot);
-    server.on("/editor", HTTP_GET, handleEditorRoot);
-    server.on("/editor/", HTTP_GET, handleEditorRoot);
     server.on("/chip", HTTP_GET, handleDetectChip);
     server.on("/boards", HTTP_GET, handleGetBoards);
     server.on("/hardware", HTTP_GET, handleGetHardware);
