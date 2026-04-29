@@ -1,0 +1,16 @@
+{
+  "id": "untitled_project",
+  "name": "Untitled Project",
+  "objects": [],
+  "compositionLinks": [],
+  "machines": [],
+  "signals": [],
+  "bindings": [],
+  "blocks": [],
+  "runtimeSnapshot": {
+    "activeMachineId": "",
+    "activeStateId": "",
+    "health": "ok",
+    "diagnostics": []
+  }
+}
