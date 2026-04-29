@@ -40,6 +40,9 @@
 WebServer server(80);
 static String ipStr = "";
 
+String getNetworkMode();
+String getNetworkSsid();
+
 namespace {
 
 void beginConfiguredI2cBus()
@@ -2224,8 +2227,14 @@ static void handleGetRuntime()
     doc["config_version_supported"] = CURRENT_CONFIG_VERSION;
     doc["active_board"] = gConfig.system.active_board;
     JsonObject wifi = ensureObject(doc, "wifi");
-    wifi["mode"] = gConfig.wifi.mode;
-    wifi["ssid"] = gConfig.wifi.ssid;
+    String activeMode = getNetworkMode();
+    String activeSsid = getNetworkSsid();
+    wifi["mode"] = activeMode;
+    wifi["active_mode"] = activeMode;
+    wifi["ssid"] = activeSsid;
+    wifi["active_ssid"] = activeSsid;
+    wifi["configured_mode"] = gConfig.wifi.mode;
+    wifi["configured_ssid"] = gConfig.wifi.ssid;
     wifi["password"] = gConfig.wifi.password;
     wifi["ap_ssid"] = gConfig.wifi.apSsid;
     wifi["ap_password"] = gConfig.wifi.apPassword;
@@ -5023,4 +5032,44 @@ void webUpdate()
 String getIP()
 {
     return ipStr;
+}
+
+String getNetworkMode()
+{
+    wifi_mode_t mode = WiFi.getMode();
+    if (mode == WIFI_AP)
+    {
+        return "ap";
+    }
+    if (mode == WIFI_STA)
+    {
+        return WiFi.status() == WL_CONNECTED ? "sta" : "sta_disconnected";
+    }
+    if (mode == WIFI_AP_STA)
+    {
+        return WiFi.status() == WL_CONNECTED ? "ap_sta" : "ap_fallback";
+    }
+    return "off";
+}
+
+String getNetworkSsid()
+{
+    wifi_mode_t mode = WiFi.getMode();
+    if (mode == WIFI_AP)
+    {
+        return WiFi.softAPSSID();
+    }
+    if (mode == WIFI_STA)
+    {
+        return WiFi.SSID().length() > 0 ? WiFi.SSID() : gConfig.wifi.ssid;
+    }
+    if (mode == WIFI_AP_STA)
+    {
+        if (WiFi.status() == WL_CONNECTED && WiFi.SSID().length() > 0)
+        {
+            return WiFi.SSID();
+        }
+        return WiFi.softAPSSID().length() > 0 ? WiFi.softAPSSID() : gConfig.wifi.apSsid;
+    }
+    return "";
 }

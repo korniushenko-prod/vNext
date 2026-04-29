@@ -105,7 +105,7 @@ String readSystemSourceValue(const String &sourceId)
     }
     if (sourceId == "system.wifi_mode")
     {
-        return gConfig.wifi.mode;
+        return getNetworkMode();
     }
     if (sourceId == "system.active_board")
     {
