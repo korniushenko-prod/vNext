@@ -256,6 +256,33 @@ export function LeftProjectPanel() {
   const addStructureNode = useStudioStore((state) => state.addStructureNode);
   const addStructureObjectNode = useStudioStore((state) => state.addStructureObjectNode);
 
+  const workspaceTree = [
+    {
+      id: "machine" as const,
+      label: "Machine",
+      icon: "MAC",
+      meta: "Design"
+    },
+    {
+      id: "bind" as const,
+      label: "Bind",
+      icon: "IO",
+      meta: "Ports / GPIO"
+    },
+    {
+      id: "logic" as const,
+      label: "Logic",
+      icon: "LOG",
+      meta: "Blocks"
+    },
+    {
+      id: "observe" as const,
+      label: "Observe",
+      icon: "OBS",
+      meta: "Runtime"
+    }
+  ];
+
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const tree = useTreeState(["project-root", "system-objects"]);
 
@@ -416,6 +443,25 @@ export function LeftProjectPanel() {
         ) : null}
 
         <div className="tree-root">
+          <TreeBranch
+            label="Workspace"
+            meta={workspaceTree.find((workspace) => workspace.id === activeWorkspace)?.label ?? activeWorkspace}
+            icon="WSP"
+            open={tree.isOpen("workspace-root")}
+            onToggle={() => tree.toggle("workspace-root")}
+          >
+            {workspaceTree.map((workspace) => (
+              <TreeLeaf
+                key={workspace.id}
+                label={workspace.label}
+                meta={workspace.meta}
+                icon={workspace.icon}
+                selected={activeWorkspace === workspace.id}
+                onClick={() => setActiveWorkspace(workspace.id)}
+              />
+            ))}
+          </TreeBranch>
+
           <TreeBranch
             label={project.name}
             meta={undefined}

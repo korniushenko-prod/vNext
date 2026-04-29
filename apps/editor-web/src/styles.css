@@ -62,7 +62,7 @@ textarea {
 
 .studio-topbar {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
@@ -114,11 +114,40 @@ textarea {
 
 .workspace-switcher {
   display: inline-flex;
-  justify-self: center;
   gap: 4px;
   padding: 4px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
+}
+
+.studio-topbar__main {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.studio-topbar__workspace {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.studio-topbar__workspace-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.studio-topbar__workspace-copy strong {
+  font-size: 15px;
+  line-height: 1.05;
+}
+
+.studio-topbar__workspace-copy span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .workspace-switcher button,
@@ -148,7 +177,7 @@ textarea {
 .studio-status {
   display: flex;
   gap: 6px;
-  justify-self: end;
+  flex-wrap: wrap;
 }
 
 .status-chip,
@@ -479,7 +508,7 @@ textarea {
 
 .tree-root {
   display: grid;
-  gap: 0;
+  gap: 6px;
   min-height: 0;
   max-height: calc(100vh - 250px);
   overflow: auto;
@@ -544,7 +573,7 @@ textarea {
 .tree-branch,
 .tree-branch__children {
   display: grid;
-  gap: 0;
+  gap: 4px;
 }
 
 .tree-branch__children {
@@ -598,7 +627,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 4px;
-  padding: 1px 4px;
+  padding: 5px 6px;
 }
 
 .tree-branch__toggle:hover,
@@ -667,7 +696,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 4px;
-  padding: 1px 4px;
+  padding: 5px 6px;
   color: var(--text);
   border-radius: 6px;
 }
@@ -3183,6 +3212,15 @@ tbody tr.is-contextual {
   background: rgba(90, 177, 255, 0.14);
 }
 
+.topbar-button--primary {
+  border-color: rgba(102, 217, 199, 0.24);
+  background: rgba(102, 217, 199, 0.1);
+}
+
+.topbar-button--primary:hover {
+  background: rgba(102, 217, 199, 0.16);
+}
+
 .inspector-form {
   display: grid;
   gap: 8px;
@@ -3699,6 +3737,10 @@ tbody tr.is-contextual {
 
   .studio-topbar {
     grid-template-columns: 1fr;
+  }
+
+  .studio-topbar__workspace {
+    align-items: flex-start;
   }
 
   .studio-main {

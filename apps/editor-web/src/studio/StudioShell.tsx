@@ -13,11 +13,30 @@ import { MachineWorkspace } from "./workspace/MachineWorkspace";
 import { ObserveWorkspace } from "./workspace/ObserveWorkspace";
 
 const WORKSPACES: Array<{ id: WorkspaceId; label: string }> = [
+  { id: "machine", label: "Machine" },
   { id: "bind", label: "Bind" },
   { id: "logic", label: "Logic" },
-  { id: "machine", label: "Machine" },
   { id: "observe", label: "Observe" }
 ];
+
+const WORKSPACE_SUMMARY: Record<WorkspaceId, { title: string; description: string }> = {
+  machine: {
+    title: "Machine Design",
+    description: "Build the machine from reusable objects, templates and internal logic."
+  },
+  bind: {
+    title: "Commissioning Bind",
+    description: "Choose preset hardware and bind real I/O safely and quickly."
+  },
+  logic: {
+    title: "Signal Logic",
+    description: "Define neutral comparators, timers, selectors and interpretation blocks."
+  },
+  observe: {
+    title: "Runtime Observe",
+    description: "Verify network, outputs, display and diagnostics from one runtime truth surface."
+  }
+};
 
 function renderWorkspace(workspace: WorkspaceId) {
   switch (workspace) {
@@ -44,6 +63,7 @@ export function StudioShell() {
   const importProject = useStudioStore((state) => state.importProject);
   const createBlankProject = useStudioStore((state) => state.createBlankProject);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const workspaceSummary = WORKSPACE_SUMMARY[activeWorkspace];
 
   function saveProject() {
     const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json" });
@@ -92,18 +112,42 @@ export function StudioShell() {
           </div>
         </div>
 
-        <nav className="workspace-switcher" aria-label="Workspace switcher">
-          {WORKSPACES.map((workspace) => (
-            <button
-              key={workspace.id}
-              type="button"
-              className={workspace.id === activeWorkspace ? "is-active" : ""}
-              onClick={() => setActiveWorkspace(workspace.id)}
-            >
-              {workspace.label}
-            </button>
-          ))}
-        </nav>
+        <div className="studio-topbar__main">
+          <div className="studio-topbar__workspace">
+            <div className="studio-topbar__workspace-copy">
+              <strong>{workspaceSummary.title}</strong>
+              <span>{workspaceSummary.description}</span>
+            </div>
+            <nav className="workspace-switcher" aria-label="Workspace switcher">
+              {WORKSPACES.map((workspace) => (
+                <button
+                  key={workspace.id}
+                  type="button"
+                  className={workspace.id === activeWorkspace ? "is-active" : ""}
+                  onClick={() => setActiveWorkspace(workspace.id)}
+                >
+                  {workspace.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          <div className="studio-status">
+            <span className="status-chip">
+              {projectLoadState === "loading"
+                ? "Loading project.json"
+                : projectSource === "remote"
+                  ? "project.json loaded"
+                  : projectSource === "local"
+                    ? "Local file opened"
+                    : projectSource === "authoring"
+                      ? "Working copy"
+                      : "Bundled fallback"}
+            </span>
+            <span className={`status-chip health-${project.runtimeSnapshot.health}`}>Runtime {project.runtimeSnapshot.health}</span>
+            {projectLoadError ? <span className="status-chip">Loader fallback: {projectLoadError}</span> : null}
+          </div>
+        </div>
 
         <div className="studio-actions">
           <input
@@ -114,30 +158,20 @@ export function StudioShell() {
             hidden
           />
           <button type="button" className="topbar-button" onClick={createBlankProject}>
-            New Project
+            New
           </button>
           <button type="button" className="topbar-button" onClick={openProjectPicker}>
-            Open Project
+            Open
           </button>
           <button type="button" className="topbar-button" onClick={saveProject}>
-            Save Project
+            Save
           </button>
-        </div>
-
-        <div className="studio-status">
-          <span className="status-chip">
-            {projectLoadState === "loading"
-              ? "Loading project.json"
-              : projectSource === "remote"
-                ? "project.json loaded"
-                : projectSource === "local"
-                  ? "Local file opened"
-                : projectSource === "authoring"
-                  ? "Working copy"
-                  : "Bundled fallback"}
-          </span>
-          <span className={`status-chip health-${project.runtimeSnapshot.health}`}>Runtime {project.runtimeSnapshot.health}</span>
-          {projectLoadError ? <span className="status-chip">Loader fallback: {projectLoadError}</span> : null}
+          <button type="button" className="topbar-button topbar-button--primary">
+            Validate
+          </button>
+          <button type="button" className="topbar-button topbar-button--primary">
+            Apply
+          </button>
         </div>
       </header>
 
