@@ -28,7 +28,8 @@ const STRUCTURE_BOUNDARY_LEFT_X = 18;
 const STRUCTURE_BOUNDARY_RIGHT_X = STRUCTURE_SCENE_WIDTH - STRUCTURE_BOUNDARY_NODE_WIDTH - 18;
 const STRUCTURE_BOUNDARY_TOP = 88;
 const STRUCTURE_BOUNDARY_SPACING = 40;
-const STRUCTURE_NODE_WIDTH = 112;
+const STRUCTURE_NODE_MIN_WIDTH = 72;
+const STRUCTURE_NODE_MAX_WIDTH = 112;
 const STRUCTURE_NODE_HEADER_HEIGHT = 22;
 const STRUCTURE_NODE_ROW_HEIGHT = 16;
 const STRUCTURE_NODE_PADDING_BOTTOM = 6;
@@ -107,6 +108,16 @@ function endpointFromFlowNode(nodeId: string, handleId: string): ObjectStructure
 function getStructureNodeHeight(node: ObjectStructureNodeDefinition) {
   const rowCount = Math.max(node.inputs.length, node.outputs.length, 1);
   return STRUCTURE_NODE_HEADER_HEIGHT + rowCount * STRUCTURE_NODE_ROW_HEIGHT + STRUCTURE_NODE_PADDING_BOTTOM;
+}
+
+function getStructureNodeWidth(node: ObjectStructureNodeDefinition) {
+  const longestInput = Math.max(...node.inputs.map((port) => port.name.length), 0);
+  const longestOutput = Math.max(...node.outputs.map((port) => port.name.length), 0);
+  const longestTitle = Math.max(node.kind.length, node.title.length, 3);
+  const contentWidth = 26 + longestInput * 5 + longestOutput * 5 + 18;
+  const titleWidth = 24 + longestTitle * 5;
+
+  return Math.max(STRUCTURE_NODE_MIN_WIDTH, Math.min(STRUCTURE_NODE_MAX_WIDTH, Math.max(contentWidth, titleWidth)));
 }
 
 function groupBoundaryPorts(object: PlcObjectDefinition) {
@@ -364,7 +375,7 @@ function ObjectStructureCanvasInner() {
       selectable: true,
       connectable: true,
       style: {
-        width: STRUCTURE_NODE_WIDTH,
+        width: getStructureNodeWidth(node),
         height: getStructureNodeHeight(node)
       },
       data: {

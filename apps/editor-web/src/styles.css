@@ -2324,14 +2324,16 @@ textarea {
 }
 
 .structure-node-card__ports {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 5px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
 }
 
 .structure-node-port-col {
-  display: grid;
+  display: inline-grid;
   gap: 1px;
+  width: max-content;
 }
 
 .structure-node-port {
@@ -2354,7 +2356,7 @@ textarea {
 }
 
 .structure-node-port.is-output {
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .structure-boundary-node {
