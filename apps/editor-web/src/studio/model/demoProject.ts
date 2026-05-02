@@ -389,9 +389,139 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
       oledScreenId: "oled_blink_status"
     },
     structure: {
-      summary: "Native blink relay primitive. Authoring view stays empty until we expose it as simple blocks or nested objects.",
-      nodes: [],
-      routes: []
+      summary: "Approximate engineering composition of the blink relay primitive using timers, selectors and starter control blocks.",
+      nodes: [
+        {
+          key: "enableLatch",
+          title: "EnableHold",
+          kind: "Latch",
+          summary: "Holds the enable request while the blink primitive is active.",
+          position: { x: 180, y: 160 }
+        },
+        {
+          key: "onDuration",
+          title: "OnTime",
+          kind: "Setpoint",
+          summary: "Configured ON duration in seconds.",
+          position: { x: 180, y: 60 }
+        },
+        {
+          key: "offDuration",
+          title: "OffTime",
+          kind: "Setpoint",
+          summary: "Configured OFF duration in seconds.",
+          position: { x: 180, y: 290 }
+        },
+        {
+          key: "onTimer",
+          title: "OnPhase",
+          kind: "TON",
+          summary: "Approximate ON-phase timer.",
+          position: { x: 430, y: 60 }
+        },
+        {
+          key: "offTimer",
+          title: "OffPhase",
+          kind: "TON",
+          summary: "Approximate OFF-phase timer.",
+          position: { x: 430, y: 260 }
+        },
+        {
+          key: "relaySelect",
+          title: "RelayState",
+          kind: "Selector",
+          summary: "Selects the active relay command for the current phase.",
+          position: { x: 700, y: 90 }
+        },
+        {
+          key: "remainSelect",
+          title: "Remaining",
+          kind: "Selector",
+          summary: "Selects the active countdown signal for the current phase.",
+          position: { x: 700, y: 255 }
+        },
+        {
+          key: "phaseSelect",
+          title: "Phase",
+          kind: "Selector",
+          summary: "Exposes the current phase state to the object boundary.",
+          position: { x: 980, y: 170 }
+        }
+      ],
+      routes: [
+        {
+          from: { kind: "boundary", family: "commands", portName: "enable" },
+          to: { kind: "node", nodeKey: "enableLatch", portName: "set" }
+        },
+        {
+          from: { kind: "node", nodeKey: "enableLatch", portName: "out" },
+          to: { kind: "node", nodeKey: "onTimer", portName: "in" }
+        },
+        {
+          from: { kind: "node", nodeKey: "enableLatch", portName: "out" },
+          to: { kind: "node", nodeKey: "offTimer", portName: "in" }
+        },
+        {
+          from: { kind: "node", nodeKey: "onDuration", portName: "value" },
+          to: { kind: "node", nodeKey: "onTimer", portName: "pt" }
+        },
+        {
+          from: { kind: "node", nodeKey: "offDuration", portName: "value" },
+          to: { kind: "node", nodeKey: "offTimer", portName: "pt" }
+        },
+        {
+          from: { kind: "node", nodeKey: "onTimer", portName: "q" },
+          to: { kind: "node", nodeKey: "relaySelect", portName: "inA" }
+        },
+        {
+          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
+          to: { kind: "node", nodeKey: "relaySelect", portName: "inB" }
+        },
+        {
+          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
+          to: { kind: "node", nodeKey: "relaySelect", portName: "select" }
+        },
+        {
+          from: { kind: "node", nodeKey: "relaySelect", portName: "out" },
+          to: { kind: "boundary", family: "outputs", portName: "relayOut" }
+        },
+        {
+          from: { kind: "node", nodeKey: "relaySelect", portName: "out" },
+          to: { kind: "boundary", family: "status", portName: "relayState" }
+        },
+        {
+          from: { kind: "node", nodeKey: "onTimer", portName: "et" },
+          to: { kind: "node", nodeKey: "remainSelect", portName: "inA" }
+        },
+        {
+          from: { kind: "node", nodeKey: "offTimer", portName: "et" },
+          to: { kind: "node", nodeKey: "remainSelect", portName: "inB" }
+        },
+        {
+          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
+          to: { kind: "node", nodeKey: "remainSelect", portName: "select" }
+        },
+        {
+          from: { kind: "node", nodeKey: "remainSelect", portName: "out" },
+          to: { kind: "boundary", family: "status", portName: "remainingSeconds" }
+        },
+        {
+          from: { kind: "node", nodeKey: "onTimer", portName: "q" },
+          to: { kind: "node", nodeKey: "phaseSelect", portName: "inA" }
+        },
+        {
+          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
+          to: { kind: "node", nodeKey: "phaseSelect", portName: "inB" }
+        },
+        {
+          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
+          to: { kind: "node", nodeKey: "phaseSelect", portName: "select" }
+        },
+        {
+          from: { kind: "node", nodeKey: "phaseSelect", portName: "out" },
+          to: { kind: "boundary", family: "status", portName: "phase" }
+        }
+      ]
     }
   },
   PumpUnit: {
