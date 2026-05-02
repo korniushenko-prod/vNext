@@ -118,6 +118,8 @@ interface StudioState {
     input: { name: string; type: string; behaviorKind: BehaviorKind; summary: string; parentObjectId?: string | null }
   ) => void;
   updateObjectNativeConfig: (objectId: string, input: Record<string, unknown>) => void;
+  recreateObjectFromTemplate: (objectId: string) => void;
+  deleteObject: (objectId: string) => void;
   addObjectPort: (
     objectId: string,
     family: ObjectContractFamily,
@@ -579,6 +581,157 @@ export const useStudioStore = create<StudioState>((set) => ({
         )
       }
     })),
+  recreateObjectFromTemplate: (objectId) =>
+    set((state) => {
+      const currentObject = state.project.objects.find((object) => object.id === objectId) ?? null;
+      if (!currentObject) {
+        return state;
+      }
+
+      const recreatedObject = createObjectDefinition(state.project, {
+        name: currentObject.name,
+        type: currentObject.type,
+        behaviorKind: currentObject.behaviorKind,
+        summary: currentObject.summary,
+        parentObjectId: currentObject.parentObjectId ?? null
+      });
+
+      const nextObject = {
+        ...recreatedObject,
+        id: currentObject.id,
+        name: currentObject.name,
+        type: currentObject.type,
+        behaviorKind: currentObject.behaviorKind,
+        summary: currentObject.summary,
+        parentObjectId: currentObject.parentObjectId ?? null,
+        topologyPosition: currentObject.topologyPosition ?? null,
+        behavior: currentObject.behavior
+      };
+
+      const nextDeployment =
+        nextObject.type === "BlinkRelayPrimitive"
+          ? {
+              ...state.project.deployment,
+              displayScreens: ensureBlinkOledScreenPreset(state.project.deployment.displayScreens)
+            }
+          : state.project.deployment;
+
+      const nextObjects = state.project.objects.map((object) => {
+        if (object.id === objectId) {
+          return nextObject;
+        }
+
+        if (!object.structure?.nodes.some((node) => node.refObjectId === objectId)) {
+          return object;
+        }
+
+        return {
+          ...object,
+          structure: {
+            ...object.structure,
+            nodes: object.structure.nodes.map((node) => {
+              if (node.refObjectId !== objectId) {
+                return node;
+              }
+
+              const refreshedNode = createObjectStructureNodeDefinition(
+                { ...object, structure: object.structure },
+                {
+                  ...createStructureNodeInputFromObject(nextObject),
+                  title: node.title,
+                  position: node.position
+                }
+              );
+              return {
+                ...node,
+                summary: refreshedNode.summary,
+                refObjectId: refreshedNode.refObjectId,
+                inputs: refreshedNode.inputs,
+                outputs: refreshedNode.outputs
+              };
+            })
+          }
+        };
+      });
+
+      return {
+        project: {
+          ...state.project,
+          deployment: nextDeployment,
+          objects: nextObjects
+        },
+        activeWorkspace: "machine",
+        sequenceScopeNodeId: null,
+        selectedItemType: "object",
+        selectedItemId: objectId,
+        selectedObjectId: objectId
+      };
+    }),
+  deleteObject: (objectId) =>
+    set((state) => {
+      const idsToDelete = new Set<string>();
+      const queue = [objectId];
+
+      while (queue.length) {
+        const currentId = queue.shift()!;
+        if (idsToDelete.has(currentId)) {
+          continue;
+        }
+
+        idsToDelete.add(currentId);
+        state.project.objects
+          .filter((object) => object.parentObjectId === currentId)
+          .forEach((child) => {
+            queue.push(child.id);
+          });
+      }
+
+      const nextObjects = state.project.objects
+        .filter((object) => !idsToDelete.has(object.id))
+        .map((object) => {
+          if (!object.structure) {
+            return object;
+          }
+
+          const nextNodes = object.structure.nodes.filter((node) => !node.refObjectId || !idsToDelete.has(node.refObjectId));
+          const deletedNodeIds = new Set(
+            object.structure.nodes
+              .filter((node) => node.refObjectId && idsToDelete.has(node.refObjectId))
+              .map((node) => node.id)
+          );
+
+          return {
+            ...object,
+            structure: {
+              ...object.structure,
+              nodes: nextNodes,
+              routes: object.structure.routes.filter(
+                (route) =>
+                  !(route.from.kind === "node" && route.from.nodeId && deletedNodeIds.has(route.from.nodeId)) &&
+                  !(route.to.kind === "node" && route.to.nodeId && deletedNodeIds.has(route.to.nodeId))
+              )
+            }
+          };
+        });
+
+      const nextCompositionLinks = state.project.compositionLinks.filter(
+        (link) => !idsToDelete.has(link.sourceObjectId) && !idsToDelete.has(link.targetObjectId)
+      );
+      const fallbackObject = nextObjects.find((object) => !object.parentObjectId) ?? nextObjects[0] ?? null;
+
+      return {
+        project: {
+          ...state.project,
+          objects: nextObjects,
+          compositionLinks: nextCompositionLinks
+        },
+        graphScopeStack: state.graphScopeStack.filter((id) => !idsToDelete.has(id)),
+        sequenceScopeNodeId: null,
+        selectedItemType: fallbackObject ? "object" : "project",
+        selectedItemId: fallbackObject?.id ?? PROJECT_SELECTION_ID,
+        selectedObjectId: fallbackObject?.id ?? null
+      };
+    }),
   addObjectPort: (objectId, family, input) =>
     set((state) => ({
       project: {

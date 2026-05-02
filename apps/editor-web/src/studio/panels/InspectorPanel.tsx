@@ -553,6 +553,8 @@ function renderObjectInspector(
     input: { name: string; type: string; behaviorKind: BehaviorKind; summary: string }
   ) => void,
   updateObjectNativeConfig: (objectId: string, input: Record<string, unknown>) => void,
+  recreateObjectFromTemplate: (objectId: string) => void,
+  deleteObject: (objectId: string) => void,
   addObjectPort: (
     objectId: string,
     family: ObjectContractFamily,
@@ -776,6 +778,12 @@ function renderObjectInspector(
       <div className="inspector-actions">
         <button type="button" className="inspector-link" onClick={() => openFullObjectEditor(object.id)}>
           Open Full Editor
+        </button>
+        <button type="button" className="inspector-link" onClick={() => recreateObjectFromTemplate(object.id)}>
+          Recreate From Template
+        </button>
+        <button type="button" className="inspector-link" onClick={() => deleteObject(object.id)}>
+          Delete Object
         </button>
         <button
           type="button"
@@ -1263,6 +1271,8 @@ export function InspectorPanel() {
   const addObject = useStudioStore((state) => state.addObject);
   const updateObjectMeta = useStudioStore((state) => state.updateObjectMeta);
   const updateObjectNativeConfig = useStudioStore((state) => state.updateObjectNativeConfig);
+  const recreateObjectFromTemplate = useStudioStore((state) => state.recreateObjectFromTemplate);
+  const deleteObject = useStudioStore((state) => state.deleteObject);
   const addObjectPort = useStudioStore((state) => state.addObjectPort);
   const updateObjectPort = useStudioStore((state) => state.updateObjectPort);
   const deleteObjectPort = useStudioStore((state) => state.deleteObjectPort);
@@ -1322,6 +1332,8 @@ export function InspectorPanel() {
                 openFullObjectEditor,
                 updateObjectMeta,
                 updateObjectNativeConfig,
+                recreateObjectFromTemplate,
+                deleteObject,
                 addObjectPort,
                 updateObjectPort,
                 deleteObjectPort
