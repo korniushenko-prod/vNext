@@ -34,6 +34,10 @@ const STRUCTURE_NODE_MAX_WIDTH = 112;
 const STRUCTURE_NODE_HEADER_HEIGHT = 22;
 const STRUCTURE_NODE_ROW_HEIGHT = 16;
 const STRUCTURE_NODE_PADDING_BOTTOM = 6;
+const STRUCTURE_SEQUENCE_MIN_WIDTH = 176;
+const STRUCTURE_SEQUENCE_MAX_WIDTH = 232;
+const STRUCTURE_SEQUENCE_BODY_LINE_HEIGHT = 18;
+const STRUCTURE_SEQUENCE_BODY_GAP = 6;
 
 interface StructureBoundaryNodeData extends Record<string, unknown> {
   entityType: "boundary";
@@ -108,12 +112,42 @@ function endpointFromFlowNode(nodeId: string, handleId: string): ObjectStructure
 
 function getStructureNodeHeight(node: ObjectStructureNodeDefinition) {
   const rowCount = Math.max(node.inputs.length, node.outputs.length, 1);
+  if (node.sequence) {
+    const sequenceBodyHeight =
+      STRUCTURE_SEQUENCE_BODY_LINE_HEIGHT * 2 + STRUCTURE_SEQUENCE_BODY_GAP + 6;
+    return (
+      STRUCTURE_NODE_HEADER_HEIGHT +
+      sequenceBodyHeight +
+      rowCount * STRUCTURE_NODE_ROW_HEIGHT +
+      STRUCTURE_NODE_PADDING_BOTTOM
+    );
+  }
+
   return STRUCTURE_NODE_HEADER_HEIGHT + rowCount * STRUCTURE_NODE_ROW_HEIGHT + STRUCTURE_NODE_PADDING_BOTTOM;
 }
 
 function getStructureNodeWidth(node: ObjectStructureNodeDefinition) {
   if (node.sequence) {
-    return 156;
+    const longestInput = Math.max(...node.inputs.map((port) => port.name.length), 0);
+    const longestOutput = Math.max(...node.outputs.map((port) => port.name.length), 0);
+    const longestState = Math.max(...node.sequence.states.map((state) => state.name.length), 0);
+    const longestTimeout = Math.max(
+      ...node.sequence.states.map((state) => (state.timeoutRef ?? "timeout").length),
+      0
+    );
+    const longestTitle = Math.max(node.title.length, node.kind.length, 8);
+    const titleWidth = 28 + longestTitle * 5;
+    const statesWidth = 36 + longestState * 6 * Math.max(node.sequence.states.length, 1);
+    const portsWidth = 40 + longestInput * 5 + longestOutput * 5;
+    const timeoutWidth = 34 + longestTimeout * 5;
+
+    return Math.max(
+      STRUCTURE_SEQUENCE_MIN_WIDTH,
+      Math.min(
+        STRUCTURE_SEQUENCE_MAX_WIDTH,
+        Math.max(titleWidth, statesWidth, portsWidth, timeoutWidth)
+      )
+    );
   }
 
   const longestInput = Math.max(...node.inputs.map((port) => port.name.length), 0);

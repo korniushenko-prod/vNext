@@ -2280,9 +2280,9 @@ textarea {
 }
 
 .structure-node-card--sequence {
-  min-width: 144px;
-  max-width: 160px;
-  padding: 4px 5px;
+  min-width: 176px;
+  max-width: 232px;
+  padding: 5px 7px 6px;
 }
 
 .structure-node-card:active {
@@ -2323,25 +2323,25 @@ textarea {
 
 .sequence-node__body {
   display: grid;
-  gap: 4px;
-  margin-bottom: 4px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .sequence-node__states,
 .sequence-node__transitions {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px;
+  gap: 4px;
 }
 
 .sequence-node__state,
 .sequence-node__transition {
   display: inline-flex;
   align-items: center;
-  min-height: 16px;
-  padding: 1px 5px;
+  min-height: 18px;
+  padding: 2px 6px;
   border-radius: 999px;
-  font-size: 7px;
+  font-size: 8px;
   line-height: 1;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
