@@ -1056,15 +1056,15 @@ textarea {
 }
 
 .system-object-node--nested {
-  min-width: 220px;
-  max-width: 260px;
-  padding: 10px 12px;
-  border-radius: 16px;
-  box-shadow: 0 10px 24px rgba(4, 10, 18, 0.2);
+  min-width: 176px;
+  max-width: 198px;
+  padding: 8px 9px;
+  border-radius: 13px;
+  box-shadow: 0 7px 18px rgba(4, 10, 18, 0.18);
 }
 
 .system-object-node__ports--nested {
-  gap: 10px;
+  gap: 8px;
 }
 
 .system-object-node--nested .system-object-node__body {
@@ -1078,17 +1078,37 @@ textarea {
 }
 
 .system-object-node--nested .system-object-node__body strong {
-  font-size: 18px;
+  font-size: 14px;
 }
 
 .system-object-node--nested .system-object-node__port {
-  min-height: 30px;
-  padding: 6px 9px;
-  border-radius: 10px;
+  height: 24px;
+  min-height: 24px;
+  padding: 3px 7px;
+  border-radius: 8px;
 }
 
 .system-object-node--nested .system-object-node__port-name {
-  font-size: 12px;
+  font-size: 10px;
+}
+
+.system-object-node--nested .system-object-node__type,
+.system-object-node--nested .system-object-node__behavior {
+  padding: 3px 6px;
+  font-size: 9px;
+}
+
+.system-object-node--nested .system-object-node__port-list {
+  gap: 4px;
+  grid-auto-rows: 24px;
+}
+
+.system-object-node--nested .system-object-node__port-row {
+  height: 24px;
+}
+
+.system-object-node--nested .system-object-node__port-title {
+  font-size: 10px;
 }
 
 .topology-system-header {
@@ -2242,15 +2262,15 @@ textarea {
 .structure-node-card {
   position: absolute;
   width: auto;
-  min-width: 136px;
-  max-width: 188px;
-  border-radius: 10px;
+  min-width: 118px;
+  max-width: 156px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
     radial-gradient(circle at top right, rgba(90, 177, 255, 0.08), transparent 28%),
     linear-gradient(180deg, rgba(22, 39, 60, 0.97), rgba(13, 23, 36, 0.98));
-  box-shadow: 0 8px 18px rgba(2, 7, 14, 0.18);
-  padding: 7px 8px;
+  box-shadow: 0 6px 14px rgba(2, 7, 14, 0.16);
+  padding: 5px 6px;
   color: var(--text);
   text-align: left;
   cursor: grab;
@@ -2281,8 +2301,8 @@ textarea {
 .structure-node-card__header {
   display: flex;
   justify-content: flex-start;
-  gap: 6px;
-  margin-bottom: 4px;
+  gap: 4px;
+  margin-bottom: 3px;
 }
 
 .structure-node-card__header div {
@@ -2299,29 +2319,29 @@ textarea {
 }
 
 .structure-node-card__header strong {
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.1;
 }
 
 .structure-node-card__ports {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
 }
 
 .structure-node-port-col {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .structure-node-port {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   padding: 1px 0;
   border-radius: 0;
   background: transparent;
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1.1;
   white-space: nowrap;
   border: 0;
@@ -2345,11 +2365,11 @@ textarea {
 }
 
 .structure-boundary-node.side-left {
-  grid-template-columns: minmax(0, 1fr) 58px;
+  grid-template-columns: minmax(0, 1fr) 52px;
 }
 
 .structure-boundary-node.side-right {
-  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-columns: 52px minmax(0, 1fr);
 }
 
 .structure-boundary-node__label {
@@ -2358,7 +2378,7 @@ textarea {
   align-items: center;
   justify-content: flex-end;
   text-align: right;
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -2372,7 +2392,7 @@ textarea {
 
 .structure-boundary-node__body {
   position: relative;
-  height: 28px;
+  height: 24px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
@@ -2380,7 +2400,7 @@ textarea {
 
 .structure-boundary-node__slot {
   position: absolute;
-  inset: 10px 10px;
+  inset: 8px 9px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);

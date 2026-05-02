@@ -4,6 +4,7 @@ import {
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
+  useNodesState,
   type Connection,
   type Edge,
   type Node
@@ -130,7 +131,7 @@ function ObjectTopologyCanvasInner() {
 
   const topLevelObjects = useMemo(() => project.objects.filter((item) => !item.parentObjectId), [project.objects]);
 
-  const nodes = useMemo<Array<Node<ObjectSystemNodeData>>>(() => {
+  const derivedNodes = useMemo<Array<Node<ObjectSystemNodeData>>>(() => {
     return topLevelObjects.map((object, index) => {
       const machine = object.behavior?.machineId
         ? project.machines.find((item) => item.id === object.behavior?.machineId) ?? null
@@ -197,6 +198,11 @@ function ObjectTopologyCanvasInner() {
     enterGraphScope,
     topLevelObjects
   ]);
+  const [flowNodes, setFlowNodes, onNodesChange] = useNodesState<Node<ObjectSystemNodeData>>(derivedNodes);
+
+  useEffect(() => {
+    setFlowNodes(derivedNodes);
+  }, [derivedNodes, setFlowNodes]);
 
   function openInternalViewForObject(objectId: string) {
     const object = topLevelObjects.find((item) => item.id === objectId);
@@ -263,18 +269,18 @@ function ObjectTopologyCanvasInner() {
   }, [project.compositionLinks, selectedItemId, selectedItemType, topLevelObjects]);
 
   useEffect(() => {
-    if (!nodes.length || !canvasRef.current) {
+    if (!flowNodes.length || !canvasRef.current) {
       return;
     }
 
-    if (nodes.length === 1) {
+    if (flowNodes.length === 1) {
       return;
     }
 
     const targetNodes =
-      selectedObjectId && nodes.some((node) => node.id === selectedObjectId)
-        ? nodes.filter((node) => node.id === selectedObjectId)
-        : nodes;
+      selectedObjectId && flowNodes.some((node) => node.id === selectedObjectId)
+        ? flowNodes.filter((node) => node.id === selectedObjectId)
+        : flowNodes;
     const bounds = computeBounds(targetNodes);
     if (!bounds) {
       return;
@@ -295,7 +301,7 @@ function ObjectTopologyCanvasInner() {
     }, 40);
 
     return () => window.clearTimeout(timer);
-  }, [nodes, reactFlow, selectedObjectId]);
+  }, [flowNodes, reactFlow, selectedObjectId]);
 
   if (!topLevelObjects.length) {
     return (
@@ -335,9 +341,10 @@ function ObjectTopologyCanvasInner() {
   return (
     <div className="machine-canvas topology-flow-canvas" ref={canvasRef}>
       <ReactFlow
-        nodes={nodes}
+        nodes={flowNodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
         onNodeClick={(_, node) => {
           selectItem("object", node.id, {
             objectId: node.id

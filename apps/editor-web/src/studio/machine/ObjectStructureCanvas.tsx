@@ -5,6 +5,7 @@ import {
   Position,
   ReactFlow,
   ReactFlowProvider,
+  useNodesState,
   type Connection,
   type Edge,
   type Node,
@@ -22,15 +23,15 @@ import { useStudioStore } from "../store/studioStore";
 import { ObjectNodeShell, type ObjectNodePortView } from "./ObjectNodeShell";
 
 const STRUCTURE_SCENE_WIDTH = 1180;
-const STRUCTURE_BOUNDARY_NODE_WIDTH = 164;
+const STRUCTURE_BOUNDARY_NODE_WIDTH = 146;
 const STRUCTURE_BOUNDARY_LEFT_X = 18;
 const STRUCTURE_BOUNDARY_RIGHT_X = STRUCTURE_SCENE_WIDTH - STRUCTURE_BOUNDARY_NODE_WIDTH - 18;
 const STRUCTURE_BOUNDARY_TOP = 88;
-const STRUCTURE_BOUNDARY_SPACING = 54;
-const STRUCTURE_NODE_WIDTH = 176;
-const STRUCTURE_NODE_HEADER_HEIGHT = 38;
-const STRUCTURE_NODE_ROW_HEIGHT = 24;
-const STRUCTURE_NODE_PADDING_BOTTOM = 10;
+const STRUCTURE_BOUNDARY_SPACING = 46;
+const STRUCTURE_NODE_WIDTH = 146;
+const STRUCTURE_NODE_HEADER_HEIGHT = 30;
+const STRUCTURE_NODE_ROW_HEIGHT = 20;
+const STRUCTURE_NODE_PADDING_BOTTOM = 8;
 
 interface StructureBoundaryNodeData extends Record<string, unknown> {
   entityType: "boundary";
@@ -295,7 +296,7 @@ function ObjectStructureCanvasInner() {
     [...boundary.left, ...boundary.right].map((entry) => [flowNodeIdForBoundary(entry.kind, entry.port.id), entry])
   );
 
-  const nodes = useMemo<Array<Node<StructureFlowNodeData>>>(() => {
+  const derivedNodes = useMemo<Array<Node<StructureFlowNodeData>>>(() => {
     const boundaryNodes = [
       ...boundary.left.map((entry, index) => ({
         id: flowNodeIdForBoundary(entry.kind, entry.port.id),
@@ -361,6 +362,11 @@ function ObjectStructureCanvasInner() {
 
     return [...boundaryNodes, ...internalNodes];
   }, [boundary.left, boundary.right, safeStructure.nodes, selectedItemId, selectedItemType]);
+  const [flowNodes, setFlowNodes, onNodesChange] = useNodesState<Node<StructureFlowNodeData>>(derivedNodes);
+
+  useEffect(() => {
+    setFlowNodes(derivedNodes);
+  }, [derivedNodes, setFlowNodes]);
 
   const edges = useMemo<Array<Edge>>(
     () =>
@@ -455,9 +461,10 @@ function ObjectStructureCanvasInner() {
           <div className="structure-flow-shell" style={{ height: sceneHeight }}>
             <ReactFlow
               key={object.id}
-              nodes={nodes}
+              nodes={flowNodes}
               edges={edges}
               nodeTypes={nodeTypes}
+              onNodesChange={onNodesChange}
               onPaneClick={() => selectItem("object", object.id, { objectId: object.id, machineId: object.behavior?.machineId ?? null })}
               onNodeClick={(_, node) => {
                 const data = node.data as StructureFlowNodeData;
