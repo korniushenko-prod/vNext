@@ -389,45 +389,9 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
       oledScreenId: "oled_blink_status"
     },
     structure: {
-      summary: "Native blink relay primitive with one runtime engine and exported status outputs.",
-      nodes: [
-        {
-          key: "blinkEngine",
-          title: "Engine",
-          kind: "BlinkRelay",
-          summary: "Runtime primitive that alternates relay ON and OFF phases.",
-          position: { x: 420, y: 180 },
-          inputs: [{ name: "enable" }],
-          outputs: [
-            { name: "relayOut" },
-            { name: "relayState" },
-            { name: "phase", dataType: "string" },
-            { name: "remainingSeconds", dataType: "number" }
-          ]
-        }
-      ],
-      routes: [
-        {
-          from: { kind: "boundary", family: "commands", portName: "enable" },
-          to: { kind: "node", nodeKey: "blinkEngine", portName: "enable" }
-        },
-        {
-          from: { kind: "node", nodeKey: "blinkEngine", portName: "relayOut" },
-          to: { kind: "boundary", family: "outputs", portName: "relayOut" }
-        },
-        {
-          from: { kind: "node", nodeKey: "blinkEngine", portName: "relayState" },
-          to: { kind: "boundary", family: "status", portName: "relayState" }
-        },
-        {
-          from: { kind: "node", nodeKey: "blinkEngine", portName: "phase" },
-          to: { kind: "boundary", family: "status", portName: "phase" }
-        },
-        {
-          from: { kind: "node", nodeKey: "blinkEngine", portName: "remainingSeconds" },
-          to: { kind: "boundary", family: "status", portName: "remainingSeconds" }
-        }
-      ]
+      summary: "Native blink relay primitive. Authoring view stays empty until we expose it as simple blocks or nested objects.",
+      nodes: [],
+      routes: []
     }
   },
   PumpUnit: {
