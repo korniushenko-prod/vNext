@@ -34,9 +34,9 @@ const STRUCTURE_NODE_MAX_WIDTH = 112;
 const STRUCTURE_NODE_HEADER_HEIGHT = 22;
 const STRUCTURE_NODE_ROW_HEIGHT = 16;
 const STRUCTURE_NODE_PADDING_BOTTOM = 6;
-const STRUCTURE_SEQUENCE_MIN_WIDTH = 196;
-const STRUCTURE_SEQUENCE_MAX_WIDTH = 344;
-const STRUCTURE_SEQUENCE_BODY_HEIGHT = 72;
+const STRUCTURE_SEQUENCE_MIN_WIDTH = 420;
+const STRUCTURE_SEQUENCE_MAX_WIDTH = 620;
+const STRUCTURE_SEQUENCE_BODY_HEIGHT = 176;
 
 interface StructureBoundaryNodeData extends Record<string, unknown> {
   entityType: "boundary";
@@ -124,24 +124,21 @@ function getStructureNodeHeight(node: ObjectStructureNodeDefinition) {
 
 function getStructureNodeWidth(node: ObjectStructureNodeDefinition) {
   if (node.sequence) {
-    const longestInput = Math.max(...node.inputs.map((port) => port.name.length), 0);
-    const longestOutput = Math.max(...node.outputs.map((port) => port.name.length), 0);
     const longestState = Math.max(...node.sequence.states.map((state) => state.name.length), 0);
     const longestTimeout = Math.max(
       ...node.sequence.states.map((state) => (state.timeoutRef ?? "timeout").length),
       0
     );
     const longestTitle = Math.max(node.title.length, node.kind.length, 8);
-    const titleWidth = 28 + longestTitle * 5;
-    const statesWidth = 112 + longestState * 9 * Math.max(node.sequence.states.length, 1);
-    const portsWidth = 68 + longestInput * 2 + longestOutput * 2;
-    const timeoutWidth = 96 + longestTimeout * 6;
+    const titleWidth = 120 + longestTitle * 6;
+    const statesWidth = 180 + longestState * 12 * Math.max(node.sequence.states.length, 1);
+    const timeoutWidth = 200 + longestTimeout * 8;
 
     return Math.max(
       STRUCTURE_SEQUENCE_MIN_WIDTH,
       Math.min(
         STRUCTURE_SEQUENCE_MAX_WIDTH,
-        Math.max(titleWidth, statesWidth, portsWidth, timeoutWidth)
+        Math.max(titleWidth, statesWidth, timeoutWidth)
       )
     );
   }
@@ -298,7 +295,7 @@ function StructureInternalNode(props: NodeProps) {
         <div className="structure-node-card__header">
           <div>
             <strong>{node.title}</strong>
-            <span>{states.length} states</span>
+            <span>{states.length} steps</span>
           </div>
         </div>
 
@@ -317,6 +314,7 @@ function StructureInternalNode(props: NodeProps) {
             </div>
 
           <div className="sequence-node__body">
+            <div className="sequence-node__caption">Sequence Flow</div>
             <div className="sequence-node__track">
               {states.map((state: SequenceStateDefinition) => {
                 const transition = transitionsBySource.get(state.id);
@@ -330,18 +328,37 @@ function StructureInternalNode(props: NodeProps) {
                       <span>{state.timeoutRef ?? "timeout"}</span>
                     </div>
                     {transition ? (
-                      <span className="sequence-node__arrow" aria-hidden="true">
-                        -&gt;
-                      </span>
+                      <div className="sequence-node__transition-block">
+                        <span className="sequence-node__arrow" aria-hidden="true">
+                          -&gt;
+                        </span>
+                        <span className="sequence-node__transition-label">{state.timeoutRef ?? "timeout"}</span>
+                      </div>
                     ) : null}
                   </div>
                 );
               })}
             </div>
 
+            <div className="sequence-node__actions">
+              {states.map((state) => {
+                const outputs = Object.entries(state.outputs ?? {});
+                return (
+                  <div key={`${state.id}-actions`} className="sequence-node__action-row">
+                    <strong>{state.name}</strong>
+                    <span>
+                      {outputs.length
+                        ? outputs.map(([key, value]) => `${key}=${String(value)}`).join(", ")
+                        : "No actions"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
             <div className="sequence-node__summary">
-              <span>Sequence</span>
-              <strong>{states.map((state) => state.name).join(" -> ")}</strong>
+              <span>Start</span>
+              <strong>{activeState?.name ?? "n/a"}</strong>
             </div>
           </div>
 
