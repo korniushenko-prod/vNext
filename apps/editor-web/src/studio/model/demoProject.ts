@@ -1259,6 +1259,38 @@ function applyBuiltinTemplateSeed(object: PlcObjectDefinition) {
   };
 }
 
+export function hasBuiltinTemplateSeed(type: string) {
+  return Boolean(BUILTIN_OBJECT_TEMPLATE_SEEDS[type]);
+}
+
+export function rebuildObjectFromTemplate(object: PlcObjectDefinition): PlcObjectDefinition {
+  if (!hasBuiltinTemplateSeed(object.type)) {
+    return object;
+  }
+
+  const rebuiltObject = applyBuiltinTemplateSeed({
+    id: object.id,
+    name: object.name,
+    type: object.type,
+    behaviorKind: object.behaviorKind,
+    summary: object.summary,
+    nativeConfig: undefined,
+    parentObjectId: object.parentObjectId ?? null,
+    topologyPosition: object.topologyPosition ?? null,
+    commands: [],
+    inputs: [],
+    outputs: [],
+    status: [],
+    permissions: [],
+    faults: []
+  });
+
+  return {
+    ...rebuiltObject,
+    behavior: object.behavior
+  };
+}
+
 export function createProjectId(name: string) {
   return sanitizeIdFragment(name) || "untitled_project";
 }

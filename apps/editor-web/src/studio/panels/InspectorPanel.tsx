@@ -17,7 +17,7 @@ import type {
   SignalDefinition,
   UniversalPlcDemoProject
 } from "../model/demoProject";
-import { ensureBlinkOledScreenPreset } from "../model/demoProject";
+import { ensureBlinkOledScreenPreset, hasBuiltinTemplateSeed } from "../model/demoProject";
 import { buildSignalTrace, getSignalById } from "../model/signalTrace";
 import type { LogicWorkspaceContext, SelectItemOptions, SelectedItemType } from "../store/studioStore";
 import { useStudioStore } from "../store/studioStore";
@@ -570,6 +570,7 @@ function renderObjectInspector(
 ) {
   const canOpenBehavior = Boolean(object.behavior?.machineId);
   const canOpenStructure = true;
+  const canRebuildFromTemplate = hasBuiltinTemplateSeed(object.type);
   const contractFamilies: Array<{ key: ObjectContractFamily; label: string; ports: typeof object.commands }> = [
     { key: "commands", label: "Commands", ports: object.commands },
     { key: "inputs", label: "Inputs", ports: object.inputs },
@@ -776,14 +777,16 @@ function renderObjectInspector(
       </details>
 
       <div className="inspector-actions">
-        <button type="button" className="inspector-link" onClick={() => openFullObjectEditor(object.id)}>
-          Open Full Editor
-        </button>
-        <button type="button" className="inspector-link" onClick={() => recreateObjectFromTemplate(object.id)}>
-          Recreate From Template
-        </button>
+        {canRebuildFromTemplate ? (
+          <button type="button" className="inspector-link" onClick={() => recreateObjectFromTemplate(object.id)}>
+            Delete and Recreate From Template
+          </button>
+        ) : null}
         <button type="button" className="inspector-link" onClick={() => deleteObject(object.id)}>
           Delete Object
+        </button>
+        <button type="button" className="inspector-link" onClick={() => openFullObjectEditor(object.id)}>
+          Open Full Editor
         </button>
         <button
           type="button"

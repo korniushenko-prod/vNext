@@ -4,6 +4,7 @@ import {
   createDefaultDeploymentConfig,
   ensureBlinkOledScreenPreset,
   createObjectDefinition,
+  rebuildObjectFromTemplate,
   createObjectCompositionLinkDefinition,
   cloneProjectDocument,
   createObjectStructureRouteDefinition,
@@ -17,6 +18,7 @@ import {
   type DataType,
   type IoBindingDefinition,
   type ObjectContractFamily,
+  type ObjectStructureNodeDefinition,
   type UniversalPlcDemoProject,
   type WorkspaceId
 } from "../model/demoProject";
@@ -228,6 +230,110 @@ function createStructureNodeInputFromObject(object: UniversalPlcDemoProject["obj
       dataType: port.dataType,
       summary: port.summary
     }))
+  };
+}
+
+function createStructurePortId(nodeId: string, io: "input" | "output", name: string, index: number) {
+  const normalized = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  return `${nodeId}_${io}_${normalized || index + 1}`;
+}
+
+function syncReferencedNodePorts(
+  node: ObjectStructureNodeDefinition,
+  object: UniversalPlcDemoProject["objects"][number]
+) {
+  const nextInputSeeds = [...object.commands, ...object.inputs, ...object.permissions];
+  const nextOutputSeeds = [...object.outputs, ...object.status, ...object.faults];
+  const mapPorts = (
+    existingPorts: typeof node.inputs,
+    nextPorts: typeof nextInputSeeds,
+    io: "input" | "output"
+  ) =>
+    nextPorts.map((port, index) => {
+      const existingPort = existingPorts.find((item: ObjectStructureNodeDefinition["inputs"][number]) => item.name === port.name);
+      return existingPort
+        ? {
+            ...existingPort,
+            name: port.name,
+            dataType: port.dataType,
+            summary: port.summary
+          }
+        : {
+            id: createStructurePortId(node.id, io, port.name, index),
+            name: port.name,
+            kind: io,
+            dataType: port.dataType,
+            summary: port.summary
+          };
+    });
+
+  return {
+    ...node,
+    title: object.name,
+    summary: object.summary,
+    inputs: mapPorts(node.inputs, nextInputSeeds, "input"),
+    outputs: mapPorts(node.outputs, nextOutputSeeds, "output")
+  };
+}
+
+function syncStructureReferencesForObject(
+  owner: UniversalPlcDemoProject["objects"][number],
+  rebuiltObject: UniversalPlcDemoProject["objects"][number]
+) {
+  if (!owner.structure) {
+    return owner;
+  }
+
+  let touchedNodeIds = new Set<string>();
+  const nextNodes = owner.structure.nodes.map((node) => {
+    if (node.refObjectId !== rebuiltObject.id) {
+      return node;
+    }
+
+    touchedNodeIds.add(node.id);
+    return syncReferencedNodePorts(node, rebuiltObject);
+  });
+
+  if (!touchedNodeIds.size) {
+    return owner;
+  }
+
+  const validPortIdsByNode = new Map<string, Set<string>>();
+  for (const node of nextNodes) {
+    if (!touchedNodeIds.has(node.id)) {
+      continue;
+    }
+
+    validPortIdsByNode.set(node.id, new Set([...node.inputs, ...node.outputs].map((port) => port.id)));
+  }
+
+  const nextRoutes = owner.structure.routes.filter((route) => {
+    const endpoints = [route.from, route.to];
+    for (const endpoint of endpoints) {
+      if (endpoint.kind !== "node" || !endpoint.nodeId || !touchedNodeIds.has(endpoint.nodeId)) {
+        continue;
+      }
+
+      const validPortIds = validPortIdsByNode.get(endpoint.nodeId);
+      if (!validPortIds?.has(endpoint.portId)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  return {
+    ...owner,
+    structure: {
+      ...owner.structure,
+      nodes: nextNodes,
+      routes: nextRoutes
+    }
   };
 }
 
@@ -588,24 +694,9 @@ export const useStudioStore = create<StudioState>((set) => ({
         return state;
       }
 
-      const recreatedObject = createObjectDefinition(state.project, {
-        name: currentObject.name,
-        type: currentObject.type,
-        behaviorKind: currentObject.behaviorKind,
-        summary: currentObject.summary,
-        parentObjectId: currentObject.parentObjectId ?? null
-      });
-
       const nextObject = {
-        ...recreatedObject,
-        id: currentObject.id,
-        name: currentObject.name,
-        type: currentObject.type,
-        behaviorKind: currentObject.behaviorKind,
-        summary: currentObject.summary,
-        parentObjectId: currentObject.parentObjectId ?? null,
-        topologyPosition: currentObject.topologyPosition ?? null,
-        behavior: currentObject.behavior
+        ...rebuildObjectFromTemplate(currentObject),
+        topologyPosition: currentObject.topologyPosition ?? null
       };
 
       const nextDeployment =
@@ -621,37 +712,7 @@ export const useStudioStore = create<StudioState>((set) => ({
           return nextObject;
         }
 
-        if (!object.structure?.nodes.some((node) => node.refObjectId === objectId)) {
-          return object;
-        }
-
-        return {
-          ...object,
-          structure: {
-            ...object.structure,
-            nodes: object.structure.nodes.map((node) => {
-              if (node.refObjectId !== objectId) {
-                return node;
-              }
-
-              const refreshedNode = createObjectStructureNodeDefinition(
-                { ...object, structure: object.structure },
-                {
-                  ...createStructureNodeInputFromObject(nextObject),
-                  title: node.title,
-                  position: node.position
-                }
-              );
-              return {
-                ...node,
-                summary: refreshedNode.summary,
-                refObjectId: refreshedNode.refObjectId,
-                inputs: refreshedNode.inputs,
-                outputs: refreshedNode.outputs
-              };
-            })
-          }
-        };
+        return syncStructureReferencesForObject(object, nextObject);
       });
 
       return {
