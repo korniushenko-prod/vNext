@@ -148,6 +148,19 @@ function getStructureSceneHeight(
   return Math.max(520, leftHeight, rightHeight, nodeHeight);
 }
 
+function createStructureNodesSignature(nodes: Array<Node<StructureFlowNodeData>>) {
+  return nodes
+    .map((node) => {
+      const data = node.data;
+      if (data.entityType === "boundary") {
+        return `${node.id}:${node.position.x}:${node.position.y}:${data.side}:${data.port.name}`;
+      }
+
+      return `${node.id}:${node.position.x}:${node.position.y}:${node.selected ? 1 : 0}:${data.node.kind}:${data.node.title}`;
+    })
+    .join("|");
+}
+
 function StructureBoundaryNode(props: NodeProps) {
   const data = props.data as StructureBoundaryNodeData;
   return (
@@ -362,11 +375,12 @@ function ObjectStructureCanvasInner() {
 
     return [...boundaryNodes, ...internalNodes];
   }, [boundary.left, boundary.right, safeStructure.nodes, selectedItemId, selectedItemType]);
+  const derivedNodesSignature = useMemo(() => createStructureNodesSignature(derivedNodes), [derivedNodes]);
   const [flowNodes, setFlowNodes, onNodesChange] = useNodesState<Node<StructureFlowNodeData>>(derivedNodes);
 
   useEffect(() => {
     setFlowNodes(derivedNodes);
-  }, [derivedNodes, setFlowNodes]);
+  }, [derivedNodesSignature, setFlowNodes]);
 
   const edges = useMemo<Array<Edge>>(
     () =>

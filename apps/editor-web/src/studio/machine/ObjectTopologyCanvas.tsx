@@ -115,6 +115,15 @@ function boundsFitViewport(
   );
 }
 
+function createTopologyNodesSignature(nodes: Array<Node<ObjectSystemNodeData>>) {
+  return nodes
+    .map(
+      (node) =>
+        `${node.id}:${node.position.x}:${node.position.y}:${node.selected ? 1 : 0}:${node.data.label}:${node.data.typeLabel}:${node.data.portCount}:${node.data.childCount}`
+    )
+    .join("|");
+}
+
 function ObjectTopologyCanvasInner() {
   const reactFlow = useReactFlow();
   const canvasRef = useRef<HTMLDivElement | null>(null);
@@ -198,11 +207,12 @@ function ObjectTopologyCanvasInner() {
     enterGraphScope,
     topLevelObjects
   ]);
+  const derivedNodesSignature = useMemo(() => createTopologyNodesSignature(derivedNodes), [derivedNodes]);
   const [flowNodes, setFlowNodes, onNodesChange] = useNodesState<Node<ObjectSystemNodeData>>(derivedNodes);
 
   useEffect(() => {
     setFlowNodes(derivedNodes);
-  }, [derivedNodes, setFlowNodes]);
+  }, [derivedNodesSignature, setFlowNodes]);
 
   function openInternalViewForObject(objectId: string) {
     const object = topLevelObjects.find((item) => item.id === objectId);
