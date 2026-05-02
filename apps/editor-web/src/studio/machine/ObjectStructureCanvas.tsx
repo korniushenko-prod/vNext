@@ -235,6 +235,117 @@ function StructureBoundaryNode(props: NodeProps) {
   );
 }
 
+function SequenceOnlyStructureView({
+  object,
+  node,
+  boundary,
+  selectItem,
+  enterSequenceScope
+}: {
+  object: PlcObjectDefinition;
+  node: ObjectStructureNodeDefinition;
+  boundary: ReturnType<typeof groupBoundaryPorts>;
+  selectItem: (
+    type: "object" | "subobject",
+    id: string,
+    options?: { objectId?: string | null; machineId?: string | null }
+  ) => void;
+  enterSequenceScope: (nodeId: string) => void;
+}) {
+  const states = node.sequence?.states ?? [];
+  const activeState = states.find((state) => state.id === node.sequence?.startStateId) ?? states[0] ?? null;
+  const transitionsBySource = new Map((node.sequence?.transitions ?? []).map((transition) => [transition.fromStateId, transition]));
+
+  return (
+    <div className="structure-sequence-scene">
+      <div className="structure-sequence-boundary structure-sequence-boundary--left">
+        {boundary.left.map((entry) => (
+          <div key={`${entry.kind}-${entry.port.id}`} className="structure-sequence-port structure-sequence-port--left">
+            <span className="structure-sequence-port__label">{entry.port.name}</span>
+            <div className="structure-sequence-port__socket" />
+          </div>
+        ))}
+      </div>
+
+      <div
+        className="structure-sequence-chart"
+        role="button"
+        tabIndex={0}
+        onClick={() =>
+          selectItem("subobject", node.id, {
+            objectId: object.id,
+            machineId: object.behavior?.machineId ?? null
+          })
+        }
+        onDoubleClick={() => {
+          enterSequenceScope(node.id);
+          selectItem("subobject", node.id, {
+            objectId: object.id,
+            machineId: object.behavior?.machineId ?? null
+          });
+        }}
+      >
+        <div className="structure-sequence-chart__header">
+          <div>
+            <strong>{node.title}</strong>
+            <span>{node.summary || "Sequential function chart"}</span>
+          </div>
+          <div className="structure-sequence-chart__meta">
+            <span>{states.length} steps</span>
+            <span>start: {activeState?.name ?? "n/a"}</span>
+          </div>
+        </div>
+
+        <div className="structure-sequence-chart__track">
+          {states.map((state) => {
+            const transition = transitionsBySource.get(state.id);
+            const outputs = Object.entries(state.outputs ?? {});
+            return (
+              <div key={state.id} className="structure-sequence-chart__segment">
+                <article className={`structure-sequence-step${activeState?.id === state.id ? " is-start" : ""}`}>
+                  <header>
+                    <strong>{state.name}</strong>
+                    <span>{state.timeoutRef ?? "timeout"}</span>
+                  </header>
+                  <div className="structure-sequence-step__actions">
+                    {outputs.length ? (
+                      outputs.map(([key, value]) => (
+                        <div key={`${state.id}-${key}`} className="structure-sequence-step__action">
+                          <span>{key}</span>
+                          <strong>{String(value)}</strong>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="structure-sequence-step__empty">No actions</span>
+                    )}
+                  </div>
+                </article>
+                {transition ? (
+                  <div className="structure-sequence-transition">
+                    <span className="structure-sequence-transition__arrow" aria-hidden="true">
+                      -&gt;
+                    </span>
+                    <span className="structure-sequence-transition__label">{state.timeoutRef ?? "timeout"}</span>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="structure-sequence-boundary structure-sequence-boundary--right">
+        {boundary.right.map((entry) => (
+          <div key={`${entry.kind}-${entry.port.id}`} className="structure-sequence-port structure-sequence-port--right">
+            <div className="structure-sequence-port__socket" />
+            <span className="structure-sequence-port__label">{entry.port.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function StructureInternalNode(props: NodeProps) {
   const data = props.data as StructureInternalNodeData;
   const node = data.node;
@@ -451,6 +562,8 @@ function ObjectStructureCanvasInner() {
       nodes: [],
       routes: []
     } as NonNullable<PlcObjectDefinition["structure"]>);
+  const sequenceOnlyNode =
+    safeStructure.nodes.length === 1 && safeStructure.nodes[0]?.sequence ? safeStructure.nodes[0] : null;
 
   useEffect(() => {
     if (!object.structure) {
@@ -628,69 +741,79 @@ function ObjectStructureCanvasInner() {
 
         <div className="structure-object-canvas structure-object-canvas--schematic">
           <div className="structure-flow-shell" style={{ height: sceneHeight }}>
-            <ReactFlow
-              key={object.id}
-              nodes={flowNodes}
-              edges={edges}
-              nodeTypes={nodeTypes}
-              onNodesChange={onNodesChange}
-              onPaneClick={() => selectItem("object", object.id, { objectId: object.id, machineId: object.behavior?.machineId ?? null })}
-              onNodeClick={(_, node) => {
-                const data = node.data as StructureFlowNodeData;
-                if (data.entityType !== "internal") {
-                  return;
-                }
+            {sequenceOnlyNode ? (
+              <SequenceOnlyStructureView
+                object={object}
+                node={sequenceOnlyNode}
+                boundary={boundary}
+                selectItem={selectItem}
+                enterSequenceScope={enterSequenceScope}
+              />
+            ) : (
+              <ReactFlow
+                key={object.id}
+                nodes={flowNodes}
+                edges={edges}
+                nodeTypes={nodeTypes}
+                onNodesChange={onNodesChange}
+                onPaneClick={() => selectItem("object", object.id, { objectId: object.id, machineId: object.behavior?.machineId ?? null })}
+                onNodeClick={(_, node) => {
+                  const data = node.data as StructureFlowNodeData;
+                  if (data.entityType !== "internal") {
+                    return;
+                  }
 
-                selectItem("subobject", data.node.id, {
-                  objectId: object.id,
-                  machineId: object.behavior?.machineId ?? null
-                });
-              }}
-              onNodeDoubleClick={(_, node) => {
-                const data = node.data as StructureFlowNodeData;
-                if (data.entityType !== "internal") {
-                  return;
-                }
-
-                if (data.node.sequence) {
-                  enterSequenceScope(data.node.id);
                   selectItem("subobject", data.node.id, {
                     objectId: object.id,
                     machineId: object.behavior?.machineId ?? null
                   });
-                  return;
-                }
+                }}
+                onNodeDoubleClick={(_, node) => {
+                  const data = node.data as StructureFlowNodeData;
+                  if (data.entityType !== "internal") {
+                    return;
+                  }
 
-                if (!data.node.refObjectId) {
-                  return;
-                }
+                  if (data.node.sequence) {
+                    enterSequenceScope(data.node.id);
+                    selectItem("subobject", data.node.id, {
+                      objectId: object.id,
+                      machineId: object.behavior?.machineId ?? null
+                    });
+                    return;
+                  }
 
-                const nestedObject =
-                  project.objects.find((item) => item.id === data.node.refObjectId) ?? null;
-                enterGraphScope(data.node.refObjectId, { machineId: nestedObject?.behavior?.machineId ?? null });
-                selectItem("object", data.node.refObjectId, {
-                  objectId: data.node.refObjectId,
-                  machineId: nestedObject?.behavior?.machineId ?? null
-                });
-              }}
-              onConnect={handleConnect}
-              onNodeDragStop={(_, node) => {
-                const internalNodeId = parseInternalNodeId(node.id);
-                if (!internalNodeId) {
-                  return;
-                }
-                updateStructureNodePosition(object.id, internalNodeId, node.position);
-              }}
-              defaultViewport={{ x: 0, y: 0, zoom: 1 }}
-              fitView={false}
-              nodesDraggable
-              nodesConnectable
-              elementsSelectable
-              proOptions={{ hideAttribution: true }}
-            >
-              <Controls />
-              <Background gap={20} size={1} />
-            </ReactFlow>
+                  if (!data.node.refObjectId) {
+                    return;
+                  }
+
+                  const nestedObject =
+                    project.objects.find((item) => item.id === data.node.refObjectId) ?? null;
+                  enterGraphScope(data.node.refObjectId, { machineId: nestedObject?.behavior?.machineId ?? null });
+                  selectItem("object", data.node.refObjectId, {
+                    objectId: data.node.refObjectId,
+                    machineId: nestedObject?.behavior?.machineId ?? null
+                  });
+                }}
+                onConnect={handleConnect}
+                onNodeDragStop={(_, node) => {
+                  const internalNodeId = parseInternalNodeId(node.id);
+                  if (!internalNodeId) {
+                    return;
+                  }
+                  updateStructureNodePosition(object.id, internalNodeId, node.position);
+                }}
+                defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+                fitView={false}
+                nodesDraggable
+                nodesConnectable
+                elementsSelectable
+                proOptions={{ hideAttribution: true }}
+              >
+                <Controls />
+                <Background gap={20} size={1} />
+              </ReactFlow>
+            )}
           </div>
         </div>
       </div>
