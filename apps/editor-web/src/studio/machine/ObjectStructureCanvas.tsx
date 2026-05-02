@@ -250,8 +250,25 @@ function StructureInternalNode(props: NodeProps) {
   const nodeHeight = getStructureNodeHeight(node);
   const isObjectNode = Boolean(node.refObjectId);
   const hasAlias = node.title.trim().toLowerCase() !== node.kind.trim().toLowerCase();
+  const project = useStudioStore((state) => state.project);
 
   if (isObjectNode) {
+    const nestedObject = project.objects.find((item) => item.id === node.refObjectId) ?? null;
+    const nestedStructure = nestedObject?.structure;
+    const nestedStats = nestedStructure
+      ? [
+          nestedStructure.nodes.some((item) => item.sequence)
+            ? `${nestedStructure.nodes.filter((item) => item.sequence).length} sequence`
+            : null,
+          nestedStructure.nodes.filter((item) => !item.sequence && item.refObjectId).length
+            ? `${nestedStructure.nodes.filter((item) => !item.sequence && item.refObjectId).length} object`
+            : null,
+          nestedStructure.nodes.filter((item) => !item.sequence && !item.refObjectId).length
+            ? `${nestedStructure.nodes.filter((item) => !item.sequence && !item.refObjectId).length} block`
+            : null
+        ].filter((value): value is string => Boolean(value))
+      : [];
+
     return (
       <ObjectNodeShell
         label={node.title}
@@ -269,6 +286,7 @@ function StructureInternalNode(props: NodeProps) {
         }))}
         selected={selected}
         nested
+        stats={nestedStats}
       />
     );
   }

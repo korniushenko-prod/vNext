@@ -1068,13 +1068,25 @@ textarea {
 }
 
 .system-object-node--nested .system-object-node__body p,
-.system-object-node--nested .system-object-node__stats,
 .system-object-node--nested .system-object-node__actions {
   display: none;
 }
 
 .system-object-node--nested .system-object-node__body strong {
   font-size: 12px;
+}
+
+.system-object-node--nested .system-object-node__stats {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: -2px;
+}
+
+.system-object-node--nested .system-object-node__stats span {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1;
 }
 
 .system-object-node--nested .system-object-node__port-name {
