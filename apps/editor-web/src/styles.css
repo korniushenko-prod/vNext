@@ -2338,15 +2338,22 @@ textarea {
 
 .sequence-node__layout {
   display: grid;
-  grid-template-columns: max-content minmax(72px, 1fr) max-content;
-  gap: 8px;
+  grid-template-columns: 12px minmax(124px, 1fr) 12px;
+  gap: 10px;
   align-items: stretch;
 }
 
 .sequence-node__ports {
   display: inline-grid;
-  gap: 2px;
-  align-content: start;
+  gap: 10px;
+  align-content: center;
+  justify-items: center;
+}
+
+.sequence-node__port {
+  position: relative;
+  width: 8px;
+  height: 14px;
 }
 
 .sequence-node__body {
@@ -2356,43 +2363,45 @@ textarea {
   min-width: 0;
 }
 
-.sequence-node__track,
-.sequence-node__transitions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
 .sequence-node__track {
+  display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  min-width: 0;
 }
 
 .sequence-node__track-step {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  min-width: 0;
 }
 
-.sequence-node__state,
-.sequence-node__transition {
-  display: inline-flex;
-  align-items: center;
-  min-height: 18px;
-  padding: 2px 6px;
-  border-radius: 999px;
+.sequence-node__state-card {
+  display: grid;
+  gap: 2px;
+  min-width: 54px;
+  padding: 5px 8px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sequence-node__state-card strong {
+  color: var(--text);
+  font-size: 9px;
+  line-height: 1.05;
+}
+
+.sequence-node__state-card span {
+  color: var(--muted);
   font-size: 8px;
   line-height: 1;
-  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.sequence-node__state {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
-}
-
-.sequence-node__state.is-start {
+.sequence-node__state-card.is-start {
   border-color: rgba(90, 177, 255, 0.34);
   background: rgba(90, 177, 255, 0.12);
 }
@@ -2401,15 +2410,6 @@ textarea {
   color: rgba(202, 219, 240, 0.72);
   font-size: 8px;
   line-height: 1;
-}
-
-.sequence-node__arrow.is-loop {
-  color: rgba(102, 217, 199, 0.76);
-}
-
-.sequence-node__transition {
-  color: var(--muted);
-  background: rgba(255, 255, 255, 0.02);
 }
 
 .sequence-node__summary {

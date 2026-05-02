@@ -34,9 +34,9 @@ const STRUCTURE_NODE_MAX_WIDTH = 112;
 const STRUCTURE_NODE_HEADER_HEIGHT = 22;
 const STRUCTURE_NODE_ROW_HEIGHT = 16;
 const STRUCTURE_NODE_PADDING_BOTTOM = 6;
-const STRUCTURE_SEQUENCE_MIN_WIDTH = 176;
-const STRUCTURE_SEQUENCE_MAX_WIDTH = 300;
-const STRUCTURE_SEQUENCE_BODY_HEIGHT = 54;
+const STRUCTURE_SEQUENCE_MIN_WIDTH = 196;
+const STRUCTURE_SEQUENCE_MAX_WIDTH = 344;
+const STRUCTURE_SEQUENCE_BODY_HEIGHT = 72;
 
 interface StructureBoundaryNodeData extends Record<string, unknown> {
   entityType: "boundary";
@@ -133,9 +133,9 @@ function getStructureNodeWidth(node: ObjectStructureNodeDefinition) {
     );
     const longestTitle = Math.max(node.title.length, node.kind.length, 8);
     const titleWidth = 28 + longestTitle * 5;
-    const statesWidth = 70 + longestState * 7 * Math.max(node.sequence.states.length, 1);
-    const portsWidth = 84 + longestInput * 4 + longestOutput * 4;
-    const timeoutWidth = 78 + longestTimeout * 5;
+    const statesWidth = 112 + longestState * 9 * Math.max(node.sequence.states.length, 1);
+    const portsWidth = 68 + longestInput * 2 + longestOutput * 2;
+    const timeoutWidth = 96 + longestTimeout * 6;
 
     return Math.max(
       STRUCTURE_SEQUENCE_MIN_WIDTH,
@@ -302,20 +302,19 @@ function StructureInternalNode(props: NodeProps) {
           </div>
         </div>
 
-        <div className="sequence-node__layout" style={{ minHeight: bodyHeight }}>
-          <div className="sequence-node__ports sequence-node__ports--input">
-            {node.inputs.map((port: ObjectInterfacePortDefinition) => (
-              <div key={port.id} className="structure-node-port is-input">
-                <Handle
-                  id={port.id}
-                  type="target"
-                  position={Position.Left}
-                  className="structure-flow-handle structure-flow-handle--target"
-                />
-                <span>{port.name}</span>
-              </div>
-            ))}
-          </div>
+          <div className="sequence-node__layout" style={{ minHeight: bodyHeight }}>
+            <div className="sequence-node__ports sequence-node__ports--input">
+              {node.inputs.map((port: ObjectInterfacePortDefinition) => (
+                <div key={port.id} className="sequence-node__port sequence-node__port--input" title={port.name}>
+                  <Handle
+                    id={port.id}
+                    type="target"
+                    position={Position.Left}
+                    className="structure-flow-handle structure-flow-handle--target"
+                  />
+                </div>
+              ))}
+            </div>
 
           <div className="sequence-node__body">
             <div className="sequence-node__track">
@@ -323,12 +322,13 @@ function StructureInternalNode(props: NodeProps) {
                 const transition = transitionsBySource.get(state.id);
                 return (
                   <div key={state.id} className="sequence-node__track-step">
-                    <span
-                      className={`sequence-node__state${activeState?.id === state.id ? " is-start" : ""}`}
+                    <div
+                      className={`sequence-node__state-card${activeState?.id === state.id ? " is-start" : ""}`}
                       title={state.timeoutRef ? `${state.name}: ${state.timeoutRef}` : state.name}
                     >
-                      {state.name}
-                    </span>
+                      <strong>{state.name}</strong>
+                      <span>{state.timeoutRef ?? "timeout"}</span>
+                    </div>
                     {transition ? (
                       <span className="sequence-node__arrow" aria-hidden="true">
                         -&gt;
@@ -339,24 +339,15 @@ function StructureInternalNode(props: NodeProps) {
               })}
             </div>
 
-            <div className="sequence-node__transitions">
-              {states.map((state) => (
-                <span key={`${state.id}-timeout`} className="sequence-node__transition">
-                  {state.name}: {state.timeoutRef ?? "timeout"}
-                </span>
-              ))}
-            </div>
-
             <div className="sequence-node__summary">
-              <span>Cycle</span>
-              <strong>{states.map((state) => state.name).join(" / ")}</strong>
+              <span>Sequence</span>
+              <strong>{states.map((state) => state.name).join(" -> ")}</strong>
             </div>
           </div>
 
           <div className="sequence-node__ports sequence-node__ports--output">
             {node.outputs.map((port: ObjectInterfacePortDefinition) => (
-              <div key={port.id} className="structure-node-port is-output">
-                <span>{port.name}</span>
+              <div key={port.id} className="sequence-node__port sequence-node__port--output" title={port.name}>
                 <Handle
                   id={port.id}
                   type="source"
