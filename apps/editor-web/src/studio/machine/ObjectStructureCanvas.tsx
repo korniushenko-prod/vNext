@@ -245,21 +245,20 @@ function StructureInternalNode(props: NodeProps) {
 
       <div className="structure-node-card__ports" style={{ minHeight: rowCount * STRUCTURE_NODE_ROW_HEIGHT }}>
         <div className="structure-node-port-col">
-          {node.inputs.map((port: ObjectInterfacePortDefinition, index: number) => (
+          {node.inputs.map((port: ObjectInterfacePortDefinition) => (
             <div key={port.id} className="structure-node-port is-input">
               <Handle
                 id={port.id}
                 type="target"
                 position={Position.Left}
                 className="structure-flow-handle structure-flow-handle--target"
-                style={{ top: STRUCTURE_NODE_HEADER_HEIGHT + 12 + index * STRUCTURE_NODE_ROW_HEIGHT }}
               />
               <span>{port.name}</span>
             </div>
           ))}
         </div>
         <div className="structure-node-port-col">
-          {node.outputs.map((port: ObjectInterfacePortDefinition, index: number) => (
+          {node.outputs.map((port: ObjectInterfacePortDefinition) => (
             <div key={port.id} className="structure-node-port is-output">
               <span>{port.name}</span>
               <Handle
@@ -267,7 +266,6 @@ function StructureInternalNode(props: NodeProps) {
                 type="source"
                 position={Position.Right}
                 className="structure-flow-handle structure-flow-handle--source"
-                style={{ top: STRUCTURE_NODE_HEADER_HEIGHT + 12 + index * STRUCTURE_NODE_ROW_HEIGHT }}
               />
             </div>
           ))}
