@@ -35,9 +35,8 @@ const STRUCTURE_NODE_HEADER_HEIGHT = 22;
 const STRUCTURE_NODE_ROW_HEIGHT = 16;
 const STRUCTURE_NODE_PADDING_BOTTOM = 6;
 const STRUCTURE_SEQUENCE_MIN_WIDTH = 176;
-const STRUCTURE_SEQUENCE_MAX_WIDTH = 232;
-const STRUCTURE_SEQUENCE_BODY_LINE_HEIGHT = 18;
-const STRUCTURE_SEQUENCE_BODY_GAP = 6;
+const STRUCTURE_SEQUENCE_MAX_WIDTH = 300;
+const STRUCTURE_SEQUENCE_BODY_HEIGHT = 54;
 
 interface StructureBoundaryNodeData extends Record<string, unknown> {
   entityType: "boundary";
@@ -113,12 +112,9 @@ function endpointFromFlowNode(nodeId: string, handleId: string): ObjectStructure
 function getStructureNodeHeight(node: ObjectStructureNodeDefinition) {
   const rowCount = Math.max(node.inputs.length, node.outputs.length, 1);
   if (node.sequence) {
-    const sequenceBodyHeight =
-      STRUCTURE_SEQUENCE_BODY_LINE_HEIGHT * 3 + STRUCTURE_SEQUENCE_BODY_GAP * 2 + 8;
     return (
       STRUCTURE_NODE_HEADER_HEIGHT +
-      sequenceBodyHeight +
-      rowCount * STRUCTURE_NODE_ROW_HEIGHT +
+      Math.max(rowCount * STRUCTURE_NODE_ROW_HEIGHT, STRUCTURE_SEQUENCE_BODY_HEIGHT) +
       STRUCTURE_NODE_PADDING_BOTTOM
     );
   }
@@ -137,9 +133,9 @@ function getStructureNodeWidth(node: ObjectStructureNodeDefinition) {
     );
     const longestTitle = Math.max(node.title.length, node.kind.length, 8);
     const titleWidth = 28 + longestTitle * 5;
-    const statesWidth = 36 + longestState * 6 * Math.max(node.sequence.states.length, 1);
-    const portsWidth = 40 + longestInput * 5 + longestOutput * 5;
-    const timeoutWidth = 34 + longestTimeout * 5;
+    const statesWidth = 70 + longestState * 7 * Math.max(node.sequence.states.length, 1);
+    const portsWidth = 84 + longestInput * 4 + longestOutput * 4;
+    const timeoutWidth = 78 + longestTimeout * 5;
 
     return Math.max(
       STRUCTURE_SEQUENCE_MIN_WIDTH,
@@ -295,6 +291,7 @@ function StructureInternalNode(props: NodeProps) {
     const states = node.sequence.states;
     const activeState = states.find((state) => state.id === node.sequence?.startStateId) ?? states[0] ?? null;
     const transitionsBySource = new Map(node.sequence.transitions.map((transition) => [transition.fromStateId, transition]));
+    const bodyHeight = Math.max(rowCount * STRUCTURE_NODE_ROW_HEIGHT, STRUCTURE_SEQUENCE_BODY_HEIGHT);
 
     return (
       <div className={`structure-node-card structure-node-card--sequence${selected ? " is-selected" : ""}`} style={{ height: nodeHeight }}>
@@ -305,49 +302,8 @@ function StructureInternalNode(props: NodeProps) {
           </div>
         </div>
 
-        <div className="sequence-node__body">
-          <div className="sequence-node__track">
-            {states.map((state: SequenceStateDefinition, index) => {
-              const transition = transitionsBySource.get(state.id);
-              return (
-                <div key={state.id} className="sequence-node__track-step">
-                  <span
-                    className={`sequence-node__state${activeState?.id === state.id ? " is-start" : ""}`}
-                    title={state.timeoutRef ? `${state.name}: ${state.timeoutRef}` : state.name}
-                  >
-                    {state.name}
-                  </span>
-                  {transition ? (
-                    <span className="sequence-node__arrow" aria-hidden="true">
-                      -&gt;
-                    </span>
-                  ) : null}
-                  {index === states.length - 1 && states.length > 1 ? (
-                    <span className="sequence-node__arrow is-loop" aria-hidden="true">
-                      -&gt;
-                    </span>
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="sequence-node__transitions">
-            {states.map((state) => (
-              <span key={`${state.id}-timeout`} className="sequence-node__transition">
-                {state.name}: {state.timeoutRef ?? "timeout"}
-              </span>
-            ))}
-          </div>
-
-          <div className="sequence-node__summary">
-            <span>Cycle</span>
-            <strong>{states.map((state) => state.name).join(" / ")}</strong>
-          </div>
-        </div>
-
-        <div className="structure-node-card__ports" style={{ minHeight: rowCount * STRUCTURE_NODE_ROW_HEIGHT }}>
-          <div className="structure-node-port-col">
+        <div className="sequence-node__layout" style={{ minHeight: bodyHeight }}>
+          <div className="sequence-node__ports sequence-node__ports--input">
             {node.inputs.map((port: ObjectInterfacePortDefinition) => (
               <div key={port.id} className="structure-node-port is-input">
                 <Handle
@@ -360,7 +316,44 @@ function StructureInternalNode(props: NodeProps) {
               </div>
             ))}
           </div>
-          <div className="structure-node-port-col">
+
+          <div className="sequence-node__body">
+            <div className="sequence-node__track">
+              {states.map((state: SequenceStateDefinition) => {
+                const transition = transitionsBySource.get(state.id);
+                return (
+                  <div key={state.id} className="sequence-node__track-step">
+                    <span
+                      className={`sequence-node__state${activeState?.id === state.id ? " is-start" : ""}`}
+                      title={state.timeoutRef ? `${state.name}: ${state.timeoutRef}` : state.name}
+                    >
+                      {state.name}
+                    </span>
+                    {transition ? (
+                      <span className="sequence-node__arrow" aria-hidden="true">
+                        -&gt;
+                      </span>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="sequence-node__transitions">
+              {states.map((state) => (
+                <span key={`${state.id}-timeout`} className="sequence-node__transition">
+                  {state.name}: {state.timeoutRef ?? "timeout"}
+                </span>
+              ))}
+            </div>
+
+            <div className="sequence-node__summary">
+              <span>Cycle</span>
+              <strong>{states.map((state) => state.name).join(" / ")}</strong>
+            </div>
+          </div>
+
+          <div className="sequence-node__ports sequence-node__ports--output">
             {node.outputs.map((port: ObjectInterfacePortDefinition) => (
               <div key={port.id} className="structure-node-port is-output">
                 <span>{port.name}</span>
