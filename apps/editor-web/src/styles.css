@@ -2339,11 +2339,22 @@ textarea {
   margin-bottom: 6px;
 }
 
-.sequence-node__states,
+.sequence-node__track,
 .sequence-node__transitions {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+}
+
+.sequence-node__track {
+  align-items: center;
+  gap: 6px;
+}
+
+.sequence-node__track-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .sequence-node__state,
@@ -2368,9 +2379,37 @@ textarea {
   background: rgba(90, 177, 255, 0.12);
 }
 
+.sequence-node__arrow {
+  color: rgba(202, 219, 240, 0.72);
+  font-size: 8px;
+  line-height: 1;
+}
+
+.sequence-node__arrow.is-loop {
+  color: rgba(102, 217, 199, 0.76);
+}
+
 .sequence-node__transition {
   color: var(--muted);
   background: rgba(255, 255, 255, 0.02);
+}
+
+.sequence-node__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 16px;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1;
+}
+
+.sequence-node__summary strong {
+  color: var(--text);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .structure-node-port-col {

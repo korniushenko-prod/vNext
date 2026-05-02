@@ -114,7 +114,7 @@ function getStructureNodeHeight(node: ObjectStructureNodeDefinition) {
   const rowCount = Math.max(node.inputs.length, node.outputs.length, 1);
   if (node.sequence) {
     const sequenceBodyHeight =
-      STRUCTURE_SEQUENCE_BODY_LINE_HEIGHT * 2 + STRUCTURE_SEQUENCE_BODY_GAP + 6;
+      STRUCTURE_SEQUENCE_BODY_LINE_HEIGHT * 3 + STRUCTURE_SEQUENCE_BODY_GAP * 2 + 8;
     return (
       STRUCTURE_NODE_HEADER_HEIGHT +
       sequenceBodyHeight +
@@ -294,6 +294,7 @@ function StructureInternalNode(props: NodeProps) {
   if (node.sequence) {
     const states = node.sequence.states;
     const activeState = states.find((state) => state.id === node.sequence?.startStateId) ?? states[0] ?? null;
+    const transitionsBySource = new Map(node.sequence.transitions.map((transition) => [transition.fromStateId, transition]));
 
     return (
       <div className={`structure-node-card structure-node-card--sequence${selected ? " is-selected" : ""}`} style={{ height: nodeHeight }}>
@@ -305,24 +306,43 @@ function StructureInternalNode(props: NodeProps) {
         </div>
 
         <div className="sequence-node__body">
-          <div className="sequence-node__states">
-            {states.map((state: SequenceStateDefinition) => (
-              <span
-                key={state.id}
-                className={`sequence-node__state${activeState?.id === state.id ? " is-start" : ""}`}
-                title={state.timeoutRef ? `${state.name}: ${state.timeoutRef}` : state.name}
-              >
-                {state.name}
-              </span>
-            ))}
+          <div className="sequence-node__track">
+            {states.map((state: SequenceStateDefinition, index) => {
+              const transition = transitionsBySource.get(state.id);
+              return (
+                <div key={state.id} className="sequence-node__track-step">
+                  <span
+                    className={`sequence-node__state${activeState?.id === state.id ? " is-start" : ""}`}
+                    title={state.timeoutRef ? `${state.name}: ${state.timeoutRef}` : state.name}
+                  >
+                    {state.name}
+                  </span>
+                  {transition ? (
+                    <span className="sequence-node__arrow" aria-hidden="true">
+                      -&gt;
+                    </span>
+                  ) : null}
+                  {index === states.length - 1 && states.length > 1 ? (
+                    <span className="sequence-node__arrow is-loop" aria-hidden="true">
+                      -&gt;
+                    </span>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
 
           <div className="sequence-node__transitions">
             {states.map((state) => (
               <span key={`${state.id}-timeout`} className="sequence-node__transition">
-                {state.timeoutRef ?? "timeout"}
+                {state.name}: {state.timeoutRef ?? "timeout"}
               </span>
             ))}
+          </div>
+
+          <div className="sequence-node__summary">
+            <span>Cycle</span>
+            <strong>{states.map((state) => state.name).join(" / ")}</strong>
           </div>
         </div>
 
