@@ -57,23 +57,22 @@ export function ObjectNodeShell({
 
       <div className={`system-object-node__ports${nested ? " system-object-node__ports--nested" : ""}`}>
         <div className="system-object-node__port-column system-object-node__port-column--incoming">
-          <span className="system-object-node__port-title">In</span>
           <div className="system-object-node__port-list">
             {incomingPorts.length ? (
               incomingPorts.map((port) => (
                 <div key={port.id} className="system-object-node__port-row system-object-node__port-row--incoming">
-                  <div className={`system-object-node__port system-object-node__port--${port.family}`}>
-                    {port.connectable === false ? null : (
-                      <Handle
-                        id={nested ? port.id : `target:${port.id}`}
-                        type="target"
-                        position={Position.Left}
-                        className="system-object-node__handle system-object-node__handle--inline"
-                      />
-                    )}
-                    <span className="system-object-node__port-name">{port.name}</span>
-                    {port.detail ? <span className="system-object-node__port-detail">{port.detail}</span> : null}
-                  </div>
+                  {port.connectable === false ? null : (
+                    <Handle
+                      id={nested ? port.id : `target:${port.id}`}
+                      type="target"
+                      position={Position.Left}
+                      className="system-object-node__handle system-object-node__handle--boundary"
+                    />
+                  )}
+                  <span className={`system-object-node__port-name system-object-node__port-name--${port.family}`}>
+                    {port.name}
+                  </span>
+                  {port.detail ? <span className="system-object-node__port-detail">{port.detail}</span> : null}
                 </div>
               ))
             ) : (
@@ -83,23 +82,22 @@ export function ObjectNodeShell({
         </div>
 
         <div className="system-object-node__port-column system-object-node__port-column--outgoing">
-          <span className="system-object-node__port-title">Out</span>
           <div className="system-object-node__port-list">
             {outgoingPorts.length ? (
               outgoingPorts.map((port) => (
                 <div key={port.id} className="system-object-node__port-row system-object-node__port-row--outgoing">
-                  <div className={`system-object-node__port system-object-node__port--${port.family}`}>
-                    <span className="system-object-node__port-name">{port.name}</span>
-                    {port.detail ? <span className="system-object-node__port-detail">{port.detail}</span> : null}
-                    {port.connectable === false ? null : (
-                      <Handle
-                        id={nested ? port.id : `source:${port.id}`}
-                        type="source"
-                        position={Position.Right}
-                        className="system-object-node__handle system-object-node__handle--inline"
-                      />
-                    )}
-                  </div>
+                  <span className={`system-object-node__port-name system-object-node__port-name--${port.family}`}>
+                    {port.name}
+                  </span>
+                  {port.detail ? <span className="system-object-node__port-detail">{port.detail}</span> : null}
+                  {port.connectable === false ? null : (
+                    <Handle
+                      id={nested ? port.id : `source:${port.id}`}
+                      type="source"
+                      position={Position.Right}
+                      className="system-object-node__handle system-object-node__handle--boundary"
+                    />
+                  )}
                 </div>
               ))
             ) : (

@@ -878,12 +878,12 @@ textarea {
 .system-object-node__ports {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 .system-object-node__port-column {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -891,73 +891,29 @@ textarea {
   text-align: right;
 }
 
-.system-object-node__port-title {
-  color: var(--muted);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .system-object-node__port-list {
   display: grid;
-  gap: 6px;
-  grid-auto-rows: 32px;
+  gap: 4px;
+  grid-auto-rows: 24px;
 }
 
 .system-object-node__port-row {
   display: flex;
   width: 100%;
-  height: 32px;
+  height: 24px;
   align-items: center;
+  position: relative;
+  min-width: 0;
 }
 
 .system-object-node__port-row--incoming {
   justify-content: flex-start;
+  padding-left: 10px;
 }
 
 .system-object-node__port-row--outgoing {
   justify-content: flex-end;
-}
-
-.system-object-node__port {
-  height: 32px;
-  width: 126px;
-  max-width: 100%;
-  padding: 4px 8px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  font-size: 11px;
-  line-height: 1.2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  position: relative;
-}
-
-.system-object-node__port--commands {
-  border-color: rgba(132, 189, 236, 0.26);
-}
-
-.system-object-node__port--inputs {
-  border-color: rgba(90, 177, 255, 0.24);
-}
-
-.system-object-node__port--outputs {
-  border-color: rgba(132, 189, 236, 0.26);
-}
-
-.system-object-node__port--status {
-  border-color: rgba(246, 211, 127, 0.28);
-}
-
-.system-object-node__port--permissions {
-  border-color: rgba(102, 217, 199, 0.28);
-}
-
-.system-object-node__port--faults {
-  border-color: rgba(255, 120, 142, 0.3);
+  padding-right: 10px;
 }
 
 .system-object-node__port-empty {
@@ -982,12 +938,52 @@ textarea {
   align-self: center;
 }
 
+.system-object-node__handle--boundary {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.system-object-node__port-row--incoming .system-object-node__handle--boundary {
+  left: -4px;
+}
+
+.system-object-node__port-row--outgoing .system-object-node__handle--boundary {
+  right: -4px;
+}
+
 .system-object-node__port-name {
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.system-object-node__port-row--outgoing .system-object-node__port-name {
+  text-align: right;
+}
+
+.system-object-node__port-name--commands,
+.system-object-node__port-name--outputs {
+  color: #d8eaff;
+}
+
+.system-object-node__port-name--inputs {
+  color: #eaf2ff;
+}
+
+.system-object-node__port-name--status {
+  color: #f6d37f;
+}
+
+.system-object-node__port-name--permissions {
+  color: #8fe3d6;
+}
+
+.system-object-node__port-name--faults {
+  color: #ffb8c4;
 }
 
 .system-object-node__port-detail {
@@ -1081,13 +1077,6 @@ textarea {
   font-size: 12px;
 }
 
-.system-object-node--nested .system-object-node__port {
-  height: 20px;
-  min-height: 20px;
-  padding: 2px 6px;
-  border-radius: 7px;
-}
-
 .system-object-node--nested .system-object-node__port-name {
   font-size: 9px;
 }
@@ -1105,10 +1094,6 @@ textarea {
 
 .system-object-node--nested .system-object-node__port-row {
   height: 20px;
-}
-
-.system-object-node--nested .system-object-node__port-title {
-  font-size: 9px;
 }
 
 .topology-system-header {
