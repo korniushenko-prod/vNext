@@ -1056,15 +1056,15 @@ textarea {
 }
 
 .system-object-node--nested {
-  min-width: 176px;
-  max-width: 198px;
-  padding: 8px 9px;
-  border-radius: 13px;
-  box-shadow: 0 7px 18px rgba(4, 10, 18, 0.18);
+  min-width: 144px;
+  max-width: 164px;
+  padding: 6px 7px;
+  border-radius: 11px;
+  box-shadow: 0 5px 14px rgba(4, 10, 18, 0.16);
 }
 
 .system-object-node__ports--nested {
-  gap: 8px;
+  gap: 6px;
 }
 
 .system-object-node--nested .system-object-node__body {
@@ -1078,37 +1078,37 @@ textarea {
 }
 
 .system-object-node--nested .system-object-node__body strong {
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .system-object-node--nested .system-object-node__port {
-  height: 24px;
-  min-height: 24px;
-  padding: 3px 7px;
-  border-radius: 8px;
+  height: 20px;
+  min-height: 20px;
+  padding: 2px 6px;
+  border-radius: 7px;
 }
 
 .system-object-node--nested .system-object-node__port-name {
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .system-object-node--nested .system-object-node__type,
 .system-object-node--nested .system-object-node__behavior {
-  padding: 3px 6px;
-  font-size: 9px;
+  padding: 2px 5px;
+  font-size: 8px;
 }
 
 .system-object-node--nested .system-object-node__port-list {
-  gap: 4px;
-  grid-auto-rows: 24px;
+  gap: 3px;
+  grid-auto-rows: 20px;
 }
 
 .system-object-node--nested .system-object-node__port-row {
-  height: 24px;
+  height: 20px;
 }
 
 .system-object-node--nested .system-object-node__port-title {
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .topology-system-header {
@@ -2262,15 +2262,15 @@ textarea {
 .structure-node-card {
   position: absolute;
   width: auto;
-  min-width: 118px;
-  max-width: 156px;
-  border-radius: 8px;
+  min-width: 94px;
+  max-width: 118px;
+  border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
     radial-gradient(circle at top right, rgba(90, 177, 255, 0.08), transparent 28%),
     linear-gradient(180deg, rgba(22, 39, 60, 0.97), rgba(13, 23, 36, 0.98));
-  box-shadow: 0 6px 14px rgba(2, 7, 14, 0.16);
-  padding: 5px 6px;
+  box-shadow: 0 4px 10px rgba(2, 7, 14, 0.14);
+  padding: 3px 4px;
   color: var(--text);
   text-align: left;
   cursor: grab;
@@ -2301,8 +2301,8 @@ textarea {
 .structure-node-card__header {
   display: flex;
   justify-content: flex-start;
-  gap: 4px;
-  margin-bottom: 3px;
+  gap: 2px;
+  margin-bottom: 2px;
 }
 
 .structure-node-card__header div {
@@ -2312,36 +2312,36 @@ textarea {
 
 .structure-node-card__header span {
   color: var(--muted);
-  font-size: 9px;
+  font-size: 8px;
   line-height: 1;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 .structure-node-card__header strong {
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1.1;
 }
 
 .structure-node-card__ports {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 5px;
 }
 
 .structure-node-port-col {
   display: grid;
-  gap: 2px;
+  gap: 1px;
 }
 
 .structure-node-port {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 1px 0;
+  gap: 3px;
+  padding: 0;
   border-radius: 0;
   background: transparent;
-  font-size: 9px;
+  font-size: 8px;
   line-height: 1.1;
   white-space: nowrap;
   border: 0;
@@ -2360,16 +2360,16 @@ textarea {
 .structure-boundary-node {
   display: grid;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
 }
 
 .structure-boundary-node.side-left {
-  grid-template-columns: minmax(0, 1fr) 52px;
+  grid-template-columns: minmax(0, 1fr) 44px;
 }
 
 .structure-boundary-node.side-right {
-  grid-template-columns: 52px minmax(0, 1fr);
+  grid-template-columns: 44px minmax(0, 1fr);
 }
 
 .structure-boundary-node__label {
@@ -2378,7 +2378,7 @@ textarea {
   align-items: center;
   justify-content: flex-end;
   text-align: right;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -2392,7 +2392,7 @@ textarea {
 
 .structure-boundary-node__body {
   position: relative;
-  height: 24px;
+  height: 20px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
@@ -2400,18 +2400,18 @@ textarea {
 
 .structure-boundary-node__slot {
   position: absolute;
-  inset: 8px 9px;
+  inset: 7px 8px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .structure-flow-handle {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .structure-flow-handle--source {

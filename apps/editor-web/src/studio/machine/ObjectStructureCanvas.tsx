@@ -23,15 +23,15 @@ import { useStudioStore } from "../store/studioStore";
 import { ObjectNodeShell, type ObjectNodePortView } from "./ObjectNodeShell";
 
 const STRUCTURE_SCENE_WIDTH = 1180;
-const STRUCTURE_BOUNDARY_NODE_WIDTH = 146;
+const STRUCTURE_BOUNDARY_NODE_WIDTH = 128;
 const STRUCTURE_BOUNDARY_LEFT_X = 18;
 const STRUCTURE_BOUNDARY_RIGHT_X = STRUCTURE_SCENE_WIDTH - STRUCTURE_BOUNDARY_NODE_WIDTH - 18;
 const STRUCTURE_BOUNDARY_TOP = 88;
-const STRUCTURE_BOUNDARY_SPACING = 46;
-const STRUCTURE_NODE_WIDTH = 146;
-const STRUCTURE_NODE_HEADER_HEIGHT = 30;
-const STRUCTURE_NODE_ROW_HEIGHT = 20;
-const STRUCTURE_NODE_PADDING_BOTTOM = 8;
+const STRUCTURE_BOUNDARY_SPACING = 40;
+const STRUCTURE_NODE_WIDTH = 112;
+const STRUCTURE_NODE_HEADER_HEIGHT = 22;
+const STRUCTURE_NODE_ROW_HEIGHT = 16;
+const STRUCTURE_NODE_PADDING_BOTTOM = 6;
 
 interface StructureBoundaryNodeData extends Record<string, unknown> {
   entityType: "boundary";
