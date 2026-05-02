@@ -17,7 +17,8 @@ import type {
   ObjectPortKind,
   ObjectStructureNodeDefinition,
   ObjectStructureRouteEndpointDefinition,
-  PlcObjectDefinition
+  PlcObjectDefinition,
+  SequenceStateDefinition
 } from "../model/demoProject";
 import { useStudioStore } from "../store/studioStore";
 import { ObjectNodeShell, type ObjectNodePortView } from "./ObjectNodeShell";
@@ -111,6 +112,10 @@ function getStructureNodeHeight(node: ObjectStructureNodeDefinition) {
 }
 
 function getStructureNodeWidth(node: ObjectStructureNodeDefinition) {
+  if (node.sequence) {
+    return 156;
+  }
+
   const longestInput = Math.max(...node.inputs.map((port) => port.name.length), 0);
   const longestOutput = Math.max(...node.outputs.map((port) => port.name.length), 0);
   const longestTitle = Math.max(node.kind.length, node.title.length, 3);
@@ -231,6 +236,73 @@ function StructureInternalNode(props: NodeProps) {
         selected={selected}
         nested
       />
+    );
+  }
+
+  if (node.sequence) {
+    const states = node.sequence.states;
+    const activeState = states.find((state) => state.id === node.sequence?.startStateId) ?? states[0] ?? null;
+
+    return (
+      <div className={`structure-node-card structure-node-card--sequence${selected ? " is-selected" : ""}`} style={{ height: nodeHeight }}>
+        <div className="structure-node-card__header">
+          <div>
+            <strong>{node.title}</strong>
+            <span>{states.length} states</span>
+          </div>
+        </div>
+
+        <div className="sequence-node__body">
+          <div className="sequence-node__states">
+            {states.map((state: SequenceStateDefinition) => (
+              <span
+                key={state.id}
+                className={`sequence-node__state${activeState?.id === state.id ? " is-start" : ""}`}
+                title={state.timeoutRef ? `${state.name}: ${state.timeoutRef}` : state.name}
+              >
+                {state.name}
+              </span>
+            ))}
+          </div>
+
+          <div className="sequence-node__transitions">
+            {states.map((state) => (
+              <span key={`${state.id}-timeout`} className="sequence-node__transition">
+                {state.timeoutRef ?? "timeout"}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="structure-node-card__ports" style={{ minHeight: rowCount * STRUCTURE_NODE_ROW_HEIGHT }}>
+          <div className="structure-node-port-col">
+            {node.inputs.map((port: ObjectInterfacePortDefinition) => (
+              <div key={port.id} className="structure-node-port is-input">
+                <Handle
+                  id={port.id}
+                  type="target"
+                  position={Position.Left}
+                  className="structure-flow-handle structure-flow-handle--target"
+                />
+                <span>{port.name}</span>
+              </div>
+            ))}
+          </div>
+          <div className="structure-node-port-col">
+            {node.outputs.map((port: ObjectInterfacePortDefinition) => (
+              <div key={port.id} className="structure-node-port is-output">
+                <span>{port.name}</span>
+                <Handle
+                  id={port.id}
+                  type="source"
+                  position={Position.Right}
+                  className="structure-flow-handle structure-flow-handle--source"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     );
   }
 

@@ -2279,6 +2279,12 @@ textarea {
   box-shadow: 0 0 0 2px rgba(90, 177, 255, 0.18), 0 14px 32px rgba(2, 7, 14, 0.28);
 }
 
+.structure-node-card--sequence {
+  min-width: 144px;
+  max-width: 160px;
+  padding: 4px 5px;
+}
+
 .structure-node-card:active {
   cursor: grabbing;
 }
@@ -2313,6 +2319,46 @@ textarea {
   align-items: flex-start;
   justify-content: space-between;
   gap: 6px;
+}
+
+.sequence-node__body {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.sequence-node__states,
+.sequence-node__transitions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.sequence-node__state,
+.sequence-node__transition {
+  display: inline-flex;
+  align-items: center;
+  min-height: 16px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  font-size: 7px;
+  line-height: 1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sequence-node__state {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.sequence-node__state.is-start {
+  border-color: rgba(90, 177, 255, 0.34);
+  background: rgba(90, 177, 255, 0.12);
+}
+
+.sequence-node__transition {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .structure-node-port-col {

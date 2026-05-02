@@ -98,6 +98,27 @@ export interface ObjectStructureNodeDefinition {
   relatedSignalIds?: string[];
   relatedBlockIds?: string[];
   relatedBindingIds?: string[];
+  sequence?: SequenceNodeDefinition;
+}
+
+export interface SequenceStateDefinition {
+  id: string;
+  name: string;
+  timeoutRef?: string;
+  summary?: string;
+}
+
+export interface SequenceTransitionDefinition {
+  id: string;
+  fromStateId: string;
+  toStateId: string;
+  trigger: "timeout";
+}
+
+export interface SequenceNodeDefinition {
+  startStateId: string;
+  states: SequenceStateDefinition[];
+  transitions: SequenceTransitionDefinition[];
 }
 
 export interface ObjectStructureRouteEndpointDefinition {
@@ -138,6 +159,7 @@ interface BuiltinTemplateStructureNodeSeed {
   position?: { x: number; y: number };
   inputs?: StructurePortSeed[];
   outputs?: StructurePortSeed[];
+  sequence?: SequenceNodeDefinition;
 }
 
 interface BuiltinTemplateStructureEndpointSeed {
@@ -389,137 +411,74 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
       oledScreenId: "oled_blink_status"
     },
     structure: {
-      summary: "Approximate engineering composition of the blink relay primitive using timers, selectors and starter control blocks.",
+      summary: "Blink relay primitive represented as a small two-phase sequence.",
       nodes: [
         {
-          key: "enableLatch",
-          title: "EnableHold",
-          kind: "Latch",
-          summary: "Holds the enable request while the blink primitive is active.",
-          position: { x: 180, y: 160 }
-        },
-        {
-          key: "onDuration",
-          title: "OnTime",
-          kind: "Setpoint",
-          summary: "Configured ON duration in seconds.",
-          position: { x: 180, y: 60 }
-        },
-        {
-          key: "offDuration",
-          title: "OffTime",
-          kind: "Setpoint",
-          summary: "Configured OFF duration in seconds.",
-          position: { x: 180, y: 290 }
-        },
-        {
-          key: "onTimer",
-          title: "OnPhase",
-          kind: "TON",
-          summary: "Approximate ON-phase timer.",
-          position: { x: 430, y: 60 }
-        },
-        {
-          key: "offTimer",
-          title: "OffPhase",
-          kind: "TON",
-          summary: "Approximate OFF-phase timer.",
-          position: { x: 430, y: 260 }
-        },
-        {
-          key: "relaySelect",
-          title: "RelayState",
-          kind: "Selector",
-          summary: "Selects the active relay command for the current phase.",
-          position: { x: 700, y: 90 }
-        },
-        {
-          key: "remainSelect",
-          title: "Remaining",
-          kind: "Selector",
-          summary: "Selects the active countdown signal for the current phase.",
-          position: { x: 700, y: 255 }
-        },
-        {
-          key: "phaseSelect",
-          title: "Phase",
-          kind: "Selector",
-          summary: "Exposes the current phase state to the object boundary.",
-          position: { x: 980, y: 170 }
+          key: "blinkSequence",
+          title: "BlinkCycle",
+          kind: "Sequence",
+          summary: "Two-state ON/OFF blink sequence driven by configured phase durations.",
+          position: { x: 420, y: 150 },
+          inputs: [{ name: "enable" }],
+          outputs: [
+            { name: "relayOut" },
+            { name: "relayState" },
+            { name: "phase", dataType: "string" },
+            { name: "remainingSeconds", dataType: "number" }
+          ],
+          sequence: {
+            startStateId: "phase_on",
+            states: [
+              {
+                id: "phase_on",
+                name: "ON",
+                timeoutRef: "onDurationS",
+                summary: "Relay energized while ON-phase timer counts down."
+              },
+              {
+                id: "phase_off",
+                name: "OFF",
+                timeoutRef: "offDurationS",
+                summary: "Relay de-energized while OFF-phase timer counts down."
+              }
+            ],
+            transitions: [
+              {
+                id: "on_to_off",
+                fromStateId: "phase_on",
+                toStateId: "phase_off",
+                trigger: "timeout"
+              },
+              {
+                id: "off_to_on",
+                fromStateId: "phase_off",
+                toStateId: "phase_on",
+                trigger: "timeout"
+              }
+            ]
+          }
         }
       ],
       routes: [
         {
           from: { kind: "boundary", family: "commands", portName: "enable" },
-          to: { kind: "node", nodeKey: "enableLatch", portName: "set" }
+          to: { kind: "node", nodeKey: "blinkSequence", portName: "enable" }
         },
         {
-          from: { kind: "node", nodeKey: "enableLatch", portName: "out" },
-          to: { kind: "node", nodeKey: "onTimer", portName: "in" }
-        },
-        {
-          from: { kind: "node", nodeKey: "enableLatch", portName: "out" },
-          to: { kind: "node", nodeKey: "offTimer", portName: "in" }
-        },
-        {
-          from: { kind: "node", nodeKey: "onDuration", portName: "value" },
-          to: { kind: "node", nodeKey: "onTimer", portName: "pt" }
-        },
-        {
-          from: { kind: "node", nodeKey: "offDuration", portName: "value" },
-          to: { kind: "node", nodeKey: "offTimer", portName: "pt" }
-        },
-        {
-          from: { kind: "node", nodeKey: "onTimer", portName: "q" },
-          to: { kind: "node", nodeKey: "relaySelect", portName: "inA" }
-        },
-        {
-          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
-          to: { kind: "node", nodeKey: "relaySelect", portName: "inB" }
-        },
-        {
-          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
-          to: { kind: "node", nodeKey: "relaySelect", portName: "select" }
-        },
-        {
-          from: { kind: "node", nodeKey: "relaySelect", portName: "out" },
+          from: { kind: "node", nodeKey: "blinkSequence", portName: "relayOut" },
           to: { kind: "boundary", family: "outputs", portName: "relayOut" }
         },
         {
-          from: { kind: "node", nodeKey: "relaySelect", portName: "out" },
+          from: { kind: "node", nodeKey: "blinkSequence", portName: "relayState" },
           to: { kind: "boundary", family: "status", portName: "relayState" }
         },
         {
-          from: { kind: "node", nodeKey: "onTimer", portName: "et" },
-          to: { kind: "node", nodeKey: "remainSelect", portName: "inA" }
-        },
-        {
-          from: { kind: "node", nodeKey: "offTimer", portName: "et" },
-          to: { kind: "node", nodeKey: "remainSelect", portName: "inB" }
-        },
-        {
-          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
-          to: { kind: "node", nodeKey: "remainSelect", portName: "select" }
-        },
-        {
-          from: { kind: "node", nodeKey: "remainSelect", portName: "out" },
-          to: { kind: "boundary", family: "status", portName: "remainingSeconds" }
-        },
-        {
-          from: { kind: "node", nodeKey: "onTimer", portName: "q" },
-          to: { kind: "node", nodeKey: "phaseSelect", portName: "inA" }
-        },
-        {
-          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
-          to: { kind: "node", nodeKey: "phaseSelect", portName: "inB" }
-        },
-        {
-          from: { kind: "node", nodeKey: "offTimer", portName: "q" },
-          to: { kind: "node", nodeKey: "phaseSelect", portName: "select" }
-        },
-        {
-          from: { kind: "node", nodeKey: "phaseSelect", portName: "out" },
+          from: { kind: "node", nodeKey: "blinkSequence", portName: "phase" },
           to: { kind: "boundary", family: "status", portName: "phase" }
+        },
+        {
+          from: { kind: "node", nodeKey: "blinkSequence", portName: "remainingSeconds" },
+          to: { kind: "boundary", family: "status", portName: "remainingSeconds" }
         }
       ]
     }
@@ -975,7 +934,36 @@ function normalizeStructureNodeList(value: unknown): ObjectStructureNodeDefiniti
       parameters: typeof item.parameters === "object" && item.parameters !== null ? (item.parameters as Record<string, unknown>) : undefined,
       relatedSignalIds: Array.isArray(item.relatedSignalIds) ? (item.relatedSignalIds as string[]) : undefined,
       relatedBlockIds: Array.isArray(item.relatedBlockIds) ? (item.relatedBlockIds as string[]) : undefined,
-      relatedBindingIds: Array.isArray(item.relatedBindingIds) ? (item.relatedBindingIds as string[]) : undefined
+      relatedBindingIds: Array.isArray(item.relatedBindingIds) ? (item.relatedBindingIds as string[]) : undefined,
+      sequence:
+        typeof item.sequence === "object" && item.sequence !== null
+          ? {
+              startStateId:
+                typeof (item.sequence as Record<string, unknown>).startStateId === "string"
+                  ? ((item.sequence as Record<string, unknown>).startStateId as string)
+                  : "",
+              states: Array.isArray((item.sequence as Record<string, unknown>).states)
+                ? (((item.sequence as Record<string, unknown>).states as Array<Record<string, unknown>>)
+                    .filter((state) => typeof state === "object" && state !== null)
+                    .map((state, stateIndex) => ({
+                      id: typeof state.id === "string" ? state.id : `state_${stateIndex + 1}`,
+                      name: typeof state.name === "string" ? state.name : `State ${stateIndex + 1}`,
+                      timeoutRef: typeof state.timeoutRef === "string" ? state.timeoutRef : undefined,
+                      summary: typeof state.summary === "string" ? state.summary : undefined
+                    })))
+                : [],
+              transitions: Array.isArray((item.sequence as Record<string, unknown>).transitions)
+                ? (((item.sequence as Record<string, unknown>).transitions as Array<Record<string, unknown>>)
+                    .filter((transition) => typeof transition === "object" && transition !== null)
+                    .map((transition, transitionIndex) => ({
+                      id: typeof transition.id === "string" ? transition.id : `transition_${transitionIndex + 1}`,
+                      fromStateId: typeof transition.fromStateId === "string" ? transition.fromStateId : "",
+                      toStateId: typeof transition.toStateId === "string" ? transition.toStateId : "",
+                      trigger: "timeout" as const
+                    })))
+                : []
+            }
+          : undefined
     }));
 }
 
@@ -1476,6 +1464,7 @@ export function createObjectStructureNodeDefinition(
     position?: { x: number; y: number };
     inputs?: StructurePortSeed[];
     outputs?: StructurePortSeed[];
+    sequence?: SequenceNodeDefinition;
   }
 ): ObjectStructureNodeDefinition {
   const existingIds = object.structure?.nodes.map((node) => node.id) ?? [];
@@ -1497,7 +1486,8 @@ export function createObjectStructureNodeDefinition(
     refObjectId: input.refObjectId ?? null,
     position: input.position ?? { x: 80, y: 80 },
     inputs: createPorts(input.inputs, "input"),
-    outputs: createPorts(input.outputs, "output")
+    outputs: createPorts(input.outputs, "output"),
+    sequence: input.sequence
   };
 }
 
