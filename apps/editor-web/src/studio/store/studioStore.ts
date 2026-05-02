@@ -68,6 +68,7 @@ export interface OverlayAnchorPoint {
 interface StudioState {
   activeWorkspace: WorkspaceId;
   graphScopeStack: string[];
+  sequenceScopeNodeId: string | null;
   selectedItemId: string | null;
   selectedItemType: SelectedItemType;
   selectedObjectId: string | null;
@@ -89,6 +90,8 @@ interface StudioState {
   enterGraphScope: (objectId: string, options?: { machineId?: string | null }) => void;
   exitGraphScope: () => void;
   clearGraphScope: () => void;
+  enterSequenceScope: (nodeId: string) => void;
+  exitSequenceScope: () => void;
   selectItem: (type: SelectedItemType, id: string | null, options?: SelectItemOptions) => void;
   setMachineViewMode: (mode: MachineViewMode) => void;
   setObjectViewLens: (lens: ObjectViewLens) => void;
@@ -259,6 +262,7 @@ function createBindingId(project: UniversalPlcDemoProject) {
 export const useStudioStore = create<StudioState>((set) => ({
   activeWorkspace: "machine",
   graphScopeStack: [],
+  sequenceScopeNodeId: null,
   selectedItemId: PROJECT_SELECTION_ID,
   selectedItemType: "project",
   selectedObjectId: null,
@@ -288,6 +292,7 @@ export const useStudioStore = create<StudioState>((set) => ({
 
       return {
         graphScopeStack: nextStack,
+        sequenceScopeNodeId: null,
         machineViewMode: "object",
         objectViewLens: "structure",
         selectedObjectId: objectId,
@@ -303,6 +308,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       const nextStack = state.graphScopeStack.slice(0, -1);
       return {
         graphScopeStack: nextStack,
+        sequenceScopeNodeId: null,
         machineViewMode: nextStack.length ? "object" : "topology",
         objectViewLens: "structure",
         selectedObjectId: nextStack[nextStack.length - 1] ?? state.selectedObjectId
@@ -311,11 +317,15 @@ export const useStudioStore = create<StudioState>((set) => ({
   clearGraphScope: () =>
     set({
       graphScopeStack: [],
+      sequenceScopeNodeId: null,
       machineViewMode: "topology",
       objectViewLens: "structure"
     }),
+  enterSequenceScope: (nodeId) => set({ sequenceScopeNodeId: nodeId }),
+  exitSequenceScope: () => set({ sequenceScopeNodeId: null }),
   selectItem: (type, id, options) =>
     set((state) => ({
+      sequenceScopeNodeId: type === "subobject" && id === state.sequenceScopeNodeId ? state.sequenceScopeNodeId : null,
       selectedItemType: type,
       selectedItemId: id,
       selectedObjectId:
@@ -343,6 +353,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       objectEditorAnchor: null,
       fullObjectEditorObjectId: null,
       graphScopeStack: [],
+      sequenceScopeNodeId: null,
       ...buildProjectSelection(result.project)
     });
   },
@@ -360,6 +371,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       logicContext: null,
       bindContext: null,
       graphScopeStack: [],
+      sequenceScopeNodeId: null,
       ...buildProjectSelection(nextProject)
     });
   },
@@ -377,6 +389,7 @@ export const useStudioStore = create<StudioState>((set) => ({
       logicContext: null,
       bindContext: null,
       graphScopeStack: [],
+      sequenceScopeNodeId: null,
       ...buildProjectSelection(project)
     });
   },

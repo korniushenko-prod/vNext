@@ -106,6 +106,7 @@ export interface SequenceStateDefinition {
   name: string;
   timeoutRef?: string;
   summary?: string;
+  outputs?: Record<string, unknown>;
 }
 
 export interface SequenceTransitionDefinition {
@@ -433,13 +434,23 @@ const BUILTIN_OBJECT_TEMPLATE_SEEDS: Record<string, BuiltinTemplateSeed> = {
                 id: "phase_on",
                 name: "ON",
                 timeoutRef: "onDurationS",
-                summary: "Relay energized while ON-phase timer counts down."
+                summary: "Relay energized while ON-phase timer counts down.",
+                outputs: {
+                  relayOut: true,
+                  relayState: true,
+                  phase: "ON"
+                }
               },
               {
                 id: "phase_off",
                 name: "OFF",
                 timeoutRef: "offDurationS",
-                summary: "Relay de-energized while OFF-phase timer counts down."
+                summary: "Relay de-energized while OFF-phase timer counts down.",
+                outputs: {
+                  relayOut: false,
+                  relayState: false,
+                  phase: "OFF"
+                }
               }
             ],
             transitions: [
@@ -949,7 +960,11 @@ function normalizeStructureNodeList(value: unknown): ObjectStructureNodeDefiniti
                       id: typeof state.id === "string" ? state.id : `state_${stateIndex + 1}`,
                       name: typeof state.name === "string" ? state.name : `State ${stateIndex + 1}`,
                       timeoutRef: typeof state.timeoutRef === "string" ? state.timeoutRef : undefined,
-                      summary: typeof state.summary === "string" ? state.summary : undefined
+                      summary: typeof state.summary === "string" ? state.summary : undefined,
+                      outputs:
+                        typeof state.outputs === "object" && state.outputs !== null
+                          ? (state.outputs as Record<string, unknown>)
+                          : undefined
                     })))
                 : [],
               transitions: Array.isArray((item.sequence as Record<string, unknown>).transitions)

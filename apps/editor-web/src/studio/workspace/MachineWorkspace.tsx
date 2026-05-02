@@ -1,3 +1,4 @@
+import { ObjectSequenceCanvas } from "../machine/ObjectSequenceCanvas";
 import { ObjectPortComposer } from "../machine/ObjectPortComposer";
 import { ObjectTopologyCanvas } from "../machine/ObjectTopologyCanvas";
 import { ObjectStructureCanvas } from "../machine/ObjectStructureCanvas";
@@ -8,6 +9,7 @@ export function MachineWorkspace() {
   const selectedItemId = useStudioStore((state) => state.selectedItemId);
   const selectedItemType = useStudioStore((state) => state.selectedItemType);
   const selectedObjectId = useStudioStore((state) => state.selectedObjectId);
+  const sequenceScopeNodeId = useStudioStore((state) => state.sequenceScopeNodeId);
   const graphScopeStack = useStudioStore((state) => state.graphScopeStack);
   const selectedSectionId = useStudioStore((state) => state.selectedSectionId);
   const selectedRegionId = useStudioStore((state) => state.selectedRegionId);
@@ -20,6 +22,10 @@ export function MachineWorkspace() {
   const inObjectScope = Boolean(currentGraphObjectId);
   const selectedObject =
     project.objects.find((item) => item.id === (currentGraphObjectId ?? selectedObjectId)) ?? project.objects[0] ?? null;
+  const activeSequenceNode =
+    selectedObject && sequenceScopeNodeId
+      ? selectedObject.structure?.nodes.find((item) => item.id === sequenceScopeNodeId && item.sequence) ?? null
+      : null;
   if (!selectedObject) {
     return (
       <div className="workspace workspace-machine">
@@ -149,12 +155,16 @@ export function MachineWorkspace() {
   const stageTitle =
     !inObjectScope
       ? "Objects and Links"
-      : selectedObject.name;
+      : activeSequenceNode
+        ? `${selectedObject.name} / ${activeSequenceNode.title}`
+        : selectedObject.name;
 
   const stageSummary =
     !inObjectScope
       ? "Main canvas shows large objects and the contract-level links between them."
-      : "Drill into the object on the same authoring flow: boundary ports stay on the edges, internal logic stays inside.";
+      : activeSequenceNode
+        ? "Sequence drill-in shows states, transitions and outputs by phase without leaving the object authoring flow."
+        : "Drill into the object on the same authoring flow: boundary ports stay on the edges, internal logic stays inside.";
 
   return (
     <div className="workspace workspace-machine">
@@ -194,6 +204,8 @@ export function MachineWorkspace() {
       <div className="machine-stage">
         {!inObjectScope ? (
           <ObjectTopologyCanvas />
+        ) : activeSequenceNode ? (
+          <ObjectSequenceCanvas />
         ) : (
           <ObjectStructureCanvas />
         )}

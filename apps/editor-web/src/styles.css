@@ -2480,6 +2480,196 @@ textarea {
   box-shadow: 0 0 0 1px rgba(90, 177, 255, 0.42);
 }
 
+.sequence-canvas {
+  padding: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.sequence-canvas__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.sequence-canvas__hint {
+  display: grid;
+  gap: 3px;
+}
+
+.sequence-canvas__hint span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.sequence-shell {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr) 180px;
+  gap: 18px;
+  align-items: stretch;
+  min-height: 420px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(90, 177, 255, 0.14);
+  background: rgba(10, 19, 31, 0.46);
+}
+
+.sequence-shell__boundary {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.sequence-shell__boundary strong {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sequence-shell__boundary--right {
+  justify-items: end;
+}
+
+.sequence-boundary-port {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+}
+
+.sequence-shell__center {
+  display: grid;
+  align-content: center;
+}
+
+.sequence-shell__track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.sequence-track-segment {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sequence-state-card {
+  width: 220px;
+  min-height: 168px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(22, 39, 60, 0.95), rgba(13, 23, 36, 0.98));
+  box-shadow: 0 10px 24px rgba(2, 7, 14, 0.2);
+}
+
+.sequence-state-card.is-start {
+  border-color: rgba(90, 177, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(90, 177, 255, 0.14), 0 10px 24px rgba(2, 7, 14, 0.2);
+}
+
+.sequence-state-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.sequence-state-card__header strong {
+  font-size: 18px;
+  line-height: 1.05;
+}
+
+.sequence-state-card__header span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(90, 177, 255, 0.12);
+  border: 1px solid rgba(90, 177, 255, 0.24);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.sequence-state-card__timeout {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d8eaff;
+  font-size: 11px;
+}
+
+.sequence-state-card__outputs {
+  display: grid;
+  gap: 6px;
+}
+
+.sequence-state-card__output {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+}
+
+.sequence-state-card__output span {
+  color: var(--muted);
+}
+
+.sequence-state-card__output strong {
+  font-size: 12px;
+}
+
+.sequence-state-card__empty {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.sequence-transition-link {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 80px;
+}
+
+.sequence-transition-link::before {
+  content: "";
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(90, 177, 255, 0.28), rgba(90, 177, 255, 0.9));
+  border-radius: 999px;
+}
+
+.sequence-transition-link span {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .machine-filter-switcher button:disabled,
 .topology-open-behavior:disabled {
   cursor: not-allowed;
@@ -3725,6 +3915,14 @@ tbody tr.is-contextual {
     grid-template-columns: 1fr;
   }
 
+  .sequence-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sequence-shell__boundary--right {
+    justify-items: start;
+  }
+
   .structure-object-canvas {
     grid-template-columns: 1fr;
   }
@@ -3850,6 +4048,10 @@ tbody tr.is-contextual {
 
   .behavior-summary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .sequence-state-card {
+    width: 100%;
   }
 
   .inspector-form__field {

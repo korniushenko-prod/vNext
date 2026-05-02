@@ -356,6 +356,7 @@ function ObjectStructureCanvasInner() {
   const ensureObjectStructure = useStudioStore((state) => state.ensureObjectStructure);
   const addStructureRoute = useStudioStore((state) => state.addStructureRoute);
   const enterGraphScope = useStudioStore((state) => state.enterGraphScope);
+  const enterSequenceScope = useStudioStore((state) => state.enterSequenceScope);
   const updateStructureNodePosition = useStudioStore((state) => state.updateStructureNodePosition);
 
   const object = project.objects.find((item) => item.id === selectedObjectId) ?? project.objects[0] ?? null;
@@ -574,7 +575,20 @@ function ObjectStructureCanvasInner() {
               }}
               onNodeDoubleClick={(_, node) => {
                 const data = node.data as StructureFlowNodeData;
-                if (data.entityType !== "internal" || !data.node.refObjectId) {
+                if (data.entityType !== "internal") {
+                  return;
+                }
+
+                if (data.node.sequence) {
+                  enterSequenceScope(data.node.id);
+                  selectItem("subobject", data.node.id, {
+                    objectId: object.id,
+                    machineId: object.behavior?.machineId ?? null
+                  });
+                  return;
+                }
+
+                if (!data.node.refObjectId) {
                   return;
                 }
 
