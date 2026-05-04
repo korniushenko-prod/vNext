@@ -1,55 +1,65 @@
-# vNext
+# ESP32-C3 Relay / Flow / PID / Sequence Controller
 
-Single integration repository for the next-generation universal PLC platform.
+Local ESP32-C3 based automation controller for:
+- 4 relay outputs
+- configurable DI/AI/Pulse inputs
+- flowmeter and totalizers
+- PID control
+- PWM/DC motor control
+- Step/Dir stepper control
+- alarms and trips
+- rule engine
+- sequence engine for step-by-step process programs
+- Web UI
+- HTTP API
+- MQTT
 
-## Product Split
+## Project status
 
-- `universal_plc`: editor/model/authoring/materializer base
-- `ShipController`: runtime/hardware/target execution base
+Stage 1: versioned config model and validator.
 
-## Current State
+No runtime logic is implemented yet.
 
-The initial foundation phase is closed. The repository now contains:
+## Main concept
 
-- frozen generic platform baselines through `Wave 18`
-- frozen pilot MVP `PumpSkidSupervisor v1`
-- frozen verification, sign-off, and controlled-rollout repo bundle
-- one active external track for real bench validation
+This project is data-driven.
 
-Canonical snapshot:
-- [Current State Snapshot](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\merge\current-state-snapshot.md)
-- [Machine-First Goal And Version Roadmap](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\merge\machine-first-goal-and-version-roadmap-v1.md)
+Templates generate configuration.
+Runtime executes configuration.
 
-## Active Track
+The firmware should not contain hardcoded application-only algorithms for pumps, burners or incinerators.
 
-Active track marker:
-- `PR-35A — Controlled Pilot Bench Execution`
+## Core modules
 
-Current rule:
+- HAL for all hardware access
+- SignalRegistry as unified runtime signal layer
+- ActuatorManager for arbitration and safe output ownership
+- TimerService for timing and deterministic tests
+- Alarm and trip services
+- ConditionTree for shared condition evaluation
+- Sequence Engine for step-by-step programs
+- Rule and logic layers
+- Flowmeter, totalizer and PID services
+- Storage, API and embedded Web UI
 
-- do not open a new wave
-- do not reopen foundation
-- do not expand package/library scope
-- only close real bench deploy/apply/readback/reboot/persistence/operator evidence for the frozen controlled pilot bundle
+## Local-first operation
 
-Forward planning note:
+The controller is intended to run locally on the device.
 
-- historical Waves 5 through 18 remain frozen implementation history
-- forward product language is now rebased around the machine-first roadmap in [Machine-First Goal And Version Roadmap](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\merge\machine-first-goal-and-version-roadmap-v1.md)
-- the active bench track remains the only execution track until `PR-35A` is closed
+Primary operation must remain possible without cloud dependencies. Remote integrations such as MQTT are secondary and must not replace local control and local diagnostics.
 
-Primary references for the active track:
+## Safety
 
-- [Controlled Pilot Scope](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\pilot\controlled-pilot-scope.md)
-- [Controlled Pilot Acceptance Gates](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\pilot\controlled-pilot-acceptance-gates.md)
-- [Controlled Pilot Environment Manifest](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\pilot\controlled-pilot-environment-manifest.md)
-- [Controlled Pilot Harness](c:\Users\Administrator\Documents\PlatformIO\Projects\vNext\docs\pilot\pumpskid-v1-deploy-apply-readback-harness.md)
+This is not a certified safety PLC or certified burner management system.
 
-## Primary Directories
+External hardware safety devices are required for real machinery.
 
-- `docs`
-- `apps`
-- `packages`
-- `targets`
-- `tools`
-- `tests`
+Safety and Trip states must always override Manual, PID, Sequence and Rules.
+
+## Architecture
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md).

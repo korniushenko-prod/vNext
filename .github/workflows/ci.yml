@@ -1,0 +1,61 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate-foundation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Stage 0 structure
+        run: |
+          test -f README.md
+          test -f ROADMAP.md
+          test -f AGENTS.md
+          test -f docs/PRODUCT_SPEC.md
+          test -f docs/ARCHITECTURE.md
+          test -f docs/SAFETY.md
+          test -f docs/GLOSSARY.md
+          test -f docs/DECISIONS.md
+          test -f firmware/README.md
+          test -d firmware/components/hal
+          test -d firmware/components/signals
+          test -d firmware/components/actuators
+          test -d firmware/components/timers
+          test -d firmware/components/alarms
+          test -d firmware/components/conditions
+          test -d firmware/components/logic
+          test -d firmware/components/sequence
+          test -d firmware/components/flow
+          test -d firmware/components/pid
+          test -d firmware/components/storage
+          test -d firmware/components/api
+          test -f webui/README.md
+          test -f tests/README.md
+          test -f hardware/README.md
+          test -f hardware/BOARD_TEMPLATE.md
+          test -f docs/CONFIG_MODEL.md
+          test -f firmware/components/config/include/config/config_model.hpp
+          test -f firmware/components/config/include/config/config_types.hpp
+          test -f firmware/components/config/include/config/config_validation.hpp
+          test -f firmware/components/config/include/config/config_defaults.hpp
+          test -f firmware/components/config/src/config_validation.cpp
+          test -f firmware/components/config/src/config_defaults.cpp
+          test -f tests/config/test_config_defaults.cpp
+          test -f tests/config/test_config_validation.cpp
+      - name: Build and run config tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic -Ifirmware/components/config/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            tests/config/test_config_defaults.cpp \
+            -o test_config_defaults
+          ./test_config_defaults
+          g++ -std=c++17 -Wall -Wextra -pedantic -Ifirmware/components/config/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            tests/config/test_config_validation.cpp \
+            -o test_config_validation
+          ./test_config_validation
