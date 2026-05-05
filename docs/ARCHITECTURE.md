@@ -68,7 +68,10 @@ Owns generic PID computation and delegates effective output requests through Act
 
 ### Storage
 
-Owns configuration persistence, backup copies, integrity checks and protected counters.
+Owns typed configuration persistence, backup copies, integrity checks, factory reset behavior, protected counters and storage event recording.
+
+Stage 2 uses only a backend abstraction plus in-memory/mock backend.
+Public config serialization and real ESP32 persistence backends are postponed.
 
 ### API
 

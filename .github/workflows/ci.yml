@@ -43,8 +43,23 @@ jobs:
           test -f firmware/components/config/include/config/config_defaults.hpp
           test -f firmware/components/config/src/config_validation.cpp
           test -f firmware/components/config/src/config_defaults.cpp
+          test -f firmware/components/storage/README.md
+          test -f firmware/components/storage/include/storage/storage_types.hpp
+          test -f firmware/components/storage/include/storage/storage_backend.hpp
+          test -f firmware/components/storage/include/storage/storage_crc.hpp
+          test -f firmware/components/storage/include/storage/storage_service.hpp
+          test -f firmware/components/storage/include/storage/storage_totalizers.hpp
+          test -f firmware/components/storage/include/storage/storage_event_log.hpp
+          test -f firmware/components/storage/src/storage_crc.cpp
+          test -f firmware/components/storage/src/storage_service.cpp
+          test -f firmware/components/storage/src/storage_event_log.cpp
+          test -f docs/STORAGE.md
           test -f tests/config/test_config_defaults.cpp
           test -f tests/config/test_config_validation.cpp
+          test -f tests/storage/test_storage_config_slots.cpp
+          test -f tests/storage/test_storage_factory_reset.cpp
+          test -f tests/storage/test_storage_totalizers.cpp
+          test -f tests/storage/test_storage_event_log.cpp
       - name: Build and run config tests
         run: |
           g++ -std=c++17 -Wall -Wextra -pedantic -Ifirmware/components/config/include \
@@ -59,3 +74,49 @@ jobs:
             tests/config/test_config_validation.cpp \
             -o test_config_validation
           ./test_config_validation
+      - name: Build and run storage tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/storage/test_storage_config_slots.cpp \
+            -o test_storage_config_slots
+          ./test_storage_config_slots
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/storage/test_storage_factory_reset.cpp \
+            -o test_storage_factory_reset
+          ./test_storage_factory_reset
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/storage/test_storage_totalizers.cpp \
+            -o test_storage_totalizers
+          ./test_storage_totalizers
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/storage/test_storage_event_log.cpp \
+            -o test_storage_event_log
+          ./test_storage_event_log

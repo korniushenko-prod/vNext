@@ -23,3 +23,8 @@
 - Validation is host-side testable.
 - Runtime will execute validated config only.
 - JSON parser and import are postponed.
+- Storage is typed and backend-abstracted.
+- Storage starts with an in-memory/mock backend before any ESP32 persistence backend.
+- Public config serialization/import-export is postponed even though storage has an internal deterministic snapshot format.
+- Protected lifetime totalizers survive both normal reset and factory reset.
+- `load_best_available_config()` fallback order is active, then backup, then factory default.

@@ -155,6 +155,8 @@ Later stages will add:
 - full signal existence validation through SignalRegistry
 - runtime apply and rollback flows
 
+Stage 2 adds storage-specific internal snapshots for deterministic CRC and persistence tests, but that internal snapshot is not the public config format.
+
 Also intentionally postponed:
 - HAL-backed hardware probing
 - API-level config transport

@@ -16,7 +16,7 @@ Local ESP32-C3 based automation controller for:
 
 ## Project status
 
-Stage 1: versioned config model and validator.
+Stage 2: typed storage service with config slots, CRC/integrity, protected totalizers and event log skeleton.
 
 No runtime logic is implemented yet.
 
@@ -41,6 +41,17 @@ The firmware should not contain hardcoded application-only algorithms for pumps,
 - Rule and logic layers
 - Flowmeter, totalizer and PID services
 - Storage, API and embedded Web UI
+
+## Storage status
+
+Storage now includes:
+- typed active and backup config slots
+- deterministic internal config snapshot with CRC32
+- in-memory/mock backend only
+- protected lifetime totalizers
+- event log skeleton
+
+See [docs/STORAGE.md](docs/STORAGE.md).
 
 ## Local-first operation
 
