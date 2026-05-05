@@ -9,3 +9,7 @@ Expected future direction:
 - fake clock
 - deterministic host-side tests
 - no dependence on live hardware for core runtime validation
+
+Current host-side suites:
+- `tests/config`
+- `tests/storage`
