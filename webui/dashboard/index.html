@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Program Dashboard</title>
+    <link rel="stylesheet" href="./dashboard.css" />
+  </head>
+  <body>
+    <main class="dashboard-shell">
+      <header class="hero panel reveal">
+        <div>
+          <p class="eyebrow">Embedded Program Dashboard</p>
+          <h1>Process program status</h1>
+          <p class="hero-copy">
+            Mechanics-first view of the active program, current step, blockers, outputs, alarms and recent control
+            history.
+          </p>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-chip">
+            <span class="meta-label">Last refresh</span>
+            <strong id="last-refresh">Waiting</strong>
+          </div>
+          <div class="meta-chip">
+            <span class="meta-label">Transport code</span>
+            <strong id="transport-code">DASHBOARD_DATA_UNAVAILABLE</strong>
+          </div>
+        </div>
+      </header>
+
+      <section id="error-banner" class="banner banner-error hidden reveal" aria-live="polite"></section>
+      <section id="message-banner" class="banner banner-info hidden reveal" aria-live="polite"></section>
+
+      <section class="summary-grid reveal">
+        <article class="panel summary-card">
+          <span class="summary-label">Active Program</span>
+          <strong id="summary-program" class="summary-value">No active program</strong>
+          <span id="summary-lifecycle" class="summary-subtle">idle</span>
+        </article>
+        <article class="panel summary-card">
+          <span class="summary-label">Current Step</span>
+          <strong id="summary-state" class="summary-value">Waiting</strong>
+          <span id="summary-state-type" class="summary-subtle">generic</span>
+        </article>
+        <article class="panel summary-card">
+          <span class="summary-label">Next</span>
+          <strong id="summary-next" class="summary-value">Blocked</strong>
+          <span id="summary-next-reason" class="summary-subtle">No transition data yet</span>
+        </article>
+        <article class="panel summary-card alarm-card">
+          <span class="summary-label">Active Alarms</span>
+          <strong id="summary-alarms" class="summary-value">0</strong>
+          <span id="summary-alarm-severity" class="summary-subtle">none</span>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel reveal">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Program</p>
+              <h2>Current program</h2>
+            </div>
+            <span id="program-status-badge" class="status-pill">idle</span>
+          </div>
+          <dl class="key-value-grid">
+            <div>
+              <dt>Name</dt>
+              <dd id="program-name">No active program</dd>
+            </div>
+            <div>
+              <dt>Active state</dt>
+              <dd id="program-state">Waiting</dd>
+            </div>
+            <div>
+              <dt>State elapsed</dt>
+              <dd id="program-elapsed">0.0 s</dd>
+            </div>
+            <div>
+              <dt>Last reason</dt>
+              <dd id="program-reason">No active program.</dd>
+            </div>
+            <div>
+              <dt>Pending stop</dt>
+              <dd id="program-stop-flag">No</dd>
+            </div>
+            <div>
+              <dt>Pending trip</dt>
+              <dd id="program-trip-flag">No</dd>
+            </div>
+            <div>
+              <dt>Lockout</dt>
+              <dd id="program-lockout">No</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="panel reveal">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Control</p>
+              <h2>Commands</h2>
+            </div>
+            <button id="refresh-button" class="ghost-button">Refresh</button>
+          </div>
+          <label class="field-group" for="program-select">
+            <span>Program to start</span>
+            <select id="program-select"></select>
+          </label>
+          <div class="command-grid">
+            <button id="start-button" class="action-button">Start</button>
+            <button id="stop-button" class="action-button">Normal Stop</button>
+            <button id="trip-button" class="action-button danger-button">Trip</button>
+            <button id="reset-button" class="action-button">Reset</button>
+          </div>
+          <div class="command-explanations">
+            <p><strong>Start:</strong> <span id="start-reason">Ready.</span></p>
+            <p><strong>Normal Stop:</strong> <span id="stop-reason">Ready.</span></p>
+            <p><strong>Trip:</strong> <span id="trip-reason">Ready.</span></p>
+            <p><strong>Reset:</strong> <span id="reset-reason">Ready.</span></p>
+          </div>
+        </article>
+
+        <article class="panel reveal wide-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Transitions</p>
+              <h2>Transition blockers</h2>
+            </div>
+            <span id="transition-count" class="status-pill subtle-pill">0 candidates</span>
+          </div>
+          <section id="blocked-by" class="blocked-panel">
+            <h3>Blocked by</h3>
+            <div id="blocked-by-list" class="stack-list empty-state">No transition blockers.</div>
+          </section>
+          <div id="transition-list" class="stack-list"></div>
+        </article>
+
+        <article class="panel reveal">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Outputs</p>
+              <h2>Active outputs</h2>
+            </div>
+          </div>
+          <div id="outputs-list" class="stack-list empty-state">No actuator data.</div>
+        </article>
+
+        <article class="panel reveal">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Alarms</p>
+              <h2>Active alarms</h2>
+            </div>
+          </div>
+          <div id="alarms-summary" class="summary-strip"></div>
+          <div id="alarms-list" class="stack-list empty-state">No active alarms.</div>
+        </article>
+
+        <article class="panel reveal wide-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">History</p>
+              <h2>Recent history</h2>
+            </div>
+          </div>
+          <div id="history-list" class="history-list empty-state">No recent history.</div>
+        </article>
+      </section>
+    </main>
+
+    <script src="./dashboard.js"></script>
+  </body>
+</html>

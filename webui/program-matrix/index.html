@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Program Output Matrix</title>
+    <link rel="stylesheet" href="matrix.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Stage 22</p>
+          <h1>Program Output Matrix</h1>
+          <p class="hero-copy">
+            Read-only descriptor view for mechanics and commissioning. Matrix cells show persistent
+            <code>active_actions</code> only, not final runtime arbitration.
+          </p>
+        </div>
+        <div class="toolbar">
+          <label class="selector">
+            <span>Program</span>
+            <select id="programSelector"></select>
+          </label>
+          <button id="refreshButton" type="button">Refresh</button>
+        </div>
+      </header>
+
+      <section class="summary-card" id="runtimeBanner"></section>
+
+      <section class="panel-grid">
+        <section class="panel matrix-panel">
+          <div class="panel-header">
+            <div>
+              <h2 id="matrixTitle">No program selected</h2>
+              <p id="readOnlyNote"></p>
+            </div>
+          </div>
+          <div id="emptyState" class="empty-state"></div>
+          <div id="matrixWrap" class="matrix-wrap"></div>
+        </section>
+
+        <aside class="panel side-panel">
+          <div class="stack-block">
+            <h2>Warnings</h2>
+            <div id="warningsPanel" class="stack-list"></div>
+          </div>
+          <div class="stack-block">
+            <h2>State Detail</h2>
+            <div id="detailPanel" class="stack-list"></div>
+          </div>
+          <div class="stack-block">
+            <h2>Legend</h2>
+            <div id="legendPanel" class="stack-list"></div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="matrix.js"></script>
+  </body>
+</html>

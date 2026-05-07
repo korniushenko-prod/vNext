@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rules Status</title>
+    <link rel="stylesheet" href="./rules.css" />
+  </head>
+  <body>
+    <main class="rules-shell">
+      <header class="hero panel reveal">
+        <div>
+          <p class="eyebrow">Embedded Rules Status</p>
+          <h1>Read-only rule status</h1>
+          <p class="hero-copy">
+            Mechanics-first on-device view for checking rule status, summaries, validation issues and the latest
+            evaluation trace without enabling rule editing on hardware.
+          </p>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-chip">
+            <span class="meta-label">Last refresh</span>
+            <strong id="last-refresh">Waiting</strong>
+          </div>
+          <div class="meta-chip">
+            <span class="meta-label">Transport code</span>
+            <strong id="transport-code">RULES_UI_DATA_UNAVAILABLE</strong>
+          </div>
+        </div>
+      </header>
+
+      <section id="error-banner" class="banner banner-error hidden reveal" aria-live="polite"></section>
+      <section id="message-banner" class="banner banner-info hidden reveal" aria-live="polite"></section>
+      <section id="validation-banner" class="banner banner-warning hidden reveal" aria-live="polite"></section>
+
+      <section class="command-bar panel reveal">
+        <span class="status-pill subtle-pill">Stage 28 hardware page is read-only</span>
+        <button id="refresh-button" class="ghost-button">Refresh</button>
+      </section>
+
+      <section class="layout-grid">
+        <aside class="panel reveal list-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Rules</p>
+              <h2>Rule list</h2>
+            </div>
+            <span id="rule-count" class="status-pill subtle-pill">0 rules</span>
+          </div>
+          <div id="rule-list" class="card-list empty-state">No rules loaded.</div>
+        </aside>
+
+        <section class="detail-stack">
+          <article class="panel reveal">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Status</p>
+                <h2>Rule detail</h2>
+              </div>
+              <span id="detail-status" class="status-pill">inactive</span>
+            </div>
+            <div id="detail-summary" class="summary-strip empty-state">Select a rule to inspect its runtime status.</div>
+          </article>
+
+          <article class="panel reveal">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Metadata</p>
+                <h2>Rule metadata</h2>
+              </div>
+            </div>
+            <dl class="key-value-grid">
+              <div>
+                <dt>Rule ID</dt>
+                <dd id="field-id">Waiting</dd>
+              </div>
+              <div>
+                <dt>Rule name</dt>
+                <dd id="field-name">Waiting</dd>
+              </div>
+              <div>
+                <dt>Enabled</dt>
+                <dd id="field-enabled">No</dd>
+              </div>
+              <div class="wide-row">
+                <dt>Description</dt>
+                <dd id="field-description">No description.</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="panel reveal">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Summary</p>
+                <h2>IF / THEN</h2>
+              </div>
+            </div>
+            <div id="condition-builder" class="builder-stack empty-state">No rule summary yet.</div>
+          </article>
+
+          <article class="panel reveal">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Validation</p>
+                <h2>Validation issues</h2>
+              </div>
+            </div>
+            <div id="action-builder" class="builder-stack empty-state">No validation issues.</div>
+          </article>
+
+          <article class="panel reveal">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Trace</p>
+                <h2>Current evaluation trace</h2>
+              </div>
+            </div>
+            <div id="trace-list" class="trace-list empty-state">No current evaluation trace.</div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="./rules.js"></script>
+  </body>
+</html>

@@ -2,7 +2,10 @@
 
 ## Summary
 
-ESP32-C3 Relay / Flow / PID / Sequence Controller is a local automation controller intended to support compact machine and process control with a mechanics-friendly user experience and a validated expert mode for advanced setups.
+ESP32 Relay / Flow / PID / Sequence Controller is a local automation controller intended to support compact machine and process control with a mechanics-friendly user experience and a validated expert mode for advanced setups.
+
+The architecture is board-agnostic.
+The current primary bring-up target is ESP32 on LILYGO T3 V1.6.1 / LoRa32 V2.1.6.
 
 ## Scope
 

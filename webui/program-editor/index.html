@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Program Step Editor</title>
+    <link rel="stylesheet" href="editor.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Stage 21</p>
+        <h1>Program Step Editor</h1>
+        <p class="hero-copy">
+          Form-based sequence editing for loading, reviewing, previewing and safely saving existing programs.
+        </p>
+      </div>
+      <div class="transport-card">
+        <p>Transport</p>
+        <strong id="transport-code">PROGRAM_EDITOR_OK</strong>
+        <span id="last-refresh">Waiting</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel">
+        <div class="panel-header">
+          <h2>Programs</h2>
+          <button id="refresh-button" type="button">Refresh</button>
+        </div>
+        <p class="hint">Load an existing program. Active programs stay read-only for save and delete.</p>
+        <div id="program-list" class="stack-list"></div>
+      </aside>
+
+      <section class="workspace">
+        <div id="error-banner" class="banner error hidden"></div>
+        <div id="message-banner" class="banner info hidden"></div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Command Bar</h2>
+            <span id="command-banner" class="pill"></span>
+          </div>
+          <div class="command-row">
+            <button id="save-button" type="button">Save</button>
+            <button id="delete-button" type="button">Delete</button>
+            <button id="enable-button" type="button">Enable</button>
+            <button id="disable-button" type="button">Disable</button>
+            <button id="preview-button" type="button">Preview</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Metadata</h2>
+          <div class="form-grid">
+            <label>
+              Program ID
+              <input id="program-id" type="text" readonly />
+            </label>
+            <label>
+              Name
+              <input id="program-name" type="text" />
+            </label>
+            <label>
+              Type
+              <select id="program-type"></select>
+            </label>
+            <label class="checkbox">
+              <input id="program-enabled" type="checkbox" />
+              Enabled
+            </label>
+            <label class="wide">
+              Description
+              <textarea id="program-description" rows="3"></textarea>
+            </label>
+            <label>
+              Initial State
+              <select id="initial-state-id"></select>
+            </label>
+            <label>
+              Normal Stop State
+              <select id="normal-stop-state-id"></select>
+            </label>
+            <label>
+              Trip State
+              <select id="trip-state-id"></select>
+            </label>
+            <label>
+              Lockout State
+              <select id="lockout-state-id"></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="grid-two">
+          <section class="panel">
+            <h2>Runtime Status</h2>
+            <div id="runtime-panel" class="stack-list"></div>
+          </section>
+
+          <section class="panel">
+            <h2>Start / Reset Conditions</h2>
+            <div class="condition-grid">
+              <label>
+                Start Condition Summary
+                <textarea id="start-condition" rows="5"></textarea>
+              </label>
+              <label>
+                Reset Condition Summary
+                <textarea id="reset-condition" rows="5"></textarea>
+              </label>
+            </div>
+          </section>
+        </section>
+
+        <section class="grid-two">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>States</h2>
+              <div class="button-strip">
+                <button id="add-state-button" type="button">Add</button>
+                <button id="clone-state-button" type="button">Clone</button>
+                <button id="remove-state-button" type="button">Remove</button>
+                <button id="move-state-up-button" type="button">Up</button>
+                <button id="move-state-down-button" type="button">Down</button>
+              </div>
+            </div>
+            <div id="states-list" class="stack-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>State Detail</h2>
+              <span id="selected-state-label" class="pill subtle"></span>
+            </div>
+            <div id="state-detail" class="stack-list"></div>
+          </section>
+        </section>
+
+        <section class="grid-two">
+          <section class="panel">
+            <h2>Validation Issues</h2>
+            <div id="issues-panel" class="stack-list"></div>
+          </section>
+
+          <section class="panel">
+            <h2>Preview</h2>
+            <div id="preview-panel" class="stack-list"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="editor.js"></script>
+  </body>
+</html>

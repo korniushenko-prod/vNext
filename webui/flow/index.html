@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flow Dashboard</title>
+    <link rel="stylesheet" href="./flow.css" />
+  </head>
+  <body>
+    <main class="flow-shell">
+      <header class="hero panel reveal">
+        <div>
+          <p class="eyebrow">Embedded Flow Dashboard</p>
+          <h1>Runtime flowmeter view</h1>
+          <p class="hero-copy">
+            Narrow mechanics-first page for current rate, totals, batch state, no-flow and high-flow attention,
+            recent history and 24h-style trend buckets.
+          </p>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-chip">
+            <span class="meta-label">Last refresh</span>
+            <strong id="last-refresh">Waiting</strong>
+          </div>
+          <div class="meta-chip">
+            <span class="meta-label">Transport code</span>
+            <strong id="transport-code">FLOW_UI_DATA_UNAVAILABLE</strong>
+          </div>
+        </div>
+      </header>
+
+      <section id="error-banner" class="banner banner-error hidden reveal" aria-live="polite"></section>
+      <section id="message-banner" class="banner banner-info hidden reveal" aria-live="polite"></section>
+
+      <section class="layout-grid">
+        <aside class="panel reveal side-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Flowmeters</p>
+              <h2>Registered list</h2>
+            </div>
+            <button id="refresh-button" class="ghost-button">Refresh</button>
+          </div>
+          <div id="flow-list" class="list-stack empty-state">No flowmeters registered.</div>
+        </aside>
+
+        <section class="main-grid">
+          <div class="summary-grid reveal">
+            <article class="panel summary-card">
+              <span class="summary-label">Selected flowmeter</span>
+              <strong id="summary-name" class="summary-value">Waiting</strong>
+              <span id="summary-unit" class="summary-subtle">unit</span>
+            </article>
+            <article class="panel summary-card rate-card">
+              <span class="summary-label">Current rate</span>
+              <strong id="summary-rate" class="summary-rate">0.00</strong>
+              <span id="summary-rate-unit" class="summary-subtle">unit/min</span>
+            </article>
+            <article class="panel summary-card">
+              <span class="summary-label">Lifetime total</span>
+              <strong id="summary-lifetime" class="summary-value">0.00 unit</strong>
+              <span id="summary-protected" class="summary-subtle">Protected total</span>
+            </article>
+            <article class="panel summary-card">
+              <span class="summary-label">Batch total</span>
+              <strong id="summary-batch" class="summary-value">0.00 unit</strong>
+              <span id="summary-batch-target" class="summary-subtle">Descriptor default</span>
+            </article>
+          </div>
+
+          <div class="content-grid">
+            <article class="panel reveal">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Status</p>
+                  <h2>Runtime summary</h2>
+                </div>
+              </div>
+              <div id="status-badges" class="badge-row"></div>
+              <div class="status-banner">
+                <span id="runtime-state" class="status-pill subtle-pill">Waiting for runtime data</span>
+                <p id="runtime-state-detail" class="status-detail">Safe default diagnostics will appear here.</p>
+              </div>
+              <dl class="key-value-grid">
+                <div>
+                  <dt>Trip total</dt>
+                  <dd id="trip-total">0.00 unit</dd>
+                </div>
+                <div>
+                  <dt>Raw pulse lifetime</dt>
+                  <dd id="raw-pulses">0 pulses</dd>
+                </div>
+                <div>
+                  <dt>Time-window rate</dt>
+                  <dd id="time-window-rate">0.00 unit/min</dd>
+                </div>
+                <div>
+                  <dt>Pulse-frequency rate</dt>
+                  <dd id="pulse-frequency-rate">0.00 unit/min</dd>
+                </div>
+                <div>
+                  <dt>Average-N rate</dt>
+                  <dd id="avg-n-rate">0.00 unit/min</dd>
+                </div>
+                <div>
+                  <dt>Last pulse age</dt>
+                  <dd id="last-pulse-age">0 ms</dd>
+                </div>
+                <div class="wide-row">
+                  <dt>Last reason</dt>
+                  <dd id="last-reason">No runtime reason available yet.</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="panel reveal">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Batch control</p>
+                  <h2>Runtime controls</h2>
+                </div>
+              </div>
+              <label class="field-group" for="batch-target-override">
+                <span>Target override</span>
+                <input id="batch-target-override" type="number" step="0.01" min="0" placeholder="Use descriptor default" />
+              </label>
+              <div class="command-grid">
+                <button id="start-batch-button" class="action-button">Start Batch</button>
+                <button id="stop-batch-button" class="action-button warn-button">Stop Batch</button>
+                <button id="reset-batch-button" class="action-button">Reset Batch Total</button>
+                <button id="reset-trip-button" class="action-button">Reset Trip Total</button>
+              </div>
+              <div class="command-explanations">
+                <p><strong>Start:</strong> <span id="start-reason">Select a flowmeter.</span></p>
+                <p><strong>Stop:</strong> <span id="stop-reason">Select a flowmeter.</span></p>
+              </div>
+            </article>
+
+            <article class="panel reveal wide-panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Trend</p>
+                  <h2>24h-style bucket view</h2>
+                </div>
+                <span id="trend-meta" class="status-pill subtle-pill">No trend data yet</span>
+              </div>
+              <div id="trend-empty" class="empty-state">No trend data yet.</div>
+              <svg id="trend-chart" class="trend-chart hidden" viewBox="0 0 640 240" role="img" aria-label="Flow trend chart"></svg>
+            </article>
+
+            <article class="panel reveal wide-panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">History</p>
+                  <h2>Recent history</h2>
+                </div>
+              </div>
+              <div id="history-list" class="history-list empty-state">No history.</div>
+            </article>
+
+            <article class="panel reveal wide-panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Descriptor</p>
+                  <h2>Read-only summary</h2>
+                </div>
+                <span class="status-pill subtle-pill">Setup editing postponed</span>
+              </div>
+              <p class="descriptor-note">
+                Descriptor editing is intentionally postponed until a shared config-adapter layer and safe source catalog
+                exist. This page is runtime-only in Stage 15.
+              </p>
+              <div id="descriptor-grid" class="descriptor-grid"></div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./flow.js"></script>
+  </body>
+</html>

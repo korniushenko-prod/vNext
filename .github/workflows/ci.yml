@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate Stage 0 structure
+      - name: Validate RC docs and firmware structure
         run: |
           test -f README.md
           test -f ROADMAP.md
@@ -31,6 +31,7 @@ jobs:
           test -d firmware/components/flow
           test -d firmware/components/pid
           test -d firmware/components/storage
+          test -d firmware/components/display
           test -d firmware/components/api
           test -f webui/README.md
           test -f tests/README.md
@@ -43,6 +44,111 @@ jobs:
           test -f firmware/components/config/include/config/config_defaults.hpp
           test -f firmware/components/config/src/config_validation.cpp
           test -f firmware/components/config/src/config_defaults.cpp
+          test -f firmware/components/hal/README.md
+          test -f firmware/components/hal/include/hal/hal_common.hpp
+          test -f firmware/components/hal/include/hal/relay_hal.hpp
+          test -f firmware/components/hal/include/hal/digital_input_hal.hpp
+          test -f firmware/components/hal/include/hal/analog_input_hal.hpp
+          test -f firmware/components/hal/include/hal/pulse_input_hal.hpp
+          test -f firmware/components/hal/include/hal/pwm_hal.hpp
+          test -f firmware/components/hal/include/hal/stepper_hal.hpp
+          test -f firmware/components/hal/include/hal/display_hal.hpp
+          test -f firmware/components/hal/include/hal/mock_hal.hpp
+          test -f firmware/components/hal/src/mock_relay_hal.cpp
+          test -f firmware/components/hal/src/mock_digital_input_hal.cpp
+          test -f firmware/components/hal/src/mock_analog_input_hal.cpp
+          test -f firmware/components/hal/src/mock_pulse_input_hal.cpp
+          test -f firmware/components/hal/src/mock_pwm_hal.cpp
+          test -f firmware/components/hal/src/mock_stepper_hal.cpp
+          test -f firmware/components/hal/src/mock_display_hal.cpp
+          test -f firmware/components/signals/README.md
+          test -f firmware/components/signals/include/signals/signal_types.hpp
+          test -f firmware/components/signals/include/signals/signal_value.hpp
+          test -f firmware/components/signals/include/signals/signal_descriptor.hpp
+          test -f firmware/components/signals/include/signals/signal_registry.hpp
+          test -f firmware/components/signals/src/signal_registry.cpp
+          test -f firmware/components/actuators/README.md
+          test -f firmware/components/actuators/include/actuators/actuator_types.hpp
+          test -f firmware/components/actuators/include/actuators/actuator_manager.hpp
+          test -f firmware/components/actuators/include/actuators/motor_types.hpp
+          test -f firmware/components/actuators/include/actuators/motor_descriptor.hpp
+          test -f firmware/components/actuators/include/actuators/motor_snapshot.hpp
+          test -f firmware/components/actuators/include/actuators/motor_history.hpp
+          test -f firmware/components/actuators/include/actuators/motor_result.hpp
+          test -f firmware/components/actuators/include/actuators/motor_service.hpp
+          test -f firmware/components/actuators/include/actuators/stepper_types.hpp
+          test -f firmware/components/actuators/include/actuators/stepper_descriptor.hpp
+          test -f firmware/components/actuators/include/actuators/stepper_snapshot.hpp
+          test -f firmware/components/actuators/include/actuators/stepper_history.hpp
+          test -f firmware/components/actuators/include/actuators/stepper_result.hpp
+          test -f firmware/components/actuators/include/actuators/stepper_service.hpp
+          test -f firmware/components/actuators/src/actuator_manager.cpp
+          test -f firmware/components/actuators/src/motor_history.cpp
+          test -f firmware/components/actuators/src/motor_service.cpp
+          test -f firmware/components/actuators/src/stepper_history.cpp
+          test -f firmware/components/actuators/src/stepper_service.cpp
+          test -f firmware/components/timers/README.md
+          test -f firmware/components/timers/include/timers/timer_types.hpp
+          test -f firmware/components/timers/include/timers/timer_descriptor.hpp
+          test -f firmware/components/timers/include/timers/timer_snapshot.hpp
+          test -f firmware/components/timers/include/timers/timer_result.hpp
+          test -f firmware/components/timers/include/timers/timer_service.hpp
+          test -f firmware/components/timers/src/timer_service.cpp
+          test -f firmware/components/alarms/README.md
+          test -f firmware/components/alarms/include/alarms/alarm_types.hpp
+          test -f firmware/components/alarms/include/alarms/alarm_descriptor.hpp
+          test -f firmware/components/alarms/include/alarms/alarm_snapshot.hpp
+          test -f firmware/components/alarms/include/alarms/alarm_result.hpp
+          test -f firmware/components/alarms/include/alarms/alarm_history.hpp
+          test -f firmware/components/alarms/include/alarms/alarm_service.hpp
+          test -f firmware/components/alarms/src/alarm_history.cpp
+          test -f firmware/components/alarms/src/alarm_service.cpp
+          test -f firmware/components/conditions/README.md
+          test -f firmware/components/conditions/include/conditions/condition_types.hpp
+          test -f firmware/components/conditions/include/conditions/condition_value.hpp
+          test -f firmware/components/conditions/include/conditions/condition_node.hpp
+          test -f firmware/components/conditions/include/conditions/condition_tree.hpp
+          test -f firmware/components/conditions/include/conditions/condition_trace.hpp
+          test -f firmware/components/conditions/include/conditions/condition_result.hpp
+          test -f firmware/components/conditions/include/conditions/condition_evaluator.hpp
+          test -f firmware/components/conditions/src/condition_evaluator.cpp
+          test -f firmware/components/logic/README.md
+          test -f firmware/components/logic/include/logic/logic_types.hpp
+          test -f firmware/components/logic/include/logic/rule_action.hpp
+          test -f firmware/components/logic/include/logic/rule_descriptor.hpp
+          test -f firmware/components/logic/include/logic/rule_snapshot.hpp
+          test -f firmware/components/logic/include/logic/rule_history.hpp
+          test -f firmware/components/logic/include/logic/rule_result.hpp
+          test -f firmware/components/logic/include/logic/logic_service.hpp
+          test -f firmware/components/logic/src/logic_service.cpp
+          test -f firmware/components/logic/src/rule_history.cpp
+          test -f firmware/components/sequence/README.md
+          test -f firmware/components/sequence/include/sequence/sequence_types.hpp
+          test -f firmware/components/sequence/include/sequence/sequence_action.hpp
+          test -f firmware/components/sequence/include/sequence/sequence_transition.hpp
+          test -f firmware/components/sequence/include/sequence/sequence_state.hpp
+          test -f firmware/components/sequence/include/sequence/sequence_program.hpp
+          test -f firmware/components/sequence/include/sequence/sequence_snapshot.hpp
+          test -f firmware/components/sequence/include/sequence/sequence_history.hpp
+          test -f firmware/components/sequence/include/sequence/sequence_result.hpp
+          test -f firmware/components/sequence/include/sequence/sequence_service.hpp
+          test -f firmware/components/sequence/include/sequence/program_matrix_result.hpp
+          test -f firmware/components/sequence/include/sequence/program_matrix_types.hpp
+          test -f firmware/components/sequence/include/sequence/program_matrix_builder.hpp
+          test -f firmware/components/sequence/src/sequence_history.cpp
+          test -f firmware/components/sequence/src/sequence_service.cpp
+          test -f firmware/components/sequence/src/program_matrix_builder.cpp
+          test -f firmware/components/api/README.md
+          test -f firmware/components/api/include/api/api_types.hpp
+          test -f firmware/components/api/include/api/api_result.hpp
+          test -f firmware/components/api/include/api/sequence_api_types.hpp
+          test -f firmware/components/api/include/api/sequence_api_service.hpp
+          test -f firmware/components/api/include/api/program_matrix_api_types.hpp
+          test -f firmware/components/api/include/api/program_matrix_api_service.hpp
+          test -f firmware/components/api/include/api/web_program_matrix_adapter.hpp
+          test -f firmware/components/api/src/sequence_api_service.cpp
+          test -f firmware/components/api/src/program_matrix_api_service.cpp
+          test -f firmware/components/api/src/web_program_matrix_adapter.cpp
           test -f firmware/components/storage/README.md
           test -f firmware/components/storage/include/storage/storage_types.hpp
           test -f firmware/components/storage/include/storage/storage_backend.hpp
@@ -54,12 +160,365 @@ jobs:
           test -f firmware/components/storage/src/storage_service.cpp
           test -f firmware/components/storage/src/storage_event_log.cpp
           test -f docs/STORAGE.md
+          test -f firmware/components/flow/README.md
+          test -f firmware/components/flow/include/flow/flow_types.hpp
+          test -f firmware/components/flow/include/flow/flow_descriptor.hpp
+          test -f firmware/components/flow/include/flow/flow_snapshot.hpp
+          test -f firmware/components/flow/include/flow/flow_history.hpp
+          test -f firmware/components/flow/include/flow/flow_result.hpp
+          test -f firmware/components/flow/include/flow/flow_service.hpp
+          test -f firmware/components/flow/src/flow_history.cpp
+          test -f firmware/components/flow/src/flow_service.cpp
+          test -f docs/FLOW.md
+          test -f docs/PID.md
+          test -f docs/PID_SERVICE.md
+          test -f docs/MOTOR.md
+          test -f docs/STEPPER.md
+          test -f docs/MQTT.md
+          test -f docs/DISPLAY.md
+          test -f docs/SIMULATOR.md
+          test -f docs/RC_CHECKLIST.md
+          test -f docs/KNOWN_ISSUES.md
+          test -f docs/RELEASE_NOTES_RC.md
+          test -f docs/TEST_MATRIX.md
+          test -f firmware/components/pid/README.md
+          test -f firmware/components/pid/include/pid/pid_types.hpp
+          test -f firmware/components/pid/include/pid/pid_config.hpp
+          test -f firmware/components/pid/include/pid/pid_snapshot.hpp
+          test -f firmware/components/pid/include/pid/pid_result.hpp
+          test -f firmware/components/pid/include/pid/pid_core.hpp
+          test -f firmware/components/pid/include/pid/pid_service_types.hpp
+          test -f firmware/components/pid/include/pid/pid_service_descriptor.hpp
+          test -f firmware/components/pid/include/pid/pid_service_snapshot.hpp
+          test -f firmware/components/pid/include/pid/pid_service_history.hpp
+          test -f firmware/components/pid/include/pid/pid_service_result.hpp
+          test -f firmware/components/pid/include/pid/pid_service.hpp
+          test -f firmware/components/pid/src/pid_core.cpp
+          test -f firmware/components/pid/src/pid_service.cpp
+          test -f firmware/components/pid/src/pid_service_history.cpp
+          test -f firmware/components/mqtt/README.md
+          test -f firmware/components/mqtt/include/mqtt/mqtt_types.hpp
+          test -f firmware/components/mqtt/include/mqtt/mqtt_descriptor.hpp
+          test -f firmware/components/mqtt/include/mqtt/mqtt_topic_mapper.hpp
+          test -f firmware/components/mqtt/include/mqtt/mqtt_client_backend.hpp
+          test -f firmware/components/mqtt/include/mqtt/mqtt_history.hpp
+          test -f firmware/components/mqtt/include/mqtt/mqtt_result.hpp
+          test -f firmware/components/mqtt/include/mqtt/mqtt_service.hpp
+          test -f firmware/components/mqtt/src/mqtt_topic_mapper.cpp
+          test -f firmware/components/mqtt/src/mqtt_service.cpp
+          test -f firmware/components/mqtt/src/mock_mqtt_client_backend.cpp
+          test -f firmware/components/display/README.md
+          test -f firmware/components/display/include/display/display_types.hpp
+          test -f firmware/components/display/include/display/display_descriptor.hpp
+          test -f firmware/components/display/include/display/display_frame.hpp
+          test -f firmware/components/display/include/display/display_snapshot.hpp
+          test -f firmware/components/display/include/display/display_history.hpp
+          test -f firmware/components/display/include/display/display_result.hpp
+          test -f firmware/components/display/include/display/display_service.hpp
+          test -f firmware/components/display/src/display_history.cpp
+          test -f firmware/components/display/src/display_service.cpp
+          test -f firmware/components/sim/README.md
+          test -f firmware/components/sim/include/sim/sim_types.hpp
+          test -f firmware/components/sim/include/sim/sim_result.hpp
+          test -f firmware/components/sim/include/sim/sim_clock.hpp
+          test -f firmware/components/sim/include/sim/sim_events.hpp
+          test -f firmware/components/sim/include/sim/sim_signal_injector.hpp
+          test -f firmware/components/sim/include/sim/sim_plant_models.hpp
+          test -f firmware/components/sim/include/sim/sim_harness.hpp
+          test -f firmware/components/sim/include/sim/sim_scenario_runner.hpp
+          test -f firmware/components/sim/src/sim_clock.cpp
+          test -f firmware/components/sim/src/sim_signal_injector.cpp
+          test -f firmware/components/sim/src/sim_plant_models.cpp
+          test -f firmware/components/sim/src/sim_harness.cpp
+          test -f firmware/components/sim/src/sim_scenario_runner.cpp
+          test -f tests/flow/README.md
+          test -f tests/flow/test_flow_service_basic.cpp
+          test -f tests/flow/test_flow_service_rates.cpp
+          test -f tests/flow/test_flow_service_batch.cpp
+          test -f tests/flow/test_flow_service_storage.cpp
+          test -f tests/flow/test_flow_service_signals.cpp
+          test -f tests/flow/test_flow_service_trend.cpp
+          test -f tests/flow/test_flow_service_errors.cpp
+          test -f tests/pid/README.md
+          test -f tests/pid/test_pid_core_basic.cpp
+          test -f tests/pid/test_pid_core_limits.cpp
+          test -f tests/pid/test_pid_core_modes.cpp
+          test -f tests/pid/test_pid_core_faults.cpp
+          test -f tests/pid/test_pid_core_step_response.cpp
+          test -f tests/pid/pid_service_test_support.hpp
+          test -f tests/pid/test_pid_service_basic.cpp
+          test -f tests/pid/test_pid_service_modes.cpp
+          test -f tests/pid/test_pid_service_signals.cpp
+          test -f tests/pid/test_pid_service_actuator.cpp
+          test -f tests/pid/test_pid_service_faults.cpp
+          test -f tests/pid/test_pid_service_history.cpp
+          test -f tests/pid/test_pid_service_errors.cpp
+          test -f tests/mqtt/README.md
+          test -f tests/mqtt/test_mqtt_topic_mapper.cpp
+          test -f tests/mqtt/test_mqtt_service_publish.cpp
+          test -f tests/mqtt/test_mqtt_service_commands_sequence.cpp
+          test -f tests/mqtt/test_mqtt_service_commands_flow.cpp
+          test -f tests/mqtt/test_mqtt_service_commands_pid.cpp
+          test -f tests/mqtt/test_mqtt_service_errors.cpp
+          test -f tests/mqtt/test_mqtt_service_history.cpp
+          test -f tests/display/README.md
+          test -f tests/display/display_test_support.hpp
+          test -f tests/display/test_display_service_main.cpp
+          test -f tests/display/test_display_service_program.cpp
+          test -f tests/display/test_display_service_flow.cpp
+          test -f tests/display/test_display_service_pid.cpp
+          test -f tests/display/test_display_service_alarms.cpp
+          test -f tests/display/test_display_service_mqtt.cpp
+          test -f tests/display/test_display_service_rotation.cpp
+          test -f tests/display/test_display_service_errors.cpp
+          test -f tests/sim/README.md
+          test -f tests/sim/sim_test_support.hpp
+          test -f tests/sim/test_sim_clock.cpp
+          test -f tests/sim/test_pressure_pump_scenario.cpp
+          test -f tests/sim/test_pid_pressure_scenario.cpp
+          test -f tests/sim/test_flow_batch_scenario.cpp
+          test -f tests/sim/test_burner_supervisory_scenario.cpp
+          test -f tests/sim/test_incinerator_supervisory_scenario.cpp
+          test -f tests/sim/test_sim_fault_injection.cpp
           test -f tests/config/test_config_defaults.cpp
           test -f tests/config/test_config_validation.cpp
           test -f tests/storage/test_storage_config_slots.cpp
           test -f tests/storage/test_storage_factory_reset.cpp
           test -f tests/storage/test_storage_totalizers.cpp
           test -f tests/storage/test_storage_event_log.cpp
+          test -f tests/hal/README.md
+          test -f tests/hal/test_relay_hal.cpp
+          test -f tests/hal/test_digital_input_hal.cpp
+          test -f tests/hal/test_analog_input_hal.cpp
+          test -f tests/hal/test_pulse_input_hal.cpp
+          test -f tests/hal/test_pwm_hal.cpp
+          test -f tests/hal/test_stepper_hal.cpp
+          test -f tests/hal/test_display_hal.cpp
+          test -f tests/signals/README.md
+          test -f tests/signals/test_signal_registry_basic.cpp
+          test -f tests/signals/test_signal_registry_errors.cpp
+          test -f tests/signals/test_signal_registry_stale.cpp
+          test -f tests/signals/test_signal_registry_virtual.cpp
+          test -f tests/actuators/README.md
+          test -f tests/actuators/test_actuator_manager_basic.cpp
+          test -f tests/actuators/test_actuator_manager_priority.cpp
+          test -f tests/actuators/test_actuator_manager_interlock.cpp
+          test -f tests/actuators/test_actuator_manager_signals.cpp
+          test -f tests/actuators/motor_service_test_support.hpp
+          test -f tests/actuators/test_motor_service_basic.cpp
+          test -f tests/actuators/test_motor_service_ramp.cpp
+          test -f tests/actuators/test_motor_service_direction.cpp
+          test -f tests/actuators/test_motor_service_faults.cpp
+          test -f tests/actuators/test_motor_service_signals.cpp
+          test -f tests/actuators/test_motor_service_history.cpp
+          test -f tests/actuators/test_motor_service_errors.cpp
+          test -f tests/actuators/stepper_service_test_support.hpp
+          test -f tests/actuators/test_stepper_service_basic.cpp
+          test -f tests/actuators/test_stepper_service_homing.cpp
+          test -f tests/actuators/test_stepper_service_move.cpp
+          test -f tests/actuators/test_stepper_service_jog.cpp
+          test -f tests/actuators/test_stepper_service_limits.cpp
+          test -f tests/actuators/test_stepper_service_faults.cpp
+          test -f tests/actuators/test_stepper_service_signals.cpp
+          test -f tests/actuators/test_stepper_service_history.cpp
+          test -f tests/actuators/test_stepper_service_errors.cpp
+          test -f tests/timers/README.md
+          test -f tests/timers/test_timer_service_basic.cpp
+          test -f tests/timers/test_timer_service_hold.cpp
+          test -f tests/timers/test_timer_service_watchdog.cpp
+          test -f tests/timers/test_timer_service_windows.cpp
+          test -f tests/timers/test_timer_service_signals.cpp
+          test -f tests/alarms/README.md
+          test -f tests/alarms/test_alarm_service_basic.cpp
+          test -f tests/alarms/test_alarm_service_latching.cpp
+          test -f tests/alarms/test_alarm_service_reset.cpp
+          test -f tests/alarms/test_alarm_service_aggregate.cpp
+          test -f tests/alarms/test_alarm_service_signals.cpp
+          test -f tests/alarms/test_alarm_service_history.cpp
+          test -f tests/conditions/README.md
+          test -f tests/conditions/test_condition_tree_basic.cpp
+          test -f tests/conditions/test_condition_tree_logic.cpp
+          test -f tests/conditions/test_condition_tree_timing.cpp
+          test -f tests/conditions/test_condition_tree_hysteresis.cpp
+          test -f tests/conditions/test_condition_tree_errors.cpp
+          test -f tests/conditions/test_condition_tree_trace.cpp
+          test -f tests/logic/README.md
+          test -f tests/logic/logic_test_support.hpp
+          test -f tests/logic/test_logic_service_basic.cpp
+          test -f tests/logic/test_logic_service_actions.cpp
+          test -f tests/logic/test_logic_service_outputs.cpp
+          test -f tests/logic/test_logic_service_programs.cpp
+          test -f tests/logic/test_logic_service_errors.cpp
+          test -f tests/logic/test_logic_service_history.cpp
+          test -f tests/logic/test_logic_service_signals.cpp
+          test -f tests/logic/test_logic_service_admin.cpp
+          test -f tests/sequence/README.md
+          test -f tests/sequence/sequence_test_support.hpp
+          test -f tests/sequence/test_sequence_service_basic.cpp
+          test -f tests/sequence/test_sequence_service_transitions.cpp
+          test -f tests/sequence/test_sequence_service_stop_trip.cpp
+          test -f tests/sequence/test_sequence_service_actions.cpp
+          test -f tests/sequence/test_sequence_service_reset.cpp
+          test -f tests/sequence/test_sequence_service_signals.cpp
+          test -f tests/sequence/test_sequence_service_history.cpp
+          test -f tests/sequence/test_program_skeleton_builder_basic.cpp
+          test -f tests/sequence/test_program_skeleton_builder_validation.cpp
+          test -f tests/sequence/test_program_skeleton_builder_generation.cpp
+          test -f tests/sequence/test_program_matrix_builder_basic.cpp
+          test -f tests/sequence/test_program_matrix_builder_cells.cpp
+          test -f tests/sequence/test_program_matrix_builder_warnings.cpp
+          test -f tests/api/README.md
+          test -f tests/api/api_test_support.hpp
+          test -f tests/api/test_sequence_api_list.cpp
+          test -f tests/api/test_sequence_api_status.cpp
+          test -f tests/api/test_sequence_api_commands.cpp
+          test -f tests/api/test_sequence_api_errors.cpp
+          test -f tests/api/test_sequence_api_history.cpp
+          test -f tests/api/rules_api_test_support.hpp
+          test -f tests/api/test_rules_api_list.cpp
+          test -f tests/api/test_rules_api_editor.cpp
+          test -f tests/api/test_rules_api_mutations.cpp
+          test -f tests/api/test_rules_api_errors.cpp
+          test -f tests/api/test_program_builder_api_catalog.cpp
+          test -f tests/api/test_program_builder_api_preview.cpp
+          test -f tests/api/test_program_builder_api_create.cpp
+          test -f tests/api/test_program_builder_api_errors.cpp
+          test -f tests/api/test_program_editor_api_load.cpp
+          test -f tests/api/test_program_editor_api_preview.cpp
+          test -f tests/api/test_program_editor_api_save.cpp
+          test -f tests/api/test_program_editor_api_errors.cpp
+          test -f tests/api/test_program_matrix_api_list.cpp
+          test -f tests/api/test_program_matrix_api_status.cpp
+          test -f tests/api/test_program_matrix_api_errors.cpp
+          test -f docs/HAL.md
+          test -f docs/SIGNALS.md
+          test -f docs/ACTUATORS.md
+          test -f docs/TIMERS.md
+          test -f docs/ALARMS.md
+          test -f docs/CONDITIONS.md
+          test -f docs/LOGIC.md
+          test -f docs/SEQUENCE.md
+          test -f docs/API.md
+          test -f docs/PROGRAM_BUILDER.md
+          test -f docs/PROGRAM_EDITOR.md
+          test -f docs/PROGRAM_MATRIX.md
+          test -f docs/WEB_DASHBOARD.md
+          test -f docs/RULES_UI.md
+          test -f docs/FLOW_UI.md
+          test -f webui/dashboard/index.html
+          test -f webui/dashboard/dashboard.css
+          test -f webui/dashboard/dashboard.js
+          test -f webui/rules/index.html
+          test -f webui/rules/rules.css
+          test -f webui/rules/rules.js
+          test -f webui/flow/index.html
+          test -f webui/flow/flow.css
+          test -f webui/flow/flow.js
+          test -f webui/program-matrix/index.html
+          test -f webui/program-matrix/matrix.css
+          test -f webui/program-matrix/matrix.js
+          test -f webui/program-builder/index.html
+          test -f webui/program-builder/builder.css
+          test -f webui/program-builder/builder.js
+          test -f webui/program-editor/index.html
+          test -f webui/program-editor/editor.css
+          test -f webui/program-editor/editor.js
+          test -f firmware/components/sequence/include/sequence/program_editor_types.hpp
+          test -f firmware/components/sequence/include/sequence/program_editor_result.hpp
+          test -f firmware/components/sequence/include/sequence/program_builder_types.hpp
+          test -f firmware/components/sequence/include/sequence/program_builder_result.hpp
+          test -f firmware/components/sequence/include/sequence/program_skeleton_builder.hpp
+          test -f firmware/components/sequence/src/program_skeleton_builder.cpp
+          test -f firmware/components/api/include/api/program_editor_api_types.hpp
+          test -f firmware/components/api/include/api/program_editor_api_service.hpp
+          test -f firmware/components/api/include/api/web_program_editor_adapter.hpp
+          test -f firmware/components/api/include/api/program_builder_api_types.hpp
+          test -f firmware/components/api/include/api/program_builder_api_service.hpp
+          test -f firmware/components/api/include/api/web_program_builder_adapter.hpp
+          test -f firmware/components/api/src/program_editor_api_service.cpp
+          test -f firmware/components/api/src/web_program_editor_adapter.cpp
+          test -f firmware/components/api/src/program_builder_api_service.cpp
+          test -f firmware/components/api/src/web_program_builder_adapter.cpp
+          test -f firmware/components/api/include/api/rules_api_types.hpp
+          test -f firmware/components/api/include/api/rules_api_service.hpp
+          test -f firmware/components/api/include/api/web_rules_adapter.hpp
+          test -f firmware/components/api/include/api/flow_api_types.hpp
+          test -f firmware/components/api/include/api/flow_api_service.hpp
+          test -f firmware/components/api/include/api/web_flow_adapter.hpp
+          test -f firmware/components/api/src/rules_api_service.cpp
+          test -f firmware/components/api/src/web_rules_adapter.cpp
+          test -f firmware/components/api/include/api/web_dashboard_adapter.hpp
+          test -f firmware/components/api/src/web_dashboard_adapter.cpp
+          test -f firmware/components/api/src/flow_api_service.cpp
+          test -f firmware/components/api/src/web_flow_adapter.cpp
+          test -d firmware/components/web
+          test -f firmware/components/web/README.md
+          test -f firmware/components/web/include/web/web_types.hpp
+          test -f firmware/components/web/include/web/web_result.hpp
+          test -f firmware/components/web/include/web/web_asset_registry.hpp
+          test -f firmware/components/web/include/web/web_route_service.hpp
+          test -f firmware/components/web/src/web_asset_registry.cpp
+          test -f firmware/components/web/src/web_route_service.cpp
+          test -f docs/BENCH_TESTS.md
+          test -f docs/SAFE_WIRING.md
+          test -f docs/WEB_ON_DEVICE.md
+          test -f hardware/LILYGO_T3_V1_6_1_BENCH_WIRING.md
+          test -f partitions_stage28_bench_web.csv
+          test -f tests/webui/README.md
+          test -f tests/webui/test_web_dashboard_adapter.cpp
+          test -f tests/webui/test_web_dashboard_view_model.cpp
+          test -f tests/webui/test_rules_adapter.cpp
+          test -f tests/webui/test_rules_editor_view_model.cpp
+          test -f tests/webui/test_web_flow_adapter.cpp
+          test -f tests/webui/test_web_flow_view_model.cpp
+          test -f tests/webui/test_web_program_editor_adapter.cpp
+          test -f tests/webui/test_web_program_editor_view_model.cpp
+          test -f tests/webui/test_web_program_builder_adapter.cpp
+          test -f tests/webui/test_web_program_builder_view_model.cpp
+          test -f tests/webui/test_web_program_matrix_adapter.cpp
+          test -f tests/webui/test_web_program_matrix_view_model.cpp
+          test -d firmware/components/templates
+          test -f firmware/components/templates/README.md
+          test -f firmware/components/templates/include/templates/template_types.hpp
+          test -f firmware/components/templates/include/templates/template_slot.hpp
+          test -f firmware/components/templates/include/templates/template_parameter.hpp
+          test -f firmware/components/templates/include/templates/template_binding.hpp
+          test -f firmware/components/templates/include/templates/template_bundle.hpp
+          test -f firmware/components/templates/include/templates/template_draft.hpp
+          test -f firmware/components/templates/include/templates/template_preview.hpp
+          test -f firmware/components/templates/include/templates/template_result.hpp
+          test -f firmware/components/templates/include/templates/template_engine.hpp
+          test -f firmware/components/templates/src/template_engine.cpp
+          test -f firmware/components/api/include/api/template_api_types.hpp
+          test -f firmware/components/api/include/api/template_api_service.hpp
+          test -f firmware/components/api/include/api/web_template_adapter.hpp
+          test -f firmware/components/api/src/template_api_service.cpp
+          test -f firmware/components/api/src/web_template_adapter.cpp
+          test -f webui/templates/index.html
+          test -f webui/templates/templates.css
+          test -f webui/templates/templates.js
+          test -f tests/templates/README.md
+          test -f tests/templates/template_test_support.hpp
+          test -f tests/templates/test_template_engine_catalog.cpp
+          test -f tests/templates/test_template_engine_validation.cpp
+          test -f tests/templates/test_template_engine_generation.cpp
+          test -f tests/templates/test_template_engine_apply.cpp
+          test -f tests/templates/test_template_engine_rollback.cpp
+          test -f tests/api/test_template_api_catalog.cpp
+          test -f tests/api/test_template_api_preview.cpp
+          test -f tests/api/test_template_api_apply.cpp
+          test -f tests/api/test_template_api_errors.cpp
+          test -f tests/webui/test_web_template_adapter.cpp
+          test -f tests/webui/test_web_template_view_model.cpp
+          test -f docs/TEMPLATES.md
+          test -f tests/api/flow_api_test_support.hpp
+          test -f tests/api/test_flow_api_list.cpp
+          test -f tests/api/test_flow_api_status.cpp
+          test -f tests/api/test_flow_api_commands.cpp
+          test -f tests/api/test_flow_api_errors.cpp
+          test -f tests/api/test_flow_api_trend.cpp
+          test -f tests/sequence/test_sequence_service_admin.cpp
+          test -f tests/sequence/test_program_editor_validation.cpp
       - name: Build and run config tests
         run: |
           g++ -std=c++17 -Wall -Wextra -pedantic -Ifirmware/components/config/include \
@@ -120,3 +579,2542 @@ jobs:
             tests/storage/test_storage_event_log.cpp \
             -o test_storage_event_log
           ./test_storage_event_log
+      - name: Build and run HAL tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/hal/include \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            tests/hal/test_relay_hal.cpp \
+            -o test_relay_hal
+          ./test_relay_hal
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/hal/include \
+            firmware/components/hal/src/mock_digital_input_hal.cpp \
+            tests/hal/test_digital_input_hal.cpp \
+            -o test_digital_input_hal
+          ./test_digital_input_hal
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/hal/include \
+            firmware/components/hal/src/mock_analog_input_hal.cpp \
+            tests/hal/test_analog_input_hal.cpp \
+            -o test_analog_input_hal
+          ./test_analog_input_hal
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/hal/include \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            tests/hal/test_pulse_input_hal.cpp \
+            -o test_pulse_input_hal
+          ./test_pulse_input_hal
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/hal/include \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            tests/hal/test_pwm_hal.cpp \
+            -o test_pwm_hal
+          ./test_pwm_hal
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/hal/include \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            tests/hal/test_stepper_hal.cpp \
+            -o test_stepper_hal
+          ./test_stepper_hal
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/hal/include \
+            firmware/components/hal/src/mock_display_hal.cpp \
+            tests/hal/test_display_hal.cpp \
+            -o test_display_hal
+          ./test_display_hal
+      - name: Build and run SignalRegistry tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/signals/include \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/signals/test_signal_registry_basic.cpp \
+            -o test_signal_registry_basic
+          ./test_signal_registry_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/signals/include \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/signals/test_signal_registry_errors.cpp \
+            -o test_signal_registry_errors
+          ./test_signal_registry_errors
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/signals/include \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/signals/test_signal_registry_stale.cpp \
+            -o test_signal_registry_stale
+          ./test_signal_registry_stale
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/signals/include \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/signals/test_signal_registry_virtual.cpp \
+            -o test_signal_registry_virtual
+          ./test_signal_registry_virtual
+      - name: Build and run FlowService tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/flow/test_flow_service_basic.cpp \
+            -o test_flow_service_basic
+          ./test_flow_service_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/flow/test_flow_service_rates.cpp \
+            -o test_flow_service_rates
+          ./test_flow_service_rates
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/flow/test_flow_service_batch.cpp \
+            -o test_flow_service_batch
+          ./test_flow_service_batch
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/flow/test_flow_service_storage.cpp \
+            -o test_flow_service_storage
+          ./test_flow_service_storage
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/flow/test_flow_service_signals.cpp \
+            -o test_flow_service_signals
+          ./test_flow_service_signals
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/flow/test_flow_service_trend.cpp \
+            -o test_flow_service_trend
+          ./test_flow_service_trend
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/flow/test_flow_service_errors.cpp \
+            -o test_flow_service_errors
+          ./test_flow_service_errors
+      - name: Build and run ActuatorManager tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_actuator_manager_basic.cpp \
+            -o test_actuator_manager_basic
+          ./test_actuator_manager_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_actuator_manager_priority.cpp \
+            -o test_actuator_manager_priority
+          ./test_actuator_manager_priority
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_actuator_manager_interlock.cpp \
+            -o test_actuator_manager_interlock
+          ./test_actuator_manager_interlock
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_actuator_manager_signals.cpp \
+            -o test_actuator_manager_signals
+          ./test_actuator_manager_signals
+      - name: Build and run MotorService tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/actuators/src/motor_history.cpp \
+            firmware/components/actuators/src/motor_service.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_motor_service_basic.cpp \
+            -o test_motor_service_basic
+          ./test_motor_service_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/actuators/src/motor_history.cpp \
+            firmware/components/actuators/src/motor_service.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_motor_service_ramp.cpp \
+            -o test_motor_service_ramp
+          ./test_motor_service_ramp
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/actuators/src/motor_history.cpp \
+            firmware/components/actuators/src/motor_service.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_motor_service_direction.cpp \
+            -o test_motor_service_direction
+          ./test_motor_service_direction
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/actuators/src/motor_history.cpp \
+            firmware/components/actuators/src/motor_service.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_motor_service_faults.cpp \
+            -o test_motor_service_faults
+          ./test_motor_service_faults
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/actuators/src/motor_history.cpp \
+            firmware/components/actuators/src/motor_service.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_motor_service_signals.cpp \
+            -o test_motor_service_signals
+          ./test_motor_service_signals
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/actuators/src/motor_history.cpp \
+            firmware/components/actuators/src/motor_service.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_motor_service_history.cpp \
+            -o test_motor_service_history
+          ./test_motor_service_history
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/actuators/src/motor_history.cpp \
+            firmware/components/actuators/src/motor_service.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_motor_service_errors.cpp \
+            -o test_motor_service_errors
+          ./test_motor_service_errors
+      - name: Build and run StepperService tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/stepper_history.cpp \
+            firmware/components/actuators/src/stepper_service.cpp \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_stepper_service_basic.cpp \
+            -o test_stepper_service_basic
+          ./test_stepper_service_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/stepper_history.cpp \
+            firmware/components/actuators/src/stepper_service.cpp \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_stepper_service_homing.cpp \
+            -o test_stepper_service_homing
+          ./test_stepper_service_homing
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/stepper_history.cpp \
+            firmware/components/actuators/src/stepper_service.cpp \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_stepper_service_move.cpp \
+            -o test_stepper_service_move
+          ./test_stepper_service_move
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/stepper_history.cpp \
+            firmware/components/actuators/src/stepper_service.cpp \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_stepper_service_jog.cpp \
+            -o test_stepper_service_jog
+          ./test_stepper_service_jog
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/stepper_history.cpp \
+            firmware/components/actuators/src/stepper_service.cpp \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_stepper_service_limits.cpp \
+            -o test_stepper_service_limits
+          ./test_stepper_service_limits
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/stepper_history.cpp \
+            firmware/components/actuators/src/stepper_service.cpp \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_stepper_service_faults.cpp \
+            -o test_stepper_service_faults
+          ./test_stepper_service_faults
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/stepper_history.cpp \
+            firmware/components/actuators/src/stepper_service.cpp \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_stepper_service_signals.cpp \
+            -o test_stepper_service_signals
+          ./test_stepper_service_signals
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/stepper_history.cpp \
+            firmware/components/actuators/src/stepper_service.cpp \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_stepper_service_history.cpp \
+            -o test_stepper_service_history
+          ./test_stepper_service_history
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/actuators \
+            firmware/components/actuators/src/stepper_history.cpp \
+            firmware/components/actuators/src/stepper_service.cpp \
+            firmware/components/hal/src/mock_stepper_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/actuators/test_stepper_service_errors.cpp \
+            -o test_stepper_service_errors
+          ./test_stepper_service_errors
+      - name: Build and run TimerService tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/timers/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/timers/src/timer_service.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/timers/test_timer_service_basic.cpp \
+            -o test_timer_service_basic
+          ./test_timer_service_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/timers/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/timers/src/timer_service.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/timers/test_timer_service_hold.cpp \
+            -o test_timer_service_hold
+          ./test_timer_service_hold
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/timers/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/timers/src/timer_service.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/timers/test_timer_service_watchdog.cpp \
+            -o test_timer_service_watchdog
+          ./test_timer_service_watchdog
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/timers/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/timers/src/timer_service.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/timers/test_timer_service_windows.cpp \
+            -o test_timer_service_windows
+          ./test_timer_service_windows
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/timers/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/timers/src/timer_service.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/timers/test_timer_service_signals.cpp \
+            -o test_timer_service_signals
+          ./test_timer_service_signals
+      - name: Build and run AlarmService tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/alarms/test_alarm_service_basic.cpp \
+            -o test_alarm_service_basic
+          ./test_alarm_service_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/alarms/test_alarm_service_latching.cpp \
+            -o test_alarm_service_latching
+          ./test_alarm_service_latching
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/alarms/test_alarm_service_reset.cpp \
+            -o test_alarm_service_reset
+          ./test_alarm_service_reset
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/alarms/test_alarm_service_aggregate.cpp \
+            -o test_alarm_service_aggregate
+          ./test_alarm_service_aggregate
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/alarms/test_alarm_service_signals.cpp \
+            -o test_alarm_service_signals
+          ./test_alarm_service_signals
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/alarms/test_alarm_service_history.cpp \
+            -o test_alarm_service_history
+          ./test_alarm_service_history
+      - name: Build and run ConditionTree tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/conditions/test_condition_tree_basic.cpp \
+            -o test_condition_tree_basic
+          ./test_condition_tree_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/conditions/test_condition_tree_logic.cpp \
+            -o test_condition_tree_logic
+          ./test_condition_tree_logic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/conditions/test_condition_tree_timing.cpp \
+            -o test_condition_tree_timing
+          ./test_condition_tree_timing
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/conditions/test_condition_tree_hysteresis.cpp \
+            -o test_condition_tree_hysteresis
+          ./test_condition_tree_hysteresis
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/conditions/test_condition_tree_errors.cpp \
+            -o test_condition_tree_errors
+          ./test_condition_tree_errors
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/signals/include \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/conditions/test_condition_tree_trace.cpp \
+            -o test_condition_tree_trace
+          ./test_condition_tree_trace
+      - name: Build and run Sequence tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_sequence_service_basic.cpp \
+            -o test_sequence_service_basic
+          ./test_sequence_service_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_sequence_service_transitions.cpp \
+            -o test_sequence_service_transitions
+          ./test_sequence_service_transitions
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_sequence_service_stop_trip.cpp \
+            -o test_sequence_service_stop_trip
+          ./test_sequence_service_stop_trip
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_sequence_service_actions.cpp \
+            -o test_sequence_service_actions
+          ./test_sequence_service_actions
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_sequence_service_reset.cpp \
+            -o test_sequence_service_reset
+          ./test_sequence_service_reset
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_sequence_service_signals.cpp \
+            -o test_sequence_service_signals
+          ./test_sequence_service_signals
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_sequence_service_history.cpp \
+            -o test_sequence_service_history
+          ./test_sequence_service_history
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/program_skeleton_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_program_skeleton_builder_basic.cpp \
+            -o test_program_skeleton_builder_basic
+          ./test_program_skeleton_builder_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_builder_api_service.cpp \
+            firmware/components/sequence/src/program_skeleton_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_program_skeleton_builder_validation.cpp \
+            -o test_program_skeleton_builder_validation
+          ./test_program_skeleton_builder_validation
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_builder_api_service.cpp \
+            firmware/components/sequence/src/program_skeleton_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_program_skeleton_builder_generation.cpp \
+            -o test_program_skeleton_builder_generation
+          ./test_program_skeleton_builder_generation
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_sequence_service_admin.cpp \
+            -o test_sequence_service_admin
+          ./test_sequence_service_admin
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_program_editor_validation.cpp \
+            -o test_program_editor_validation
+          ./test_program_editor_validation
+      - name: Build and run Sequence matrix tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/sequence/src/program_matrix_builder.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_program_matrix_builder_basic.cpp \
+            -o test_program_matrix_builder_basic
+          ./test_program_matrix_builder_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/sequence/src/program_matrix_builder.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_program_matrix_builder_cells.cpp \
+            -o test_program_matrix_builder_cells
+          ./test_program_matrix_builder_cells
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/sequence \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/sequence/src/program_matrix_builder.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/sequence/test_program_matrix_builder_warnings.cpp \
+            -o test_program_matrix_builder_warnings
+          ./test_program_matrix_builder_warnings
+      - name: Build and run Logic tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/logic \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/logic/test_logic_service_basic.cpp \
+            -o test_logic_service_basic
+          ./test_logic_service_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/logic \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/logic/test_logic_service_actions.cpp \
+            -o test_logic_service_actions
+          ./test_logic_service_actions
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/logic \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/logic/test_logic_service_outputs.cpp \
+            -o test_logic_service_outputs
+          ./test_logic_service_outputs
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/logic \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/logic/test_logic_service_programs.cpp \
+            -o test_logic_service_programs
+          ./test_logic_service_programs
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/logic \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/logic/test_logic_service_errors.cpp \
+            -o test_logic_service_errors
+          ./test_logic_service_errors
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/logic \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/logic/test_logic_service_history.cpp \
+            -o test_logic_service_history
+          ./test_logic_service_history
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/logic \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/logic/test_logic_service_signals.cpp \
+            -o test_logic_service_signals
+          ./test_logic_service_signals
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/logic \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/logic/test_logic_service_admin.cpp \
+            -o test_logic_service_admin
+          ./test_logic_service_admin
+      - name: Build and run Sequence API tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/sequence_api_service.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_sequence_api_list.cpp \
+            -o test_sequence_api_list
+          ./test_sequence_api_list
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/sequence_api_service.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_sequence_api_status.cpp \
+            -o test_sequence_api_status
+          ./test_sequence_api_status
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/sequence_api_service.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_sequence_api_commands.cpp \
+            -o test_sequence_api_commands
+          ./test_sequence_api_commands
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/sequence_api_service.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_sequence_api_errors.cpp \
+            -o test_sequence_api_errors
+          ./test_sequence_api_errors
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/sequence_api_service.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_sequence_api_history.cpp \
+            -o test_sequence_api_history
+          ./test_sequence_api_history
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_builder_api_service.cpp \
+            firmware/components/sequence/src/program_skeleton_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_builder_api_catalog.cpp \
+            -o test_program_builder_api_catalog
+          ./test_program_builder_api_catalog
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_builder_api_service.cpp \
+            firmware/components/sequence/src/program_skeleton_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_builder_api_preview.cpp \
+            -o test_program_builder_api_preview
+          ./test_program_builder_api_preview
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_builder_api_service.cpp \
+            firmware/components/sequence/src/program_skeleton_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_builder_api_create.cpp \
+            -o test_program_builder_api_create
+          ./test_program_builder_api_create
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_builder_api_service.cpp \
+            firmware/components/sequence/src/program_skeleton_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_builder_api_errors.cpp \
+            -o test_program_builder_api_errors
+          ./test_program_builder_api_errors
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_editor_api_service.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_editor_api_load.cpp \
+            -o test_program_editor_api_load
+          ./test_program_editor_api_load
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_editor_api_service.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_editor_api_preview.cpp \
+            -o test_program_editor_api_preview
+          ./test_program_editor_api_preview
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_editor_api_service.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_editor_api_save.cpp \
+            -o test_program_editor_api_save
+          ./test_program_editor_api_save
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_editor_api_service.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_editor_api_errors.cpp \
+            -o test_program_editor_api_errors
+          ./test_program_editor_api_errors
+      - name: Build and run Program Matrix API tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_matrix_api_service.cpp \
+            firmware/components/sequence/src/program_matrix_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_matrix_api_list.cpp \
+            -o test_program_matrix_api_list
+          ./test_program_matrix_api_list
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_matrix_api_service.cpp \
+            firmware/components/sequence/src/program_matrix_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_matrix_api_status.cpp \
+            -o test_program_matrix_api_status
+          ./test_program_matrix_api_status
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_matrix_api_service.cpp \
+            firmware/components/sequence/src/program_matrix_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_program_matrix_api_errors.cpp \
+            -o test_program_matrix_api_errors
+          ./test_program_matrix_api_errors
+      - name: Build and run Rules API tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/logic \
+            firmware/components/api/src/rules_api_service.cpp \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_rules_api_list.cpp \
+            -o test_rules_api_list
+          ./test_rules_api_list
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/logic \
+            firmware/components/api/src/rules_api_service.cpp \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_rules_api_editor.cpp \
+            -o test_rules_api_editor
+          ./test_rules_api_editor
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/logic \
+            firmware/components/api/src/rules_api_service.cpp \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_rules_api_mutations.cpp \
+            -o test_rules_api_mutations
+          ./test_rules_api_mutations
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/logic \
+            firmware/components/api/src/rules_api_service.cpp \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/api/test_rules_api_errors.cpp \
+            -o test_rules_api_errors
+          ./test_rules_api_errors
+      - name: Build and run Flow API tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            -Itests/api \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/api/src/flow_api_service.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/api/test_flow_api_list.cpp \
+            -o test_flow_api_list
+          ./test_flow_api_list
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            -Itests/api \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/api/src/flow_api_service.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/api/test_flow_api_status.cpp \
+            -o test_flow_api_status
+          ./test_flow_api_status
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            -Itests/api \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/api/src/flow_api_service.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/api/test_flow_api_commands.cpp \
+            -o test_flow_api_commands
+          ./test_flow_api_commands
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            -Itests/api \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/api/src/flow_api_service.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/api/test_flow_api_errors.cpp \
+            -o test_flow_api_errors
+          ./test_flow_api_errors
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            -Itests/api \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/api/src/flow_api_service.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/api/test_flow_api_trend.cpp \
+            -o test_flow_api_trend
+          ./test_flow_api_trend
+      - name: Build and run PID tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            firmware/components/pid/src/pid_core.cpp \
+            tests/pid/test_pid_core_basic.cpp \
+            -o test_pid_core_basic
+          ./test_pid_core_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            firmware/components/pid/src/pid_core.cpp \
+            tests/pid/test_pid_core_limits.cpp \
+            -o test_pid_core_limits
+          ./test_pid_core_limits
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            firmware/components/pid/src/pid_core.cpp \
+            tests/pid/test_pid_core_modes.cpp \
+            -o test_pid_core_modes
+          ./test_pid_core_modes
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            firmware/components/pid/src/pid_core.cpp \
+            tests/pid/test_pid_core_faults.cpp \
+            -o test_pid_core_faults
+          ./test_pid_core_faults
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            firmware/components/pid/src/pid_core.cpp \
+            tests/pid/test_pid_core_step_response.cpp \
+            -o test_pid_core_step_response
+          ./test_pid_core_step_response
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/pid \
+            firmware/components/pid/src/pid_core.cpp \
+            firmware/components/pid/src/pid_service.cpp \
+            firmware/components/pid/src/pid_service_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/pid/test_pid_service_basic.cpp \
+            -o test_pid_service_basic
+          ./test_pid_service_basic
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/pid \
+            firmware/components/pid/src/pid_core.cpp \
+            firmware/components/pid/src/pid_service.cpp \
+            firmware/components/pid/src/pid_service_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/pid/test_pid_service_modes.cpp \
+            -o test_pid_service_modes
+          ./test_pid_service_modes
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/pid \
+            firmware/components/pid/src/pid_core.cpp \
+            firmware/components/pid/src/pid_service.cpp \
+            firmware/components/pid/src/pid_service_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/pid/test_pid_service_signals.cpp \
+            -o test_pid_service_signals
+          ./test_pid_service_signals
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/pid \
+            firmware/components/pid/src/pid_core.cpp \
+            firmware/components/pid/src/pid_service.cpp \
+            firmware/components/pid/src/pid_service_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/pid/test_pid_service_actuator.cpp \
+            -o test_pid_service_actuator
+          ./test_pid_service_actuator
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/pid \
+            firmware/components/pid/src/pid_core.cpp \
+            firmware/components/pid/src/pid_service.cpp \
+            firmware/components/pid/src/pid_service_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/pid/test_pid_service_faults.cpp \
+            -o test_pid_service_faults
+          ./test_pid_service_faults
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/pid \
+            firmware/components/pid/src/pid_core.cpp \
+            firmware/components/pid/src/pid_service.cpp \
+            firmware/components/pid/src/pid_service_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/pid/test_pid_service_history.cpp \
+            -o test_pid_service_history
+          ./test_pid_service_history
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/pid/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Itests/pid \
+            firmware/components/pid/src/pid_core.cpp \
+            firmware/components/pid/src/pid_service.cpp \
+            firmware/components/pid/src/pid_service_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            tests/pid/test_pid_service_errors.cpp \
+            -o test_pid_service_errors
+          ./test_pid_service_errors
+      - name: Build and run Web Dashboard adapter tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/sequence_api_service.cpp \
+            firmware/components/api/src/web_dashboard_adapter.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_web_dashboard_adapter.cpp \
+            -o test_web_dashboard_adapter
+          ./test_web_dashboard_adapter
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/sequence_api_service.cpp \
+            firmware/components/api/src/web_dashboard_adapter.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_web_dashboard_view_model.cpp \
+            -o test_web_dashboard_view_model
+          ./test_web_dashboard_view_model
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_builder_api_service.cpp \
+            firmware/components/api/src/web_program_builder_adapter.cpp \
+            firmware/components/sequence/src/program_skeleton_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_web_program_builder_adapter.cpp \
+            -o test_web_program_builder_adapter
+          ./test_web_program_builder_adapter
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_builder_api_service.cpp \
+            firmware/components/api/src/web_program_builder_adapter.cpp \
+            firmware/components/sequence/src/program_skeleton_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_web_program_builder_view_model.cpp \
+            -o test_web_program_builder_view_model
+          ./test_web_program_builder_view_model
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_editor_api_service.cpp \
+            firmware/components/api/src/web_program_editor_adapter.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_web_program_editor_adapter.cpp \
+            -o test_web_program_editor_adapter
+          ./test_web_program_editor_adapter
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_editor_api_service.cpp \
+            firmware/components/api/src/web_program_editor_adapter.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_web_program_editor_view_model.cpp \
+            -o test_web_program_editor_view_model
+          ./test_web_program_editor_view_model
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_matrix_api_service.cpp \
+            firmware/components/api/src/web_program_matrix_adapter.cpp \
+            firmware/components/sequence/src/program_matrix_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_web_program_matrix_adapter.cpp \
+            -o test_web_program_matrix_adapter
+          ./test_web_program_matrix_adapter
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/sequence \
+            firmware/components/api/src/program_matrix_api_service.cpp \
+            firmware/components/api/src/web_program_matrix_adapter.cpp \
+            firmware/components/sequence/src/program_matrix_builder.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_web_program_matrix_view_model.cpp \
+            -o test_web_program_matrix_view_model
+          ./test_web_program_matrix_view_model
+      - name: Build and run Rules UI adapter tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/logic \
+            firmware/components/api/src/rules_api_service.cpp \
+            firmware/components/api/src/web_rules_adapter.cpp \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_rules_adapter.cpp \
+            -o test_rules_adapter
+          ./test_rules_adapter
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/logic/include \
+            -Ifirmware/components/sequence/include \
+            -Ifirmware/components/actuators/include \
+            -Ifirmware/components/alarms/include \
+            -Ifirmware/components/conditions/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/timers/include \
+            -Itests/api \
+            -Itests/logic \
+            firmware/components/api/src/rules_api_service.cpp \
+            firmware/components/api/src/web_rules_adapter.cpp \
+            firmware/components/logic/src/logic_service.cpp \
+            firmware/components/logic/src/rule_history.cpp \
+            firmware/components/sequence/src/sequence_service.cpp \
+            firmware/components/sequence/src/sequence_history.cpp \
+            firmware/components/actuators/src/actuator_manager.cpp \
+            firmware/components/alarms/src/alarm_service.cpp \
+            firmware/components/alarms/src/alarm_history.cpp \
+            firmware/components/conditions/src/condition_evaluator.cpp \
+            firmware/components/hal/src/mock_relay_hal.cpp \
+            firmware/components/hal/src/mock_pwm_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/timers/src/timer_service.cpp \
+            tests/webui/test_rules_editor_view_model.cpp \
+            -o test_rules_editor_view_model
+          ./test_rules_editor_view_model
+      - name: Build and run Flow UI adapter tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            -Itests/api \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/api/src/flow_api_service.cpp \
+            firmware/components/api/src/web_flow_adapter.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/webui/test_web_flow_adapter.cpp \
+            -o test_web_flow_adapter
+          ./test_web_flow_adapter
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/config/include \
+            -Ifirmware/components/api/include \
+            -Ifirmware/components/flow/include \
+            -Ifirmware/components/hal/include \
+            -Ifirmware/components/signals/include \
+            -Ifirmware/components/storage/include \
+            -Itests/api \
+            firmware/components/config/src/config_defaults.cpp \
+            firmware/components/config/src/config_validation.cpp \
+            firmware/components/api/src/flow_api_service.cpp \
+            firmware/components/api/src/web_flow_adapter.cpp \
+            firmware/components/flow/src/flow_history.cpp \
+            firmware/components/flow/src/flow_service.cpp \
+            firmware/components/hal/src/mock_pulse_input_hal.cpp \
+            firmware/components/signals/src/signal_registry.cpp \
+            firmware/components/storage/src/storage_crc.cpp \
+            firmware/components/storage/src/storage_service.cpp \
+            firmware/components/storage/src/storage_event_log.cpp \
+            tests/webui/test_web_flow_view_model.cpp \
+            -o test_web_flow_view_model
+          ./test_web_flow_view_model
+      - name: Build and run Template Engine, API and Web adapter tests
+        run: |
+          COMMON_INCLUDES=(
+            -Ifirmware/components/templates/include
+            -Ifirmware/components/api/include
+            -Ifirmware/components/pid/include
+            -Ifirmware/components/logic/include
+            -Ifirmware/components/sequence/include
+            -Ifirmware/components/actuators/include
+            -Ifirmware/components/alarms/include
+            -Ifirmware/components/conditions/include
+            -Ifirmware/components/hal/include
+            -Ifirmware/components/signals/include
+            -Ifirmware/components/timers/include
+            -Itests/templates
+            -Itests/api
+            -Itests/sequence
+          )
+          COMMON_SOURCES=(
+            firmware/components/templates/src/template_engine.cpp
+            firmware/components/api/src/template_api_service.cpp
+            firmware/components/api/src/web_template_adapter.cpp
+            firmware/components/pid/src/pid_core.cpp
+            firmware/components/pid/src/pid_service.cpp
+            firmware/components/pid/src/pid_service_history.cpp
+            firmware/components/logic/src/logic_service.cpp
+            firmware/components/logic/src/rule_history.cpp
+            firmware/components/sequence/src/sequence_service.cpp
+            firmware/components/sequence/src/sequence_history.cpp
+            firmware/components/alarms/src/alarm_service.cpp
+            firmware/components/alarms/src/alarm_history.cpp
+            firmware/components/conditions/src/condition_evaluator.cpp
+            firmware/components/actuators/src/actuator_manager.cpp
+            firmware/components/hal/src/mock_relay_hal.cpp
+            firmware/components/hal/src/mock_pwm_hal.cpp
+            firmware/components/signals/src/signal_registry.cpp
+            firmware/components/timers/src/timer_service.cpp
+          )
+          build_and_run() {
+            local test_source="$1"
+            local output_name="$2"
+            g++ -std=c++17 -Wall -Wextra -pedantic \
+              "${COMMON_INCLUDES[@]}" \
+              "${COMMON_SOURCES[@]}" \
+              "$test_source" \
+              -o "$output_name"
+            "./$output_name"
+          }
+          build_and_run tests/templates/test_template_engine_catalog.cpp test_template_engine_catalog
+          build_and_run tests/templates/test_template_engine_validation.cpp test_template_engine_validation
+          build_and_run tests/templates/test_template_engine_generation.cpp test_template_engine_generation
+          build_and_run tests/templates/test_template_engine_apply.cpp test_template_engine_apply
+          build_and_run tests/templates/test_template_engine_rollback.cpp test_template_engine_rollback
+          build_and_run tests/api/test_template_api_catalog.cpp test_template_api_catalog
+          build_and_run tests/api/test_template_api_preview.cpp test_template_api_preview
+          build_and_run tests/api/test_template_api_apply.cpp test_template_api_apply
+          build_and_run tests/api/test_template_api_errors.cpp test_template_api_errors
+          build_and_run tests/webui/test_web_template_adapter.cpp test_web_template_adapter
+          build_and_run tests/webui/test_web_template_view_model.cpp test_web_template_view_model
+      - name: Build and run MQTT tests
+        run: |
+          COMMON_INCLUDES=(
+            -Ifirmware/components/config/include
+            -Ifirmware/components/mqtt/include
+            -Ifirmware/components/api/include
+            -Ifirmware/components/flow/include
+            -Ifirmware/components/pid/include
+            -Ifirmware/components/sequence/include
+            -Ifirmware/components/actuators/include
+            -Ifirmware/components/alarms/include
+            -Ifirmware/components/conditions/include
+            -Ifirmware/components/hal/include
+            -Ifirmware/components/signals/include
+            -Ifirmware/components/storage/include
+            -Ifirmware/components/timers/include
+            -Itests/mqtt
+            -Itests/sequence
+          )
+          COMMON_SOURCES=(
+            firmware/components/config/src/config_defaults.cpp
+            firmware/components/config/src/config_validation.cpp
+            firmware/components/mqtt/src/mqtt_topic_mapper.cpp
+            firmware/components/mqtt/src/mqtt_service.cpp
+            firmware/components/mqtt/src/mock_mqtt_client_backend.cpp
+            firmware/components/api/src/sequence_api_service.cpp
+            firmware/components/api/src/flow_api_service.cpp
+            firmware/components/flow/src/flow_history.cpp
+            firmware/components/flow/src/flow_service.cpp
+            firmware/components/pid/src/pid_core.cpp
+            firmware/components/pid/src/pid_service.cpp
+            firmware/components/pid/src/pid_service_history.cpp
+            firmware/components/sequence/src/sequence_service.cpp
+            firmware/components/sequence/src/sequence_history.cpp
+            firmware/components/actuators/src/actuator_manager.cpp
+            firmware/components/alarms/src/alarm_service.cpp
+            firmware/components/alarms/src/alarm_history.cpp
+            firmware/components/conditions/src/condition_evaluator.cpp
+            firmware/components/hal/src/mock_relay_hal.cpp
+            firmware/components/hal/src/mock_pwm_hal.cpp
+            firmware/components/hal/src/mock_pulse_input_hal.cpp
+            firmware/components/signals/src/signal_registry.cpp
+            firmware/components/storage/src/storage_crc.cpp
+            firmware/components/storage/src/storage_service.cpp
+            firmware/components/storage/src/storage_event_log.cpp
+            firmware/components/timers/src/timer_service.cpp
+          )
+          build_and_run() {
+            local test_source="$1"
+            local output_name="$2"
+            g++ -std=c++17 -Wall -Wextra -pedantic \
+              "${COMMON_INCLUDES[@]}" \
+              "${COMMON_SOURCES[@]}" \
+              "$test_source" \
+              -o "$output_name"
+            "./$output_name"
+          }
+          build_and_run tests/mqtt/test_mqtt_topic_mapper.cpp test_mqtt_topic_mapper
+          build_and_run tests/mqtt/test_mqtt_service_publish.cpp test_mqtt_service_publish
+          build_and_run tests/mqtt/test_mqtt_service_commands_sequence.cpp test_mqtt_service_commands_sequence
+          build_and_run tests/mqtt/test_mqtt_service_commands_flow.cpp test_mqtt_service_commands_flow
+          build_and_run tests/mqtt/test_mqtt_service_commands_pid.cpp test_mqtt_service_commands_pid
+          build_and_run tests/mqtt/test_mqtt_service_errors.cpp test_mqtt_service_errors
+          build_and_run tests/mqtt/test_mqtt_service_history.cpp test_mqtt_service_history
+      - name: Build and run Display tests
+        run: |
+          COMMON_INCLUDES=(
+            -Ifirmware/components/config/include
+            -Ifirmware/components/display/include
+            -Ifirmware/components/mqtt/include
+            -Ifirmware/components/api/include
+            -Ifirmware/components/flow/include
+            -Ifirmware/components/pid/include
+            -Ifirmware/components/sequence/include
+            -Ifirmware/components/actuators/include
+            -Ifirmware/components/alarms/include
+            -Ifirmware/components/conditions/include
+            -Ifirmware/components/hal/include
+            -Ifirmware/components/signals/include
+            -Ifirmware/components/storage/include
+            -Ifirmware/components/timers/include
+            -Itests/display
+            -Itests/sequence
+          )
+          COMMON_SOURCES=(
+            firmware/components/config/src/config_defaults.cpp
+            firmware/components/config/src/config_validation.cpp
+            firmware/components/display/src/display_history.cpp
+            firmware/components/display/src/display_service.cpp
+            firmware/components/mqtt/src/mqtt_topic_mapper.cpp
+            firmware/components/mqtt/src/mqtt_service.cpp
+            firmware/components/mqtt/src/mock_mqtt_client_backend.cpp
+            firmware/components/api/src/sequence_api_service.cpp
+            firmware/components/api/src/flow_api_service.cpp
+            firmware/components/flow/src/flow_history.cpp
+            firmware/components/flow/src/flow_service.cpp
+            firmware/components/pid/src/pid_core.cpp
+            firmware/components/pid/src/pid_service.cpp
+            firmware/components/pid/src/pid_service_history.cpp
+            firmware/components/sequence/src/sequence_service.cpp
+            firmware/components/sequence/src/sequence_history.cpp
+            firmware/components/actuators/src/actuator_manager.cpp
+            firmware/components/alarms/src/alarm_service.cpp
+            firmware/components/alarms/src/alarm_history.cpp
+            firmware/components/conditions/src/condition_evaluator.cpp
+            firmware/components/hal/src/mock_display_hal.cpp
+            firmware/components/hal/src/mock_relay_hal.cpp
+            firmware/components/hal/src/mock_pwm_hal.cpp
+            firmware/components/hal/src/mock_pulse_input_hal.cpp
+            firmware/components/signals/src/signal_registry.cpp
+            firmware/components/storage/src/storage_crc.cpp
+            firmware/components/storage/src/storage_service.cpp
+            firmware/components/storage/src/storage_event_log.cpp
+            firmware/components/timers/src/timer_service.cpp
+          )
+          build_and_run() {
+            local test_source="$1"
+            local output_name="$2"
+            g++ -std=c++17 -Wall -Wextra -pedantic \
+              "${COMMON_INCLUDES[@]}" \
+              "${COMMON_SOURCES[@]}" \
+              "$test_source" \
+              -o "$output_name"
+            "./$output_name"
+          }
+          build_and_run tests/display/test_display_service_main.cpp test_display_service_main
+          build_and_run tests/display/test_display_service_program.cpp test_display_service_program
+          build_and_run tests/display/test_display_service_flow.cpp test_display_service_flow
+          build_and_run tests/display/test_display_service_pid.cpp test_display_service_pid
+          build_and_run tests/display/test_display_service_alarms.cpp test_display_service_alarms
+          build_and_run tests/display/test_display_service_mqtt.cpp test_display_service_mqtt
+          build_and_run tests/display/test_display_service_rotation.cpp test_display_service_rotation
+          build_and_run tests/display/test_display_service_errors.cpp test_display_service_errors
+      - name: Build and run simulator tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+            -Ifirmware/components/sim/include \
+            -Itests/sim \
+            firmware/components/sim/src/sim_clock.cpp \
+            tests/sim/test_sim_clock.cpp \
+            -o test_sim_clock
+          ./test_sim_clock
+          COMMON_INCLUDES=(
+            -Ifirmware/components/sim/include
+            -Ifirmware/components/config/include
+            -Ifirmware/components/templates/include
+            -Ifirmware/components/display/include
+            -Ifirmware/components/mqtt/include
+            -Ifirmware/components/api/include
+            -Ifirmware/components/flow/include
+            -Ifirmware/components/pid/include
+            -Ifirmware/components/logic/include
+            -Ifirmware/components/sequence/include
+            -Ifirmware/components/actuators/include
+            -Ifirmware/components/alarms/include
+            -Ifirmware/components/conditions/include
+            -Ifirmware/components/hal/include
+            -Ifirmware/components/signals/include
+            -Ifirmware/components/storage/include
+            -Ifirmware/components/timers/include
+            -Itests/sim
+          )
+          COMMON_SOURCES=(
+            firmware/components/sim/src/sim_clock.cpp
+            firmware/components/sim/src/sim_signal_injector.cpp
+            firmware/components/sim/src/sim_plant_models.cpp
+            firmware/components/sim/src/sim_harness.cpp
+            firmware/components/sim/src/sim_scenario_runner.cpp
+            firmware/components/templates/src/template_engine.cpp
+            firmware/components/display/src/display_history.cpp
+            firmware/components/display/src/display_service.cpp
+            firmware/components/mqtt/src/mqtt_topic_mapper.cpp
+            firmware/components/mqtt/src/mqtt_service.cpp
+            firmware/components/mqtt/src/mock_mqtt_client_backend.cpp
+            firmware/components/api/src/sequence_api_service.cpp
+            firmware/components/api/src/flow_api_service.cpp
+            firmware/components/flow/src/flow_history.cpp
+            firmware/components/flow/src/flow_service.cpp
+            firmware/components/pid/src/pid_core.cpp
+            firmware/components/pid/src/pid_service.cpp
+            firmware/components/pid/src/pid_service_history.cpp
+            firmware/components/logic/src/logic_service.cpp
+            firmware/components/logic/src/rule_history.cpp
+            firmware/components/sequence/src/sequence_service.cpp
+            firmware/components/sequence/src/sequence_history.cpp
+            firmware/components/actuators/src/actuator_manager.cpp
+            firmware/components/actuators/src/motor_history.cpp
+            firmware/components/actuators/src/motor_service.cpp
+            firmware/components/actuators/src/stepper_history.cpp
+            firmware/components/actuators/src/stepper_service.cpp
+            firmware/components/alarms/src/alarm_service.cpp
+            firmware/components/alarms/src/alarm_history.cpp
+            firmware/components/conditions/src/condition_evaluator.cpp
+            firmware/components/hal/src/mock_display_hal.cpp
+            firmware/components/hal/src/mock_relay_hal.cpp
+            firmware/components/hal/src/mock_pwm_hal.cpp
+            firmware/components/hal/src/mock_pulse_input_hal.cpp
+            firmware/components/hal/src/mock_stepper_hal.cpp
+            firmware/components/signals/src/signal_registry.cpp
+            firmware/components/storage/src/storage_crc.cpp
+            firmware/components/storage/src/storage_service.cpp
+            firmware/components/storage/src/storage_event_log.cpp
+            firmware/components/timers/src/timer_service.cpp
+          )
+          build_and_run() {
+            local test_source="$1"
+            local output_name="$2"
+            g++ -std=c++17 -Wall -Wextra -pedantic \
+              "${COMMON_INCLUDES[@]}" \
+              "${COMMON_SOURCES[@]}" \
+              "$test_source" \
+              -o "$output_name"
+            "./$output_name"
+          }
+          build_and_run tests/sim/test_pressure_pump_scenario.cpp test_pressure_pump_scenario
+          build_and_run tests/sim/test_pid_pressure_scenario.cpp test_pid_pressure_scenario
+          build_and_run tests/sim/test_flow_batch_scenario.cpp test_flow_batch_scenario
+          build_and_run tests/sim/test_burner_supervisory_scenario.cpp test_burner_supervisory_scenario
+          build_and_run tests/sim/test_incinerator_supervisory_scenario.cpp test_incinerator_supervisory_scenario
+          build_and_run tests/sim/test_sim_fault_injection.cpp test_sim_fault_injection
+
+  target-bringup-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install PlatformIO
+        run: pip install platformio
+      - name: Compile Stage 27 bring-up target
+        run: pio run -e lilygo_t3_v161_bringup
+      - name: Compile Stage 29/30 bench/web target
+        run: pio run -e lilygo_t3_v161_bench_web

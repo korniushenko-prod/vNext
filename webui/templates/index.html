@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Template Engine</title>
+  <link rel="stylesheet" href="templates.css">
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Stage 23</p>
+      <h1>Template Engine</h1>
+      <p class="lede">Generate safe runtime bundles from curated templates. Programs, rules and PID controllers are created disabled by default, and apply is blocked while any Sequence program is active.</p>
+    </header>
+
+    <section class="panel">
+      <h2>Template Catalog</h2>
+      <label class="field-label" for="templateKind">Template Kind</label>
+      <select id="templateKind" aria-label="Template selector"></select>
+      <p id="templateDescription" class="muted"></p>
+      <div class="callout safe-callout">
+        <strong>Safe by default</strong>
+        <p id="disabledNote" class="muted">Generated programs, rules and PID controllers are created disabled. Nothing auto-starts or auto-enables after apply.</p>
+      </div>
+      <p id="supervisoryNotice" class="warning-text hidden"></p>
+    </section>
+
+    <section class="grid">
+      <section class="panel">
+        <h2>Bindings</h2>
+        <p class="muted">Bindings are driven by semantic slots and runtime catalogs exposed by the Template API.</p>
+        <div id="bindings"></div>
+      </section>
+      <section class="panel">
+        <h2>Parameters</h2>
+        <p class="muted">Parameters stay typed and range-checked before preview and apply.</p>
+        <div id="parameters"></div>
+      </section>
+    </section>
+
+    <section class="panel">
+      <h2>Preview</h2>
+      <p class="muted">Run preview before apply. Apply remains disabled while the draft is invalid.</p>
+      <div class="actions">
+        <button id="previewButton" type="button">Preview Bundle</button>
+        <button id="applyButton" type="button" disabled>Apply Bundle</button>
+      </div>
+      <div id="banner" class="banner hidden"></div>
+      <div id="previewSummary" class="preview-summary"></div>
+      <div id="previewArtifacts" class="artifact-list"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Warnings & Issues</h2>
+      <p class="muted">Validation issues, supervisory warnings and missing optional safety slots appear here before apply.</p>
+      <ul id="issues" class="issue-list"></ul>
+    </section>
+  </main>
+  <script src="templates.js"></script>
+</body>
+</html>

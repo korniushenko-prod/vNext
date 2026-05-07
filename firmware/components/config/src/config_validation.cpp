@@ -255,15 +255,15 @@ ValidationResult validate_config(const DeviceConfig& config) {
   validate_unique_ids(config.board.motor_pins, "board.motor_pins", result);
   validate_unique_ids(config.board.display_pins, "board.display_pins", result);
 
-  const input_ids = collect_ids(config.inputs);
-  const relay_ids = collect_ids(config.relays);
-  const pulse_input_ids = collect_ids(config.pulse_inputs);
-  const timer_ids = collect_ids(config.timers);
-  const actuator_ids = collect_actuator_ids(config);
-  const stepper_ids = collect_ids(config.steppers);
-  const motor_ids = collect_ids(config.motors);
-  const pwm_ids = collect_ids(config.pwm_outputs);
-  const known_object_ids = collect_known_object_ids(config);
+  const auto input_ids = collect_ids(config.inputs);
+  const auto relay_ids = collect_ids(config.relays);
+  const auto pulse_input_ids = collect_ids(config.pulse_inputs);
+  const auto timer_ids = collect_ids(config.timers);
+  const auto actuator_ids = collect_actuator_ids(config);
+  const auto stepper_ids = collect_ids(config.steppers);
+  const auto motor_ids = collect_ids(config.motors);
+  const auto pwm_ids = collect_ids(config.pwm_outputs);
+  const auto known_object_ids = collect_known_object_ids(config);
 
   for (std::size_t index = 0; index < config.board.input_pins.size(); ++index) {
     const auto& pin = config.board.input_pins[index];

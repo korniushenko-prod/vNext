@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Program Builder Wizard</title>
+    <link rel="stylesheet" href="./builder.css" />
+  </head>
+  <body>
+    <main class="builder-shell">
+      <header class="hero panel">
+        <div>
+          <p class="eyebrow">Stage 20 Wizard</p>
+          <h1>Program builder</h1>
+          <p class="hero-copy">
+            Create a safe skeleton program, review required bindings and parameters, preview the generated state path,
+            and register it disabled for later review.
+          </p>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card">
+            <span>Transport code</span>
+            <strong id="transport-code">BUILDER_UI_DATA_UNAVAILABLE</strong>
+          </div>
+          <div class="meta-card">
+            <span>Last refresh</span>
+            <strong id="last-refresh">Waiting</strong>
+          </div>
+        </div>
+      </header>
+
+      <section id="error-banner" class="banner error hidden" aria-live="polite"></section>
+      <section id="message-banner" class="banner info hidden" aria-live="polite"></section>
+
+      <nav class="steps panel" aria-label="Wizard steps">
+        <ol>
+          <li>Step 1: Skeleton type</li>
+          <li>Step 2: Program metadata</li>
+          <li>Step 3: Bindings</li>
+          <li>Step 4: Parameters</li>
+          <li>Step 5: Preview</li>
+          <li>Step 6: Create</li>
+        </ol>
+      </nav>
+
+      <section class="grid">
+        <article class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Step 1</p>
+              <h2>Skeleton type selection</h2>
+            </div>
+          </div>
+          <label class="field-group">
+            <span>Skeleton kind</span>
+            <select id="skeleton-select"></select>
+          </label>
+          <div id="skeleton-summary" class="stack-list empty-state">No skeleton selected yet.</div>
+        </article>
+
+        <article class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Step 2</p>
+              <h2>Program metadata</h2>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label class="field-group">
+              <span>Program ID</span>
+              <input id="program-id" type="text" placeholder="plant.pump_1" />
+            </label>
+            <label class="field-group">
+              <span>Program name</span>
+              <input id="program-name" type="text" placeholder="Pump 1" />
+            </label>
+            <label class="field-group field-wide">
+              <span>Description</span>
+              <textarea id="program-description" rows="3" placeholder="Review notes for mechanics and commissioning."></textarea>
+            </label>
+          </div>
+          <div class="note-strip">
+            <strong id="program-type-label">custom</strong>
+            <span>Program type follows the selected skeleton.</span>
+          </div>
+        </article>
+
+        <article class="panel wide-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Step 3</p>
+              <h2>Signal, actuator, timer and alarm bindings</h2>
+            </div>
+          </div>
+          <div id="binding-fields" class="stack-list empty-state">Choose a skeleton to see required bindings.</div>
+        </article>
+
+        <article class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Step 4</p>
+              <h2>Required parameters</h2>
+            </div>
+          </div>
+          <div id="parameter-fields" class="stack-list empty-state">This skeleton does not require parameters yet.</div>
+        </article>
+
+        <article class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Step 5</p>
+              <h2>Preview</h2>
+            </div>
+            <button id="preview-button" class="action-button secondary-button">Refresh preview</button>
+          </div>
+          <div id="preview-note" class="note-strip warn-strip">
+            Created programs stay disabled by default in this stage and never auto-start.
+          </div>
+          <div id="preview-issues" class="stack-list empty-state">Preview issues will appear here.</div>
+          <div id="preview-states" class="stack-list empty-state">No generated state list yet.</div>
+          <div id="preview-transitions" class="stack-list empty-state">No transition summary yet.</div>
+        </article>
+
+        <article class="panel wide-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Step 6</p>
+              <h2>Create</h2>
+            </div>
+            <button id="create-button" class="action-button">Create disabled program</button>
+          </div>
+          <div class="command-explain">
+            <p id="create-note">
+              Preview must be valid before create. Advanced state editing and output matrix editing arrive in later stages.
+            </p>
+          </div>
+          <div id="create-result" class="stack-list empty-state">No create attempt yet.</div>
+        </article>
+      </section>
+    </main>
+
+    <script src="./builder.js"></script>
+  </body>
+</html>
